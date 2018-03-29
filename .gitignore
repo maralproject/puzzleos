@@ -1,0 +1,6 @@
+*.txt
+*.log
+cache
+configs
+user_data
+user_private

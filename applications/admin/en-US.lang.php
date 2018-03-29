@@ -1,0 +1,93 @@
+<?php
+defined("__POSEXEC") or die("No direct access allowed!");
+__requiredSystem("1.2.2") or die("You need to upgrade the system");
+/**
+ * PuzzleOS
+ * Build your own web-based application
+ * 
+ * @package      maral.puzzleos.core.admin
+ * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
+ * @copyright    2014-2017 MARAL INDUSTRIES
+ * 
+ * @software     Release: 1.1.1
+ */
+ 
+return array(
+	"TURN_OFF"					=> "Turn off",
+	"TURN_ON"					=> "Turn on",
+	"RND"						=> "Register new domain",
+	"MANAGING"					=> "NOW MANAGING",
+	"DEF_APP_USED"				=> "An app still being used as homepage",
+	"DEF_TMPL_USED"				=> "A template still being used",
+	"ERROR_REPORTING"			=> "Error Reporting",
+	"ERROR"						=> "Error",
+	"INFO"						=> "Information",
+	"WARNING"					=> "Warning",
+	"SUCCESS"					=> "Success",
+	"DEBUG_MODE"				=> "Debug mode",
+	"NORMAL_REPORT"				=> "Normal mode",
+	"NONE"						=> "None",
+	"INFO1"						=> "Display all errors. Including unuseful error message.",
+	"INFO2"						=> "Display normal and important error.",
+	"INFO3"						=> "No error will be displayed.",
+	"DATABASE"					=> "Database",
+	"INFO4"						=> "Never access this place if you don't know what are you doing.",
+	"USERNAME"					=> "Username",
+	"NO_PASSWORD"				=> "No password",
+	"UNCHANGED"					=> "Password Unchanged",
+	"HOST"						=> "Host",
+	"ADDITIONAL_OPTIONS"		=> "Additional Options",
+	"SITE_NAME"					=> "Site Name",
+	"SITE_URL"					=> "Site URL",
+	"ROOT_DIRECTORY"			=> "Root Directory",
+	"COPYRIGHT"					=> "Copyright Text",
+	"META_DESCRIPTION"			=> "Meta Description",
+	"MAILER_OPTIONS"			=> "Mailer Options",
+	"EMAIL_FROM"				=> "Email Sender Address",
+	"EMAIL_NAME"				=> "Email Sender Name",
+	"LANG_AVAILABILITY"			=> "Localization availability",
+	"ADD_LANG"					=> "Add localization",
+	"NO_LANGUAGE_SELECTED"		=> "No language is selected!",
+	"INSTALL_PACKAGE"			=> "Install Puzzle",
+	"PACKAGE_MUST_BE_IN"		=> "Puzzle must be in",
+	"OTHERWISE_CANNOT_INSTALL"	=> "Otherwise, it cannot be installed.",
+	"FORCE_INSTALL"				=> "Force install unverified Puzzle",
+	"RISK_YOURS"				=> "The risk is your own.",
+	"INSTALL"					=> "Install",
+	"UNINSTALL_PACKAGE"			=> "Uninstall Puzzle",
+	"SAVE_THOSE_SETTINGS"		=> "Save these settings?",
+	"SAVE"						=> "Save",
+	"SAVE_ON"					=> "Save on",
+	"ROLLBACK"					=> "Rollback",
+	"UNSIGNED_PKG_MAY_VIRUS"	=> "Unverified Puzzle may contains viruses or unwanted content that can harm for the system",
+	"UNEXPECTED_ROLL_BACK"		=> "Unexpected things happened while installing. Rolling back...",
+	"PACKAGE_LASTEST"			=> "Puzzle already installed by the lastest version",
+	"PACKAGE_SIGN_FALSE"		=> "Puzzle is not signed correctly",
+	"PACKAGE_NO_INSTALLER"		=> "No installer file inside the Puzzle",
+	"PACKAGE_CANNOT_EXTRACT"	=> "Cannot extract Puzzle",
+	"PACKAGE_CANNOT_OPEN"		=> "Cannot open Puzzle",
+	"CONFIGURATION_UPDATED"		=> "Configuration updated!",
+	"PACKAGE_INSTALLED"			=> "Puzzle installed!",
+	"PACKAGE_UNINSTALLED"		=> "Puzzle uninstalled!",
+	"ACTION_FAILED"				=> "Action failed!",
+	"PACKAGE_CANNOT_PARSE"		=> "Cannot parse installer file!",
+	"SET_AS_DEFAULT"			=> "Set as homepage",
+	"NOT_AVAILABLE"				=> "Not available",
+	"CURRENTLY_DEFAULT"			=> "Currently homepage",
+	"MANAGE"					=> "Manage",
+	"NO_APPS"					=> "No apps can be managed",
+	"UNINSTALL_THIS_PKG"		=> "Uninstall this Puzzle?",
+	"VERSION_LOW"				=> "The system needs to be upgraded before installing this Puzzle",
+	"SMTP_NO_ENC"				=> "None",
+	"USE_SMTP_AUTH"				=> "Use SMTP authentication",
+	"USE_SMTP_EN"				=> "Use SMTP to send email",
+	"PORT"						=> "Port",
+	"EMAIL_TEST"				=> "Try sending email!",
+	"SMTP_OPTION"				=> "SMTP Settings",
+	"INSTALL_LANG"				=> "Install",
+	"REMOVE_LANG"				=> "Remove",
+	"NO_PUZZLE"					=> "No Puzzle installed",
+	"MDOMAIN"					=> "Multidomain Option",
+	"MDOMAIN_ASK"				=> "Allow PuzzleOS to serve multi-domain web server",
+)
+?>

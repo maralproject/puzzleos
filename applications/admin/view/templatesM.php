@@ -1,0 +1,67 @@
+<?php
+defined("__POSEXEC") or die("No direct access allowed!");
+__requiredSystem("1.2.2") or die("You need to upgrade the system");
+/**
+ * PuzzleOS
+ * Build your own web-based application
+ * 
+ * @package      maral.puzzleos.core.admin
+ * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
+ * @copyright    2014-2017 MARAL INDUSTRIES
+ * 
+ * @software     Release: 1.1.3
+ */
+?>
+<?php ob_start()?>
+<style>
+.tmpl .col {
+	cursor:pointer;
+	text-align:center;
+	border:1px solid #e0e0e0;
+}
+.tmpl .col:hover{
+	background-color:#e0e0e0;
+}
+.tmpl .col:active{
+	background-color:#a0a0a0;
+	color:white;
+}
+.tmpl .col:first-child { margin-left: 0; }
+
+.tmpl .selected_t:before{
+	color:white;
+	content:"\f058";
+	font-family:FontAwesome;
+	font-size:40pt;
+    position: absolute;
+	bottom:10px;
+	left:10px;
+	text-shadow: 0px 0px 12px rgba(150, 150, 150, 1);
+}
+
+.tmpl .selected_t{
+	position:relative;
+	background-color:#606060!important;
+	cursor:default!important;
+	border:1px solid #606060;
+}
+
+.tmpl .selected_t h5{	
+	color:white!important;
+}
+</style><?php echo FastCache::getCSSFile()?>
+<div class="tmpl row" style="margin-left:5px;margin-right:5px;">
+	<?php
+		foreach(Template::listAll() as $d){
+			$link = 'onclick="window.location=\''.__SITEURL.'/admin/changeTemplate/'.$d["name"].'\';"';
+			$preview = glob(__ROOTDIR . "/templates/".$d["name"]."/preview.*");
+			$preview = str_replace(__ROOTDIR,"",$preview[0]);
+			echo('
+			<div style="margin:0px;" class="col col-md-4 '.($d["active"] == 1?"selected_t":"").'" '.($d["active"] == 1?"":$link).'>
+				<div style="background-image:url(\''.$preview.'\');background-repeat:no-repeat;background-size:contain;width:100%;height:180px;background-position:center;"></div>
+				<h5>'.$d["title"].'</h5>
+			</div>
+			');
+		}
+	?>
+</div>

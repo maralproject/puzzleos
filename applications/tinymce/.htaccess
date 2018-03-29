@@ -1,0 +1,6 @@
+#Allow html files inside this folder
+
+<FilesMatch "\.(html|css|js)$">
+	Order Allow,Deny
+	Allow from all
+</FilesMatch>
