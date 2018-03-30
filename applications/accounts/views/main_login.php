@@ -23,7 +23,7 @@ if(!isset($_GET["redir"])) $_GET["redir"] = "";
 	<form onsubmit="$(this).find('button').prop('disabled',true);$(this).find('input').trigger('blur')" action="<?php echo __SITEURL?>/users/login" method="post" style="text-align:center;">
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input required name="user" autocomplete="off" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
+		  <input required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
 		</div><br>
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>

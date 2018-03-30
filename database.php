@@ -78,7 +78,8 @@ class DatabaseTableBuilder{
 	public function addColumn($name, $type="TEXT"){
 		if(strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		$this->selectedColumn = $name;
-		$this->arrayStructure[$this->selectedColumn] = array($type,false,false,"");
+		//Structure = [Type", PRIMARY, AllowNULL, Default]
+		$this->arrayStructure[$this->selectedColumn] = [$type,false,false,NULL];
 		return $this;
 	}
 	
@@ -115,7 +116,7 @@ class DatabaseTableBuilder{
 	
 	public function defaultValue($str){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][3] = $str;
+		$this->arrayStructure[$this->selectedColumn][3] = (string)$str;
 		return $this;
 	}
 	
@@ -183,7 +184,8 @@ class Database{
 		}
 		//See Database caching performance
 		if(defined("DB_DEBUG")){
-			file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
+			$re = debug_backtrace()[1];
+			file_put_contents(__ROOTDIR . "/db.log",$re["file"].":".$re["line"]."\r\n\t$query\r\n\r\n",FILE_APPEND);
 		}
 		$r = mysqli_query(self::$link,$query);
 		if(!$r){
@@ -732,7 +734,7 @@ class Database{
 			$query = "CREATE TABLE `".$table."` ( ";
 			foreach($structure as $k=>$d){
 				if($d[1]) $pkey = $k;
-				$ds = (($d[3] !== "0" && empty($d[3])) ? "" : "DEFAULT ".$d[3]);
+				$ds = (($d[3] === NULL) ? "" : "DEFAULT '".$d[3]."'");
 				$ds = ($d[3] === "AUTO_INCREMENT"? "AUTO_INCREMENT" : $ds);
 				
 				$query .= "`".$k."` ".strtoupper($d[0])." ".($d[2] === true ? "NULL" : "NOT NULL")." ".$ds.",";
@@ -792,7 +794,7 @@ class Database{
 				if($d[1]) $pkey = $k;
 				if($a[$k][2] != 1){
 					//Add new column					
-					$ds = (($d[3] !== "0" && empty($d[3])) ? "" : "DEFAULT '".$d[3]."'");
+					$ds = (($d[3] === NULL) ? "" : "DEFAULT '".$d[3]."'");
 					$ds = ($d[3] === "AUTO_INCREMENT"? "AUTO_INCREMENT" : $ds);
 					if($d[3] === "AUTO_INCREMENT"){
 						//In this part, we don't care much about null value, since auto_increment always not_null.

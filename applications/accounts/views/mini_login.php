@@ -20,7 +20,7 @@ if(!isset($_GET["redir"])) $_GET["redir"] = "";
 	<form action="<?php echo __SITEURL?>/users/login" method="post">
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input name="user" autocomplete="off" type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
+		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
 		</div><br>
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
