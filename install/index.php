@@ -349,6 +349,12 @@ if($_POST["finale"] == "yes"){
 						<?php echo (function_exists("parse_ini_file") ? "Yes" : "No") ?>						
 					</div>
 				</div><br>
+				<div class="row">
+					<label class="col-xs-9 control-label">PHP JPEG GD Support</label>
+					<div class="col-xs-3 row phpcheck" style="margin:0px;">
+						<?php echo (function_exists("imagecreatefrompng") ? "Yes" : "No") ?>						
+					</div>
+				</div><br>
 				<script>$(".phpcheck").filter(function(){return $(this).html().trim()=="No"}).css("color","red");</script>
 				<button next-tab="step2" type="button" class="tabSwitch back btn btn-primary btn-big">Back</button>
 				<button type="button" class="submit btn btn-success btn-big">Install</button><br><br>
