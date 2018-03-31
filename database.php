@@ -357,6 +357,7 @@ class Database{
 	
 	/**
 	 * Get last Id or any value from specific column
+	 * NOTE!: This function only implement MAX() function from mysql
 	 * @param string $table Table Name
 	 * @param string $col Column Name
 	 * @param string $arg Additional custom parameter
