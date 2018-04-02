@@ -11,6 +11,11 @@ defined("__POSEXEC") or diedefined("__POSEXEC") or die("No direct access allowed
  * @software     Release: 1.2.3
  */
 
+if(!defined("__POS_CLI")){
+	if(PHP_SAPI == "cli") 
+		die("PuzzleOS\r\n========\r\nPlease call puzzleos.php from CLI instead from index.php\r\n\r\n");
+}
+ 
 define("__SYSTEM_NAME", "PuzzleOS");
 define("__POS_VERSION", "1.2.3");
 define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
