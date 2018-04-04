@@ -1,6 +1,6 @@
 # PuzzleOS
 
-Merupakan sebuah framework PHP.
+Another awesome platform to create your own modular web based PHP applications
 
 ## Getting started
 
