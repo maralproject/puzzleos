@@ -1,0 +1,47 @@
+<?php
+/**
+ * PuzzleOS
+ * Build your own web-based applications
+ * 
+ * @desc  Define the main configuration files for this Software and Server
+ */
+
+/**
+ * Define database credentials - only for MySQL
+ */
+/* Please configure database from root.sys.php */
+
+/**
+ * Mailer Settings
+ * Some SMTP Relayer doesn't allow to use fake email address
+ */
+ConfigurationMailer::$From = "%MAIL_FROM%";
+ConfigurationMailer::$Sender = "%MAIL_SENDER%";
+ConfigurationMailer::$UsePHP = %MAIL_USEPHP%;
+
+ConfigurationMailer::$smtp_host = "%SMTP_HOST%";
+ConfigurationMailer::$smtp_username = "%SMTP_USER%";
+ConfigurationMailer::$smtp_password = "%SMTP_PASS%";
+ConfigurationMailer::$smtp_encryption = "%SMTP_ENCR%";
+ConfigurationMailer::$smtp_port = %SMTP_PORT%;
+ConfigurationMailer::$smtp_use_auth = %SMTP_AUTH%;
+ 
+/**
+ * Define the error report code for php
+ */
+ConfigurationGlobal::$error_code = %ERR_CODE%;
+
+/**
+ * Define if server can server multidomain functionality
+ */
+ConfigurationGlobal::$use_multidomain = %USE_MDM%;
+
+/**
+ * Additional Settings
+ */
+ConfigurationGlobal::$default_language = "%LANG%";
+ConfigurationGlobal::$sitename = "%SITENAME%";
+ConfigurationGlobal::$timezone = "%TIMEZONE%";
+ConfigurationGlobal::$copyright = "%COPYRIGHT%";
+ConfigurationGlobal::$meta_description = "%META_DESC%";
+?>
