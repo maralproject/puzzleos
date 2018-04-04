@@ -1,5 +1,5 @@
 <?php
-defined("__POSEXEC") or diedefined("__POSEXEC") or die("No direct access allowed!");
+defined("__POSEXEC") or die("No direct access allowed!");
 /**
  * PuzzleOS
  * Build your own web-based application
