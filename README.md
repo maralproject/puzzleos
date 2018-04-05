@@ -10,7 +10,7 @@ Download repository ini dan masukkan ke dalam / (root directory), lalu buka / pa
 
 ### Basics
 
-Terdapat dua folder utama yang perlu diperhatikan saat menggunakan PuzzleOS: _application_ dan _template_. Folder _application_ berisi semua aplikasi yang dapat dijalankan oleh PuzzleOS. Folder _template_ berisi semua template yang dapat digunakan oleh aplikasi (dalam folder _application_) PuzzleOS. Untuk informasi lebih lengkap tentang cara membuat aplikasi PuzzleOS, silahkan buka [BuatAplikasi.md](BuatAplikasi.md). Selain itu, Anda bisa menggunakan aplikasi dan template dari luar -- cukup masukkan dalam folder *application* dan *template*.
+Terdapat dua folder utama yang perlu diperhatikan saat menggunakan PuzzleOS: _application_ dan _template_. Folder _application_ berisi semua aplikasi yang dapat dijalankan oleh PuzzleOS. Folder _template_ berisi semua template yang dapat digunakan oleh aplikasi (dalam folder _application_) PuzzleOS. Untuk informasi lebih lengkap tentang cara membuat aplikasi dan template PuzzleOS, silahkan buka [BuatAplikasi.md](BuatAplikasi.md) dan [BuatTemplate.md](BuatTemplate.md). Selain itu, Anda bisa menggunakan aplikasi dan template dari luar -- cukup masukkan dalam folder *application* dan *template*.
 
 
 

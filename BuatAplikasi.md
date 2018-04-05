@@ -43,7 +43,7 @@ menus=
 
   - `canBeDefault=1`: dapat dijadikan sebagai *default page*
 
-- `services` menentukan file-file yang digunakan sebagai *service* aplikasi. Setiap penambahan file dalam `services` dipisahkan dengan koma.
+- `services` menentukan file-file yang digunakan sebagai *service* aplikasi. Setiap penambahan file dalam `services` dipisahkan dengan koma. File-file yang disebutkan dalam parameter ini akan dijalankan di dalam lingkungan PuzzleOS meskipun aplikasi terkait tidak dijalankan.
 
   Contoh: `services=background.php,run.php,manage.php`
 
@@ -61,7 +61,32 @@ menus=
 
 #### 2. viewPage.php
 
-File ini berisi tampilan utama dari sebuah aplikasi. 
+File ini berisi tampilan utama dari sebuah aplikasi. File ini di-*load* oleh template dengan `$tmpl->navigation->loadMainView()`. Untuk membuat lebih dari satu *view* pada aplikasi, *view* dapat dipisah ke file yang berbeda, kemudian menggunakan `__getURI("action")` untuk mendapatkan nama *action* tertentu.
+
+Contoh: 
+
+**viewPage.php:**
+
+```php+HTML
+<?php
+switch(__getURI("action")) {
+    case "halaman1": include ("halaman1.php");
+    break;
+}
+?>
+```
+
+**halaman1.php:**
+
+```php+HTML
+<h1>
+    Selamat datang di halaman 1.
+</h1>
+```
+
+Kemudian buka /(nama aplikasi)/halaman1
+
+
 
 #### 3. control.php
 
@@ -71,11 +96,7 @@ File ini berisi PHP script yang akan dieksekusi sebelum aplikasi ditampilkan.
 
 File ini berisi struktur tabel untuk digunakan oleh aplikasi. Tabel ini dapat diakses dengan nama "app\_(nama aplikasi)\_(nama tabel)". Untuk formatting tabel dan database dapat dilihat di dokumentasi [Database](Database.md) (dokumentasi ini belum lengkap).
 
-#### 5. viewSmall.php
-
-File ini berisi konten widget
-
-#### 6. (kode bahasa negara).lang.php
+#### 5. (kode bahasa negara).lang.php
 
 File ini berisi konfigurasi bahasa.
 
