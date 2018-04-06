@@ -94,7 +94,7 @@ File ini berisi PHP script yang akan dieksekusi sebelum aplikasi ditampilkan.
 
 #### 4. (nama tabel).table.php
 
-File ini berisi struktur tabel untuk digunakan oleh aplikasi. Tabel ini dapat diakses dengan nama "app\_(nama aplikasi)\_(nama tabel)". Untuk formatting tabel dan database dapat dilihat di dokumentasi [Database](Database.md) (dokumentasi ini belum lengkap).
+File ini berisi struktur tabel untuk digunakan oleh aplikasi. Tabel ini dapat diakses dengan nama "app\_(nama aplikasi)\_(nama tabel)". Untuk formatting tabel dan database dapat dilihat di dokumentasi [Database](Classes.md#database-databasephp) (dokumentasi ini belum lengkap).
 
 #### 5. (kode bahasa negara).lang.php
 
