@@ -17,9 +17,9 @@ defined("__POSEXEC") or die("No direct access allowed!");
 <?php ob_start();?>
 <style type="text/css">
 @media(max-width:786px){
-	#confirmation_bar button, #confirmation_bar input[type=button], #confirmation_bar input[type=submit]{
-		font-size:13px!important;
-		padding: 5px 10px!important;
+	.modal-footer button,#confirmation_bar button, #confirmation_bar input[type=button], #confirmation_bar input[type=submit]{		
+		padding:10px;
+		font-size:12px;
 	}
 }
 #confirmation_bar{
@@ -139,11 +139,6 @@ defined("__POSEXEC") or die("No direct access allowed!");
 	padding: 20px;
 	display:none;
 }
-.systemMessage_wrap .systemMessage ul li::before{
-	content:'\f05a';
-	font-family:FontAwesome;
-	padding-right: 10px;
-}
 </style>
 <?php 
 	echo FastCache::getCSSFile();
@@ -156,7 +151,7 @@ function showMessage(data,type,key,auto_dismiss){
 	if(auto_dismiss === undefined) auto_dismiss = true;
 	var ad = "yes";
 	if(auto_dismiss === false) ad = "no";
-	$(".systemMessage_wrap").append('<div auto_dismiss="' + ad + '" class="systemMessage m_' + key + ' alert-'+type+'"><button onclick="hideMessage()" type="button" class="close">×</button><ul><li>' + data + '</li></ul></div>');	
+	$(".systemMessage_wrap").append('<div auto_dismiss="' + ad + '" class="systemMessage m_' + key + ' alert-'+type+'"><button onclick="hideMessage()" type="button" class="close">×</button><ul><li>' + data + '</li></ul></div>');
 	slideMessage();
 }
 function dismissMessage(key){
