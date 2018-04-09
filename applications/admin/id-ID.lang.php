@@ -89,5 +89,8 @@ return array(
 	"NO_PUZZLE"					=> "Tidak ada Puzzle",
 	"MDOMAIN"					=> "Opsi Multi-domain",
 	"MDOMAIN_ASK"				=> "Izinkan PuzzleOS untuk menyajikan website di berbagai domain",
+	"MZ"						=> "Kelola zona",
+	"ROD"						=> "Hapus domain",
+	"CRD"						=> "Zona domain tidak boleh kurang dari satu",
 )
 ?>

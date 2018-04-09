@@ -40,7 +40,7 @@ $l = new Language;
 			</label>
 			
 			<?php if(ConfigurationGlobal::$use_multidomain):?>
-			<br><br><button type="button" data-toggle="modal" data-target="#domain_dlg" class="btn-sm btn btn-info">Kelola zona</button>
+			<br><br><button type="button" data-toggle="modal" data-target="#domain_dlg" class="btn-sm btn btn-info"><?php $l->dump("mz")?></button>
 			<?php endif?>
 		</fieldset>
 	</div>
@@ -171,8 +171,8 @@ $l = new Language;
 			<div class="modal-body" style="padding-top:0">
 				<div style="margin-bottom:10px">
 					<ul class="nav nav-pills nav-justified" style="margin-top:0">
-						<li class="active"><a data-toggle="tab" href="#md_reg">Daftarkan domain baru</a></li>
-						<li><a data-toggle="tab" href="#md_man">Hapus domain</a></li>
+						<li class="active"><a data-toggle="tab" href="#md_reg"><?php $l->dump("rnd")?>u</a></li>
+						<li><a data-toggle="tab" href="#md_man"><?php $l->dump("rod")?></a></li>
 					</ul>
 				</div>
 				<div class="tab-content">
@@ -198,7 +198,7 @@ $l = new Language;
 									<?php endforeach?>
 								</select>
 								<span class="input-group-btn">
-									<button class="btn btn-danger" type="button" onclick="$('#mdomain_list').trigger('rmd')">Hapus domain</button>
+									<button class="btn btn-danger" type="button" onclick="$('#mdomain_list').trigger('rmd')"><?php $l->dump("rod")?></button>
 								</span>
 							</div>
 						</div>
@@ -215,7 +215,7 @@ $l = new Language;
 $('#mdomain_list').on('rmd',function(e){
 	let x=$(this);
 	if(x.find("option").length <= 1){
-		showMessage("Zona domain tidak boleh kurang dari satu","danger");
+		showMessage("<?php $l->dump('crd')?>","danger");
 		return;
 	}
 	if(!confirm("Hapus domain ini?")) return;

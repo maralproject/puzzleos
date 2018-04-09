@@ -89,5 +89,8 @@ return array(
 	"NO_PUZZLE"					=> "No Puzzle installed",
 	"MDOMAIN"					=> "Multidomain Option",
 	"MDOMAIN_ASK"				=> "Allow PuzzleOS to serve multi-domain web server",
+	"MZ"						=> "Manage Domain",
+	"ROD"						=> "Remove domain",
+	"CRD"						=> "Domain cannot be less than one",
 )
 ?>
