@@ -171,7 +171,7 @@ $l = new Language;
 			<div class="modal-body" style="padding-top:0">
 				<div style="margin-bottom:10px">
 					<ul class="nav nav-pills nav-justified" style="margin-top:0">
-						<li class="active"><a data-toggle="tab" href="#md_reg"><?php $l->dump("rnd")?>u</a></li>
+						<li class="active"><a data-toggle="tab" href="#md_reg"><?php $l->dump("rnd")?></a></li>
 						<li><a data-toggle="tab" href="#md_man"><?php $l->dump("rod")?></a></li>
 					</ul>
 				</div>
