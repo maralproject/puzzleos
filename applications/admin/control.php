@@ -90,6 +90,17 @@ if(__getURI("app") == "admin"){
 			redirect("admin");
 		}
 		die();
+	}else if(__getURI("action") == "rmDomain"){
+		if($_POST["trueForm"] == 1){
+			try{
+				if(ConfigurationMultidomain::removeDomain($_POST["domain"]) == true) die("yes");			
+			}catch(PuzzleError $e){
+				die($e->getMessage());
+			}
+		}else{
+			redirect("admin");
+		}
+		die();
 	}else if(__getURI("action") == "testEmailSend"){
 		$test = new Mailer();
 		$test->addRecipient = $_POST["des"];

@@ -241,6 +241,15 @@ if(IO::exists("/install")){
 }
 
 /***********************************
+ * If ALWAYS_HTTPS is on, make sure
+ * the client served over HTTPS
+ ***********************************/
+if( __HTTP_PROTOCOL == "http://" && defined("ALWAYS_HTTPS")){
+	header("Location: ".str_replace("http://","https://",__SITEURL));
+	exit;
+}
+
+/***********************************
  * All depedencies have been loaded
  ***********************************/
 require_once("templates.php");

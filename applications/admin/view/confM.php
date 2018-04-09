@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.1.3") or die("You need to upgrade the system");
+__requiredSystem("1.2.3") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -14,13 +14,6 @@ __requiredSystem("1.1.3") or die("You need to upgrade the system");
 
 $l = new Language;
 ?>
-<style>
-	@media(min-width:1020px){
-		.label-control{
-			text-align:right;
-		}
-	}
-</style>
 <div class="row">
 	<div class="col-md-6">	
 		<legend style="margin-bottom:0;"><?php $l->dump("ERROR_REPORTING")?></legend>
@@ -34,7 +27,7 @@ $l = new Language;
 		  <?php $l->dump("NORMAL_REPORT")?>
 		</label>
 		<label class="radio">
-		  <input type="radio" data-toggle="tooltip" title="<?php $l->dump("INFO3")?>" name="ep" value="<?php echo (0)?>"  <?php if(error_reporting() == 0) echo("checked");?>>
+		  <input type="radio" data-toggle="tooltip" title="<?php $l->dump("INFO3")?>" name="ep" value="<?php echo 0?>"  <?php if(error_reporting() == 0) echo("checked");?>>
 		  <?php $l->dump("NONE")?>
 		</label>
 		</fieldset>
@@ -45,22 +38,11 @@ $l = new Language;
 			<label class="checkbox-inline"><input type="checkbox" id="allow_mdomain" name="allow_mdomain" <?php if(ConfigurationGlobal::$use_multidomain) echo "checked";?>/>
 				<?php $l->dump("mdomain_ask")?>
 			</label>
+			
+			<?php if(ConfigurationGlobal::$use_multidomain):?>
+			<br><br><button type="button" data-toggle="modal" data-target="#domain_dlg" class="btn-sm btn btn-info">Kelola zona</button>
+			<?php endif?>
 		</fieldset>
-		<?php if(ConfigurationGlobal::$use_multidomain):?>
-		<div class="row" style="max-width:600px;">
-			<div class="col-md-3 label-control"><?php $l->dump("rnd")?>:</div>
-			<div class="col-md-9">
-				<div class="input-group">
-				  <input type="text" class="form-control" id="newDomain" placeholder="subdomain.domain.com">
-				  <span class="input-group-btn">
-					<button class="btn btn-default" type="button" onclick="let e=jQuery.Event('keypress');e.keyCode=13;$('#newDomain').trigger(e);"><?php $l->dump("save")?></button>
-				  </span>
-				</div>
-			</div>
-		</div><br>
-		<div><span class="label label-success"><?php $l->dump("MANAGING")?></span> <?php echo PuzzleOSGlobal::$domain_zone?></div>
-		<br><br>
-		<?php endif;?>
 	</div>
 </div>
 <div class="row">
@@ -109,74 +91,145 @@ $l = new Language;
 	</div>
 </div>
 <div class="row">
-<div class="col-md-6" style="margin-bottom:10px;">
-<legend style="margin-bottom:10px;"><?php $l->dump("MAILER_OPTIONS")?></legend>
-<fieldset style="max-width:600px;">
-<div class="input-group" style="padding:5px;">
-	  <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
-	  <input type="text" class="form-control" name="mailfrom" placeholder="<?php $l->dump("EMAIL_FROM")?>" value="<?php echo ConfigurationMailer::$From?>">
-</div>
-<div class="input-group" style="padding:5px;">
-	  <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-	  <input type="text" class="form-control" name="mailname" placeholder="<?php $l->dump("EMAIL_NAME")?>" value="<?php echo ConfigurationMailer::$Sender?>">
-</div>
-<div class="input-group" style="padding:5px;">
-	  <button type="button" onclick="testEmail();" class="btn btn-sm btn-info"><?php $l->dump("email_test")?></button>
-</div>
-</fieldset>
-</div>
-<div class="col-md-6">
-<legend style="margin-bottom:10px;"><?php $l->dump("smtp_option")?></legend>
-<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_details').slideToggle(200);" id="use_smtp" name="use_smtp" <?php if(!ConfigurationMailer::$UsePHP) echo "checked";?>/><?php $l->dump("USE_SMTP_EN")?></label>
-<div id="smtp_details" style="<?php if(ConfigurationMailer::$UsePHP) echo "display:none;";?>">
-<div class="input-group" style="padding:5px 0;">
-	<span class="input-group-addon">
-		<input value="none" type="radio" name="smtp_enc" id="radio0" <?php if(ConfigurationMailer::$smtp_encryption == "none") echo "checked";?>> <label for="radio0"><?php $l->dump("SMTP_NO_ENC")?></label>
-    </span>
-	<span class="input-group-addon">
-		<input type="radio" value="tls" name="smtp_enc" id="radio1" <?php if(ConfigurationMailer::$smtp_encryption == "tls") echo "checked";?>> <label for="radio1">TLS</label>
-    </span>
-	<span class="input-group-addon">
-		<input type="radio" value="ssl" name="smtp_enc" id="radio2" <?php if(ConfigurationMailer::$smtp_encryption == "ssl") echo "checked";?>> <label for="radio2">SSL</label>
-    </span>
-</div><br>
-<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_auth_details').slideToggle(200);" id="use_smtp_auth" name="smtp_auth" <?php if(ConfigurationMailer::$smtp_use_auth) echo "checked";?>/><?php $l->dump("use_smtp_auth")?></label>
-<div id="smtp_auth_details" style="<?php if(!ConfigurationMailer::$smtp_use_auth) echo "display:none;";?>">
-<div class="input-group" style="padding:5px 0;">
-	  <span class="input-group-addon"><i class="fa fa-user"></i></span>
-	  <input type="text" class="form-control" placeholder="<?php $l->dump("username")?>" name="smtp_user" value="<?php echo ConfigurationMailer::$smtp_username;?>">
-</div>
-<div class="input-group" style="padding:5px 0;">
-	  <span class="input-group-addon"><i class="fa fa-key"></i></span>
-	  <input type="password" class="form-control" name="smtp_pass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo ConfigurationMailer::$smtp_password;?>">
-</div>
-</div>
-<div class="input-group" style="padding:5px 0;">
-	  <span class="input-group-addon"><i class="fa fa-server"></i></span>
-	  <input type="text" class="form-control" name="smtp_host" placeholder="<?php $l->dump("host")?>" value="<?php echo ConfigurationMailer::$smtp_host;?>">
-</div>
-<div class="input-group" style="padding:5px 0;">
-	  <span class="input-group-addon"><i class="fa fa-wrench"></i></span>
-	  <input type="text" class="form-control" name="smtp_port" type="number" pattern="[0-9]*" inputmode="numeric" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="<?php $l->dump("port")?>" value="<?php echo ConfigurationMailer::$smtp_port?>">
-</div>
-</div>
-</div>
-</div>
-<div id="te_form" style="display:none!important;">
-<?php $l->dump("email_test")?><br>
-<div class="row" style="margin-top:10px;">
-		<div class="col-xs-12">
-			<table style="width:100%;">
-			<tr>
-				<td><input autocomplete="off" class="emailDes" id="emailDes" style="height:38px;width:100%;margin-right:35px;color:black;padding:5px;" onkeypress="if(event.charCode==13)$(this).closest('table').find('button').click();" type="text" placeholder="someone@example.com"/></td>
-				<td><button style="width:100%;height:38px;" class="btn btn-default" onclick="testEmail($(this).closest('div.row').find('input.emailDes').val());" type="button"><i style="color:inherit;" class="fa fa-check"></i></button></td>
-			</tr>
-			</table>
+	<div class="col-md-6" style="margin-bottom:10px;">
+		<legend style="margin-bottom:10px;"><?php $l->dump("MAILER_OPTIONS")?></legend>
+		<fieldset style="max-width:600px;">
+		<div class="input-group" style="padding:5px;">
+			  <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
+			  <input type="text" class="form-control" name="mailfrom" placeholder="<?php $l->dump("EMAIL_FROM")?>" value="<?php echo ConfigurationMailer::$From?>">
 		</div>
+		<div class="input-group" style="padding:5px;">
+			  <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
+			  <input type="text" class="form-control" name="mailname" placeholder="<?php $l->dump("EMAIL_NAME")?>" value="<?php echo ConfigurationMailer::$Sender?>">
+		</div>
+		<div class="input-group" style="padding:5px;">
+			  <button type="button" onclick="testEmail();" class="btn btn-sm btn-info"><?php $l->dump("email_test")?></button>
+		</div>
+		</fieldset>
+	</div>
+	<div class="col-md-6">
+		<legend style="margin-bottom:10px;"><?php $l->dump("smtp_option")?></legend>
+		<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_details').slideToggle(200);" id="use_smtp" name="use_smtp" <?php if(!ConfigurationMailer::$UsePHP) echo "checked";?>/><?php $l->dump("USE_SMTP_EN")?></label>
+		<div id="smtp_details" style="<?php if(ConfigurationMailer::$UsePHP) echo "display:none;";?>">
+			<div class="input-group" style="padding:5px 0;">
+				<span class="input-group-addon">
+					<input value="none" type="radio" name="smtp_enc" id="radio0" <?php if(ConfigurationMailer::$smtp_encryption == "none") echo "checked";?>> <label for="radio0"><?php $l->dump("SMTP_NO_ENC")?></label>
+				</span>
+				<span class="input-group-addon">
+					<input type="radio" value="tls" name="smtp_enc" id="radio1" <?php if(ConfigurationMailer::$smtp_encryption == "tls") echo "checked";?>> <label for="radio1">TLS</label>
+				</span>
+				<span class="input-group-addon">
+					<input type="radio" value="ssl" name="smtp_enc" id="radio2" <?php if(ConfigurationMailer::$smtp_encryption == "ssl") echo "checked";?>> <label for="radio2">SSL</label>
+				</span>
+			</div><br>
+			<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_auth_details').slideToggle(200);" id="use_smtp_auth" name="smtp_auth" <?php if(ConfigurationMailer::$smtp_use_auth) echo "checked";?>/><?php $l->dump("use_smtp_auth")?></label>
+			<div id="smtp_auth_details" style="<?php if(!ConfigurationMailer::$smtp_use_auth) echo "display:none;";?>">
+				<div class="input-group" style="padding:5px 0;">
+					  <span class="input-group-addon"><i class="fa fa-user"></i></span>
+					  <input type="text" class="form-control" placeholder="<?php $l->dump("username")?>" name="smtp_user" value="<?php echo ConfigurationMailer::$smtp_username;?>">
+				</div>
+				<div class="input-group" style="padding:5px 0;">
+					  <span class="input-group-addon"><i class="fa fa-key"></i></span>
+					  <input type="password" class="form-control" name="smtp_pass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo ConfigurationMailer::$smtp_password;?>">
+				</div>
+			</div>
+			<div class="input-group" style="padding:5px 0;">
+				  <span class="input-group-addon"><i class="fa fa-server"></i></span>
+				  <input type="text" class="form-control" name="smtp_host" placeholder="<?php $l->dump("host")?>" value="<?php echo ConfigurationMailer::$smtp_host;?>">
+			</div>
+			<div class="input-group" style="padding:5px 0;">
+				  <span class="input-group-addon"><i class="fa fa-wrench"></i></span>
+				  <input type="text" class="form-control" name="smtp_port" type="number" pattern="[0-9]*" inputmode="numeric" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="<?php $l->dump("port")?>" value="<?php echo ConfigurationMailer::$smtp_port?>">
+			</div>
+		</div>
+	</div>
 </div>
+
+<div id="te_form" style="display:none!important;">
+	<?php $l->dump("email_test")?><br>
+	<div class="row" style="margin-top:10px;">
+			<div class="col-xs-12">
+				<table style="width:100%;">
+				<tr>
+					<td><input autocomplete="off" class="emailDes" id="emailDes" style="height:38px;width:100%;margin-right:35px;color:black;padding:5px;" onkeypress="if(event.charCode==13)$(this).closest('table').find('button').click();" type="text" placeholder="someone@example.com"/></td>
+					<td><button style="width:100%;height:38px;" class="btn btn-default" onclick="testEmail($(this).closest('div.row').find('input.emailDes').val());" type="button"><i style="color:inherit;" class="fa fa-check"></i></button></td>
+				</tr>
+				</table>
+			</div>
+	</div>
 </div>
+
+<?php if(ConfigurationGlobal::$use_multidomain):?>
+<!-- Domain manager dialog -->
+<div class="modal fade" role="dialog" id="domain_dlg">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><?php echo $l->dump("mdomain")?></h4>
+			</div>
+			<div class="modal-body" style="padding-top:0">
+				<div style="margin-bottom:10px">
+					<ul class="nav nav-pills nav-justified" style="margin-top:0">
+						<li class="active"><a data-toggle="tab" href="#md_reg">Daftarkan domain baru</a></li>
+						<li><a data-toggle="tab" href="#md_man">Hapus domain</a></li>
+					</ul>
+				</div>
+				<div class="tab-content">
+					<div id="md_reg" class="contact_wrap tab-pane active">
+						<div>
+							<div class="input-group">
+								<input type="text" class="form-control" id="newDomain" placeholder="subdomain.domain.com">
+								<span class="input-group-btn">
+									<button class="btn btn-success" type="button" onclick="let e=jQuery.Event('keypress');e.keyCode=13;$('#newDomain').trigger(e);"><?php $l->dump("save")?></button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div id="md_man" class="tr_wrap tab-pane">
+						<div>
+							<div class="input-group">
+								<select class="form-control" id="mdomain_list">
+									<?php foreach(glob(__ROOTDIR . "/configs/*.config.php") as $d): 
+										if(substr($d,0,1) == "{") continue;
+										$d = str_replace(__ROOTDIR . "/configs/","",str_replace(".config.php","",$d));
+									?>
+									<option value="<?php echo htmlentities($d)?>"><?php echo $d?></option>
+									<?php endforeach?>
+								</select>
+								<span class="input-group-btn">
+									<button class="btn btn-danger" type="button" onclick="$('#mdomain_list').trigger('rmd')">Hapus domain</button>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<?php endif;?>
+
 <?php ob_start()?>
 <script>
+$('#mdomain_list').on('rmd',function(e){
+	let x=$(this);
+	if(x.find("option").length <= 1){
+		showMessage("Zona domain tidak boleh kurang dari satu","danger");
+		return;
+	}
+	if(!confirm("Hapus domain ini?")) return;
+	$.post("<?php echo __SITEURL?>/admin/rmDomain",{
+		trueForm:1,
+		domain:x.val()
+	},function(d){
+		if(d == "yes") {
+			showMessage("<?php $l->dump('success')?>","success");			
+			x.find("option[value='"+x.val()+"']").remove();
+		}
+		else showMessage("<?php $l->dump('action_failed')?>","danger");
+	});
+});
 $("#newDomain").on("keypress",function(e){	
 	if(e.keyCode != 13) return true;
 	e.preventDefault();
@@ -191,7 +244,8 @@ $("#newDomain").on("keypress",function(e){
 		domain:x.val()
 	},function(d){
 		if(d == "yes") {
-			showMessage("<?php $l->dump('success')?>","success");			
+			showMessage("<?php $l->dump('success')?>","success");	
+			$('#mdomain_list').append("<option value='"+x.val()+"'>"+x.val()+"</option>");
 			x.val("");
 		}
 		else showMessage("<?php $l->dump('action_failed')?>","danger");

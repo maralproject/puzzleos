@@ -326,7 +326,7 @@ class ConfigurationMultidomain{
 	
 	/**
 	 * Set-up another domain zone in multidomain mode
-	 * @param string $domain_zone Something like "domain.com" or "subdomain.domain.com" without port
+	 * @param string $domain_zone Something like "domain.com" or "subdomain.domain.com" without port, domain with www. will be included in this domain
 	 * @return bool
 	 */
 	public static function addDomain($domain_zone){
@@ -336,6 +336,10 @@ class ConfigurationMultidomain{
 		if(stristr($domain_zone,"/")) throw new PuzzleError("Just input the domain in domain_zone!");
 		if(!is_array(self::$restricted_app)) throw new PuzzleError("Restricted app must be in array!");
 		
+		/* Removing www. from domain */
+		$domain_zone = str_replace("www.","",$domain_zone);
+		
+		//Create new domain_config in database
 		if(Database::read("multidomain_config","host","host",$domain_zone) == ""){
 			if(!Database::newRow("multidomain_config",$domain_zone,self::$default_application,self::$default_template,json_encode(self::$restricted_app))) return false;
 		}
@@ -353,6 +357,26 @@ class ConfigurationMultidomain{
 			
 			return (file_put_contents(__ROOTDIR . "/configs/$domain_zone.config.php",implode("",$root_config)) == FALSE ? false :true);
 		}
+		
+		return true;
+	}
+	
+	public static function removeDomain($domain_zone){
+		if($domain_zone == "{root}" || $domain_zone == "") throw new PuzzleError("Invalid domain zone!");
+		if(stristr($domain_zone,":")) throw new PuzzleError("Please remove port from domain_zone!");
+		if(stristr($domain_zone,"@")) throw new PuzzleError("Please remove credetials from domain_zone!");
+		if(stristr($domain_zone,"/")) throw new PuzzleError("Just input the domain in domain_zone!");
+		if(!is_array(self::$restricted_app)) throw new PuzzleError("Restricted app must be in array!");
+		
+		/* Removing www. from domain */
+		$domain_zone = str_replace("www.","",$domain_zone);
+		
+		if(!file_exists(__ROOTDIR . "/configs/$domain_zone.config.php")){
+			throw new PuzzleError("Cannot find registered domain");
+		}
+		
+		Database::deleteRow("multidomain_config","host",$domain_zone);
+		unlink(__ROOTDIR . "/configs/$domain_zone.config.php");
 		
 		return true;
 	}
@@ -375,6 +399,7 @@ class ConfigurationMultidomain{
 	}	
 }
 
+if(!file_exists(__ROOTDIR . "/configs")) @mkdir(__ROOTDIR . "/configs");
 if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
 	if(file_exists(__ROOTDIR . "/install")){	
 		header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
@@ -388,12 +413,13 @@ require_once(__ROOTDIR . '/configs/root.sys.php');
 
 require_once("database.php");
 
-$host_without_port = explode(":", $_SERVER["HTTP_HOST"])[0];
+/* Removing www. and port from domain */
+$host_without_port = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
 PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_without_port : "{root}");
 
 /* Include configuration for specific domain */
 if(ConfigurationGlobal::$use_multidomain){
-	$host_without_port = explode(":", $_SERVER["HTTP_HOST"])[0];
+	if(substr($host_without_port,0,1) == '{') throw new PuzzleError("Not a valid domain!");
 	if(file_exists("configs/$host_without_port.config.php")){
 		require_once("configs/$host_without_port.config.php");
 	}else{
