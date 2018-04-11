@@ -267,7 +267,7 @@ class FileStream{
 	}
 
 	/**
-	 * Start streaming video content
+	 * Start streaming content
 	 */
 	function start(){
 		$this->open();

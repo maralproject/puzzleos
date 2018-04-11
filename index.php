@@ -12,10 +12,13 @@
 
 define("__POSEXEC", 1);
 
-/* Some custom preferences */
-//define("DB_DEBUG",1);				//Enable this line to verbose output database queries to db.log
-define("DISABLE_MINIFY",1);			//Enable this line if browser says "ERR_CONTENT_DECODING_FAILED"
-//define("ALWAYS_HTTPS",1);			//Enable this line to force HTTPS
+/************************************************************************************************************
+ * Some custom preferences that you can modify
+ ***********************************************************************************************************/
+//define("__SYSTEM_NAME", "PuzzleOS");		//You can change the system name in this directive
+define("DISABLE_MINIFY",1);					//Enable this line to not minify the HTML output
+//define("DB_DEBUG",1);						//Enable this line to verbose output database queries to db.log
+//define("ALWAYS_HTTPS",1);					//Enable this line to force HTTPS
 
 require_once("bootstrap.php");
 

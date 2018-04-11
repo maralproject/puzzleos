@@ -24,7 +24,7 @@ class Accounts{
 	/**
 	 * @var array 
 	 */
-	private static $users = array();
+	private static $users = [];
 	
 	/**
 	 * Hash password
@@ -105,7 +105,7 @@ class Accounts{
 				return("");
 		}
 		if(!self::$users["printedDiv"]){
-			$dataLvl  = array();
+			$dataLvl  = [];
 			$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0")->data;
 			$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
 			$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
@@ -132,6 +132,9 @@ class Accounts{
 			}
 			.group_card{	
 				color:black!important;
+			}
+			.ugitem:hover{
+				border-bottom:none!important;
 			}
 			</style>
 			<?php $t1 = FastCache::outCSSMin(); ob_start();?>
@@ -167,19 +170,19 @@ class Accounts{
 					echo('<div level="0" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
 				}
 				?>
-				<div level="1" style="clear:both;border-bottom:1px solid white;" class="ugitem"></div>
+				<div level="1" style="clear:both;" class="ugitem"></div>
 				<?php
 				foreach($dataLvl[1] as $d){
 					echo('<div level="1" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
 				}
 				?>
-				<div level="2" style="clear:both;border-bottom:1px solid white;" class="ugitem"></div>
+				<div level="2" style="clear:both;" class="ugitem"></div>
 				<?php
 				foreach($dataLvl[2] as $d){
 					echo('<div level="2" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
 				}
 				?>
-				<div level="3" style="clear:both;border-bottom:1px solid white;" class="ugitem"></div>
+				<div level="3" style="clear:both;" class="ugitem"></div>
 				<?php
 				foreach($dataLvl[3] as $d){
 					echo('<div level="3" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
@@ -210,7 +213,7 @@ class Accounts{
 	 * @return array
 	 */
 	public static function getDetails($userID){
-		$s = array();
+		$s = [];
 		$s['email'] = Database::read("app_users_list","email","id",$userID);
 		$s['phone'] = Database::read("app_users_list","phone","id",$userID);
 		$s['lang'] = Database::read("app_users_list","lang","id",$userID);

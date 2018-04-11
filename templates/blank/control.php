@@ -17,7 +17,14 @@
 		<div style="float:right;"><?php $tmpl->navigation->loadView("login_bar");?></div>
 		<?php if($tmpl->http_code == 200) $tmpl->app->loadMainView(); ?>
 		<?php if($tmpl->http_code == 404) echo("404 Not Found"); ?>
-		<?php if($tmpl->http_code == 403) redirect("users?redir=".$_SERVER['REQUEST_URI']); ?>
+		<?php 
+		if($tmpl->http_code == 403){
+			if(Accounts::authAccess(USER_AUTH_REGISTERED)){
+				echo("404 Not Found");
+			}else
+				redirect("users?redir=/".urlencode(__HTTP_REQUEST));
+		}
+		?>
 		<?php echo $tmpl->postBody;?>
 		<?php Prompt::printPrompt(); ?>
 	</body>

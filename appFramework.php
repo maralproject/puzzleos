@@ -47,14 +47,17 @@ class AppManager{
 	public static function startApp($app = ""){
 		if(self::$MainAppStarted) throw new PuzzleError("Main application can be only started once!");
 		PuzzleOSGlobal::$http_code = 200; //200:ok, 403:Forbidden, 404:Not Found
-		$defaultApp = ConfigurationMultidomain::$default_application;
+		$defaultApp = ConfigurationMultidomain::$default_application;		
 		if(__getURI("app") == "" && $defaultApp == ""){
 			throw new PuzzleError("No any application to run!","Please set one default application!");
-		}else{			
+		}else{
 			self::$MainApp = new Application();
 			if(ConfigurationGlobal::$use_multidomain){
 				if(in_array((__getURI("app") == ""?$defaultApp:__getURI("app")),ConfigurationMultidomain::$restricted_app)){
-					Template::setSubTitle("Not found");	
+					Template::setSubTitle("Not found");
+					PuzzleOSGlobal::$http_code = 404;
+					header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
+					self::$MainAppStarted = true;
 					return false;
 				}
 			}
@@ -62,7 +65,7 @@ class AppManager{
 				self::$MainApp->run(__getURI("app") == ""?$defaultApp:__getURI("app"));
 			}catch(AppStartError $e){
 				switch($e->getCode()){
-				case 404:				
+				case 404:
 					PuzzleOSGlobal::$http_code = 404;
 					header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
 					break;
@@ -85,7 +88,7 @@ class AppManager{
 	 */
 	public static function listAll(){
 		if(self::$AppList != NULL) return self::$AppList;
-		$a = array();
+		$a = [];
 		foreach(IO::list_directory("/applications") as $dir){
 			if(!is_dir(IO::physical_path("/applications/$dir"))) continue;
 			if($dir != "." && $dir != ".."){
@@ -129,8 +132,8 @@ class AppManager{
 						"menus"		=> explode(",",trim($manifest["menus"])),
 						"system" 	=> (Database::read("app_security","system","rootname",$manifest["rootname"]) == "1")
 					];
-					if($a[$manifest["rootname"]]["services"][0] == "") $a[$manifest["rootname"]]["services"] = array();
-					if($a[$manifest["rootname"]]["menus"][0] == "") $a[$manifest["rootname"]]["menus"] = array();
+					if($a[$manifest["rootname"]]["services"][0] == "") $a[$manifest["rootname"]]["services"] = [];
+					if($a[$manifest["rootname"]]["menus"][0] == "") $a[$manifest["rootname"]]["menus"] = [];
 				}
 			}
 		}
@@ -226,7 +229,7 @@ class AppManager{
  * Application instance
  */
 class Application{
-	private $appfound = 0;
+	private $appfound = false;
 	private $forbidden = 1;
 	private $view_loaded;
 	private $apprunning = 0;
@@ -344,7 +347,7 @@ class Application{
 	public function run($name){
 		$list_app = AppManager::listAll()[$name];
 		if($list_app["rootname"] != $name) {
-			throw new AppStartError("Application $name not found!",__HTTP_URI,404);
+			throw new AppStartError("Application `$name` not found!",__HTTP_URI,404);
 		}
 		
 		/* Prepare the database */
@@ -364,11 +367,9 @@ class Application{
 			 * But, that app can be still called and run by another apps if necessary,
 			 * also it's services and menus still can be called
 			 */
-			 
 			if(ConfigurationGlobal::$use_multidomain){
-				if(in_array($list_app["rootname"],ConfigurationMultidomain::$restricted_app)){
-					die("KO");
-					$this->forbidden = 1;
+				if(in_array($list_app["rootname"],ConfigurationMultidomain::$restricted_app)){					
+					$this->appfound = false;
 					return false;
 				}
 			}
@@ -413,7 +414,7 @@ class Application{
 			$this->apprunning = 1;
 			return(true);
 		}else{
-			throw new AppStartError("Application $name forbidden","",403);
+			throw new AppStartError("Application `$name` forbidden","",403);
 		}
 		return(false);
 	}
@@ -436,7 +437,7 @@ class Application{
 				}
 			}
 		}else{
-			throw new AppStartError("App not found","",404);
+			throw new AppStartError("Application `{$this->appname}` not found","",404);
 		}
 	}
 
@@ -454,7 +455,7 @@ class Application{
 				}
 			}
 		}else{
-			throw new AppStartError("App not found","",404);
+			throw new AppStartError("Application `{$this->appname}` not found","",404);
 		}
 	}
 }

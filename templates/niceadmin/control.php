@@ -70,7 +70,14 @@ Author URL: https://bootstrapmade.com
 				<section id="main-content" style="padding:5px;padding-top:80px;margin-left:0px;height:100%;">      
 					<?php if($tmpl->http_code == 200) $tmpl->app->loadMainView(); ?>
 					<?php if($tmpl->http_code == 404) include("404.php"); ?>
-					<?php if($tmpl->http_code == 403) redirect("users?redir=/".urlencode(__HTTP_REQUEST))?>
+					<?php 
+					if($tmpl->http_code == 403){
+						if(Accounts::authAccess(USER_AUTH_REGISTERED)){
+							include("404.php");
+						}else
+							redirect("users?redir=/".urlencode(__HTTP_REQUEST));
+					}
+					?>
 				</section>
 				<!--main content end-->
 			</div>

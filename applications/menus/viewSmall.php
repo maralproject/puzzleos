@@ -16,7 +16,7 @@ $location = $arguments[0];
 
 if($location == "") throw new PuzzleError("Location cannot be empty!");
 
-$menus = array();
+$menus = [];
 foreach(AppManager::listAll() as $app){
 	/* Donot show menu from restricted app */
 	if(in_array($app["rootname"],ConfigurationMultidomain::$restricted_app) || !Accounts::authAccess($app["level"])) continue;
@@ -26,7 +26,11 @@ foreach(AppManager::listAll() as $app){
 		$location_config = trim($exp[1]);
 		if($location_config == $location){
 			//Include this menu
-			new Application($app["rootname"]);
+			try{
+				new Application($app["rootname"]);			
+			}catch(AppStartError $e){
+				continue;
+			}
 			if(!include($app["dir"] . "/$file")){
 				throw new PuzzleError("Cannot load menu for ". $app["title"]);
 			}

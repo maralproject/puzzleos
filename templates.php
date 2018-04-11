@@ -23,8 +23,8 @@ class Template{
 	private static $addOnBody = "";
 	private static $Loaded = false;
 	private static $SubTitle = NULL;
-	private static $header_md5 = array();
-	private static $body_md5 = array();
+	private static $header_md5 = [];
+	private static $body_md5 = [];
 	private static $templateList = NULL;
 
 	/** 
@@ -42,7 +42,7 @@ class Template{
 	 */
 	public static function listAll(){
 		if(isset(self::$templateList)) return self::$templateList;
-		$a = array();
+		$a = [];
 		foreach(IO::list_directory("/templates") as $dir){
 			if(!is_dir(IO::physical_path("/templates/$dir"))) continue;
 			if($dir != "." && $dir != ".." && $dir != "system"){

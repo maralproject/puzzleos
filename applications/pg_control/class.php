@@ -18,7 +18,7 @@ class PageControl{
 	private $endIndex;
 	private $limit = 100;
 	private $currentPage = 1;
-	private $indexRange = array();
+	private $indexRange = [];
 	private $dataCount;
 	private $pageAvail = false;
 	
@@ -66,7 +66,7 @@ class PageControl{
 	 * @return array
 	 */
 	public function getIndexRange(){
-		$index = array();
+		$index = [];
 		for($i=$this->startIndex; $i < $this->endIndex; $i++){
 			if(!isset($this->indexRange[$i])) continue;
 			$index[$i] = $this->indexRange[$i];

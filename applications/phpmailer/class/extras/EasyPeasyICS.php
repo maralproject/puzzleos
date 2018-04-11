@@ -28,7 +28,7 @@ class EasyPeasyICS
      * The array of events to add to this calendar
      * @var array
      */
-    protected $events = array();
+    protected $events = [];
 
     /**
      * Constructor
@@ -79,7 +79,7 @@ class EasyPeasyICS
      */
     public function clearEvents()
     {
-        $this->events = array();
+        $this->events = [];
     }
 
     /**

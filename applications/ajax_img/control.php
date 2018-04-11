@@ -13,7 +13,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  */
 
 if(!isset($_SESSION["ImageUploader"])) 
-	$_SESSION["ImageUploader"] = array();
+	$_SESSION["ImageUploader"] = [];
 
 if(__getURI("app") == "upload_img_ajax"){
 	if(__getURI("action") == "upload"){

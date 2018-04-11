@@ -17,7 +17,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  */
 class DatabaseRowInput{
 	
-	private $rowStructure = array();
+	private $rowStructure = [];
 	
 	public function __construct(){
 		return $this;
@@ -38,7 +38,7 @@ class DatabaseRowInput{
 	}
 	
 	public function clearStructure(){
-		$this->rowStructure = array();
+		$this->rowStructure = [];
 		return $this;
 	}
 }
@@ -47,8 +47,8 @@ class DatabaseRowInput{
  * Build database and table structure
  */
 class DatabaseTableBuilder{
-	private $arrayStructure = array();
-	private $rowStructure = array();
+	private $arrayStructure = [];
+	private $rowStructure = [];
 	private $selectedColumn;
 	private $needToDrop = false;
 	
@@ -144,7 +144,7 @@ class DatabaseTableBuilder{
  * Use it as Procedural style.
  */ 
 class Database{
-	private static $cache = array();
+	private static $cache = [];
 	
 	/**
 	 * Mysql database link
@@ -177,7 +177,7 @@ class Database{
 			case "SHOW":
 				break;
 			default:
-				self::$cache = array();	
+				self::$cache = [];	
 				if(defined("DB_DEBUG")){
 					file_put_contents(__ROOTDIR . "/db.log","CACHE PURGED\r\n",FILE_APPEND);
 				}
@@ -198,7 +198,7 @@ class Database{
 					throw new DatabaseError(mysqli_connect_error(), "Anyway, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
 				self::$link->set_charset("utf8");
 				
-				self::$cache = array();
+				self::$cache = [];
 				
 				$r = mysqli_query(self::$link,$query);
 				if(!$r){
@@ -287,7 +287,7 @@ class Database{
 		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error($res));
 		}
 		$n = 0;
-		$arrayL = array();		
+		$arrayL = [];		
 		while($row = mysqli_fetch_array($res))
 		{
 			$arrayL[$n] = $row[0];
@@ -653,7 +653,7 @@ class Database{
 		unset($caller);
 		if(!isset(self::$cache["readAll"][$table.$options.serialize($param)])){
 			$array = new stdClass();
-			$array->data = array();
+			$array->data = [];
 			$array->num = 0;
 			$retval = self::query("SELECT * FROM `$table` $options;", ...$param);
 			if(! $retval ){
@@ -695,7 +695,7 @@ class Database{
 			if(file_exists(__ROOTDIR . "/cache/database_track.json")){
 				self::$cache['Checksum'] = json_decode(file_get_contents(__ROOTDIR . "/cache/database_track.json"),true);
 			}else{
-				self::$cache['Checksum'] = array();
+				self::$cache['Checksum'] = [];
 			}
 		}
 
@@ -878,7 +878,7 @@ class Database{
 			//Reorder column position
 			$query = "";
 			$request = mysqli_query(self::$link,"show columns from `$table`");
-			$tableContent = array();
+			$tableContent = [];
 			while($r = mysqli_fetch_array($request)){
 				$tableContent[$r["Field"]] = $r;
 			}

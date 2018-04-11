@@ -45,7 +45,7 @@ function tln_tagprint($tagname, $attary, $tagtype)
     } else {
         $fulltag = '<' . $tagname;
         if (is_array($attary) && sizeof($attary)) {
-            $atts = array();
+            $atts = [];
             foreach($attary as $attname => $attvalue) {
                 array_push($atts, "$attname=$attvalue");
             }
@@ -126,8 +126,8 @@ function tln_findnxstr($body, $offset, $needle)
  */
 function tln_findnxreg($body, $offset, $reg)
 {
-    $matches = array();
-    $retarr = array();
+    $matches = [];
+    $retarr = [];
     $preg_rule = '%^(.*?)(' . $reg . ')%s';
     preg_match($preg_rule, substr($body, $offset), $matches);
     if (!isset($matches[0]) || !$matches[0]) {
@@ -270,7 +270,7 @@ function tln_getnxtag($body, $offset)
      *
      * At this point we loop in order to find all attributes.
      */
-    $attary = array();
+    $attary = [];
 
     while ($pos <= strlen($body)) {
         $pos = tln_skipspace($body, $pos);
@@ -284,7 +284,7 @@ function tln_getnxtag($body, $offset)
          * See if we arrived at a ">" or "/>", which means that we reached
          * the end of the tag.
          */
-        $matches = array();
+        $matches = [];
         if (preg_match('%^(\s*)(>|/>)%s', substr($body, $pos), $matches)) {
             /**
              * Yep. So we did.
@@ -440,7 +440,7 @@ function tln_deent(&$attvalue, $regex, $hex = false)
 {
     preg_match_all($regex, $attvalue, $matches);
     if (is_array($matches) && sizeof($matches[0]) > 0) {
-        $repl = array();
+        $repl = [];
         for ($i = 0; $i < sizeof($matches[0]); $i++) {
             $numval = $matches[1][$i];
             if ($hex) {
@@ -754,7 +754,7 @@ function tln_fixstyle($body, $pos, $trans_image_path, $block_external_images)
     $content = preg_replace("/(\\\\)?u(\\\\)?r(\\\\)?l(\\\\)?/i", 'url', $content);
     preg_match_all("/url\s*\((.+)\)/si",$content,$aMatch);
     if (count($aMatch)) {
-        $aValue = $aReplace = array();
+        $aValue = $aReplace = [];
         foreach($aMatch[1] as $sMatch) {
             // url value
             $urlvalue = $sMatch;
@@ -864,7 +864,7 @@ function tln_sanitize(
      * true	  means allow these tags
      */
     $curpos = 0;
-    $open_tags = array();
+    $open_tags = [];
     $trusted = "<!-- begin tln_sanitized html -->\n";
     $skip_content = false;
     /**

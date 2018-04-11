@@ -14,7 +14,7 @@ __requiredSystem("1.2.1") or die("You need to upgrade the system");
  
 $l=new Language;$l->app="users";
 
-$dataLvl  = array();
+$dataLvl  = [];
 $dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0")->data;
 $dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
 $dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
@@ -26,7 +26,7 @@ $se = new SearchBox("UGL_");
 $se->setSubmitable(false);
 $se->setInputName("ugl_search");
 $se->setCustomHint($l->get("FIND_USER"));
-$usersList = array();
+$usersList = [];
 foreach(Database::readAll("app_users_list")->data as $ugl){
 	$usersList[0] = $ugl["name"];
 	$usersList[1] = $ugl["email"];

@@ -38,6 +38,12 @@ class PuzzleOSGlobal{
 	 * @var PuzzleSession
 	 */
 	public static $session = NULL;
+	
+	/**
+	 * This variable set up by bootstrap.php
+	 * @var array
+	 */
+	public static $uri;
 }
 
 /**
@@ -319,7 +325,7 @@ class ConfigurationMultidomain{
 	 * This config very useful on multidomain configuration
 	 * @var array
 	 */
-	public static $restricted_app = array();
+	public static $restricted_app = [];
 	
 	private static function findAndReplace(&$file, $search, $replace){
 		foreach($file as $line=>$text){
@@ -426,14 +432,19 @@ PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_wi
 /* Include configuration for specific domain */
 if(ConfigurationGlobal::$use_multidomain){
 	if(substr($host_without_port,0,1) == '{') throw new PuzzleError("Not a valid domain!");
-	if(file_exists("configs/$host_without_port.config.php")){
-		require_once("configs/$host_without_port.config.php");
-	}else{
-		throw new PuzzleError("You're accessing from unregistered domain","Please add this domain from Administrator page");
-	}	
+	if(!file_exists("configs/$host_without_port.config.php")){
+		try{
+			throw new PuzzleError("PuzzleOS accessed from unregistered domain @ {$host_without_port}");
+		}catch(PuzzleError $e){}
+		
+		header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
+		include( __ROOTDIR . "/templates/system/404.php" );
+		exit;
+	}
+	require_once("configs/$host_without_port.config.php");
 	ConfigurationMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",PuzzleOSGlobal::$domain_zone),true);
 }else{
-	ConfigurationMultidomain::$restricted_app = array();
+	ConfigurationMultidomain::$restricted_app = [];
 }
 
 unset($host_without_port);

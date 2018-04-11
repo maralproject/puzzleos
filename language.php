@@ -48,7 +48,7 @@ class LangManager{
 		
 		/* Finding through app which language are available */
 		$locale = require(__ROOTDIR . "/locale.php");
-		$temp = array();
+		$temp = [];
 		foreach(IO::list_directory("applications") as $appdir){
 			if($appdir == "." || $appdir == "..") continue;
 			if(!is_dir(IO::physical_path("applications/$appdir"))) continue;

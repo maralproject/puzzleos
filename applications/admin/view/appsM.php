@@ -18,7 +18,7 @@ $s->setSubmitable(false);
 $s->setDynamic(true);
 $appList = AppManager::listAll();
 foreach($appList as $a){
-	$list = array();
+	$list = [];
 	$list[0] = $a["name"];
 	$list[1] = $a["title"];
 	$list[2] = $a["desc"];

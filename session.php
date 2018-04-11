@@ -85,7 +85,7 @@ class PuzzleSession implements SessionHandlerInterface{
 		
 		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],$_SERVER['HTTP_HOST'],"NULL"];
 		$this->id = md5(serialize([$this->client,time()]));
-		$this->cnf = [0,false,false];
+		$this->cnf = [0,false];
 		$this->expire = 60 * 60; //Normally one hour before GC start to work
 		$this->data = "";
 		
@@ -137,8 +137,8 @@ class PuzzleSession implements SessionHandlerInterface{
 			setcookie("posfpv","",time()-3600,"/",NULL);
 		}
 		
-		setcookie("posfp", $this->client[3], ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : ($this->client[2]=="localhost"?NULL:$this->client[2])));
-		setcookie("puzzleos", $this->id, ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : ($this->client[2]=="localhost"?NULL:$this->client[2])));
+		setcookie("posfp", $this->client[3], ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
+		setcookie("puzzleos", $this->id, ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
 	}
 
     public function destroy($id){
@@ -157,6 +157,7 @@ class PuzzleSession implements SessionHandlerInterface{
 		switch($k){
 		case "share_on_subdomain":
 			$this->cnf[1] = (bool) $v;
+			$this->c_update = true;
 			break;
 		case "expire":
 			$this->expire = (int) $v;

@@ -16,7 +16,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * This is part of search_box application
  */
 class SearchBox{
-	private $data = array();
+	private $data = [];
 	private $dataAsArray = true;
 	private $dynamic = true;
 	private $inputName = "s";
@@ -33,8 +33,8 @@ class SearchBox{
 	 */
 	public function __construct($prefix){		
 		$this->prefix = $prefix;
-		$this->identifier = array();
-		$this->data = array();
+		$this->identifier = [];
+		$this->data = [];
 	}
 	
 	/**
@@ -78,7 +78,7 @@ class SearchBox{
 	public function setDataAsArray($bool){
 		if(!is_bool($bool)) return;
 		$this->dataAsArray = $bool;
-		$this->data = array();
+		$this->data = [];
 	}
 	
 	/**

@@ -11,21 +11,26 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 1.2.3
  */
 
-if(!defined("__POS_CLI")){
-	if(PHP_SAPI == "cli") 
-		die("PuzzleOS\r\n========\r\nPlease call puzzleos.php from CLI instead from index.php\r\n\r\n");
-}
- 
-define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "1.2.3");
-define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
-set_time_limit(30);
-
-require_once("runtime_error.php");
-
 if(!version_compare(PHP_VERSION,"5.6.0",">=")){
 	throw new PuzzleError("Please upgrade PHP at least 5.6.0!");
 }
+
+if(PHP_SAPI == "cli" && !defined("__POS_CLI")) die("\nPlease use\n     sudo -u www-data php puzzleos\n\n");
+
+/***********************************
+ * Define the global variables
+ ***********************************/
+if(!defined("__SYSTEM_NAME")) define("__SYSTEM_NAME", "PuzzleOS");
+define("__POS_VERSION", "1.2.3");
+define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
+
+define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
+define("__HTTP_PROTOCOL",(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
+define("__HTTP_REQUEST",ltrim( str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']),"/"));
+define("__HTTP_URI",ltrim(explode("?", str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']))[0],"/"));
+
+set_time_limit(30);
+require_once("runtime_error.php");
 
 /***********************************
  * Maintenance Mode Handler
@@ -34,13 +39,13 @@ if(!version_compare(PHP_VERSION,"5.6.0",">=")){
  * create blank "site.offline" file 
  * in the root directory
  ***********************************/
-if(file_exists( __ROOTDIR . "/site.offline" )){
+if(file_exists(__ROOTDIR . "/site.offline")){
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 300');//300 seconds
 	
 	include( __ROOTDIR . "/templates/system/503.php" );
-	die();
+	exit;
 }
 
 /***********************************
@@ -171,7 +176,7 @@ function __getURI($name){
 	}else{
 		$key = strtoupper($name);
 	}
-	if(isset($GLOBALS["__POSURI"][$key])) return($GLOBALS["__POSURI"][$key]);
+	if(isset(PuzzleOSGlobal::$uri[$key])) return(PuzzleOSGlobal::$uri[$key]);
 	return("");
 }
 
@@ -185,35 +190,22 @@ function __requiredSystem($version){
 	return(version_compare(__POS_VERSION,$version,">="));
 }
 
-/***********************************
- * Define the global variables
- ***********************************/
-
-define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
-define("__HTTP_PROTOCOL",(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
-define("__HTTP_REQUEST",ltrim( str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']),"/"));
-define("__HTTP_URI",ltrim(explode("?", str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']))[0],"/"));
-
-/* The order must be like this */
-define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
-define("__SITENAME", ConfigurationGlobal::$sitename);
-define("__SITELANG", ConfigurationGlobal::$default_language);
-define("__TIMEZONE", ConfigurationGlobal::$timezone);
-
 /**
  * Define the URIs
  */
-$GLOBALS["__POSURI"] = explode("/",__HTTP_URI);
-$GLOBALS["__POSURI"]["APP"] = $GLOBALS["__POSURI"][0];
-if($GLOBALS["__POSURI"]["APP"] == "") $GLOBALS["__POSURI"]["APP"] = ConfigurationMultidomain::$default_application;
-$GLOBALS["__POSURI"]["ACTION"] = (isset($GLOBALS["__POSURI"][1]) ? $GLOBALS["__POSURI"][1] : "");
+if(PuzzleOSGlobal::$uri[0] != "__notfound404app__"){
+	PuzzleOSGlobal::$uri = explode("/",__HTTP_URI);
+	PuzzleOSGlobal::$uri["APP"] = PuzzleOSGlobal::$uri[0];
+	if(PuzzleOSGlobal::$uri["APP"] == "") PuzzleOSGlobal::$uri["APP"] = ConfigurationMultidomain::$default_application;
+	PuzzleOSGlobal::$uri["ACTION"] = (isset(PuzzleOSGlobal::$uri[1]) ? PuzzleOSGlobal::$uri[1] : "");
+}
 
 /**
  * A custom class like stdObject,
  * the differences is, you can fill it with a bunch of fucntion
  */
 class PObject{
-	protected $methods = array();
+	protected $methods = [];
 	public function __construct(array $options){
 		$this->methods = $options;
 	}
@@ -227,6 +219,12 @@ class PObject{
 		return call_user_func_array($callable, $arguments);
 	}
 }
+
+/* The order must be like this */
+define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
+define("__SITENAME", ConfigurationGlobal::$sitename);
+define("__SITELANG", ConfigurationGlobal::$default_language);
+define("__TIMEZONE", ConfigurationGlobal::$timezone);
 
 require_once("iosystem.php");
 require_once("fastcache.php");
@@ -259,8 +257,10 @@ require_once("services.php");
 
 /***********************************
  * Write cookies to browser. Session
- * time can be modified on app 
- * services
+ * config can be modified on each 
+ * app services if necessary using
+ * 
+ * PuzzleOSGlobal::$session
  ***********************************/
 PuzzleOSGlobal::$session->write_cookie();
 
@@ -271,7 +271,8 @@ require_once("cron.php");
 
 /***********************************
  * Process private file if requested
- * from browser
+ * from browser. Public file handled
+ * by Apache2 directly
  ***********************************/
 if(__getURI(0) == "user_data"){
 	$f = "/" . str_replace("user_data/","user_private/",__HTTP_URI);
