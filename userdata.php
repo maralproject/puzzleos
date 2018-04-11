@@ -79,7 +79,7 @@ class UserData{
 			Database::deleteRowArg("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		}
 		if(!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),strtotime("now"),$secure?1:0);
+		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 		return true;
 	}
 	
@@ -112,7 +112,7 @@ class UserData{
 		}
 		
 		if(!rename(IO::physical_path($path_to_file),IO::physical_path($filename))) return(false);
-		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),strtotime("now"),$secure?1:0);
+		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 		
 		if($path_to_file_e[1] == "user_data"){
 			//Changing file ownership
@@ -147,7 +147,7 @@ class UserData{
 			Database::deleteRowArg("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		}
 		if(!copy(IO::physical_path($path_to_file),IO::physical_path($filename))) return(false);
-		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),strtotime("now"),$secure?1:0);
+		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 		return true;
 	}
 	
@@ -195,7 +195,7 @@ class UserData{
 			Database::deleteRowArg("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		}
 		IO::write($filename,$content);
-		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),strtotime("now"),$secure?1:0);
+		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 		return true;
 	}
 	

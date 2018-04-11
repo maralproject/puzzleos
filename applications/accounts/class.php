@@ -269,7 +269,7 @@ class Accounts{
 	 */
 	public static function rmSession(){
 		$_SESSION['account']['loggedIn'] = 0;
-		$_SESSION['account']['id'] = 0;
+		$_SESSION['account']['id'] = -1;
 		$_SESSION['account']['email'] = "";
 		$_SESSION['account']['phone'] = "";
 		$_SESSION['account']['name'] = "";

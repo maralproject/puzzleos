@@ -141,7 +141,7 @@ class PuzzleError extends Exception{
 		parent::__construct($message, $code, $previous);
 
 		$f = fopen(__DIR__ . "/error.log","a+");
-		fwrite($f,date("d/m/Y H:i:s",strtotime("now"))." ".date_default_timezone_get()."\r\n");
+		fwrite($f,date("d/m/Y H:i:s",time())." ".date_default_timezone_get()."\r\n");
 		fwrite($f,"Message: ".$this->message."\r\n");
 		fwrite($f,"Suggestion: ".$this->suggestion."\r\n");
 		fwrite($f,"Caller: ".$this->getFile()." line ".$this->getLine()."\r\n");

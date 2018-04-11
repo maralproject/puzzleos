@@ -224,10 +224,12 @@ class Database{
 			case "database.php":
 			case "systables.php":
 				return(true);
+			case "session.php":
+				if((preg_match('/`sessions`/',$query))) return(true); break;
 			case "configman.php":
 				if((preg_match('/`multidomain_config`/',$query))) return(true); break;
 			case "userdata.php":
-			case "defines.php":
+			case "bootstrap.php":
 				if((preg_match('/`userdata`/',$query))) return(true); break;
 			case "applications":
 				$appname = isset($filename[2])?$filename[2]:"";
@@ -257,10 +259,12 @@ class Database{
 			case "database.php":
 			case "systables.php":
 				return(true);
+			case "session.php":
+				if($table == "sessions") return(true); break;
 			case "configman.php":
 				if($table == "multidomain_config") return(true); break;
 			case "userdata.php":
-			case "defines.php":
+			case "bootstrap.php":
 				if($table == "userdata") return(true); break;
 			case "applications":
 				$appname = isset($filename[2])?$filename[2]:"";
@@ -556,7 +560,6 @@ class Database{
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
-		//$val = preg_match('/int/',self::colType($table,$findByCol)) ? $findByVal : "'".$findByVal."'";
 		return(self::query("DELETE FROM `?` WHERE `?`='?';", $table, $findByCol, $findByVal));
 	}
 

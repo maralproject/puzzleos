@@ -54,6 +54,18 @@ $a->newInitialRow("users",NULL,1);
 
 Database::newStructure("app_security",$a);
 
+/* Table `sessions` */
+$a = new DatabaseTableBuilder;
+$a->addColumn("session_id","CHAR(32)")->setAsPrimaryKey();
+$a->addColumn("content","TEXT");
+$a->addColumn("client","TEXT");
+$a->addColumn("cnf","TEXT");
+$a->addColumn("start","INT");
+$a->addColumn("expire","INT");
+$a->addColumn("user","INT")->allowNull(true);
+
+Database::newStructure("sessions",$a);
+
 unset($a);
 
 ?>

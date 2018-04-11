@@ -16,7 +16,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 if($appProp->appname == AppManager::$MainApp->appname){
 	switch(__getURI(1)){
 	case "uploadImage":
-		$time = strtotime("now");
+		$time = time();
 		UserData::move_uploaded($_FILES["file"]["name"] . ".$time","file");
 		die(json_encode(array('location' => __SITEURL . UserData::getPath($_FILES["file"]["name"] . ".$time"))));
 		break;

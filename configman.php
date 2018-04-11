@@ -32,6 +32,12 @@ class PuzzleOSGlobal{
 	 * @var string
 	 */	
 	public static $domain_zone = "";
+	
+	/**
+	 * Session handler instance
+	 * @var PuzzleSession
+	 */
+	public static $session = NULL;
 }
 
 /**

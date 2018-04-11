@@ -17,7 +17,7 @@ define("__POSEXEC", 1);
 define("DISABLE_MINIFY",1);			//Enable this line if browser says "ERR_CONTENT_DECODING_FAILED"
 //define("ALWAYS_HTTPS",1);			//Enable this line to force HTTPS
 
-require_once("defines.php");
+require_once("bootstrap.php");
 
 /* Your DEBUG Code should goes here before main app run */
 //include_once("debug.php");
