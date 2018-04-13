@@ -84,7 +84,7 @@ class PuzzleSession implements SessionHandlerInterface{
 		}
 		
 		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],$_SERVER['HTTP_HOST'],"NULL"];
-		$this->id = md5(serialize([$this->client,time()]));
+		$this->id = md5(json_encode([$this->client,time()]));
 		$this->cnf = [0,false];
 		$this->expire = 60 * 60; //Normally one hour before GC start to work
 		$this->data = "";
@@ -106,7 +106,14 @@ class PuzzleSession implements SessionHandlerInterface{
 		
 		/* Only rewrite data when it's needed to */
 		if($this->new_data){
-			Database::newRow("sessions", $this->id, $data, serialize($this->client), serialize($this->cnf), time(), (int)time() + $this->expire, $_SESSION['account']['id']);
+			try{
+				Database::newRow("sessions", $this->id, $data, serialize($this->client), serialize($this->cnf), time(), (int)time() + $this->expire, $_SESSION['account']['id']);
+			}catch(DatabaseError $e){
+				//For unknown reason, browser sent two or more request at the same time, which cause multiple session with same key to be created.
+				//To overcome this problem, we will load that keys instead of creating new one
+				$_COOKIE["puzzleos"] = $this->id;
+				return self::open("","");
+			}			
 			$this->new_data = false;
 		}else if(md5($this->data) != md5($data) || $this->c_update){
 			$di = new DatabaseRowInput;
@@ -162,6 +169,13 @@ class PuzzleSession implements SessionHandlerInterface{
 		case "expire":
 			$this->expire = (int) $v;
 			break;
+		}
+	}
+	
+	public function __get($k){
+		switch($k){
+		case "session_id":
+			return $this->id;
 		}
 	}
 }
