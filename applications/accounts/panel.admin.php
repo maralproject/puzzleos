@@ -12,24 +12,25 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @software     Release: 1.2.3
  */
 ?>
-<script>var user_config_changed = 0;</script>
-<script>function reloadGroup(){if(user_config_changed == 1){location.reload();}else{$('#groups').show();}}</script>
-<script>function reloadUsers(){if(user_config_changed == 1){location.reload();}else{$('#userlist').show();}}</script>
-<div class="container">
-<ul class="nav nav-tabs" style="font-size:15pt;">
-  <li onclick="$('.tab').hide();reloadUsers();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();" class="tabS active"><a href="#userlist"><i class="fa fa-list-ul"></i></a></li>
-  <li onclick="$('.tab').hide();reloadGroup();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();" class="tabS"><a href="#groups"><i class="fa fa-users"></i></a></li>
-</ul>
-<div id="userlist" class="tab">
-	<?php include("views/manage_user.php")?>
-</div>
-<div id="groups" class="tab" style="display:none;">
-	<?php include("views/manage_group.php")?>
-</div>
-</div>
 <script>
-Bootstrap_LinkTab();
-$(window).on('hashchange', function() {
-	Bootstrap_LinkTab();
-});
+	var user_config_changed = 0;
+	function reloadGroup(){if(user_config_changed == 1){location.reload();}else{$('#groups').show();}}
+	function reloadUsers(){if(user_config_changed == 1){location.reload();}else{$('#userlist').show();}}
 </script>
+
+<div class="container">
+	<ul class="nav nav-tabs" style="font-size:15pt;">
+		<li onclick="$('.tab').hide();reloadUsers();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS active"><a data-toggle="tab" href="#userlist"><i class="fa fa-list-ul"></i></a></li>
+		<li onclick="$('.tab').hide();reloadGroup();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS"><a data-toggle="tab" href="#groups"><i class="fa fa-users"></i></a></li>
+		<li onclick="$('.tab').hide();$('#setting').show();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS"><a data-toggle="tab" href="#setting"><i class="fa fa-wrench"></i></a></li>
+	</ul>
+	<div id="userlist" class="tab">
+		<?php include("views/manage_user.php")?>
+	</div>
+	<div id="groups" class="tab" style="display:none;">
+		<?php include("views/manage_group.php")?>
+	</div>
+	<div id="setting" class="tab" style="display:none;">
+		<?php include("views/manage_config.php")?>
+	</div>
+</div>

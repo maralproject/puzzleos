@@ -14,7 +14,18 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 
 $language = new Language; $language->app = "users";
 if(!isset($_GET["redir"])) $_GET["redir"] = "";
+
+$en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 ?>
+<?php if($en_recaptcha):?>
+<script>
+	function onposlogin(token){
+		$("#loginCtn form").submit();
+	}
+</script>
+<script src='https://www.google.com/recaptcha/api.js' async></script>
+<?php endif?>
+
 <div style="display:table;width:100%;height:100%;max-width:480px;margin: auto;">
 <div id="loginCtn" style="display:table-cell;vertical-align:middle;padding:20px;">
 	<div style="font-weight:300;margin-bottom:20px;">
@@ -22,16 +33,16 @@ if(!isset($_GET["redir"])) $_GET["redir"] = "";
 	</div>
 	<form onsubmit="$(this).find('button').prop('disabled',true);$(this).find('input').trigger('blur')" action="<?php echo __SITEURL?>/users/login" method="post" style="text-align:center;">
 		<div class="input-group">
-		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
+			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
+			<input required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
 		</div><br>
 		<div class="input-group">
-		  <span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
-		  <input required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>" aria-describedby="sizing-addon2">
+			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
+			<input required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>" aria-describedby="sizing-addon2">
 		</div><br>							
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
-		<button title="<?php $language->dump("login")?>" type="submit" class="btn btn-info"><?php $language->dump("login")?></button>
+		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
 		<a href="<?php echo __SITEURL?>/users/forgot"><button title="<?php $language->dump("f_pass")?>" type="button" class="btn btn-link"><?php $language->dump("nh")?></button></a>
 	</form><br><br>
 </div>

@@ -12,6 +12,10 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @software     Release: 1.2.3
  */
 
+if(Accounts::getSettings()["f_share_session"] == "on"){
+	PuzzleOSGlobal::$session->share_on_subdomain = true;
+}
+
 if(!isset($_SESSION["account"])){
 	Accounts::rmSession();
 }

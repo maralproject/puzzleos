@@ -17,6 +17,7 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
 */
 
 if(__getURI("app") == $appProp->appname){
+
 	$language = new Language;
 	
 	if(!$_SESSION['account']['loggedIn']){
@@ -27,8 +28,7 @@ if(__getURI("app") == $appProp->appname){
 		}else{
 			Template::setSubTitle($language->get("login"));
 		}
-	}
-	
+	}	
 	
 	if(!isset($_POST["trueLogin"])) $_POST["trueLogin"] = 0;
 	if(__getURI("action") == "login" && $_POST["trueLogin"] == "1"){		
@@ -43,7 +43,16 @@ if(__getURI("app") == $appProp->appname){
 			//Don't allow user to login again once loggedin
 			redirect("users");
 		}
+		
 		if($_POST["user"] != "" && $_POST["pass"] != ""){
+			$en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
+			if($en_recaptcha){
+				if(!Accounts::verifyRecapctha()){
+					Prompt::postError("Verifikasi manusia gagal");
+					return;
+				}
+			}
+			
 			if(Accounts::authUserId($_POST['user'],$_POST['pass'])){
 				Accounts::addSession(Accounts::findUserID($_POST['user']));
 				if($_POST['redir'] == ""){
@@ -57,6 +66,24 @@ if(__getURI("app") == $appProp->appname){
 		}else{
 			Prompt::postError($language->get("dcyc"));
 		}
+	}elseif(__getURI("action") == "update" && Accounts::authAccess(USER_AUTH_SU)){
+		/**
+		 * Update configuration action
+		 * URI	: /users/update
+		 * Note	: Only superuser allowed to do this
+		 */
+		 
+		$o = [];
+		foreach($_POST as $k=>$d){
+			if(substr($k,0,2) == "f_") $o[$k] = $d;
+		}
+		
+		if(UserData::store("settings",json_encode($o),"json",true)){
+			Prompt::postGood("Pengaturan telah diperbarui",true);
+		}else{
+			Prompt::postError("Aksi gagal",true);
+		}
+		redirect("admin/manage/users");
 	}elseif(__getURI("action") == "logout"){
 		/**
 		 * Logout Action
@@ -69,8 +96,7 @@ if(__getURI("app") == $appProp->appname){
 			redirect();
 		}
 		Accounts::rmSession();
-		redirect(); //Redirect to homepage after logout
-		//Prompt::postGood($language->get("logged_out"));
+		redirect();
 	}else if(__getURI("action") == "ajax"){
 		/**
 		 * Logout Action
@@ -85,51 +111,51 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/profile
 		 * Note	: -
 		 */
-		if($_POST["tf"] == "1"){
-			if($_POST['email'] == ""){
-				Prompt::postError($language->get("emailE"),true);
+		if($_POST["tf"] == "1"){			
+			if(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL) && $_POST["email"] != ""){
+				Prompt::postError($language->get("EMAIL_NOT_VALID"),true);
+			}else if(!preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) && $_POST["phone"] != ""){
+				Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
 			}else{
-				if(filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
-					if(preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) || $_POST["phone"] == ""){
-						Database::exec("UPDATE `app_users_list` SET `name`='?', `lang`='?', `phone`='?' WHERE `id`='?';", $_POST['name'], $_POST['lang'], $_POST['phone'], $_SESSION['account']['id']);
-						$_SESSION['account']['phone'] = $_POST['phone'];
-						$_SESSION['account']['name'] = $_POST['name'];
-						$_SESSION['account']['lang'] = $_POST['lang'];
-						Prompt::postGood($language->get("set_s"),true);
-						if($_POST['email'] != $_SESSION['account']['email']){
-							unset($_SESSION['account']['confirm_email']);
-							$length = 128;
-							$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-							$charactersLength = strlen($characters);
-							$randomString = '';
-							for ($i = 0; $i < $length; $i++) {
-								$randomString .= $characters[rand(0, $charactersLength - 1)];
-							}
-							$_SESSION['account']['confirm_email']['new'] = $_POST['email'];
-							$_SESSION['account']['confirm_email']['old'] = $_SESSION['account']['email'];
-							$_SESSION['account']['confirm_email']['key'] = $randomString;
-							$_SESSION['account']['confirm_email']['timeout'] = time();
-							$link = __SITEURL ."/users/verifyemail/".$randomString;
-							$mailer = new Mailer;
-							$mailer->addRecipient = $_POST['email'];
-							$mailer->subject = $language->get("CYNE");
-							ob_start();
-							require( $appProp->path . "/mail_template/confirm_email.php");						
-							$mailer->body = ob_get_clean();
-							if($mailer->sendHTML() == 1){
-								Prompt::postGood($language->get("ECHS").$_POST['email'],true);
-								Prompt::postWarn($language->get("NEHS"),true);
-							}else{
-								Prompt::postError($language->get("CSCE"),true);
-							}
-						}	
-					}else{
-						Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
+				if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["email"] == ""){
+					Prompt::postError($language->get("emailE"),true);
+				}else if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == ""){
+					Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
+				}else{
+					Database::exec("UPDATE `app_users_list` SET `name`='?', `lang`='?', `phone`='?' WHERE `id`='?'", $_POST['name'], $_POST['lang'], $_POST['phone'], $_SESSION['account']['id']);
+					$_SESSION['account']['phone'] = $_POST['phone'];
+					$_SESSION['account']['name'] = $_POST['name'];
+					$_SESSION['account']['lang'] = $_POST['lang'];
+					Prompt::postGood($language->get("CH_SAVED"),true);
+					if($_POST['email'] != $_SESSION['account']['email']){
+						unset($_SESSION['account']['confirm_email']);
+						$length = 128;
+						$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+						$charactersLength = strlen($characters);
+						$randomString = '';
+						for ($i = 0; $i < $length; $i++) {
+							$randomString .= $characters[rand(0, $charactersLength - 1)];
+						}
+						$_SESSION['account']['confirm_email']['new'] = $_POST['email'];
+						$_SESSION['account']['confirm_email']['old'] = $_SESSION['account']['email'];
+						$_SESSION['account']['confirm_email']['key'] = $randomString;
+						$_SESSION['account']['confirm_email']['timeout'] = time();
+						$link = __SITEURL ."/users/verifyemail/".$randomString;
+						$mailer = new Mailer;
+						$mailer->addRecipient = $_POST['email'];
+						$mailer->subject = $language->get("CYNE");
+						ob_start();
+						require( $appProp->path . "/mail_template/confirm_email.php");						
+						$mailer->body = ob_get_clean();
+						if($mailer->sendHTML() == 1){
+							Prompt::postGood($language->get("ECHS").$_POST['email'],true);
+						}else{
+							Prompt::postError($language->get("CSCE"),true);
+						}
 					}
-				}else{				
-					Prompt::postError($language->get("EMAIL_NOT_VALID"),true);
 				}
 			}
+			
 		}else{
 			redirect("users");
 		}
@@ -143,9 +169,9 @@ if(__getURI("app") == $appProp->appname){
 		 */
 		 
 		if(__getURI(2) == $_SESSION['account']['confirm_email']['key']){
-			if ($_SESSION['account']['confirm_email']['timeout'] + 10 * 60 < time()) {
+			if($_SESSION['account']['confirm_email']['timeout'] + 10 * 60 < time()) {
 				unset($_SESSION['account']['confirm_email']);
-			} else {
+			}else{
 				Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `email`='?';", $_SESSION['account']['confirm_email']['new'], $_SESSION['account']['confirm_email']['old']);
 				$_SESSION['account']['email'] = $_SESSION['account']['confirm_email']['new'];
 				unset($_SESSION['account']['confirm_email']);

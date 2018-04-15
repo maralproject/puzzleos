@@ -24,7 +24,7 @@ class PuzzleSession implements SessionHandlerInterface{
 	
 	/**
 	 * $cnf structure
-	 * [(bool)retain_on_the_same_pc=false,share_on_all_subdomain=false]
+	 * [(bool)retain_on_the_same_pc=false,share_on_subdomain=false]
 	 */
 	private $cnf;
 	
@@ -53,6 +53,7 @@ class PuzzleSession implements SessionHandlerInterface{
 			//Session is constructed using cookie, http_host, and user_agent
 			$data = Database::readAll("sessions","where session_id='?' limit 1", $_COOKIE["puzzleos"])->data[0];
 			if($data["session_id"] != ""){
+				
 				//Session id exists in database, perform client checking
 				$c = unserialize($data["cnf"]);
 				$i = unserialize($data["client"]);
@@ -169,6 +170,8 @@ class PuzzleSession implements SessionHandlerInterface{
 		case "expire":
 			$this->expire = (int) $v;
 			break;
+		default:
+			throw new PuzzleError("Invalid input $k");
 		}
 	}
 	
@@ -176,6 +179,8 @@ class PuzzleSession implements SessionHandlerInterface{
 		switch($k){
 		case "session_id":
 			return $this->id;
+		default:
+			throw new PuzzleError("Invalid input $k");
 		}
 	}
 }

@@ -18,6 +18,8 @@ define("__DENY_HTACCESS_HASH", "ee9a29b31d78b2e52120610ed51f732453580f7c");
  * Only allowed to be called from applications
  */
 class UserData{
+	private static $cache;
+	
 	private static function init(){
 		$caller = debug_backtrace()[1]["file"];
 		$filenameStr = str_replace(__ROOTDIR,"",str_replace("\\","/",$caller));
@@ -55,7 +57,7 @@ class UserData{
 	}
 	
 	/**
-	 * Move uploaded file through HTTP POST
+	 * Move uploaded file through HTTP POST to user directory
 	 * Just like move_uploaded_file(), but moves it directly to user data directory
 	 * for easy access.
 	 * 
@@ -84,7 +86,7 @@ class UserData{
 	}
 	
 	/**
-	 * Move file somewhere to user directory
+	 * Move file from somewhere to user directory
 	 * 
 	 * @param string $key
 	 * @param string $path_to_file
@@ -195,8 +197,8 @@ class UserData{
 			Database::deleteRowArg("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		}
 		IO::write($filename,$content);
-		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
-		return true;
+		unset(self::$cache[$appname.$key]);
+		return Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 	}
 	
 	/**
@@ -222,7 +224,13 @@ class UserData{
 		$appname = self::init();
 		if($appname == "") return false;
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
-		return(file_get_contents(IO::physical_path($filename)));
+		if(!isset(self::$cache[$appname.$key])){
+			$ctn = file_get_contents(IO::physical_path($filename));
+			self::$cache[$appname.$key] = $ctn;
+		}else{
+			$ctn = self::$cache[$appname.$key];
+		}
+		return($ctn);
 	}
 	
 	/**
@@ -249,8 +257,8 @@ class UserData{
 		if($appname == "") return false;		
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if(!unlink(IO::physical_path($filename))) return false;
+		unset(self::$cache[$appname.$key]);
 		return Database::deleteRowArg("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
-		return true;
 	}
 }
 ?>

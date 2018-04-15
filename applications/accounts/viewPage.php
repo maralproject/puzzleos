@@ -14,6 +14,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 
 $language = new Language;
 $needToGoChPass = false;
+
 if(!$_SESSION['account']['loggedIn']){
 	$changePass_LC = 0;
 	if(isset($_SESSION['account']['change_pass']['linkClicked'])) $changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];

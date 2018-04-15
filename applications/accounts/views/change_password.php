@@ -16,7 +16,7 @@ $language = new Language; $language->app = "users";
 ?>
 <div class="container">
 <div style="max-width:600px;">
-<h3><?php $language->dump("c_pass")?></h3><br>
+<h2><?php $language->dump("c_pass")?></h2><br>
 <form action="<?php echo __SITEURL?>/users/changepassword" method="post">			
 	<div class="input-group">
 	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>

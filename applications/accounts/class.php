@@ -17,14 +17,42 @@ define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
 define("USER_AUTH_PUBLIC", 3);
 
+include("addons/recaptcha.php");
+
 /**
  * Use this class to manage User, and authenticate user permission
  */
-class Accounts{
+class Accounts{	
 	/**
 	 * @var array 
 	 */
 	private static $users = [];
+	
+	public static function getSettings(){
+		return(json_decode(UserData::read("settings"),true));
+	}
+	
+	public static function verifyRecapctha(){
+		$url = 'https://www.google.com/recaptcha/api/siteverify';
+		$data = [
+			'secret' => Accounts::getSettings()["f_recaptcha_secret"], 
+			'response' => $_POST["g-recaptcha-response"],
+			'remoteip' => $_SERVER["REMOTE_ADDR"]
+		];
+
+		// use key 'http' even if you send the request to https://...
+		$options = array(
+			'http' => array(
+				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+				'method'  => 'POST',
+				'content' => http_build_query($data)
+			)
+		);
+		$context  = stream_context_create($options);
+		$result = file_get_contents($url, false, $context);
+		if ($result === FALSE) throw new PuzzleError("Cannot contact Google for Recaptcha");
+		return(json_decode($result)->success);
+	}
 	
 	/**
 	 * Hash password

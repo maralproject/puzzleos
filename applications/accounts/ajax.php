@@ -33,14 +33,19 @@ if(__getURI(2) == "newAJAX"){
 }elseif(__getURI(2) == "changeMail"){
 	Accounts::authAccess(0) or die();
 	($_POST["tf"] == "yes") or die();
-	filter_var($_POST["mail"], FILTER_VALIDATE_EMAIL) or die();
+	if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["mail"] == "") die();
+	else{
+		if($_POST["mail"] != "") filter_var($_POST["mail"], FILTER_VALIDATE_EMAIL) or die();
+	}
 	Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", $_POST["mail"], $_POST["name"]) or die();
 	die($_POST["name"]);
 }elseif(__getURI(2) == "changePhone"){
 	Accounts::authAccess(0) or die();
 	($_POST["tf"] == "yes") or die();	
-	if($_POST["phone"] == "") die($_POST["name"]);
-	preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) or die();
+	if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == "") die();
+	else{
+		if($_POST["phone"] != "") preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) or die();
+	}
 	Database::exec("UPDATE `app_users_list` SET `phone`='?' WHERE `id`='?';", $_POST["phone"], $_POST["name"]) or die();
 	die($_POST["name"]);
 }elseif(__getURI(2) == "changeLocal"){
@@ -74,6 +79,7 @@ if(__getURI(2) == "newAJAX"){
 	if($_POST["gid"] == $_SESSION['account']['group']) die(); //Donot allow user to remove his group by himself
 	if(Database::read("app_users_grouplist","system","id",$_POST["gid"]) == "1") die();
 	if(AppManager::isOnGroup($_POST["gid"])) die("APP"); //There is some application owned by this group
+	if(Accounts::getSettings()["f_reg_group"] == $_POST["gid"]) die("APP"); //Group is used by registration process
 	//Move all of the user back to "Registered" group
 	Database::exec("UPDATE `app_users_list` SET `group`='".Accounts::getRootGroupId(USER_AUTH_REGISTERED)."' WHERE `group`='?';", $_POST["gid"]) or die();
 	Database::deleteRow("app_users_grouplist","id",$_POST["gid"]) or die();

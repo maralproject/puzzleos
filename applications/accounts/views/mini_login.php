@@ -14,7 +14,18 @@ __requiredSystem("1.1.1") or die("You need to upgrade the system");
 
 $language = new Language; $language->app = "users";
 if(!isset($_GET["redir"])) $_GET["redir"] = "";
+
+$en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 ?>
+<?php if($en_recaptcha):?>
+<script>
+	function onposlogin(token){
+		$("#loginCtn form").submit();
+	}
+</script>
+<script src='https://www.google.com/recaptcha/api.js' async></script>
+<?php endif?>
+
 <div id="loginCtn" style="max-width:400px;">
 	<h3><?php $language->dump("pltya")?></h3>
 	<form action="<?php echo __SITEURL?>/users/login" method="post">
@@ -28,7 +39,7 @@ if(!isset($_GET["redir"])) $_GET["redir"] = "";
 		</div><br>	
 		<input type="hidden" name="redir" value="<?php echo $useless;?>">
 		<input type="hidden" name="trueLogin" value="1">
-		<button title="<?php $language->dump("login")?>" type="submit" class="btn btn-info"><?php $language->dump("login")?></button>
+		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
 		<a href="<?php echo __SITEURL?>/users/forgot"><button title="<?php $language->dump("f_pass")?>" type="button" class="btn btn-link"><?php $language->dump("nh")?></button></a>
 	</form>		
 </div>
