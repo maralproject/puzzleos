@@ -26,7 +26,7 @@ return array(
 	"FIND_USER"			=>	"Cari pengguna",
 	"GROUP_EDITOR"		=>	"Editor Kelompok",
 	"LOGIN"				=>	"Masuk",
-	"USERNAME"			=>	"Nama user",
+	"USERNAME"			=>	"Username",
 	"PASSWORD"			=>	"Kata Sandi",
 	"F_PASS"			=>	"Lupa Password",
 	"NH"				=>	"Bantuan",
@@ -39,7 +39,7 @@ return array(
 	"OLD_PASS"			=>	"Kata sandi lama",
 	"NEW_PASS"			=>	"Kata sandi baru",
 	"VER_PASS"			=>	"Verifikasi Kata sandi",
-	"NAME"				=>	"Nama",
+	"NAME"			     =>	"Nama Lengkap",
 	"EMAIL"				=>	"Email",
 	"PHONE"				=>	"No. Telpon",
 	"SAVE_SET"			=>	"Simpan Setelan",
@@ -83,6 +83,7 @@ return array(
 	"CHANGED"			=>	"Dirubah",
 	"UNCHANGED"			=>	"Tidak berubah",
 	"NEW_USER"			=>	"Tambah User",
+    "SIGNUP"			=>	"Daftar"
 );
 
 ?>

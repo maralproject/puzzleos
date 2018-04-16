@@ -121,6 +121,8 @@ if(__getURI("app") == $appProp->appname){
 					Prompt::postError($language->get("emailE"),true);
 				}else if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == ""){
 					Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
+				}else if($_POST['name'] == ""){
+					Prompt::postWarn("Nama Lengkap tidak boleh kosong",true);
 				}else{
 					Database::exec("UPDATE `app_users_list` SET `name`='?', `lang`='?', `phone`='?' WHERE `id`='?'", $_POST['name'], $_POST['lang'], $_POST['phone'], $_SESSION['account']['id']);
 					$_SESSION['account']['phone'] = $_POST['phone'];

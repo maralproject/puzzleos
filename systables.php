@@ -31,7 +31,7 @@ $a->addColumn("default_app","VARCHAR(50)");
 $a->addColumn("default_template","VARCHAR(50)");
 $a->addColumn("restricted_app");
 
-$a->newInitialRow("{root}","admin","blank","");
+$a->newInitialRow("{root}","admin","blank","[]");
 
 Database::newStructure("multidomain_config",$a);
 

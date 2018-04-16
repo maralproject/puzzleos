@@ -39,7 +39,7 @@ return array(
 	"OLD_PASS"			=>	"Old Password",
 	"NEW_PASS"			=>	"New Password",
 	"VER_PASS"			=>	"Verify Password",
-	"NAME"				=>	"Name",
+	"NAME"				=>	"Full Name",
 	"EMAIL"				=>	"Email",
 	"PHONE"				=>	"Phone",
 	"SAVE_SET"			=>	"Save Settings",
@@ -83,6 +83,7 @@ return array(
 	"CHANGED"			=>	"Changed",
 	"UNCHANGED"			=>	"Unchanged",
 	"NEW_USER"			=>	"New User",
+    "SIGNUP"			=>	"Sign up"
 );
 
 ?>

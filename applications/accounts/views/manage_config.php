@@ -35,6 +35,11 @@
 	</div>
 </div>
 <div class="row s_field grf">
+	<div class="col-md-12">
+		<label><input type="checkbox" name="f_reg_activate" <?php if($s["f_reg_activate"] == "on") echo "checked"?>> Haruskan aktivasi akun</label>
+	</div>
+</div>
+<div class="row s_field grf">
 	<div class="col-md-4">Daftarkan pengguna baru sebagai</div>
 	<div class="col-md-8"><?php echo Accounts::getGroupPromptButton("f_reg_group",($s["f_reg_group"] == ""?Accounts::getRootGroupId(USER_AUTH_REGISTERED):$s["f_reg_group"]),USER_AUTH_REGISTERED)?></div>
 </div>

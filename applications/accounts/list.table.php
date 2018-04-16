@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("1.2.3") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -27,6 +27,7 @@ $table->addColumn("phone");
 $table->addColumn("lang");
 $table->addColumn("password");
 $table->addColumn("username");
+$table->addColumn("enabled","INT(1)")->defaultValue(1);
 
 /* 
  * Warning! This is the default user credentials!

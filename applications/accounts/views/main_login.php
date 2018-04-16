@@ -42,8 +42,14 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		</div><br>							
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
-		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
-		<a href="<?php echo __SITEURL?>/users/forgot"><button title="<?php $language->dump("f_pass")?>" type="button" class="btn btn-link"><?php $language->dump("nh")?></button></a>
-	</form><br><br>
+		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>		
+	</form><br>
+	
+	<div class="helpform" style="text-align:center;">
+		<a href="<?php echo __SITEURL?>/users/forgot">Lupa password?</a>	
+		<?php if(Accounts::getSettings()["f_en_registration"] == "on"):?>
+		<br>Belum punya akun? <b><a href="<?php echo __SITEURL?>/users/signup">Daftar</a></b>
+		<?php endif?>	
+	</div>
 </div>
 </div>

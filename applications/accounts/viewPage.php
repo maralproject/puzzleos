@@ -27,6 +27,8 @@ if(!$_SESSION['account']['loggedIn']){
 		}
 	}elseif((__getURI("action") == "forgot")){
 		require_once("views/reset_password_form.php");
+	}elseif(__getURI("action") == "signup" && Accounts::getSettings()["f_en_registration"] == "on"){
+		require_once("views/signup.php");
 	}else{
 		require_once("views/main_login.php");
 	}

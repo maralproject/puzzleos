@@ -130,7 +130,11 @@ class PuzzleSession implements SessionHandlerInterface{
 	public function write_cookie(){
 		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		
-		if($this->client[2]=="localhost"){
+		/**
+		 * If HTTP host is localhost or IP address, then put NULL in setcookie()
+		 * else, put ".domain.com"
+		 */
+		if($this->client[2]=="localhost" || filter_var($this->client[2], FILTER_VALIDATE_IP)){
 			$root_domain = NULL;
 		}else{
 			$d_array = explode(".",$this->client[2]);

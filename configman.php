@@ -425,6 +425,9 @@ require_once(__ROOTDIR . '/configs/root.sys.php');
 
 require_once("database.php");
 
+/* Build system table in the database */
+require_once("systables.php");
+
 /* Removing www. and port from domain */
 $host_without_port = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
 PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_without_port : "{root}");
@@ -448,9 +451,6 @@ if(ConfigurationGlobal::$use_multidomain){
 }
 
 unset($host_without_port);
-
-/* Build system table in the database */
-require_once("systables.php");
 
 /* Define default stuff */
 ConfigurationMultidomain::$default_application = Database::read("multidomain_config","default_app","host", PuzzleOSGlobal::$domain_zone);

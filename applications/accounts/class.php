@@ -17,8 +17,6 @@ define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
 define("USER_AUTH_PUBLIC", 3);
 
-include("addons/recaptcha.php");
-
 /**
  * Use this class to manage User, and authenticate user permission
  */
@@ -27,6 +25,27 @@ class Accounts{
 	 * @var array 
 	 */
 	private static $users = [];
+	
+	public static $customET_CE = NULL;
+	public static $customET_RP = NULL;
+	
+	/**
+	 * Change default email confirmation template
+	 * Available variable :
+	 * {name}, {email}, {link}
+	 */
+	public static function setEmailTemplate_ConfirmEmail($html){
+		self::$customET_CE = $html;
+	}
+	
+	/**
+	 * Change default reset password template
+	 * Available variable :
+	 * {name}, {link}
+	 */
+	public static function setEmailTemplate_ResetPassword($html){
+		self::$customET_RP = $html;
+	}
 	
 	public static function getSettings(){
 		return(json_decode(UserData::read("settings"),true));
@@ -262,8 +281,10 @@ class Accounts{
 	/**
 	 * Add login session
 	 * @param string $userID User ID
+	 * @return false;
 	 */
 	public static function addSession($userID){
+		if(Database::read("app_users_list","enabled","id",$userID) != 1) return false;
 		$_SESSION['account']['loggedIn'] = 1;
 		$_SESSION['account']['id'] = $userID;
 		$_SESSION['account']['email'] = Database::read("app_users_list","email","id",$userID);
@@ -271,6 +292,7 @@ class Accounts{
 		$_SESSION['account']['lang'] = Database::read("app_users_list","lang","id",$userID);
 		$_SESSION['account']['name'] = Database::read("app_users_list","name","id",$userID);
 		$_SESSION['account']['group'] = Database::read("app_users_list","group","id",$userID);
+		return true;
 	}
 	
 	/**
@@ -281,6 +303,7 @@ class Accounts{
 	 */
 	public static function authUserId($username,$pass){
 		$userid = Database::read("app_users_list","id","username",strtolower($username));
+		if(Database::read("app_users_list","enabled","id",$userid) != 1) return false;
 		$auth_user = $userid != "" ? 1 : 0;
 		$auth_pass = Accounts::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
 		return($auth_user && $auth_pass);

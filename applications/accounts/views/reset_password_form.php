@@ -27,5 +27,9 @@ $language = new Language; $language->app = "users";
 		<input type="hidden" name="realforgotpaswd" value="1"> 
 		<button type="submit" class="btn btn-default"><?php $language->dump("rmp")?></button>
 	</form><br><br>
+	
+	<div class="helpform" style="text-align:center;">
+	Sudah punya akun? <b><a href="<?php echo __SITEURL?>/users">Masuk</a></b>
+	</div>
 </div>
 </div>
