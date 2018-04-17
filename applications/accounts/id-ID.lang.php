@@ -4,14 +4,14 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.1.1
  */
- 
+
 return array(
 	"APP_ON_GROUP"		=>	"Mohon merubah aplikasi yang tertaut pada kelompok ini ke kelompok lainnya",
 	"SEL_GROUP"			=>	"Pilih kelompok pengguna",
@@ -83,7 +83,22 @@ return array(
 	"CHANGED"			=>	"Dirubah",
 	"UNCHANGED"			=>	"Tidak berubah",
 	"NEW_USER"			=>	"Tambah User",
-    "SIGNUP"			=>	"Daftar"
+    "SIGNUP"			=>	"Daftar",
+	"SETTINGS"			=> 	"Pengaturan",
+	"G-RECAPTCHA"		=> 	"Google Recaptcha",
+	"G-RECAPTCHA-WARN"	=> 	"Gunakan Recaptcha",
+	"SITEKEY"			=> 	"Site key",
+	"SECRETKEY"			=> 	"Secret key",
+	"REGISTRATION"		=> 	"Pendaftaran",
+	"REQ_ACTIVATE_ACC"	=> 	"Haruskan aktivasi akun",
+	"REG_NEW_USER_AS"	=> 	"Daftarkan pengguna baru sebagai",
+	"PROFILE_REQ"		=> 	"Kelengkapan Profil",
+	"EMAIL_REQ"			=> 	"Email wajib diisi",
+	"PHONE_REQ"			=> 	"Nomor telepon wajib diisi",
+	"REMEMEMBER_FEAT"	=> 	"Fitur 'Ingat Saya'",
+	"ENABLE"			=> 	"Hidupkan",
+	"MISC"				=> 	"Lainnya",
+	"LOGIN_SESSION_SHARE"=>	"Bagikan sesi login ke subdomain"
 );
 
 ?>
