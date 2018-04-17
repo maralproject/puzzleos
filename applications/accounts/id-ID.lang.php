@@ -90,6 +90,7 @@ return array(
 	"SITEKEY"			=> 	"Site key",
 	"SECRETKEY"			=> 	"Secret key",
 	"REGISTRATION"		=> 	"Pendaftaran",
+	"LET_GUEST_REG"		=> 	"Allow guest registration",
 	"REQ_ACTIVATE_ACC"	=> 	"Haruskan aktivasi akun",
 	"REG_NEW_USER_AS"	=> 	"Daftarkan pengguna baru sebagai",
 	"PROFILE_REQ"		=> 	"Kelengkapan Profil",
@@ -98,7 +99,9 @@ return array(
 	"REMEMEMBER_FEAT"	=> 	"Fitur 'Ingat Saya'",
 	"ENABLE"			=> 	"Hidupkan",
 	"MISC"				=> 	"Lainnya",
-	"LOGIN_SESSION_SHARE"=>	"Bagikan sesi login ke subdomain"
+	"LOGIN_SESSION_SHARE"=>	"Bagikan sesi login ke subdomain",
+	"OWN_ACC_CONFIRM"	=>	"Sudah punya akun?",
+	"NOT_OWN_ACC_CONFIRM"=>	"Belum punya akun?"
 );
 
 ?>

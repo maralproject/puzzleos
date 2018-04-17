@@ -90,6 +90,7 @@ return array(
 	"SITEKEY"			=> 	"Site key",
 	"SECRETKEY"			=> 	"Secret key",
 	"REGISTRATION"		=> 	"Registration",
+	"LET_GUEST_REG"		=> 	"Allow guest registration",
 	"REQ_ACTIVATE_ACC"	=> 	"Require account activation",
 	"REG_NEW_USER_AS"	=> 	"Register new user as",
 	"PROFILE_REQ"		=> 	"Profile Requirements",
@@ -98,7 +99,9 @@ return array(
 	"REMEMEMBER_FEAT"	=> 	"'Remember Me' Feature",
 	"ENABLE"			=> 	"Enable",
 	"MISC"				=> 	"Miscellaneous",
-	"LOGIN_SESSION_SHARE"=>	"Share login session to subdomains"
+	"LOGIN_SESSION_SHARE"=>	"Share login session to subdomains",
+	"OWN_ACC_CONFIRM"	=>	"Have an account?",
+	"NOT_OWN_ACC_CONFIRM"=>	"Don't have an account?"
 );
 
 ?>

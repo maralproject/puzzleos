@@ -1,14 +1,14 @@
-<?php 
+<?php
 defined("__POSEXEC") or die("No direct access allowed!");
 __requiredSystem("1.2.2") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.1.1
  */
 
@@ -39,17 +39,17 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		<div class="input-group">
 			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
 			<input required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>" aria-describedby="sizing-addon2">
-		</div><br>							
+		</div><br>
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
-		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>		
+		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
 	</form><br>
-	
+
 	<div class="helpform" style="text-align:center;">
-		<a href="<?php echo __SITEURL?>/users/forgot">Lupa password?</a>	
+		<a href="<?php echo __SITEURL?>/users/forgot"><?php $language->dump("F_PASS")?></a>	
 		<?php if(Accounts::getSettings()["f_en_registration"] == "on"):?>
-		<br>Belum punya akun? <b><a href="<?php echo __SITEURL?>/users/signup">Daftar</a></b>
-		<?php endif?>	
+		<br><?php $language->dump("NOT_OWN_ACC_CONFIRM")?> <b><a href="<?php echo __SITEURL?>/users/signup"><?php $language->dump("SIGNUP")?></a></b>
+		<?php endif?>
 	</div>
 </div>
 </div>
