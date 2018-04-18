@@ -41,7 +41,7 @@ class PuzzleSession implements SessionHandlerInterface{
 	private $new_data;
 	private $c_update;	
 
-    public function open($savePath, $sessionName){
+    public function open($savePath = "", $sessionName = ""){
 		$this->destroyed = false;
 		$this->new_data = true;
 		$this->c_update = false;
@@ -166,7 +166,6 @@ class PuzzleSession implements SessionHandlerInterface{
     }
 
     public function gc($maxlifetime){
-        //Remove old session from database
 		Database::exec("delete from `sessions` where expire<=?",(int)time());
     }
 	
@@ -192,7 +191,17 @@ class PuzzleSession implements SessionHandlerInterface{
 		}
 	}
 	
+	/**
+	 * WARNING!
+	 * End all active session in PuzzleOS
+	 */
+	public function endAll(){
+		Database::exec("delete from `sessions`");
+		$this->destroyed = true;
+	}
+	
 	public function __get($k){
+		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		switch($k){
 		case "session_id":
 			return $this->id;

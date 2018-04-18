@@ -28,7 +28,7 @@ return array(
 	"LOGIN"				=>	"Login",
 	"USERNAME"			=>	"Username",
 	"PASSWORD"			=>	"Password",
-	"F_PASS"			=>	"Forgot Password",
+	"F_PASS"			=>	"Forgot Password?",
 	"NH"				=>	"Help",
 	"ECEH"				=>	"Enter your email address here",
 	"RMP"				=>	"Continue",

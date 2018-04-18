@@ -190,6 +190,9 @@ if(__getURI("app") == $appProp->appname){
 		}
 		
 		if(UserData::store("settings",json_encode($o),"json",true)){
+			PuzzleOSGlobal::$session->endAll();
+			PuzzleOSGlobal::$session->open();
+			PuzzleOSGlobal::$session->write_cookie();
 			Prompt::postGood("Pengaturan telah diperbarui",true);
 		}else{
 			Prompt::postError("Aksi gagal",true);
