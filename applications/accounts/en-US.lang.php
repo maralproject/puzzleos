@@ -4,14 +4,14 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.1.1
  */
- 
+
 return array(
 	"APP_ON_GROUP"		=>	"Please change application permission to other group first",
 	"SEL_GROUP"			=>	"Select user group",
@@ -86,7 +86,25 @@ return array(
 	"CHANGED"			=>	"Changed",
 	"UNCHANGED"			=>	"Unchanged",
 	"NEW_USER"			=>	"New User",
-    "SIGNUP"			=>	"Sign up"
+    "SIGNUP"			=>	"Sign up",
+	"SETTINGS"			=> 	"Settings",
+	"G-RECAPTCHA"		=> 	"Google Recaptcha",
+	"G-RECAPTCHA-WARN"	=> 	"Use Recaptcha",
+	"SITEKEY"			=> 	"Site key",
+	"SECRETKEY"			=> 	"Secret key",
+	"REGISTRATION"		=> 	"Registration",
+	"LET_GUEST_REG"		=> 	"Allow guest registration",
+	"REQ_ACTIVATE_ACC"	=> 	"Require account activation",
+	"REG_NEW_USER_AS"	=> 	"Register new user as",
+	"PROFILE_REQ"		=> 	"Profile Requirements",
+	"EMAIL_REQ"			=> 	"Require an email address",
+	"PHONE_REQ"			=> 	"Require a phone address",
+	"REMEMEMBER_FEAT"	=> 	"'Remember Me' Feature",
+	"ENABLE"			=> 	"Enable",
+	"MISC"				=> 	"Miscellaneous",
+	"LOGIN_SESSION_SHARE"=>	"Share login session to subdomains",
+	"OWN_ACC_CONFIRM"	=>	"Have an account?",
+	"NOT_OWN_ACC_CONFIRM"=>	"Don't have an account?"
 );
 
 ?>

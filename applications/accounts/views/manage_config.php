@@ -1,5 +1,5 @@
 <?php $s = Accounts::getSettings()?>
-
+<?php $language = new Language; $language->app = "users";?>
 <style>
 .s_field{
 	max-width:800px;
@@ -11,63 +11,63 @@
 </style>
 
 <form id="cf" action="<?php echo __SITEURL?>/users/update" method="post">
-<h3>Pengaturan</h3>
+<h3><?php $language->dump("settings")?></h3>
 
-<h4>Google Rechaptcha</h4>
+<h4><?php $language->dump("G-RECAPTCHA")?></h4>
 <div class="row s_field">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_en_recaptcha" onchange="$('.rf').toggle($(this).prop('checked'))" <?php if($s["f_en_recaptcha"] == "on") echo "checked"?>> Gunakan Recaptcha</label>
+		<label><input type="checkbox" name="f_en_recaptcha" onchange="$('.rf').toggle($(this).prop('checked'))" <?php if($s["f_en_recaptcha"] == "on") echo "checked"?>> <?php $language->dump("G-RECAPTCHA-WARN");?></label>
 	</div>
 </div>
 <div class="row s_field rf">
-	<div class="col-md-4">Site key</div>
+	<div class="col-md-4"><?php $language->dump("SITEKEY")?></div>
 	<div class="col-md-8"><input type="text" name="f_recaptcha_site" class="form-control" value="<?php echo $s["f_recaptcha_site"]?>"></div>
 </div>
 <div class="row s_field rf">
-	<div class="col-md-4">Secret key</div>
+	<div class="col-md-4"><?php $language->dump("SECRETKEY")?></div>
 	<div class="col-md-8"><input type="text" name="f_recaptcha_secret" class="form-control" value="<?php echo $s["f_recaptcha_secret"]?>"></div>
 </div>
 
-<br><h4>Pendaftaran</h4>
+<br><h4><?php $language->dump("REGISTRATION")?></h4>
 <div class="row s_field">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_en_registration" onchange="$('.grf').toggle($(this).prop('checked'))" <?php if($s["f_en_registration"] == "on") echo "checked"?>> Izinkan tamu untuk mendaftar</label>
+		<label><input type="checkbox" name="f_en_registration" onchange="$('.grf').toggle($(this).prop('checked'))" <?php if($s["f_en_registration"] == "on") echo "checked"?>> <?php $language->dump("LET_GUEST_REG")?></label>
 	</div>
 </div>
 <div class="row s_field grf">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_reg_activate" <?php if($s["f_reg_activate"] == "on") echo "checked"?>> Haruskan aktivasi akun</label>
+		<label><input type="checkbox" name="f_reg_activate" <?php if($s["f_reg_activate"] == "on") echo "checked"?>> <?php $language->dump("REQ_ACTIVATE_ACC")?></label>
 	</div>
 </div>
 <div class="row s_field grf">
-	<div class="col-md-4">Daftarkan pengguna baru sebagai</div>
+	<div class="col-md-4"><?php $language->dump("REG_NEW_USER_AS")?></div>
 	<div class="col-md-8"><?php echo Accounts::getGroupPromptButton("f_reg_group",($s["f_reg_group"] == ""?Accounts::getRootGroupId(USER_AUTH_REGISTERED):$s["f_reg_group"]),USER_AUTH_REGISTERED)?></div>
 </div>
 
-<br><h4>Kelengkapan Profil</h4>
+<br><h4><?php $language->dump("PROFILE_REQ")?></h4>
 <div class="row s_field">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_reg_required1" <?php if($s["f_reg_required1"] == "on") echo "checked"?>> Email wajib diisi</label><br>
-		<label><input type="checkbox" name="f_reg_required2" <?php if($s["f_reg_required2"] == "on") echo "checked"?>> Telepon wajib diisi</label>
+		<label><input type="checkbox" name="f_reg_required1" <?php if($s["f_reg_required1"] == "on") echo "checked"?>> <?php $language->dump("EMAIL_REQ")?></label><br>
+		<label><input type="checkbox" name="f_reg_required2" <?php if($s["f_reg_required2"] == "on") echo "checked"?>> <?php $language->dump("PHONE_REQ")?></label>
 	</div>
 </div>
 
-<br><h4>Fitur Ingat saya</h4>
+<br><h4><?php $language->dump("REMEMEMBER_FEAT")?></h4>
 <div class="row s_field">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_en_remember_me" <?php if($s["f_en_remember_me"] == "on") echo "checked"?>> Hidupkan</label>
+		<label><input type="checkbox" name="f_en_remember_me" <?php if($s["f_en_remember_me"] == "on") echo "checked"?>> <?php $language->dump("ENABLE")?></label>
 	</div>
 </div>
 
-<br><h4>Lainnya</h4>
+<br><h4><?php $language->dump("MISC")?></h4>
 <div class="row s_field">
 	<div class="col-md-12">
-		<label><input type="checkbox" name="f_share_session" <?php if($s["f_share_session"] == "on") echo "checked"?>> Bagikan sesi login dengan subdomain</label>
+		<label><input type="checkbox" name="f_share_session" <?php if($s["f_share_session"] == "on") echo "checked"?>> <?php $language->dump("LOGIN_SESSION_SHARE")?></label>
 	</div>
 </div>
 
 <br>
-<button type="submit" class="btn btn-success">Simpan</button>
+<button type="submit" class="btn btn-success"><?php $language->dump("SAVE_SET")?></button>
 </form>
 <div style="height:15vh"></div>
 <script>$("#cf input").change()</script>
