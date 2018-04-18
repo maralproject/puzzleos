@@ -20,16 +20,16 @@ $language = new Language; $language->app = "users";
 <form action="<?php echo __SITEURL?>/users/changepassword" method="post">			
 	<div class="input-group">
 	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
-	  <input name="passold" required autofocus type="password" class="form-control" placeholder="<?php $language->dump("old_pass")?>" aria-describedby="sizing-addon1">
+	  <input name="passold" required autofocus type="password" class="form-control" placeholder="<?php $language->dump("old_pass")?>" >
 	</div><br>		
 	<div class="input-group">
 	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
 	  <input type="hidden" name="datafromresetpassafterverify" value="ok">
-	  <input name="passnew" required type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" aria-describedby="sizing-addon1">
+	  <input name="passnew" required type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" >
 	</div><br>		
 	<div class="input-group">
 	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
-	  <input name="passver" required type="password" class="form-control" placeholder="<?php $language->dump("ver_pass")?>" aria-describedby="sizing-addon1">
+	  <input name="passver" required type="password" class="form-control" placeholder="<?php $language->dump("ver_pass")?>" >
 	</div><br>		
 	<input type="hidden" name="realcpass" value="1">
 	<button type="submit" class="btn btn-default"><?php $language->dump("c_pass")?></button>

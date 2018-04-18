@@ -31,11 +31,11 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	<form action="<?php echo __SITEURL?>/users/login" method="post">
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php $language->dump("username")?>" aria-describedby="sizing-addon1">
+		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
 		</div><br>
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
-		  <input name="pass" autocomplete="off" type="password" class="form-control" placeholder="<?php $language->dump("password")?>" aria-describedby="sizing-addon1">
+		  <input name="pass" autocomplete="off" type="password" class="form-control" placeholder="<?php $language->dump("password")?>" >
 		</div><br>	
 		<input type="hidden" name="redir" value="<?php echo $useless;?>">
 		<input type="hidden" name="trueLogin" value="1">

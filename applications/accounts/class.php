@@ -28,6 +28,7 @@ class Accounts{
 	
 	public static $customET_CE = NULL;
 	public static $customET_RP = NULL;
+	public static $customET_AC = NULL;
 	
 	/**
 	 * Change default email confirmation template
@@ -45,6 +46,15 @@ class Accounts{
 	 */
 	public static function setEmailTemplate_ResetPassword($html){
 		self::$customET_RP = $html;
+	}
+	
+	/**
+	 * Change default activate account template
+	 * Available variable :
+	 * {name}, {link}
+	 */
+	public static function setEmailTemplate_ActivateAccount($html){
+		self::$customET_AC = $html;
 	}
 	
 	public static function getSettings(){
@@ -281,7 +291,7 @@ class Accounts{
 	/**
 	 * Add login session
 	 * @param string $userID User ID
-	 * @return false;
+	 * @return bool
 	 */
 	public static function addSession($userID){
 		if(Database::read("app_users_list","enabled","id",$userID) != 1) return false;

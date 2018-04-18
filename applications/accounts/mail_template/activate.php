@@ -13,18 +13,14 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  */
 
 $language = new Language;
-if(Accounts::$customET_CE === NULL):
+if(Accounts::$customET_AC === NULL):
 ?>
 <p>Hi <?php echo $_SESSION['account']['name']?>!</p>
-<?php if(!$new_account):?>
-<p><?php $language->dump("e10")?> <?php echo $_POST['email']?></p>
-<?php else:?>
-<p><?php $language->dump("e17")?></p>
-<?php endif?>
+<p><?php $language->dump("e18")?></p>
 <p><?php $language->dump("e11")?> <a href="<?php echo $link?>">[<strong><?php $language->dump("e12")?></strong>]</a> <?php $language->dump("e13")?> <strong><?php $language->dump("e14")?>&nbsp;</strong><?php $language->dump("e15")?></p>
 <p><?php $language->dump("e16")?></p>
 <?php 
 else: 
-echo str_replace("{email}",$_POST["email"],str_replace("{link}",$link,str_replace("{name}",$_SESSION["account"]["name"],Accounts::$customET_CE)));
+echo str_replace("{email}",$_POST["email"],str_replace("{link}",$link,str_replace("{name}",Database::read("app_users_list","name","email",$_POST['email']),Accounts::$customET_AC)));
 endif;
 ?>

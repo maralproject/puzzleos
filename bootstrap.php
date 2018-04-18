@@ -166,6 +166,18 @@ function get_bytes($php_size) {
 }
 
 /**
+ * Get maximum file size allowed by PHP to be uploaded
+ * Use this information to prevent something wrong in your app
+ * when user upload a very large data.
+ * @return integer
+ */
+function php_max_upload_size(){
+	$max_upload = get_bytes(ini_get('post_max_size'));
+	$max_upload2 = get_bytes(ini_get('upload_max_filesize'));
+	return (int)(($max_upload < $max_upload2 && $max_upload != 0) ? $max_upload:$max_upload2);
+}
+
+/**
  * Get HTTP URI
  * @param string $name e.g. "app", "action", or index
  * @return string

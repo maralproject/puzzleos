@@ -16,7 +16,7 @@ if(__getURI(2) == "newAJAX"){
 	Accounts::authAccess(0) or die();
 	($_POST["tf"] == "yes") or die();
 	$rand = rand(10,999);
-	Database::newRow("app_users_list",Accounts::getRootGroupId(USER_AUTH_REGISTERED),$rand,"","","def","","");
+	Database::newRow("app_users_list",Accounts::getRootGroupId(USER_AUTH_REGISTERED),$rand,"","","def","","",1,time());
 	$id = Database::read("app_users_list","id","name",$rand);
 	Database::exec("UPDATE `app_users_list` SET `name`='' WHERE `name`='?';", $rand) or die();
 	die($id);

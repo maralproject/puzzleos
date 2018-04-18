@@ -22,7 +22,7 @@ $language = new Language; $language->app = "users";
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-envelope-o"></i></span>
 		  <input type="hidden" name="datafromforgotout" value="1"> 
-		  <input name="email" autofocus type="text" class="form-control" placeholder="<?php $language->dump("eceh")?>" aria-describedby="sizing-addon1" required>
+		  <input name="email" autofocus type="email" class="form-control" placeholder="<?php $language->dump("eceh")?>"  required>
 		</div><br>
 		<input type="hidden" name="realforgotpaswd" value="1"> 
 		<button type="submit" class="btn btn-default"><?php $language->dump("rmp")?></button>

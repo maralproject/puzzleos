@@ -24,7 +24,7 @@ class PuzzleSession implements SessionHandlerInterface{
 	
 	/**
 	 * $cnf structure
-	 * [(bool)retain_on_the_same_pc=false,share_on_subdomain=false]
+	 * [(bool)retain_on_same_pc=false,share_on_subdomain=false]
 	 */
 	private $cnf;
 	
@@ -58,7 +58,7 @@ class PuzzleSession implements SessionHandlerInterface{
 				$c = unserialize($data["cnf"]);
 				$i = unserialize($data["client"]);
 				
-				if($i[3] == "NULL") {
+				if($i[3] === "NULL") {
 					$i[3] = $_COOKIE["posfpv"];
 					$this->c_update = true;
 				}
@@ -72,7 +72,7 @@ class PuzzleSession implements SessionHandlerInterface{
 						$this->data = $data["content"];
 						$this->cnf = $c;
 						$this->client = $i;
-						$this->expire = (int) $data["expire"];
+						$this->expire = (int) $data["expire"] - $data["start"];
 						session_id($_COOKIE["puzzleos"]);
 						$this->id = $_COOKIE["puzzleos"];
 						//Set the session_id()
@@ -87,7 +87,12 @@ class PuzzleSession implements SessionHandlerInterface{
 		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],$_SERVER['HTTP_HOST'],"NULL"];
 		$this->id = md5(json_encode([$this->client,time()]));
 		$this->cnf = [0,false];
-		$this->expire = 60 * 60; //Normally one hour before GC start to work
+		
+		/**
+		 * Session will be expired in 1 hour if user do not open the browser again
+		 * App can change this variable through service
+		 */
+		$this->expire = 60 * 60;
 		$this->data = "";
 		
 		//Set the session_id()
@@ -149,8 +154,8 @@ class PuzzleSession implements SessionHandlerInterface{
 			setcookie("posfpv","",time()-3600,"/",NULL);
 		}
 		
-		setcookie("posfp", $this->client[3], ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
-		setcookie("puzzleos", $this->id, ($this->cnf[0] ? $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
+		setcookie("posfp", $this->client[3], ($this->cnf[0] ? time() + $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
+		setcookie("puzzleos", $this->id, ($this->cnf[0] ? time() + $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
 	}
 
     public function destroy($id){
@@ -168,8 +173,16 @@ class PuzzleSession implements SessionHandlerInterface{
 	public function __set($k,$v){
 		switch($k){
 		case "share_on_subdomain":
-			$this->cnf[1] = (bool) $v;
-			$this->c_update = true;
+			if($this->cnf[1] != $v){
+				$this->cnf[1] = (bool) $v;
+				$this->c_update = true;
+			}
+			break;
+		case "retain_on_same_pc":
+			if($this->cnf[0] != $v){
+				$this->cnf[0] = (bool) $v;
+				$this->c_update = true;
+			}
 			break;
 		case "expire":
 			$this->expire = (int) $v;

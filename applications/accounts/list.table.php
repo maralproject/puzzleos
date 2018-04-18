@@ -28,6 +28,7 @@ $table->addColumn("lang");
 $table->addColumn("password");
 $table->addColumn("username");
 $table->addColumn("enabled","INT(1)")->defaultValue(1);
+$table->addColumn("registered_time","INT")->defaultValue(0);
 
 /* 
  * Warning! This is the default user credentials!
@@ -35,7 +36,7 @@ $table->addColumn("enabled","INT(1)")->defaultValue(1);
  * Username: admin
  * Password: admin
  */
-$table->newInitialRow(Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin");
+$table->newInitialRow(Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
 
 return $table;
 ?>

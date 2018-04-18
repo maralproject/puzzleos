@@ -13,12 +13,6 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  */
 
 $l = new Language;
-$l->app = "upload_img_ajax"; 
-
-$max_upload = get_bytes(ini_get('post_max_size'));
-$max_upload2 = get_bytes(ini_get('upload_max_filesize'));
-$max_upload = ($max_upload < $max_upload2?$max_upload:$max_upload2);
-unset($max_upload2);
 
 ?>
 
@@ -57,7 +51,7 @@ unset($max_upload2);
 	</style>
 <?php echo FastCache::outCSSMin(); ?>
 
-<form action="<?php echo __SITEURL?>/upload_img_ajax/upload" msz="<?php echo $max_upload?>" style="height:33px;" method="post" enctype="multipart/form-data" class="img_ajax">
+<form action="<?php echo __SITEURL?>/upload_img_ajax/upload" msz="<?php echo php_max_upload_size()?>" style="height:33px;" method="post" enctype="multipart/form-data" class="img_ajax">
 	<span class="btn btn-<?php echo $bootstrap_style?> btn-file upload_box">
 		<i class="fa fa-upload"></i> 
 		<?php echo $label?> 
