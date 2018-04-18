@@ -38,13 +38,8 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		</div><br>
 		<div class="input-group">
 			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
-<<<<<<< HEAD
 			<input required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>">
 		</div><br>							
-=======
-			<input required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>" aria-describedby="sizing-addon2">
-		</div><br>
->>>>>>> 1ae3a8213996558e3c1a47585392d386ff9710c0
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
 		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
