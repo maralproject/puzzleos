@@ -3,11 +3,11 @@ defined("__POSEXEC") or die("No direct access allowed!");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.2.3
  */
 
@@ -65,6 +65,16 @@ $a->addColumn("expire","INT");
 $a->addColumn("user","INT")->allowNull(true);
 
 Database::newStructure("sessions",$a);
+
+/* Table `cron` */
+$a = new DatabaseTableBuilder;
+$a->addColumn("key","VARCHAR(20)")->setAsPrimaryKey();
+$a->addColumn("enabled","TINYINT(1)");
+$a->addColumn("last_exec","CHAR(19)");
+$a->addColumn("next_exec","CHAR(19)");
+$a->addColumn("interval","INT");
+
+Database::newStructure("cron",$a);
 
 unset($a);
 

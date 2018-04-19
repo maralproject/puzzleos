@@ -34,22 +34,22 @@ require_once("runtime_error.php");
 
 /***********************************
  * Maintenance Mode Handler
- * 
+ *
  * To enter maintenance mode,
- * create blank "site.offline" file 
+ * create blank "site.offline" file
  * in the root directory
  ***********************************/
 if(file_exists(__ROOTDIR . "/site.offline")){
 	header('HTTP/1.1 503 Service Temporarily Unavailable');
 	header('Status: 503 Service Temporarily Unavailable');
 	header('Retry-After: 300');//300 seconds
-	
+
 	include( __ROOTDIR . "/templates/system/503.php" );
 	exit;
 }
 
 /***********************************
- * Making sure that cache folder 
+ * Making sure that cache folder
  * always exists
  ***********************************/
 if(!file_exists(__ROOTDIR . "/cache")){
@@ -61,7 +61,7 @@ if(!file_exists(__ROOTDIR . "/cache")){
 }
 
 /***********************************
- * Making sure that user_data folder 
+ * Making sure that user_data folder
  * always exists
  ***********************************/
 if(!file_exists(__ROOTDIR . "/user_data")){
@@ -101,14 +101,14 @@ function objectToArray($d) {
 	if (is_object($d)) {
 		$d = get_object_vars($d);
 	}
-	
+
 	if (is_array($d)) {
 		return array_map(__FUNCTION__, $d);
 	}else{
 		return $d;
 	}
 }
- 
+
 /**
  * Replace first occurrence pattern in string
  * @param string $str_pattern Find
@@ -126,7 +126,7 @@ function str_replace_first($str_pattern, $str_replacement, $string){
 
 /**
  * Validate a json string
- * @param string $string 
+ * @param string $string
  * @return bool
  */
 function is_json($string){
@@ -139,7 +139,7 @@ function is_json($string){
  * Better work if loaded in the app controller
  * @param string $app e.g. "users/login"
  */
-function redirect($app = ""){	
+function redirect($app = ""){
 	$app = ltrim($app,"/");
 	$app = preg_replace("/\s+/","",$app);
 	PuzzleOSGlobal::$session->write_cookie();
@@ -224,9 +224,9 @@ class PObject{
 		$callable = null;
 		if (array_key_exists($name, $this->methods)) $callable = $this->methods[$name];
 		else if(isset($this->$name)) $callable = $this->$name;
-		
+
 		if (!is_callable($callable)) throw new PuzzleError("Method {$name} does not exists");
-		
+
 		return call_user_func_array($callable, $arguments);
 	}
 }
@@ -258,27 +258,31 @@ if( __HTTP_PROTOCOL == "http://" && defined("ALWAYS_HTTPS")){
 	exit;
 }
 
+
 /***********************************
  * All depedencies have been loaded
  ***********************************/
 require_once("templates.php");
 require_once("time.php");
+require_once("cron.php");
 require_once("appFramework.php");
 require_once("services.php");
 
 /***********************************
+* Execute cron job
+************************************/
+
+CronJob::run();
+
+/***********************************
  * Write cookies to browser. Session
- * config can be modified on each 
+ * config can be modified on each
  * app services if necessary using
- * 
+ *
  * PuzzleOSGlobal::$session
  ***********************************/
 PuzzleOSGlobal::$session->write_cookie();
 
-/***********************************
- * Loading stuff in the cron job
- ***********************************/
-require_once("cron.php");
 
 /***********************************
  * Process private file if requested
