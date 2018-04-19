@@ -258,21 +258,14 @@ if( __HTTP_PROTOCOL == "http://" && defined("ALWAYS_HTTPS")){
 	exit;
 }
 
-
 /***********************************
  * All depedencies have been loaded
  ***********************************/
 require_once("templates.php");
 require_once("time.php");
-require_once("cron.php");
 require_once("appFramework.php");
+require_once("cron.php");
 require_once("services.php");
-
-/***********************************
-* Execute cron job
-************************************/
-
-CronJob::run();
 
 /***********************************
  * Write cookies to browser. Session
@@ -282,7 +275,6 @@ CronJob::run();
  * PuzzleOSGlobal::$session
  ***********************************/
 PuzzleOSGlobal::$session->write_cookie();
-
 
 /***********************************
  * Process private file if requested

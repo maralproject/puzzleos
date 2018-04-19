@@ -69,10 +69,7 @@ Database::newStructure("sessions",$a);
 /* Table `cron` */
 $a = new DatabaseTableBuilder;
 $a->addColumn("key","VARCHAR(20)")->setAsPrimaryKey();
-$a->addColumn("enabled","TINYINT(1)");
-$a->addColumn("last_exec","CHAR(19)");
-$a->addColumn("next_exec","CHAR(19)");
-$a->addColumn("interval","INT");
+$a->addColumn("last_exec","INT");
 
 Database::newStructure("cron",$a);
 

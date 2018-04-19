@@ -11,93 +11,50 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 1.2.3
  */
 
-
-// INTERVAL VALUES
 define("T_DAY", 86400);
 define("T_HOUR", 3600);
 define("T_MINUTE", 60);
-
-
-class CronJob   {
-    private static $list=[[]];
-    private static function getTime() {
-        return time();
-    }
+class CronJob{
+    private static $list=[];
     private static function init(){
 		$caller = debug_backtrace()[1]["file"];
 		$filenameStr = str_replace(__ROOTDIR,"",str_replace("\\","/",$caller));
 		$filename = explode("/",$filenameStr);
-		switch($filename[1]){
-		case "applications":
-			break;
-		case "debug.php":
-			if(PuzzleOSGlobal::$debug_app == "") return("");
-			if(AppManager::isInstalled(PuzzleOSGlobal::$debug_app)){
-				//Check the folder for user_data
-				if(!IO::exists("/user_data/". PuzzleOSGlobal::$debug_app)){
-					@mkdir(IO::physical_path("/user_data/". PuzzleOSGlobal::$debug_app));
-				}
-				return(PuzzleOSGlobal::$debug_app);
-			}
-			break;
-		default:
-			return("");
-		}
+        if($filename[1] != "applications") throw new PuzzleError("CronJob must be called from applications");
 		$appDir = $filename[2];
 		$appname = AppManager::getNameFromDirectory($appDir);
-		//Check the folder for user_data
-		if(!IO::exists("/user_data/". $appname)){
-			@mkdir(IO::physical_path("/user_data/". $appname));
-		}
-		if(!IO::exists("/user_private/". $appname)){
-			@mkdir(IO::physical_path("/user_private/". $appname));
-			file_put_contents(IO::physical_path("/user_private/.htaccess"),"Deny from all\r\n");
-		}else{
-			if(hash("sha1",file_get_contents(__ROOTDIR . "/user_private/.htaccess")) != __DENY_HTACCESS_HASH)
-				file_put_contents(IO::physical_path("/user_private/.htaccess"),"Deny from all\r\n");
-		}
 		return($appname);
 	}
+
     /* Register cron job
 	 * @param string $key
      * @param integer $interval
      * @param function $F
 	 */
     public static function register($key, $interval, $F){
+        if (strlen($key)>20) throw new PuzzleError("Key length must be less than 20 characters");
+        if ($interval<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
+        if(!is_callable($F)) throw new PuzzleError("Incorrect parameter");
+
         $appname=self::init();
-        $isEnabled=Database::read("cron", "enabled", "key", $key."_".$appname);
-        if ($isEnabled=="") {
-            Database::newRow("cron", $key."_".$appname, 1, date("Y-m-d_H:i:s", self::getTime()), date("Y-m-d_H:i:s", self::getTime()), $interval);
-            //self::$list[$key]=&$F;
-            $newJob=array(
-                "key" => $key."_".$appname,
-                "func" => &$F
-            );
-            array_push(self::$list, $newJob);
-        }
-        if ($isEnabled=="1") {
-            $update=new DatabaseRowInput;
-            $update->setField("interval", $interval);
-            Database::updateRowAdvanced("cron", $update, "key", $key."_".$appname);
-            $newJob=array(
-                "key" => $key."_".$appname,
-                "func" => &$F
-            );
-            array_push(self::$list, $newJob);
-        }
+        if($appname == "") throw new PuzzleError("An error occured");
+        self::$list[] = ["{$key}_{$appname}",$interval,&$F];
     }
 
     public static function run() {
-        foreach(self::$list as $l) {
-            $isEnabled=Database::read("cron", "enabled", "key", $l["key"]);
-            $nextExec=Database::read("cron", "next_exec", "key", $l["key"]);
-            $interval=Database::read("cron", "interval", "key", $l["key"]);
-            if ($isEnabled=="1" && strcmp(date("Y-m-d_H:i:s", self::getTime()), $nextExec)>0) {
-                $l["func"]();
-                $update=new DatabaseRowInput;
-                $update->setField("last_exec", date("Y-m-d_H:i:s", self::getTime()));
-                $update->setField("next_exec", date("Y-m-d_H:i:s", self::getTime()+$interval));
-                Database::updateRowAdvanced("cron", $update, "key", $l["key"]);
+        foreach(self::$list as $l){
+            $lastExec = Database::read("cron","last_exec","key",$l[0]);
+
+            if($lastExec == "") {
+                $l[2]();
+                Database::newRow("cron", $l[0], time());
+            }else{
+                if (time()-$lastExec >= $l[1]) {
+                    $l[2]();
+                    $update=new DatabaseRowInput;
+                    $update->setField("last_exec", time());
+                    Database::updateRowAdvanced("cron", $update, "key", $l[0]);
+                }
             }
         }
     }
