@@ -142,6 +142,7 @@ function is_json($string){
 function redirect($app = ""){	
 	$app = ltrim($app,"/");
 	$app = preg_replace("/\s+/","",$app);
+	PuzzleOSGlobal::$session->write_cookie();
 	header("Location: ".__SITEURL."/" . $app);
 	die("<script>window.location='".__SITEURL."/$app';</script>");
 }
@@ -205,12 +206,10 @@ function __requiredSystem($version){
 /**
  * Define the URIs
  */
-if(PuzzleOSGlobal::$uri[0] != "__notfound404app__"){
-	PuzzleOSGlobal::$uri = explode("/",__HTTP_URI);
-	PuzzleOSGlobal::$uri["APP"] = PuzzleOSGlobal::$uri[0];
-	if(PuzzleOSGlobal::$uri["APP"] == "") PuzzleOSGlobal::$uri["APP"] = ConfigurationMultidomain::$default_application;
-	PuzzleOSGlobal::$uri["ACTION"] = (isset(PuzzleOSGlobal::$uri[1]) ? PuzzleOSGlobal::$uri[1] : "");
-}
+PuzzleOSGlobal::$uri = explode("/",__HTTP_URI);
+PuzzleOSGlobal::$uri["APP"] = PuzzleOSGlobal::$uri[0];
+if(PuzzleOSGlobal::$uri["APP"] == "") PuzzleOSGlobal::$uri["APP"] = ConfigurationMultidomain::$default_application;
+PuzzleOSGlobal::$uri["ACTION"] = (isset(PuzzleOSGlobal::$uri[1]) ? PuzzleOSGlobal::$uri[1] : "");
 
 /**
  * A custom class like stdObject,

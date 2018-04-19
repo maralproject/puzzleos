@@ -145,6 +145,7 @@ class DatabaseTableBuilder{
  */ 
 class Database{
 	private static $cache = [];
+	private static $t_cache = [];
 	
 	/**
 	 * Mysql database link
@@ -368,7 +369,7 @@ class Database{
 	 * @param string $param Additional custom parameter
 	 * @return string
 	 */
-	public static function getLastId($table,$col,$arg = "",...$param){		
+	public static function getLastId($table,$col,$arg = "",...$param){
 		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);				
@@ -691,16 +692,16 @@ class Database{
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
 				
-		if(!isset(self::$cache['Checksum'])){
+		if(!isset(self::$t_cache['Checksum'])){
 			if(file_exists(__ROOTDIR . "/cache/database_track.json")){
-				self::$cache['Checksum'] = json_decode(file_get_contents(__ROOTDIR . "/cache/database_track.json"),true);
+				self::$t_cache['Checksum'] = json_decode(file_get_contents(__ROOTDIR . "/cache/database_track.json"),true);
 			}else{
-				self::$cache['Checksum'] = [];
+				self::$t_cache['Checksum'] = [];
 			}
 		}
 
 		/* Checking checksum */
-		$old_checksum = self::$cache['Checksum'][$table];
+		$old_checksum = self::$t_cache['Checksum'][$table];
 		$current_checksum = hash("sha256",serialize($structure));
 		$write_cache_file = false;
 		if($old_checksum != ""){
@@ -714,7 +715,7 @@ class Database{
 				$q = false;
 				$insertData = true;
 			}else{
-				self::$cache['Checksum'][$table] = $current_checksum;
+				self::$t_cache['Checksum'][$table] = $current_checksum;
 				$write_cache_file = true;
 				$q = self::isTableExist($table);
 				/* Drop table if necessary */
@@ -726,14 +727,14 @@ class Database{
 			}
 		}else{
 			//Brand new table
-			self::$cache['Checksum'][$table] = $current_checksum;
+			self::$t_cache['Checksum'][$table] = $current_checksum;
 			$write_cache_file = true;
 			$insertData = true;
 			$q = self::isTableExist($table);
 			if($q) $insertData = false;
 		}
 		
-		if(!$q){			
+		if(!$q){
 			//Create Table
 			$query = "CREATE TABLE `".$table."` ( ";
 			foreach($structure as $k=>$d){
@@ -763,7 +764,7 @@ class Database{
 					}
 				}
 				if($write_cache_file) 
-					file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$cache['Checksum']));
+					file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$t_cache['Checksum']));
 				set_time_limit(30);
 				return true;
 			}else{
@@ -905,7 +906,7 @@ class Database{
 			} while(mysqli_next_result(self::$link));
 			
 			if($write_cache_file) 
-				file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$cache['Checksum']));
+				file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$t_cache['Checksum']));
 			set_time_limit(30);
 			return true;
 		}

@@ -27,7 +27,7 @@ foreach(AppManager::listAll() as $app){
 		if($location_config == $location){
 			//Include this menu
 			try{
-				new Application($app["rootname"]);			
+				new Application($app["rootname"]);
 			}catch(AppStartError $e){
 				continue;
 			}
