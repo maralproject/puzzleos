@@ -19,7 +19,7 @@ define("T_MINUTE", 60);
 
 
 class CronJob   {
-    private static $list=[];
+    private static $list=[[]];
     private static function getTime() {
         return time();
     }
@@ -68,22 +68,36 @@ class CronJob   {
         $isEnabled=Database::read("cron", "enabled", "key", $key."_".$appname);
         if ($isEnabled=="") {
             Database::newRow("cron", $key."_".$appname, 1, date("Y-m-d_H:i:s", self::getTime()), date("Y-m-d_H:i:s", self::getTime()), $interval);
-            self::$list[$key]=&$F;
+            //self::$list[$key]=&$F;
+            $newJob=array(
+                "key" => $key."_".$appname,
+                "func" => &$F
+            );
+            array_push(self::$list, $newJob);
         }
         if ($isEnabled=="1") {
-            self::$list[$key."_".$appname]=&$F;
+            $update=new DatabaseRowInput;
+            $update->setField("interval", $interval);
+            Database::updateRowAdvanced("cron", $update, "key", $key."_".$appname);
+            $newJob=array(
+                "key" => $key."_".$appname,
+                "func" => &$F
+            );
+            array_push(self::$list, $newJob);
         }
     }
 
     public static function run() {
-        $cronList=Database::readAll("cron");
-        foreach($cronList->data as $c) {
-            if ($c["enabled"]=="1" && strcmp(date("Y-m-d_H:i:s", self::getTime()), $c["next_exec"])>0) {
-                self::$list[$c["key"]]();
+        foreach(self::$list as $l) {
+            $isEnabled=Database::read("cron", "enabled", "key", $l["key"]);
+            $nextExec=Database::read("cron", "next_exec", "key", $l["key"]);
+            $interval=Database::read("cron", "interval", "key", $l["key"]);
+            if ($isEnabled=="1" && strcmp(date("Y-m-d_H:i:s", self::getTime()), $nextExec)>0) {
+                $l["func"]();
                 $update=new DatabaseRowInput;
                 $update->setField("last_exec", date("Y-m-d_H:i:s", self::getTime()));
-                $update->setField("next_exec", date("Y-m-d_H:i:s", self::getTime()+$c["interval"]));
-                Database::updateRowAdvanced("cron", $update, "key", $c["key"]);
+                $update->setField("next_exec", date("Y-m-d_H:i:s", self::getTime()+$interval));
+                Database::updateRowAdvanced("cron", $update, "key", $l["key"]);
             }
         }
     }
