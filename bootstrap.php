@@ -1,5 +1,9 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
+define("T_DAY", 86400);
+define("T_HOUR", 3600);
+define("T_MINUTE", 60);
+define("CRON_TIME", time());
 /**
  * PuzzleOS
  * Build your own web-based application
