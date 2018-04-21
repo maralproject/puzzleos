@@ -19,7 +19,7 @@ define("CRON_TIME", time());
 /**
  * Add trigger for CronJob
  */
-class CronTrigger {
+class CronTrigger{
     private $interval=0;
     private $exec=-1;
     private $hour=-1;
@@ -28,14 +28,11 @@ class CronTrigger {
     private $month=-1;
     private $year=-1;
 
-    /**
-     * Add an interval
-	 * @param integer $seconds
-	 */
-    public function getInterval() {
+    public function getInterval(){
         return $this->interval;
     }
-    public function getExec() {
+	
+    public function getExec(){
         return $this->exec;
     }
 
@@ -51,6 +48,10 @@ class CronTrigger {
         return ($interval_executable || $trigger_executable);
     }
 
+    /**
+     * Add an interval
+	 * @param integer $seconds
+	 */
     public function interval($seconds) {
         if ($this->exec>-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
@@ -161,24 +162,47 @@ class CronJob {
         self::$list[] = ["{$key}_{$appname}",$trigger,&$F];
     }
 
-    public static function run() {
+    public static function run(){
+		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instance simultaneusly");
+		
+		//Prevent running cron simultaneusly
+		error_reporting(E_ALL);
+		file_put_contents(__ROOTDIR . "/cron.lock",1);
+		ini_set('max_execution_time',0); //Disable PHP timeout
+		
+		register_shutdown_function(function(){
+			@unlink(__ROOTDIR . "/cron.lock");
+		});
+		
         foreach(self::$list as $l){
             $lastExec = Database::read("cron","last_exec","key",$l[0]);
             if($lastExec == "") {
-                if ($l[1]->isExecutable($lastExec)) {
-                    $f = $l[2];
-                    $f(); //Preventing error on PHP 5.6
-                    Database::newRow("cron", $l[0], time());
+                if($l[1]->isExecutable($lastExec)){
+					//We'll use try/catch to prevent cron from stuck by one error
+					try{
+						$f = $l[2];
+						$f(); //Preventing error on PHP 5.6
+						Database::newRow("cron", $l[0], time());
+					}catch(Exception $e){
+						echo("ERROR: " . $e->getMessage() . "\n");
+					}
                 }
             }else{
-                if ($l[1]->isExecutable($lastExec)) {
-                    $l[2]();
-                    $update=new DatabaseRowInput;
-                    $update->setField("last_exec", time());
-                    Database::updateRowAdvanced("cron", $update, "key", $l[0]);
+                if($l[1]->isExecutable($lastExec)){
+					//We'll use try/catch to prevent cron from stuck by one error
+					try{
+						$f = $l[2];
+						$f(); //Preventing error on PHP 5.6
+						$update=new DatabaseRowInput;
+						$update->setField("last_exec", time());
+						Database::updateRowAdvanced("cron", $update, "key", $l[0]);
+					}catch(Exception $e){
+						echo("ERROR: " . $e->getMessage() . "\n");
+					}
                 }
             }
         }
+		unlink(__ROOTDIR . "/cron.lock");
     }
 }
 

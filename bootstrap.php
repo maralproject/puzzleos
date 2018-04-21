@@ -17,8 +17,8 @@ if(!version_compare(PHP_VERSION,"5.6.0",">=")){
 
 error_reporting(0);
 
-if(PHP_SAPI == "cli" && !defined("__POS_CLI")) die("\nPlease use\n     sudo -u www-data php puzzleos\n\n");
-if(PHP_SAPI != "cli" && defined("__POS_CLI")) die("Please use index.php as Directory Main File!");
+if(PHP_SAPI == "cli" && !defined("__POSCLI")) die("\nPlease use\n     sudo -u www-data php puzzleos\n\n");
+if(PHP_SAPI != "cli" && defined("__POSCLI")) die("Please use index.php as Directory Main File!");
 
 /***********************************
  * Define the global variables

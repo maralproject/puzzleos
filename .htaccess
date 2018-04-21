@@ -8,7 +8,7 @@ ErrorDocument 404 /404app
 
 Options -Indexes
 
-<FilesMatch "\.(txt|ini|log|php|htaccess|bak|json|offline|html)$">
+<FilesMatch "\.(txt|ini|log|php|htaccess|bak|json|offline|html|lock)$">
 	Order Deny,Allow
 	Deny from all
 </FilesMatch>
