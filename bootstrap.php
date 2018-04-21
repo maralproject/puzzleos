@@ -30,7 +30,8 @@ define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
 define("__HTTP_PROTOCOL",(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
 define("__HTTP_REQUEST",ltrim( str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']),"/"));
-define("__HTTP_URI",ltrim(explode("?", str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']))[0],"/"));
+define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
+define("__HTTP_URI",ltrim(str_replace(__SITEURL,"",explode("?", str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']))[0]),"/"));
 
 set_time_limit(30);
 require_once("runtime_error.php");
@@ -78,6 +79,9 @@ if(!file_exists(__ROOTDIR . "/user_private")){
  * Get the configuration files
  ***********************************/
 require_once('configman.php');
+define("__SITENAME", ConfigurationGlobal::$sitename);
+define("__SITELANG", ConfigurationGlobal::$default_language);
+define("__TIMEZONE", ConfigurationGlobal::$timezone);
 
 /***********************************
  * Configuring user session
@@ -233,12 +237,6 @@ class PObject{
 		return call_user_func_array($callable, $arguments);
 	}
 }
-
-/* The order must be like this */
-define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
-define("__SITENAME", ConfigurationGlobal::$sitename);
-define("__SITELANG", ConfigurationGlobal::$default_language);
-define("__TIMEZONE", ConfigurationGlobal::$timezone);
 
 require_once("iosystem.php");
 require_once("fastcache.php");
