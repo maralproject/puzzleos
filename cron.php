@@ -17,7 +17,9 @@ define("T_MINUTE", 60);
 define("CRON_TIME", time());
 
 /**
- * Add trigger for CronJob
+ * Add a trigger for CronJob event
+ * If a CronJob event is already executed at one of the specified CronTrigger,
+ * the job will NOT be executed
  */
 class CronTrigger {
     private $interval=0;
@@ -28,10 +30,6 @@ class CronTrigger {
     private $month=-1;
     private $year=-1;
 
-    /**
-     * Add an interval
-	 * @param integer $seconds
-	 */
     public function getInterval() {
         return $this->interval;
     }
@@ -45,12 +43,18 @@ class CronTrigger {
         $hour_executable=($this->hour>-1) ? (floor(CRON_TIME/3600) > floor($lastExec/3600)) : 1;
         $day_executable=($this->day>-1) ? (floor(CRON_TIME/86400) > floor($lastExec/86400)) : 1;
         $date_executable=($this->date>-1) ? (floor(CRON_TIME/86400) > floor($lastExec/86400)) : 1;
-        $month_executable=($this->month>-1) ? strcmp(date("n-Y", CRON_TIME), date("n-Y", $lastExec)) : 1;
-        $year_executable=($this->year>-1) ? strcmp(date("Y", CRON_TIME), date("Y", $lastExec)) : 1;
+        $month_executable=($this->month>-1) ? (idate("Y", CRON_TIME)*100+idate("m", CRON_TIME)) > (idate("Y",$lastExec)*100+idate("m", $lastExec)) : 1;
+        $year_executable=($this->year>-1) ? (idate("Y", CRON_TIME)) > (idate("Y",$lastExec)) : 1;
         $trigger_executable=($hour_executable && $day_executable && $date_executable && $month_executable && $year_executable) && $this->exec==1;
         return ($interval_executable || $trigger_executable);
     }
 
+
+    /**
+     * Add an interval trigger
+     * You can use T_MINUTE, T_HOUR, T_DAY definition: see /cron.php
+	 * @param integer $seconds
+	 */
     public function interval($seconds) {
         if ($this->exec>-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
@@ -59,12 +63,12 @@ class CronTrigger {
     }
 
     /**
-     * Add hour trigger
+     * Add an hour trigger (24-hour format)
      * @param integer $hour
      */
     public function hour($hour) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        if (date("G", CRON_TIME)==$hour) {
+        if (idate("H", CRON_TIME)==$hour) {
         $this->exec=1;
         $this->hour=$hour;
         }
@@ -74,12 +78,12 @@ class CronTrigger {
 
     /**
      * Add day trigger
-     * Day 1 (Mon) through 7 (Sun)
+     * Day 0 (Sun) through 6 (Sat)
      * @param day number $day
      */
     public function day($day) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        $today=date("N", CRON_TIME);
+        $today=idate("w", CRON_TIME);
         if ($day==$today) {
             $this->exec=1;
             $this->day=$day;
@@ -94,7 +98,7 @@ class CronTrigger {
      */
     public function date($date) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        $currentDate=date("j", CRON_TIME);
+        $currentDate=idate("d", CRON_TIME);
         if ($date==$currentDate) {
             $this->exec=1;
             $this->date=$date;
@@ -109,7 +113,7 @@ class CronTrigger {
      */
     public function month($month) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        $currentMonth=date("n", CRON_TIME);
+        $currentMonth=idate("m", CRON_TIME);
         if ($month==$currentMonth) {
             $this->exec=1;
             $this->month=$month;
@@ -124,7 +128,7 @@ class CronTrigger {
      */
     public function year($year) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        $currentYear=date("Y", CRON_TIME);
+        $currentYear=idate("Y", CRON_TIME);
         if ($month==$currentYear) {
             $this->exec=1;
             $this->year=$year;
