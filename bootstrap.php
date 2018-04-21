@@ -29,8 +29,8 @@ define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
 
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
 define("__HTTP_PROTOCOL",(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
-define("__HTTP_REQUEST",ltrim( str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']),"/"));
 define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
+define("__HTTP_REQUEST",ltrim(str_replace(__SITEURL,"",str_replace(str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI'])),"/"));
 define("__HTTP_URI",ltrim(str_replace(__SITEURL,"",explode("?", str_replace( str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI']))[0]),"/"));
 
 set_time_limit(30);
