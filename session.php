@@ -13,6 +13,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
 
 /**
  * Handle Session more advanced than generic PHP
+ * WARNING: Session will not be saved on CLI environment
  * 
  * This class take these user info for verification:
  * HTTP_USER_AGENT
@@ -112,6 +113,7 @@ class PuzzleSession implements SessionHandlerInterface{
     }
 
     public function write($id, $data){
+		if(defined("__POSCLI")) return true; //Donot write session to the database on CLI.
         if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		
 		/* Only rewrite data when it's needed to */

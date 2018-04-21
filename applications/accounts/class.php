@@ -348,7 +348,7 @@ class Accounts{
 	 */
 	public static function authAccess($auth_level){
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(defined("__POS_CLI")) return true;
+		if(defined("__POSCLI")) return true;
 		
 		if($_SESSION['account']['loggedIn'] == 0){
 			return(USER_AUTH_PUBLIC <= $auth_level);

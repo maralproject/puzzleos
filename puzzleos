@@ -11,7 +11,7 @@
  */
 
 define("__POSEXEC", 1);
-define("__POS_CLI",1);
+define("__POSCLI",1);
 
 /************************************************************************************************************
  * Some custom preferences that you can modify
