@@ -14,6 +14,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
 define("T_DAY", 86400);
 define("T_HOUR", 3600);
 define("T_MINUTE", 60);
+
 class CronJob{
     private static $list=[];
     private static function init(){
@@ -50,7 +51,9 @@ class CronJob{
                 Database::newRow("cron", $l[0], time());
             }else{
                 if (time()-$lastExec >= $l[1]) {
-                    $l[2]();
+                    $f = $l[2];
+					$f(); //Prevent error in PHP 5.6
+					
                     $update=new DatabaseRowInput;
                     $update->setField("last_exec", time());
                     Database::updateRowAdvanced("cron", $update, "key", $l[0]);

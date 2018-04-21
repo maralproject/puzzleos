@@ -225,6 +225,8 @@ class Database{
 			case "database.php":
 			case "systables.php":
 				return(true);
+			case "cron.php":
+				if((preg_match('/`cron`/',$query))) return(true); break;
 			case "session.php":
 				if((preg_match('/`sessions`/',$query))) return(true); break;
 			case "configman.php":
@@ -260,6 +262,8 @@ class Database{
 			case "database.php":
 			case "systables.php":
 				return(true);
+			case "cron.php":
+				if($table == "cron") return(true); break;
 			case "session.php":
 				if($table == "sessions") return(true); break;
 			case "configman.php":

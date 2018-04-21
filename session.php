@@ -102,7 +102,9 @@ class PuzzleSession implements SessionHandlerInterface{
 		return true;
     }
 
-    public function close(){}
+    public function close(){
+		return true;
+	}
 
     public function read($id){
 		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");

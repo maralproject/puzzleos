@@ -39,6 +39,7 @@ class IOError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
+		if(!defined("__POS_CLI")):
 		?>
 <html>
 	<head>
@@ -73,7 +74,11 @@ class IOError extends PuzzleError{
 	</body>
 </html>
 		<?php
-		die();
+		else:
+			echo("ERROR({$this->getCode()}): " . $this->message . "\n");
+			return "";
+		endif;
+		exit;
     }
 }
 
@@ -86,6 +91,7 @@ class DatabaseError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
+		if(!defined("__POS_CLI")):
 		?>
 <html>
 	<head>
@@ -120,7 +126,11 @@ class DatabaseError extends PuzzleError{
 	</body>
 </html>
 		<?php
-		die();
+		else:
+			echo("ERROR({$this->getCode()}): " . $this->message . "\n");
+			return "";
+		endif;
+		exit;
     }
 }
 
@@ -136,7 +146,7 @@ class PuzzleError extends Exception{
 	
 	private $suggestion;
 	
-	public function __construct($message, $suggestion="", $code = 0, Exception $previous = null) {		
+	public function __construct($message, $suggestion="", $code = -1, Exception $previous = null) {		
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
 
@@ -153,6 +163,7 @@ class PuzzleError extends Exception{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
+		if(!defined("__POS_CLI")):
 		?>
 <html>
 	<head>
@@ -188,15 +199,12 @@ class PuzzleError extends Exception{
 	</body>
 </html>
 		<?php
-		die();
+		else:
+			echo("ERROR({$this->getCode()}): " . $this->message . "\n");
+			return "";
+		endif;
+		exit;
     }
 }
-
-register_shutdown_function(function(){
-	$last_error = error_get_last();
-	if ($last_error['type'] === E_ERROR || $last_error['type'] === E_PARSE || $last_error['type'] === E_COMPILE_ERROR) {
-		//throw new PuzzleError($last_error['message'] . " on " . $last_error["file"] . ":" . $last_error["line"]);
-	}
-})
 
 ?>

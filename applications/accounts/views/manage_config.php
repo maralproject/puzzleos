@@ -1,5 +1,5 @@
 <?php $s = Accounts::getSettings()?>
-<?php $language = new Language; $language->app = "users";?>
+<?php $language = new Language;?>
 <style>
 .s_field{
 	max-width:800px;

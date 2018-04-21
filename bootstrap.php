@@ -15,7 +15,10 @@ if(!version_compare(PHP_VERSION,"5.6.0",">=")){
 	throw new PuzzleError("Please upgrade PHP at least 5.6.0!");
 }
 
+error_reporting(0);
+
 if(PHP_SAPI == "cli" && !defined("__POS_CLI")) die("\nPlease use\n     sudo -u www-data php puzzleos\n\n");
+if(PHP_SAPI != "cli" && defined("__POS_CLI")) die("Please use index.php as Directory Main File!");
 
 /***********************************
  * Define the global variables
@@ -265,6 +268,7 @@ require_once("templates.php");
 require_once("time.php");
 require_once("appFramework.php");
 require_once("cron.php");
+require_once("cli.php");
 require_once("services.php");
 
 /***********************************
