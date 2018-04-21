@@ -53,8 +53,8 @@ class CronTrigger{
     /**
      * Add an interval trigger
      * You can use T_MINUTE, T_HOUR, T_DAY definition: see /cron.php
-	 * @param integer $seconds
-	 */
+     * @param integer $seconds
+     */
     public function interval($seconds) {
         if ($this->exec>-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
