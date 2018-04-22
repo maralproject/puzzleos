@@ -33,7 +33,7 @@ class CronTrigger{
     public function getInterval(){
         return $this->interval;
     }
-	
+
     public function getExec(){
         return $this->exec;
     }
@@ -129,7 +129,7 @@ class CronTrigger{
     public function year($year) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         $currentYear=idate("Y", CRON_TIME);
-        if ($month==$currentYear) {
+        if ($year==$currentYear) {
             $this->exec=1;
             $this->year=$year;
         }
@@ -167,16 +167,16 @@ class CronJob {
 
     public static function run(){
 		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instance simultaneusly");
-		
+
 		//Prevent running cron simultaneusly
 		error_reporting(E_ALL);
 		file_put_contents(__ROOTDIR . "/cron.lock",1);
 		ini_set('max_execution_time',0); //Disable PHP timeout
-		
+
 		register_shutdown_function(function(){
 			@unlink(__ROOTDIR . "/cron.lock");
 		});
-		
+
         foreach(self::$list as $l){
             $lastExec = Database::read("cron","last_exec","key",$l[0]);
             if($lastExec == "") {
