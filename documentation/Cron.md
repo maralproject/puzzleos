@@ -4,33 +4,36 @@
 
 Register and run a cron job. 
 
-1. `CronJob::register($key, $trigger, $F)` *$key*: **string** cron job key, *$trigger*: **CronTrigger** trigger, *$F*: **function** cron job script.
+1. `CronJob::register($key, $F, ...$trigger)` *$key*: **string** cron job key, *$F*: **function** cron job script, *$trigger*: **CronTrigger** trigger.
 
    Register a cron job. You **must** register it in application's services file (see [BuatAplikasi](BuatAplikasi.md)).
 
    A cron job key is isolated to the current registering application.
 
+   Registered cron job will be executed if one of the triggers activates.
+
    Example:
 
    ```php
-   $trigger=new CronTrigger; //more about CronTrigger below
+   $trigger1=new CronTrigger;
+   $trigger2=new CronTrigger; //more about CronTrigger below
    ...
        
        
-   CronJob::register("cron_key", $trigger, function(){
+   CronJob::register("cron_key", function(){
        //actions
-   })
+   }, $trigger1, $trigger2)
    ```
 
 ## CronTrigger (cron.php)
 
-A trigger object for CronJob class. Add a trigger for CronJob.
+A trigger object for CronJob class.
 
 If a cron job is already executed at one of the specified triggers, it will NOT be executed.
 
 In this documentation, let `$trigger=new CronTrigger;`
 
-1. `CronTrigger->interval($seconds)` *$seconds*: **integer** number of seconds between CronJob executions.
+1. `CronTrigger->interval($seconds)` *$seconds*: **integer** number of seconds between cron job executions.
 
    This trigger can NOT be combined with all other triggers.
 
@@ -106,10 +109,18 @@ In this documentation, let `$trigger=new CronTrigger;`
 
    Return value: **void**
 
-**NOTE**: You can combine triggers. For example:
+
+
+You can combine triggers. For example:
 
 ```php
 $trigger=new CronTrigger;
-$trigger->day(5)->date(13); //Execute a cron job every Friday 13th
+$trigger->day(5)->date(13); //Execute a cron job every Friday AND 13th
 ```
 
+If you combine triggers of the same type, the last one will be used:
+
+```php
+$trigger=new CronTrigger;
+$trigger->day(3)->day(5)->date(12)->date(13); //Execute a cron job every Friday AND 13th
+```
