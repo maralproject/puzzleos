@@ -152,21 +152,23 @@ class CronJob {
 
     /* Register cron job
 	 * @param string $key
-     * @param CronTrigger $trigger
+     * @param CronTrigger ...$trigger
      * @param function $F
 	 */
-    public static function register($key, $trigger, $F){
+    public static function register($key, $F, ...$trigger){
         if (strlen($key)>20) throw new PuzzleError("Key length must be less than 20 characters");
-        if(!is_a($trigger,"CronTrigger")) throw new PuzzleError("Trigger should be generated from CronTrigger");
         if(!is_callable($F)) throw new PuzzleError("Incorrect parameter");
         $appname=self::init();
         if($appname == "") throw new PuzzleError("An error occured");
 
-        self::$list[] = ["{$key}_{$appname}",$trigger,&$F];
+        foreach($trigger as $ct) {
+            if(!is_a($ct,"CronTrigger")) throw new PuzzleError("Trigger should be generated from CronTrigger");
+            self::$list[] = ["{$key}_{$appname}",$ct,&$F];
+        }
     }
 
     public static function run(){
-		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instance simultaneusly");
+		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
 
 		//Prevent running cron simultaneusly
 		error_reporting(E_ALL);
