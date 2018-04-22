@@ -58,7 +58,7 @@ class CronTrigger{
     public function interval($seconds) {
         if ($this->exec>-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
-        $this->interval+=$seconds;
+        $this->interval=$seconds;
         return $this;
     }
 
