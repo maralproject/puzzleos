@@ -29,7 +29,7 @@ Register and run a cron job.
 
 A trigger object for CronJob class.
 
-If a cron job is already executed at one of the specified triggers, it will NOT be executed.
+If a cron job is already executed at one of the specified triggers below, CronTrigger will not activate.
 
 In this documentation, let `$trigger=new CronTrigger;`
 
@@ -115,12 +115,12 @@ You can combine triggers. For example:
 
 ```php
 $trigger=new CronTrigger;
-$trigger->day(5)->date(13); //Execute a cron job every Friday AND 13th
+$trigger->day(5)->date(13); //Execute a cron job on Friday 13th
 ```
 
 If you combine triggers of the same type, the last one will be used:
 
 ```php
 $trigger=new CronTrigger;
-$trigger->day(3)->day(5)->date(12)->date(13); //Execute a cron job every Friday AND 13th
+$trigger->day(3)->day(5)->date(12)->date(13); //Execute a cron job on Friday 13th
 ```
