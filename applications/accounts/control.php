@@ -233,11 +233,11 @@ if(__getURI("app") == $appProp->appname){
 			}else{
 				if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["email"] == ""){
 					Prompt::postError($language->get("emailE"),true);
-				}else if(Database::read("app_users_list","id","email",$_POST["email"]) != "" && Database::read("app_users_list","id","email",$_POST["email"]) != $_SESSION["account"]["id"]){
+				}else if($_POST["email"] != "" && Database::read("app_users_list","id","email",$_POST["email"]) != "" && Database::read("app_users_list","id","email",$_POST["email"]) != $_SESSION["account"]["id"]){
 					Prompt::postError("Email sudah dipakai",true);
 				}else if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == ""){
 					Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
-				}else if(Database::read("app_users_list","id","phone",$_POST["phone"]) != "" && Database::read("app_users_list","id","phone",$_POST["phone"]) != $_SESSION["account"]["id"]){
+				}else if($_POST["phone"] != "" && Database::read("app_users_list","id","phone",$_POST["phone"]) != "" && Database::read("app_users_list","id","phone",$_POST["phone"]) != $_SESSION["account"]["id"]){
 					Prompt::postError("Telepon sudah dipakai",true);
 				}else if($_POST['name'] == ""){
 					Prompt::postWarn("Nama Lengkap tidak boleh kosong",true);
