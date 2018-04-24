@@ -24,7 +24,7 @@ if(PHP_SAPI != "cli" && defined("__POSCLI")) die("Please use index.php as Direct
  * Define the global variables
  ***********************************/
 if(!defined("__SYSTEM_NAME")) define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "1.2.3");
+define("__POS_VERSION", "1.2.4");
 define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
 
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
