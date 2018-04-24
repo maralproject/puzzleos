@@ -38,7 +38,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		</div><br>
 		<div class="input-group">
 			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-			<input value="<?php echo $_POST["user"]?>" required name="user" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
+			<input maxlength="50" value="<?php echo $_POST["user"]?>" required name="user" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
 		</div><br>
 		<?php if(Accounts::getSettings()["f_reg_activate"] == "on" || Accounts::getSettings()["f_reg_required1"] == "on"):?>
         <div class="input-group">
@@ -48,7 +48,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		<?php endif?>
 		<div class="input-group">
 			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
-			<input required name="password" autocomplete="off" autocapitalize="none"  type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" >
+			<input maxlength="50" required name="password" autocomplete="off" autocapitalize="none"  type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" >
 		</div><br>
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">

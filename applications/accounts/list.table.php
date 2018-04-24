@@ -26,7 +26,7 @@ $table->addColumn("email");
 $table->addColumn("phone");
 $table->addColumn("lang");
 $table->addColumn("password");
-$table->addColumn("username");
+$table->addColumn("username","VARCHAR(50)");
 $table->addColumn("enabled","INT(1)")->defaultValue(1);
 $table->addColumn("registered_time","INT")->defaultValue(0);
 
