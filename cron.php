@@ -23,7 +23,7 @@ define("CRON_TIME", time());
  */
 class CronTrigger{
     private $interval=0;
-    private $exec=-1;
+    private $exec=1;
     private $hour=-1;
     private $day=-1;
     private $date=-1;
@@ -56,7 +56,7 @@ class CronTrigger{
      * @param integer $seconds
      */
     public function interval($seconds) {
-        if ($this->exec>-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
+        if ($this->hour!=-1 || $this->day!=-1 || $this->date!=-1 || $this->month!=-1 || $this->year!=-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
         $this->interval=$seconds;
         return $this;
@@ -69,10 +69,10 @@ class CronTrigger{
     public function hour($hour) {
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         if (idate("H", CRON_TIME)==$hour) {
-        $this->exec=1;
+        $this->exec*=1;
         $this->hour=$hour;
         }
-        else $this->exec=0;
+        else $this->exec*=0;
         return $this;
     }
 
@@ -85,10 +85,10 @@ class CronTrigger{
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         $today=idate("w", CRON_TIME);
         if ($day==$today) {
-            $this->exec=1;
+            $this->exec*=1;
             $this->day=$day;
         }
-        else $this->exec=0;
+        else $this->exec*=0;
         return $this;
     }
 
@@ -100,10 +100,10 @@ class CronTrigger{
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         $currentDate=idate("d", CRON_TIME);
         if ($date==$currentDate) {
-            $this->exec=1;
+            $this->exec*=1;
             $this->date=$date;
         }
-        else $this->exec=0;
+        else $this->exec*=0;
         return $this;
     }
 
@@ -115,10 +115,10 @@ class CronTrigger{
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         $currentMonth=idate("m", CRON_TIME);
         if ($month==$currentMonth) {
-            $this->exec=1;
+            $this->exec*=1;
             $this->month=$month;
         }
-        else $this->exec=0;
+        else $this->exec*=0;
         return $this;
     }
 
@@ -130,10 +130,10 @@ class CronTrigger{
         if ($this->interval>0) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
         $currentYear=idate("Y", CRON_TIME);
         if ($year==$currentYear) {
-            $this->exec=1;
+            $this->exec*=1;
             $this->year=$year;
         }
-        else $this->exec=0;
+        else $this->exec*=0;
         return $this;
     }
 }
