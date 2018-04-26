@@ -40,7 +40,11 @@ Database operation
 
    Return value: **bool**
 
-7. ​
+7. `Database::readAll($table, $options, ...$param)` *$table*: **string** table name, *$options*: **string** additional query, *$param*: **array string**
+
+   Readl all records in a table
+
+   Return value: **array**
 
 ## DatabaseRowInput (database.php)
 
