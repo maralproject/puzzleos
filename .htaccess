@@ -22,6 +22,11 @@ Options -Indexes
 	Allow from all
 </Files>
 
+<Files robots.txt>
+	Order Allow,Deny
+	Allow from all
+</Files>
+
 #Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
 
 <IfModule mod_rewrite.c>

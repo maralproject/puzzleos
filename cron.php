@@ -29,6 +29,10 @@ class CronTrigger{
     private $date=-1;
     private $month=-1;
     private $year=-1;
+	
+	public function __construct(){
+		return $this;
+	}
 
     public function getInterval(){
         return $this->interval;
@@ -211,4 +215,10 @@ class CronJob {
     }
 }
 
+/**
+ * Get a new CronTrigger instances
+ */
+function _CT(){
+	return new CronTrigger();
+}
 ?>
