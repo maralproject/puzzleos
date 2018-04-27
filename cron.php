@@ -185,7 +185,7 @@ class CronJob {
 					try{
 						$f = $l[2];
 						$f(); //Preventing error on PHP 5.6
-						Database::newRow("cron", $l[0], time());
+						Database::newRow("cron", $l[0], CRON_TIME);
 					}catch(Exception $e){
 						echo("ERROR: " . $e->getMessage() . "\n");
 					}
@@ -197,7 +197,7 @@ class CronJob {
 						$f = $l[2];
 						$f(); //Preventing error on PHP 5.6
 						$update=new DatabaseRowInput;
-						$update->setField("last_exec", time());
+						$update->setField("last_exec", CRON_TIME);
 						Database::updateRowAdvanced("cron", $update, "key", $l[0]);
 					}catch(Exception $e){
 						echo("ERROR: " . $e->getMessage() . "\n");
@@ -211,6 +211,7 @@ class CronJob {
 
 /**
  * Get a new CronTrigger instances
+ * @return CronTrigger
  */
 function _CT(){
 	return new CronTrigger();
