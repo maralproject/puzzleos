@@ -189,7 +189,7 @@ class PuzzleError extends Exception{
 		<div id="wrap" style="padding:25px;">
 		<div style="font-size:30pt;font-weight:bold;">Oops...</div>
 		<ul>
-			<li><?php echo str_replace("\n","<br>",$this->message)?></li>
+			<li><?php echo nl2br($this->message)?></li>
 			<?php if($this->suggestion!=""):?><li><?php echo $this->suggestion?></li><?php endif;?>						
 		</ul>
 		<br>
