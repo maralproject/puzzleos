@@ -50,6 +50,10 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
 			<input maxlength="50" required name="password" autocomplete="off" autocapitalize="none"  type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" >
 		</div><br>
+		<div class="input-group">
+			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
+			<input maxlength="50" required name="password2" autocomplete="off" autocapitalize="none"  type="password" class="form-control" placeholder="<?php $language->dump("ver_pass")?>" >
+		</div><br>
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
 		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("signup")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("signup")?></button>
