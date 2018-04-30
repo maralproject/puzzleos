@@ -42,8 +42,6 @@ if(__getURI("app") == $appProp->appname){
 			Prompt::postError("Nama lengkap tidak boleh kosong");
 		}elseif($_POST['user'] == ""){
 			Prompt::postError("Username tidak boleh kosong");
-		}elseif($_POST['password'] != $_POST['password2']){
-			Prompt::postError("Password tidak sama");
 		}elseif(Database::read("app_users_list","username","username",$_POST["user"]) != ""){
 			Prompt::postError("Nama user sudah dipakai");
 		}elseif(Database::read("app_users_list","email","email",$_POST["email"]) != ""){

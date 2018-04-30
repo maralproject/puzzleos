@@ -169,7 +169,7 @@ class CronJob {
 		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
 
 		//Prevent running cron simultaneusly
-		error_reporting(E_ERROR | E_WARNING);
+		error_reporting(E_ERROR);
 		file_put_contents(__ROOTDIR . "/cron.lock",1);
 		ini_set('max_execution_time',0); //Disable PHP timeout
 
