@@ -40,8 +40,7 @@ class CronTrigger{
 
     public function isExecutable($lastExec) {
         if ($lastExec=="") return $this->exec;
-        $current_interval=floor((CRON_TIME-(int)$lastExec)/60)*60;
-        if ($current_interval-$this->interval>=0) {
+		if (CRON_TIME-(int)$lastExec-$this->interval>=0) {
             $this->exec*=1;
         }
         else $this->exec*=0;

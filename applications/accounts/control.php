@@ -104,7 +104,7 @@ if(__getURI("app") == $appProp->appname){
 				}
 				
 				/* Redirect to login page */
-				redirect("users/login?redir=" . $_POST["redir"]);
+				redirect("users/login?signup=success&redir=" . $_POST["redir"]);
 			}else{
 				if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["email"] != ""){
 					unset($_SESSION['account']['confirm_email']);
@@ -172,9 +172,11 @@ if(__getURI("app") == $appProp->appname){
 					redirect(html_entity_decode($_POST['redir']));
 				}
 			}else{
+				$GLOBALS["ULFailed"] = true;
 				Prompt::postError($language->get("dcyc"));
 			}
 		}else{
+			$GLOBALS["ULFailed"] = true;
 			Prompt::postError($language->get("dcyc"));
 		}
 	}elseif(__getURI("action") == "update" && Accounts::authAccess(USER_AUTH_SU)){

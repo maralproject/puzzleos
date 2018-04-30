@@ -31,6 +31,14 @@ class Accounts{
 	public static $customET_AC = NULL;
 	
 	/**
+	 * Count the number of registered user
+	 * @return integer
+	 */
+	public static function count(){
+		return mysqli_num_rows(Database::exec("SELECT `id` from app_users_list"));
+	}
+	
+	/**
 	 * Change default email confirmation template
 	 * Available variable :
 	 * {name}, {email}, {link}

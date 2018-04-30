@@ -32,11 +32,11 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	<span style="font-size:20pt;font-weight:500;"><?php $language->dump("login")?></span>
 	</div>
 	<form onsubmit="$(this).find('button').prop('disabled',true);$(this).find('input').trigger('blur')" action="<?php echo __SITEURL?>/users/login" method="post" style="text-align:center;">
-		<div class="input-group">
+		<div class="input-group <?php if($GLOBALS["ULFailed"]) echo "has-error"?>">
 			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
 			<input maxlength="50" required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
 		</div><br>
-		<div class="input-group">
+		<div class="input-group <?php if($GLOBALS["ULFailed"]) echo "has-error"?>">
 			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
 			<input maxlength="50" required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>">
 		</div><br>							
@@ -53,3 +53,26 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	</div>
 </div>
 </div>
+
+<?php if($_GET["signup"] == "success"):?>
+<div class="modal fade" id="signup_g">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Satu lagi,</h4>
+            </div>
+            <div class="modal-body" style="text-align:center;max-width:400px;margin:auto;line-height:30px;">
+				<i class="fa fa-envelope-o fa-3x"></i><br><br>
+                Segera <b>konfirmasi email</b> Anda dari browser ini.<br>
+				Silahkan periksa folder <b>SPAM</b> jika email tidak masuk.
+            </div>
+            <div class="modal-footer" style="box-shadow:none">
+                <button type="button" class="btn btn-info" data-dismiss="modal">Tutup</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>$(document).ready(function(){$("#signup_g").modal('show');})</script>
+<?php endif?>
