@@ -491,25 +491,30 @@ if(__getURI("app") == $appProp->appname){
 				$act_code['change_pass']['id'] = $userid;
 				$act_code['change_pass']['timeout'] = time();
 				
+				$contact_info = $customM_UE ? Database::read("app_users_list","email","id",$userid) : Database::read("app_users_list","phone","id",$userid);
 				if(!Accounts::$customM_EN){
-					//If not set, by default we're sending code from email
-					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
-					$link = __SITEURL . "/users/changepassword/".$randomString;
-					$send = new Mailer;
-					$send->addRecipient = Database::read("app_users_list","email","id",$userid);
-					$send->subject = $language->get("prr");
-					ob_start();
-					require( $appProp->path . "/mail_template/reset_password.php");			
-					$send->body = ob_get_clean();
-					if($send->sendHTML() == 1){
-						Prompt::postGood($language->get("PRLHS"));
-					}else{			
-						Prompt::postError($language->get("CSCE"));
+					if($contact_info != ""){
+						//If not set, by default we're sending code from email
+						Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
+						$link = __SITEURL . "/users/changepassword/".$randomString;
+						$send = new Mailer;
+						$send->addRecipient = Database::read("app_users_list","email","id",$userid);
+						$send->subject = $language->get("prr");
+						ob_start();
+						require( $appProp->path . "/mail_template/reset_password.php");			
+						$send->body = ob_get_clean();
+						if($send->sendHTML() == 1){
+							Prompt::postGood($language->get("PRLHS"));
+						}else{			
+							Prompt::postError($language->get("CSCE"));
+						}
+					}else{
+						Prompt::postError("Kami tidak bisa memverifikasi Akun Anda",true);
+						redirect("users");
 					}
 				}else{
 					//If set, we're going to follow the rules by the requesting handler
 					$aclb = Accounts::$customM_F;
-					$contact_info = $customM_UE ? Database::read("app_users_list","email","id",$userid) : Database::read("app_users_list","phone","id",$userid);
 					if($contact_info != ""){
 						$aclbr = $aclb($contact_info, $randomString);
 						if($aclbr === false){
