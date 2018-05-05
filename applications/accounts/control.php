@@ -491,7 +491,7 @@ if(__getURI("app") == $appProp->appname){
 				$act_code['change_pass']['id'] = $userid;
 				$act_code['change_pass']['timeout'] = time();
 				
-				$contact_info = $customM_UE ? Database::read("app_users_list","email","id",$userid) : Database::read("app_users_list","phone","id",$userid);
+				$contact_info = Accounts::$customM_UE ? Database::read("app_users_list","email","id",$userid) : Database::read("app_users_list","phone","id",$userid);
 				if(!Accounts::$customM_EN){
 					if($contact_info != ""){
 						//If not set, by default we're sending code from email
