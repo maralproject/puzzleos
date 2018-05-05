@@ -17,8 +17,6 @@ define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
 define("USER_AUTH_PUBLIC", 3);
 
-require_once("lib/libphonenumber/vendor/autoload.php");
-
 /**
  * Use this class to manage User, and authenticate user permission
  */
@@ -52,6 +50,8 @@ class Accounts{
 	 * @return string 
 	 */
 	public static function getE164($phone){
+		//Speedup things. Donot load the library if not required
+		require_once("lib/libphonenumber/vendor/autoload.php");
 		$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 		try{
 			//TODO: Change this things ASAP
