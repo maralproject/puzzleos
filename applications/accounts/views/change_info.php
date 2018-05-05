@@ -30,7 +30,7 @@ $s = Accounts::getSettings();
 	</div><br>			
 	<div class="input-group">
 		<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-phone"></i></span>
-		<input name="phone" pattern="^[0-9\+]{8,13}$" <?php if(Accounts::$customM_UP||$s["f_reg_required2"]=="on") echo "required"?> type="text" class="form-control" placeholder="<?php $language->dump("phone")?>"  value="<?php echo $_SESSION['account']['phone']?>">
+		<input name="phone" pattern="^[0-9\+]{8,15}$" <?php if(Accounts::$customM_UP||$s["f_reg_required2"]=="on") echo "required"?> type="text" class="form-control" placeholder="<?php $language->dump("phone")?>"  value="<?php echo $_SESSION['account']['phone']?>">
 	</div><br>
 	<?php LangManager::dumpForm("lang",$_SESSION['account']['lang'],false,false,true)?><br>		
 	<input type="hidden" name="tf" value="1">
