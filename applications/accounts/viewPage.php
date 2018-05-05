@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("1.2.5") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -27,6 +27,8 @@ if(!$_SESSION['account']['loggedIn']){
 		}
 	}elseif((__getURI("action") == "forgot")){
 		require_once("views/reset_password_form.php");
+	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
+		require_once("views/code_verification.php");
 	}elseif(__getURI("action") == "signup" && Accounts::getSettings()["f_en_registration"] == "on"){
 		require_once("views/signup.php");
 	}else{
@@ -35,6 +37,8 @@ if(!$_SESSION['account']['loggedIn']){
 }else{
 	if(__getURI("action") == "changepassword") {
 		require_once("views/change_password.php");
+	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_email"]))){
+		require_once("views/code_verification.php");
 	}else{
 		require_once("views/change_info.php");
 	}

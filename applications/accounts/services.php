@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("1.2.5") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 1.2.5
  */
 
 /* Setting up user session */
@@ -61,4 +61,5 @@ if(isset($_SESSION['account']['change_pass']['linkClicked']))
  * Automatically remove account that not activated longer than 10 minutes
  */
 Database::exec("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
+Database::exec("delete from `app_users_activate` where expires<'?'", time());
 ?>

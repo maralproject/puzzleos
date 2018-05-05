@@ -17,6 +17,8 @@ define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
 define("USER_AUTH_PUBLIC", 3);
 
+require_once("lib/libphonenumber/vendor/autoload.php");
+
 /**
  * Use this class to manage User, and authenticate user permission
  */
@@ -30,12 +32,49 @@ class Accounts{
 	public static $customET_RP = NULL;
 	public static $customET_AC = NULL;
 	
+	public static $customM_F = NULL;
+	public static $customM_M = NULL;
+	public static $customM_EN = false;
+	public static $customM_UE = false;
+	public static $customM_UP = false;
+	
 	/**
 	 * Count the number of registered user
 	 * @return integer
 	 */
 	public static function count(){
 		return mysqli_num_rows(Database::exec("SELECT `id` from app_users_list"));
+	}
+	
+	/**
+	 * Re-format phone number according to E164 format, in Indonesia Country
+	 * @param string $phone 
+	 * @return string 
+	 */
+	public static function getE164($phone){
+		$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+		try{
+			//TODO: Change this things ASAP
+			$proto = $phoneUtil->parse($phone, "ID");
+			return $phoneUtil->format($proto, \libphonenumber\PhoneNumberFormat::E164);
+		}catch(\libphonenumber\NumberParseException $e){
+			return "";
+		}
+	}
+	
+	/**
+	 * Change the confirmation through custom method
+	 * The callable should return a message or FALSE boolean
+	 * The callabe will receive 2 parameter ($email_or_phone,$code)
+	 * @param callable $F
+	 * @param bool $email_or_phone TRUE for email, FALSE for phone
+	 */
+	public static function changeAccountActivationHandler($F, $email_or_phone = false, $custom_message = NULL){
+		if(!is_callable($F)) throw new PuzzleError("Invalid parameter");
+		self::$customM_F = &$F;
+		self::$customM_EN = true;
+		self::$customM_UE = $email_or_phone;
+		self::$customM_UP = !$email_or_phone;
 	}
 	
 	/**
@@ -397,4 +436,6 @@ class Accounts{
 		return($result);
 	}
 }
+
+if( Accounts::getSettings()["f_reg_activate"] == "on" ) Accounts::$customM_UE = true;
 ?>

@@ -44,7 +44,7 @@ if(__getURI(2) == "newAJAX"){
 	($_POST["tf"] == "yes") or die();	
 	if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == "") die();
 	else{
-		if($_POST["phone"] != "") preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) or die();
+		if($_POST["phone"] != "") $_POST["phone"] = Accounts::getE164($_POST["phone"]);
 	}
 	Database::exec("UPDATE `app_users_list` SET `phone`='?' WHERE `id`='?';", $_POST["phone"], $_POST["name"]) or die();
 	die($_POST["name"]);

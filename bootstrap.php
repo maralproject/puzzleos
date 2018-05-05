@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.3
+ * @software     Release: 1.2.5
  */
 
 if(!version_compare(PHP_VERSION,"5.6.0",">=")){
@@ -24,7 +24,7 @@ if(PHP_SAPI != "cli" && defined("__POSCLI")) die("Please use index.php as Direct
  * Define the global variables
  ***********************************/
 if(!defined("__SYSTEM_NAME")) define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "1.2.4");
+define("__POS_VERSION", "1.2.5");
 define("__ROOTDIR", str_replace("\\","/",dirname(__FILE__)));
 
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);

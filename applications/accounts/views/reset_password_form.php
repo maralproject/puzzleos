@@ -20,9 +20,9 @@ $language = new Language; $language->app = "users";
 	<span style="font-size:20pt;font-weight:500;"><button onclick="history.back()" class="btn btn-link" style="margin-right:15px;padding: 6px;"><i  style="font-size:20pt;font-weight:500;" class="fa fa-chevron-left"></i></button><?php $language->dump("nh")?></div>
 	<form onsubmit="$(this).find('button').prop('disabled',true)" method="post" style="text-align:center;">
 		<div class="input-group">
-		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-envelope-o"></i></span>
-		  <input type="hidden" name="datafromforgotout" value="1"> 
-		  <input name="email" autofocus type="email" class="form-control" placeholder="<?php $language->dump("eceh")?>"  required>
+		  <input type="hidden" name="datafromforgotout" value="1">
+		  <span class="input-group-addon"><i class="fa fa-user"></i></span>
+		  <input autocomplete="off" name="user" autofocus type="text" class="form-control" placeholder="Masukkan username Anda" required>
 		</div><br>
 		<input type="hidden" name="realforgotpaswd" value="1"> 
 		<button type="submit" class="btn btn-default"><?php $language->dump("rmp")?></button>

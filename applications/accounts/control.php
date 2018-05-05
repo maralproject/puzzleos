@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.3") or die("You need to upgrade the system");
+__requiredSystem("1.2.5") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.1.3
+ * @software     Release: 1.2.4
  */
  
 /**
@@ -25,6 +25,10 @@ if(__getURI("app") == $appProp->appname){
 			Template::setSubTitle($language->get("c_pass"));
 		}else if(__getURI("action") == "forgot"){
 			Template::setSubTitle($language->get("nh"));
+		}else if(__getURI("action") == "verify"){
+			Template::setSubTitle("Verifikasi Kode");
+		}else if(__getURI("action") == "signup"){
+			Template::setSubTitle($language->get("signup"));
 		}else{
 			Template::setSubTitle($language->get("login"));
 		}
@@ -38,14 +42,35 @@ if(__getURI("app") == $appProp->appname){
 		 * Note	: -
 		 */
 		
+		if($_POST["phone"] != "") $_POST["phone"] = Accounts::getE164($_POST["phone"]);
+			
+		if($_POST["email"] != ""){
+			if(Database::read("app_users_list","email","email",$_POST["email"]) != ""){
+				$GLOBALS["aemsd"] = true;
+				Prompt::postError("Email sudah dipakai");
+				return;
+			}
+		}
+		
+		if($_POST["phone"] != ""){
+			if(Database::read("app_users_list","phone","phone",$_POST["phone"]) != ""){
+				$GLOBALS["nhpsd"] = true;
+				Prompt::postError("No. Telpon sudah dipakai");
+				return;
+			}
+		}
+		
 		if($_POST['fullname'] == ""){
 			Prompt::postError("Nama lengkap tidak boleh kosong");
+		}elseif(strlen($_POST['fullname']) > 50){
+			Prompt::postError("Nama lengkap tidak boleh lebih dari 50 karakter");
 		}elseif($_POST['user'] == ""){
 			Prompt::postError("Username tidak boleh kosong");
+		}elseif(preg_match("/^[0-9a-z_]*+$/",$_POST["user"]) === false || strlen($_POST['fullname']) > 25){
+			Prompt::postError("Username hanya boleh terdiri dari huruf kecil, angka, dan uderscore maks. 25 karakter");
 		}elseif(Database::read("app_users_list","username","username",$_POST["user"]) != ""){
-			Prompt::postError("Nama user sudah dipakai");
-		}elseif(Database::read("app_users_list","email","email",$_POST["email"]) != ""){
-			Prompt::postError("Email sudah dipakai");
+			$GLOBALS["unmsd"] = true;
+			Prompt::postError("Username sudah dipakai");
 		}else{
 			if(Accounts::getSettings()["f_en_recaptcha"] == "on"){
 				if(!Accounts::verifyRecapctha()){
@@ -55,9 +80,17 @@ if(__getURI("app") == $appProp->appname){
 			}
 			
 			$require_activation = Accounts::getSettings()["f_reg_activate"] == "on";
-			if($require_activation || Accounts::getSettings()["f_reg_required1"] == "on"){
+			
+			if(Accounts::getSettings()["f_reg_required1"] == "on" || Accounts::$customM_UE){
 				if(!filter_var($_POST["email"],FILTER_VALIDATE_EMAIL) || $_POST["email"] == ""){
-					Prompt::postError("Email wajib diisi");
+					Prompt::postError("Email tidak valid");
+					return;
+				}
+			}
+			
+			if(Accounts::getSettings()["f_reg_required2"] == "on" || Accounts::$customM_UP){
+				if(preg_match("/^[0-9\+]{8,15}$/", $_POST["phone"]) === FALSE || $_POST["phone"] == "") {
+					Prompt::postError("No. Telpon tidak valid");
 					return;
 				}
 			}
@@ -67,7 +100,7 @@ if(__getURI("app") == $appProp->appname){
 				$group_reg,
 				$_POST["fullname"],
 				($require_activation?$_POST["email"]:""),
-				"",
+				($_POST["phone"]),
 				"def", 
 				Accounts::hashPassword($_POST["password"]),
 				$_POST["user"],
@@ -75,44 +108,66 @@ if(__getURI("app") == $appProp->appname){
 				(time() + 600)
 			);		
 			$f_id = Database::getLastId("app_users_list","id");
-		
-			$length = 128;
-			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			
+			$length = Accounts::$customM_EN?6:128;
+			$characters = Accounts::$customM_EN?"9012345678":'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 			$charactersLength = strlen($characters);
 			$randomString = '';
 			for ($i = 0; $i < $length; $i++) {
 				$randomString .= $characters[rand(0, $charactersLength - 1)];
 			}
-			$mailer = new Mailer;
-			$mailer->addRecipient = $_POST['email'];
-			$mailer->subject = $language->get("CYNE");
+			
+			if($_POST["email"] != ""){
+				$mailer = new Mailer;
+				$mailer->addRecipient = $_POST['email'];
+				$mailer->subject = $language->get("CYNE");
+			}
 			
 			if($require_activation){
-				unset($_SESSION['account']['confirm_activation']);
-				$link = __SITEURL ."/users/activate/".$randomString;
-				$_SESSION['account']['confirm_activation']['email'] = $_POST['email'];
-				$_SESSION['account']['confirm_activation']['key'] = $randomString;
-				$_SESSION['account']['confirm_activation']['id'] = $f_id;
-				$_SESSION['account']['confirm_activation']['timeout'] = time();
-				ob_start();
-				require( $appProp->path . "/mail_template/activate.php");						
-				$mailer->body = ob_get_clean();
-				if($mailer->sendHTML() == 1){
-					Prompt::postGood($language->get("ECHS").$_POST['email'],true);
-				}else{
-					Prompt::postError($language->get("CSCE"),true);
-				}
+				$act_code['confirm_activation']['email'] = $_POST['email'];
+				$act_code['confirm_activation']['key'] = $randomString;
+				$act_code['confirm_activation']['id'] = $f_id;
+				$act_code['confirm_activation']['timeout'] = time();
 				
-				/* Redirect to login page */
-				redirect("users/login?signup=success&redir=" . $_POST["redir"]);
+				if(!Accounts::$customM_EN){
+					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time());
+					$link = __SITEURL ."/users/activate/".$randomString;
+					ob_start();
+					require( $appProp->path . "/mail_template/activate.php");
+					$mailer->body = ob_get_clean();
+					if($mailer->sendHTML() == 1){
+						Prompt::postGood($language->get("ECHS").$_POST['email'],true);
+					}else{
+						Prompt::postError($language->get("CSCE"),true);
+					}
+					
+					/* Redirect to login page */
+					redirect("users/login?signup=success&redir=" . $_POST["redir"]);
+				}else{
+					$aclb = Accounts::$customM_F;
+					$aclbr = $aclb($customM_UE ? $_POST['email'] : $_POST["phone"],$randomString);
+					if($aclbr === false){
+						Prompt::postError("Gagal mengirimkan kode verifikasi",true);						
+						Database::deleteRow("app_users_list","id",$f_id); //Cancelling account creation
+						unset($_SESSION["account"]["confirm_activation"]);
+						redirect("users/login?redir=" . $_POST["redir"]);
+					}else{
+						$_SESSION["account"]["confirm_activation"] = $act_code["confirm_activation"];
+						$_SESSION["account"]["confirm_activation"]["msg"] = $aclbr;
+						$_SESSION['account']['confirm_activation']['timeout'] = time();
+						redirect("users/verify?redir=" . $_POST["redir"]);
+					}
+				}
 			}else{
-				if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["email"] != ""){
-					unset($_SESSION['account']['confirm_email']);
+				if($_POST["email"] != ""){
 					$link = __SITEURL ."/users/verifyemail/".$randomString;
-					$_SESSION['account']['confirm_email']['new'] = $_POST['email'];
-					$_SESSION['account']['confirm_email']['id'] = $f_id;
-					$_SESSION['account']['confirm_email']['key'] = $randomString;
-					$_SESSION['account']['confirm_email']['timeout'] = time();
+					$act_code['confirm_email']['new'] = $_POST['email'];
+					$act_code['confirm_email']['id'] = $f_id;
+					$act_code['confirm_email']['key'] = $randomString;
+					$act_code['confirm_email']['timeout'] = time();
+					
+					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
+					
 					ob_start();
 					require( $appProp->path . "/mail_template/confirm_email.php");
 					$mailer->body = ob_get_clean();
@@ -127,21 +182,39 @@ if(__getURI("app") == $appProp->appname){
 		 
 	}elseif(__getURI("action") == "activate" && !$_SESSION['account']['loggedIn']){
 		/**
-		 * Activate email address
+		 * Activate account
 		 * URI	: /users/activate/$rand
 		 * Note	: -
 		 */
-		 
-		if(__getURI(2) == $_SESSION['account']['confirm_activation']['key']){
-			if($_SESSION['account']['confirm_activation']['timeout'] + 10 * 60 < time()) {
-				unset($_SESSION['account']['confirm_activation']);
-			}else{
-				Database::exec("UPDATE `app_users_list` SET enabled=1 WHERE `email`='?';",$_SESSION['account']['confirm_activation']['email']);
-				unset($_SESSION['account']['confirm_activation']);
+		
+		$cv = $_POST["verification_confirm"] == "1" ? true : false;
+		$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+		$token_e = $cv ? ($_SESSION["account"]["confirm_activation"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
+		
+		if($token_e){
+			if(!$cv) $act_code = json_decode(Database::read("app_users_activate","content","id",$token),true);
+			else $act_code["confirm_activation"] = $_SESSION["account"]["confirm_activation"];
+			
+			Database::exec("UPDATE `app_users_list` SET enabled=1 WHERE `id`='?'",$act_code['confirm_activation']['id']);
+			
+			if(!$cv){
+				Database::deleteRow("app_users_activate","id",$token);
 				Prompt::postGood($language->get("E_CH2"),true);
+				redirect("users/login");
+			}else{
+				unset($_SESSION["account"]["confirm_activation"]);
+				Prompt::postGood("Akun berhasil diverifikasi",true);
+				redirect("users/login?redir=" . $_POST["redir"]);
+			}
+		}else{
+			if(!$cv)
+				redirect("users/login");
+			else{
+				$_SESSION["account"]["confirm_activation"]["wrong"] = true;
+				Prompt::postError("Kode Verifikasi Salah",true);
+				redirect("users/verify?redir=" . $_POST["redir"]);
 			}
 		}
-		redirect("users/login");
 	}elseif(__getURI("action") == "login" && $_POST["trueLogin"] == "1"){
 		/**
 		 * Login Action
@@ -227,56 +300,119 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/profile
 		 * Note	: -
 		 */
-		if($_POST["tf"] == "1"){			
-			if(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL) && $_POST["email"] != ""){
+		if($_POST["tf"] == "1"){
+			if($_POST["phone"] != "") $_POST["phone"] = Accounts::getE164($_POST["phone"]);
+			
+			if($_POST["email"] != "" && !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
 				Prompt::postError($language->get("EMAIL_NOT_VALID"),true);
-			}else if(!preg_match("/^(?!(?:\d*-){5,})(?!(?:\d* ){5,})\+?[\d- ]+$/",$_POST["phone"]) && $_POST["phone"] != ""){
+			}else if($_POST["phone"] != "" && preg_match("/^[0-9\+]{8,13}$/",$_POST["phone"]) === false){
 				Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
 			}else{
-				if(Accounts::getSettings()["f_reg_required1"] == "on" && $_POST["email"] == ""){
+				if((Accounts::$customM_UE||Accounts::getSettings()["f_reg_required1"] == "on") && $_POST["email"] == ""){
 					Prompt::postError($language->get("emailE"),true);
 				}else if($_POST["email"] != "" && Database::read("app_users_list","id","email",$_POST["email"]) != "" && Database::read("app_users_list","id","email",$_POST["email"]) != $_SESSION["account"]["id"]){
 					Prompt::postError("Email sudah dipakai",true);
-				}else if(Accounts::getSettings()["f_reg_required2"] == "on" && $_POST["phone"] == ""){
+				}else if((Accounts::$customM_UP||Accounts::getSettings()["f_reg_required2"] == "on") && $_POST["phone"] == ""){
 					Prompt::postWarn($language->get("CHECK_YOUR_PHONE"),true);
 				}else if($_POST["phone"] != "" && Database::read("app_users_list","id","phone",$_POST["phone"]) != "" && Database::read("app_users_list","id","phone",$_POST["phone"]) != $_SESSION["account"]["id"]){
 					Prompt::postError("Telepon sudah dipakai",true);
 				}else if($_POST['name'] == ""){
 					Prompt::postWarn("Nama Lengkap tidak boleh kosong",true);
 				}else{
-					Database::exec("UPDATE `app_users_list` SET `name`='?', `lang`='?', `phone`='?' WHERE `id`='?'", $_POST['name'], $_POST['lang'], $_POST['phone'], $_SESSION['account']['id']);
-					$_SESSION['account']['phone'] = $_POST['phone'];
+					$d = new DatabaseRowInput;
+					$d->setField("name",$_POST["name"]);
+					$d->setField("lang",$_POST["lang"]);
+					$cf_s = -1;
+					
+					if(Accounts::$customM_EN){
+						$cf = function(){								
+							$length = 6;
+							$characters = "0123456789";
+							$charactersLength = strlen($characters);
+							$randomString = '';
+							for ($i = 0; $i < $length; $i++) {
+								$randomString .= $characters[rand(0, $charactersLength - 1)];
+							}
+							
+							$act_code['confirm_email']['new'] = Accounts::$customM_UE ?  $_POST['email'] : $_POST['phone'];
+							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
+							$act_code['confirm_email']['key'] = $randomString;
+							$act_code['confirm_email']['timeout'] = time();
+							$act_code['confirm_email']['camefromprofile'] = Accounts::$customM_UE ?  "email" : "phone";
+							$aclb = Accounts::$customM_F;
+							if($act_code['confirm_email']['new'] != ""){
+								$aclbr = $aclb($act_code['confirm_email']['new'], $randomString);
+								if($aclbr === false){
+									return false;
+								}else{
+									$_SESSION["account"]["confirm_email"] = $act_code["confirm_email"];
+									$_SESSION["account"]["confirm_email"]["msg"] = $aclbr;
+									$_SESSION['account']['confirm_email']['timeout'] = time();
+								}
+								return true;
+							}else{
+								return false;
+							}
+						};
+						
+						if(Accounts::$customM_UE){
+							if(($_POST['email'] != $_SESSION['account']['email']) && $_POST['email'] != ""){
+								$cf_s = $cf();
+							}
+							$d->setField("phone",$_POST["phone"]);
+							$_SESSION['account']['phone'] = $_POST['phone'];
+						}else{
+							if(($_POST['phone'] != $_SESSION['account']['phone']) && $_POST['phone'] != ""){
+								$cf_s = $cf();
+							}
+							$d->setField("email",$_POST["email"]);
+							$_SESSION['account']['email'] = $_POST['email'];
+						}
+						
+					}else{
+						$d->setField("phone",$_POST["phone"]);
+						if($_POST['email'] != $_SESSION['account']['email'] && $_POST['email'] != ""){
+							$length = 128;
+							$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+							$charactersLength = strlen($characters);
+							$randomString = '';
+							for ($i = 0; $i < $length; $i++) {
+								$randomString .= $characters[rand(0, $charactersLength - 1)];
+							}
+							
+							$act_code['confirm_email']['new'] = $_POST['email'];
+							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
+							$act_code['confirm_email']['key'] = $randomString;
+							$act_code['confirm_email']['timeout'] = time();
+							Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
+							$link = __SITEURL ."/users/verifyemail/".$randomString;
+							$mailer = new Mailer;
+							$mailer->addRecipient = $_POST['email'];
+							$mailer->subject = $language->get("CYNE");
+							ob_start();
+							require( $appProp->path . "/mail_template/confirm_email.php");						
+							$mailer->body = ob_get_clean();
+							if($mailer->sendHTML() == 1){
+								Prompt::postGood($language->get("ECHS").$_POST['email'],true);
+							}else{					
+								Prompt::postError($language->get("CSCE"),true);
+							}
+						}else if($_POST["email"] == ""){						
+							Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", "", $_SESSION['account']['id']);
+							$_SESSION['account']['email'] = "";
+						}
+					}
+					
+					Prompt::postGood($language->get("CH_SAVED"),true);
 					$_SESSION['account']['name'] = $_POST['name'];
 					$_SESSION['account']['lang'] = $_POST['lang'];
-					Prompt::postGood($language->get("CH_SAVED"),true);
-					if($_POST['email'] != $_SESSION['account']['email'] && $_POST['email'] != ""){
-						unset($_SESSION['account']['confirm_email']);
-						$length = 128;
-						$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-						$charactersLength = strlen($characters);
-						$randomString = '';
-						for ($i = 0; $i < $length; $i++) {
-							$randomString .= $characters[rand(0, $charactersLength - 1)];
+					Database::updateRowAdvanced("app_users_list",$d,"id",$_SESSION['account']['id']);
+					if(Accounts::$customM_EN){
+						if($cf_s === false){
+							Prompt::postError("Kami tidak bisa memverifikasi Akun Anda",true);
+						}elseif($cf_s === true){
+							redirect("users/verify?redir=/users");
 						}
-						$_SESSION['account']['confirm_email']['new'] = $_POST['email'];
-						$_SESSION['account']['confirm_email']['id'] = $_SESSION['account']['id'];
-						$_SESSION['account']['confirm_email']['key'] = $randomString;
-						$_SESSION['account']['confirm_email']['timeout'] = time();
-						$link = __SITEURL ."/users/verifyemail/".$randomString;
-						$mailer = new Mailer;
-						$mailer->addRecipient = $_POST['email'];
-						$mailer->subject = $language->get("CYNE");
-						ob_start();
-						require( $appProp->path . "/mail_template/confirm_email.php");						
-						$mailer->body = ob_get_clean();
-						if($mailer->sendHTML() == 1){
-							Prompt::postGood($language->get("ECHS").$_POST['email'],true);
-						}else{					
-							Prompt::postError($language->get("CSCE"),true);
-						}
-					}else if($_POST["email"] == ""){						
-						Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", "", $_SESSION['account']['id']);
-						$_SESSION['account']['email'] = "";
 					}
 				}
 			}
@@ -293,16 +429,37 @@ if(__getURI("app") == $appProp->appname){
 		 * Note	: -
 		 */
 		 
-		if(__getURI(2) == $_SESSION['account']['confirm_email']['key']){
-			if($_SESSION['account']['confirm_email']['timeout'] + 10 * 60 < time()) {
-				unset($_SESSION['account']['confirm_email']);
-			}else{
-				Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?'", $_SESSION['account']['confirm_email']['new'], $_SESSION['account']['confirm_email']['id']);
-				$_SESSION['account']['email'] = $_SESSION['account']['confirm_email']['new'];
-				unset($_SESSION['account']['confirm_email']);
-				Prompt::postGood($language->get("E_CH"),true);
+		$cv = $_POST["ver_emailaddr"] == "1" ? true : false;
+		$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+		$token_e = $cv ? ($_SESSION["account"]["confirm_email"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
+		 
+		if($token_e){
+			if(!$cv)
+				$act_code = json_decode(Database::read("app_users_activate","content","id",__getURI(2)),true);
+			else{
+				$act_code["confirm_email"] = $_SESSION["account"]["confirm_email"];
 			}
-		}		
+			$dbr = new DatabaseRowInput;
+			
+			if($act_code["confirm_email"]["camefromprofile"] != "phone"){
+				$dbr->setField("email",$act_code["confirm_email"]["new"]);
+				$_SESSION['account']['email'] = $act_code['confirm_email']['new'];
+				Prompt::postGood($language->get("E_CH"),true);
+			}else{
+				$dbr->setField("phone",$act_code["confirm_email"]["new"]);
+				$_SESSION['account']['phone'] = $act_code['confirm_email']['new'];
+				Prompt::postGood("No. Telpon berhasil dikonfirmasi",true);
+			}
+			
+			Database::updateRowAdvanced("app_users_list",$dbr,"id",$act_code['confirm_email']['id']);
+			unset($act_code['confirm_email'], $_SESSION["account"]["confirm_email"]);
+			Database::deleteRow("app_users_activate","id",__getURI(2));
+		}else{
+			$_SESSION["account"]["confirm_email"]["wrong"] = true;
+			Prompt::postError("Kode verifikasi salah",true);
+			redirect("users/verify?redir=/users");
+		}
+		
 		redirect("users");
 	}elseif(__getURI("action") == "forgot" && isset($_POST["realforgotpaswd"]) && $_POST["datafromforgotout"] == "1"){
 		/**
@@ -317,33 +474,57 @@ if(__getURI("app") == $appProp->appname){
 				redirect("users");
 				die();
 			}
-			$userid = Database::read("app_users_list","id","email",$_POST['email']);
-			if($userid == "" || $_POST["email"] == ""){
-				Prompt::postWarn($language->get("naawth"));
+			$userid = Database::read("app_users_list","id","username",$_POST['user']);
+			if($userid == "" || $_POST["user"] == ""){
+				Prompt::postError("Kami tidak bisa menemukan akun Anda");
 			}else{
 				unset($_SESSION['account']['change_pass']);
-				$_SESSION['account']['change_pass']['linkClicked'] = 0;
-				$length = 128;
-				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+				$length = Accounts::$customM_EN?6:128;
+				$characters = Accounts::$customM_EN ? "8901234567":'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 				$charactersLength = strlen($characters);
 				$randomString = '';
 				for ($i = 0; $i < $length; $i++) {
 					$randomString .= $characters[rand(0, $charactersLength - 1)];
 				}
-				$_SESSION['account']['change_pass']['key'] = $randomString;
-				$_SESSION['account']['change_pass']['id'] = Database::read("app_users_list","id","email",$_POST['email']);
-				$_SESSION['account']['change_pass']['timeout'] = time();
-				$link = __SITEURL . "/users/changepassword/".$randomString;
-				$send = new Mailer;
-				$send->addRecipient = $_POST['email'];
-				$send->subject = $language->get("prr");
-				ob_start();
-				require( $appProp->path . "/mail_template/reset_password.php");			
-				$send->body = ob_get_clean();
-				if($send->sendHTML() == 1){
-					Prompt::postGood($language->get("PRLHS"));
-				}else{			
-					Prompt::postError($language->get("CSCE"));
+				$act_code['change_pass']['linkClicked'] = 0;
+				$act_code['change_pass']['key'] = $randomString;
+				$act_code['change_pass']['id'] = $userid;
+				$act_code['change_pass']['timeout'] = time();
+				
+				if(!Accounts::$customM_EN){
+					//If not set, by default we're sending code from email
+					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
+					$link = __SITEURL . "/users/changepassword/".$randomString;
+					$send = new Mailer;
+					$send->addRecipient = Database::read("app_users_list","email","id",$userid);
+					$send->subject = $language->get("prr");
+					ob_start();
+					require( $appProp->path . "/mail_template/reset_password.php");			
+					$send->body = ob_get_clean();
+					if($send->sendHTML() == 1){
+						Prompt::postGood($language->get("PRLHS"));
+					}else{			
+						Prompt::postError($language->get("CSCE"));
+					}
+				}else{
+					//If set, we're going to follow the rules by the requesting handler
+					$aclb = Accounts::$customM_F;
+					$contact_info = $customM_UE ? Database::read("app_users_list","email","id",$userid) : Database::read("app_users_list","phone","id",$userid);
+					if($contact_info != ""){
+						$aclbr = $aclb($contact_info, $randomString);
+						if($aclbr === false){
+							Prompt::postError("Gagal mengirimkan kode verifikasi",true);
+							redirect("users");
+						}else{
+							$_SESSION["account"]["change_pass"] = $act_code["change_pass"];
+							$_SESSION["account"]["change_pass"]["msg"] = $aclbr;
+							$_SESSION['account']['change_pass']['timeout'] = time();
+						}
+						redirect("users/verify?redir=" . $_POST["redir"]);
+					}else{
+						Prompt::postError("Kami tidak bisa memverifikasi Akun Anda",true);
+						redirect("users");
+					}
 				}
 			}
 		}
@@ -354,7 +535,7 @@ if(__getURI("app") == $appProp->appname){
 		 * Note	: -
 		 */
 		
-		if($_POST["realcpass"] == "1"){		
+		if($_POST["realcpass"] == "1"){
 			$changePass_LC = 0;
 			if(isset($_SESSION['account']['change_pass']['linkClicked']))
 				$changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];
@@ -395,26 +576,32 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/changepassword/$rand
 		 * Note	: Allow to be accessed from logged in or not state
 		 */
-		 
 		if(!$_SESSION['account']['loggedIn']){
-			if(__getURI(2) == $_SESSION['account']['change_pass']['key']){
-				if ($_SESSION['account']['change_pass']['timeout'] + 10 * 60 < time()) {
-					//Key is expired
-					unset($_SESSION['account']['change_pass']);
-					redirect("users");
-					die();
-				} else {
-					//Time still exists
-					$_SESSION['account']['change_pass']['linkClicked'] = 1;
-					redirect("users","changepassword"); //Auto redirect to remove token from addressbar
-					//redirect("users","ch_passdo"); //Disabled, because the view is controlled already in place
+		
+			$cv = $_POST["ch_pass_confirm"] == "1" ? true : false;
+			$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+			$token_e = $cv ? ($_SESSION["account"]["change_pass"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
+			
+			if($token_e){
+				if(!$cv){
+					$act_code = json_decode(Database::read("app_users_activate","content","id",__getURI(2)),true);
+					$_SESSION['account']['change_pass'] = $act_code["change_pass"]; //Restoring data to current session
+					Database::deleteRow("app_users_activate","id",__getURI(2));
+				}
+				$_SESSION['account']['change_pass']['linkClicked'] = 1;
+				redirect("users","changepassword");
+			}else{
+				if(isset($_POST["thiscamefromverify"])){
+					$_SESSION["account"]["change_pass"]["wrong"] = true;
+					Prompt::postError("Kode Verifikasi Salah",true);
+					redirect("users/verify");
 				}
 			}
 		}
 	}
 	
 	/**
-	 * Add some notice
+	 * Add some notice if users haven't change their password
 	 */
 	$changePass_LC = 0;
 	if(isset($_SESSION['account']['change_pass']['linkClicked'])) $changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];
