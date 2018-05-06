@@ -4,14 +4,14 @@ __requiredSystem("1.2.1") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.2.3
  */
- 
+
 $l=new Language;$l->app="users";
 
 $dataLvl  = [];
@@ -20,7 +20,7 @@ $dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
 $dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
 $dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3")->data;
 
-$a = new Application; 
+$a = new Application;
 $b = $a->run("search_box"); if(!$b) throw new PuzzleError("Cannot load Application `SearchBox`");
 $se = new SearchBox("UGL_");
 $se->setSubmitable(false);
@@ -70,7 +70,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 	content:"\f007";
 	margin-right:10px;
 }
-.group_card:before{	
+.group_card:before{
 	font-family:FontAwesome;
 	content:"\f0c0"!important;
 	margin-right:10px;
@@ -89,7 +89,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 .ng_table{
 	width:100%;
 }
-.group_card{	
+.group_card{
 	color:black!important;
 }
 #addGroup{
@@ -174,8 +174,8 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 		<td><input autocomplete="off" id="groupName" type="text" ></td>
 		<td>
 			<select class="authList" name="level" id="level">
-			<option value="1">Employees</option>
-			<option value="2" selected>Registered</option>
+			<option value="1"><?php $language->dump("EMPLOYEE")?></option>
+			<option value="2" selected><?php $language->dump("REGISTERED")?></option>
 			</select>
 		</td>
 		<td><button class="btn btn-default" type="submit"><i style="color:inherit;" class="fa fa-check"></i></button></td>
@@ -197,7 +197,7 @@ var groupApp = "<?php $l->dump("app_on_group")?>!";
 function submitGroup(f){
 	hideMessage();
 	if(f.find("#groupName").val() == ""){
-		showMessage(group_blank,"danger");	
+		showMessage(group_blank,"danger");
 	}else{
 		$.post("<?php echo __SITEURL?>/users/ajax/newGroup",{tf:"yes", name:f.find("#groupName").val(), level:f.find("#level").val()},function(r){
 			if(r==""){
@@ -240,7 +240,7 @@ $(".h_child .user_card").on("click",function(){
 		$(".umove[uid=" + $(this).attr("uid") + "] .group_card").on("click",function(){
 			hideMessage();
 			var gto = $(this).attr("uid");
-			$.post("<?php echo __SITEURL?>/users/ajax/changeGroup",{tf:"yes", uid:$(this).parent().attr("uid"), toGroup:$(this).attr("uid")},function(r){			
+			$.post("<?php echo __SITEURL?>/users/ajax/changeGroup",{tf:"yes", uid:$(this).parent().attr("uid"), toGroup:$(this).attr("uid")},function(r){
 				user_config_changed = 1;
 				$(".h_child .user_card[uid=" + r + "]").detach().appendTo(".h_child[gid=" + gto + "]");
 				showMessage(changeSaved_L,"success");

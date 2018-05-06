@@ -39,14 +39,14 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		<div class="input-group <?php if($GLOBALS["ULFailed"]) echo "has-error"?>">
 			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>
 			<input maxlength="50" required name="pass" autocomplete="off" type="password" class="form-control" <?php if($_POST["user"] != ""):?>autofocus<?php endif;?> placeholder="<?php $language->dump("password")?>">
-		</div><br>							
+		</div><br>
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
 		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
 	</form><br>
 
 	<div class="helpform" style="text-align:center;">
-		<a href="<?php echo __SITEURL?>/users/forgot"><?php $language->dump("F_PASS")?></a>	
+		<a href="<?php echo __SITEURL?>/users/forgot"><?php $language->dump("F_PASS")?></a>
 		<?php if(Accounts::getSettings()["f_en_registration"] == "on"):?>
 		<br><?php $language->dump("NOT_OWN_ACC_CONFIRM")?> <b><a href="<?php echo __SITEURL?>/users/signup"><?php $language->dump("SIGNUP")?></a></b>
 		<?php endif?>
@@ -64,11 +64,11 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
             </div>
             <div class="modal-body" style="text-align:center;max-width:400px;margin:auto;line-height:30px;">
 				<i class="fa fa-envelope-o fa-3x"></i><br><br>
-                Segera <b>konfirmasi email</b> Anda dari browser ini.<br>
-				Silahkan periksa folder <b>SPAM</b> jika email tidak masuk.
+                <?php $language->dump("CONFIRM_EMAIL")?><br>
+				<?php $language->dump("CHECK_SPAM_EMAIL")?>
             </div>
             <div class="modal-footer" style="box-shadow:none">
-                <button type="button" class="btn btn-info" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-info" data-dismiss="modal"><?php $language->dump("CLOSE")?></button>
             </div>
 
         </div>

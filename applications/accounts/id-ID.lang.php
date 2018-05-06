@@ -104,7 +104,38 @@ return array(
 	"MISC"				=> 	"Lainnya",
 	"LOGIN_SESSION_SHARE"=>	"Bagikan sesi login ke subdomain",
 	"OWN_ACC_CONFIRM"	=>	"Sudah punya akun?",
-	"NOT_OWN_ACC_CONFIRM"=>	"Belum punya akun?"
+	"NOT_OWN_ACC_CONFIRM"=>	"Belum punya akun?",
+	"VER_ACC"			=> 	"Verifikasi Akun",
+	"VER_CODE_SENT"		=>	"Kode verifikasi telah dikirim",
+	"VER_CODE_INPUT"	=>	"Masukkan kode verifikasi:",
+	"CONTINUE"			=>	"Lanjutkan",
+	"CONFIRM_EMAIL"		=>	"Segera cek kotak masuk dan verifikasi email Anda",
+	"CHECK_SPAM_EMAIL"	=> 	"Silahkan periksa folder spam jika email tidak masuk",
+	"CLOSE"				=>	"Tutup",
+	"EMPLOYEE"			=>	"Pegawai",
+	"REGISTERED"		=> 	"Terdaftar",
+	"USERNAME_VALIDITY"	=>	"Username hanya boleh terdiri dari huruf kecil, angka, dan uderscore",
+	"VER_CODE"			=>	"Verifikasi kode",
+	"NAME_INV_EMPTY"	=>	"Nama lengkap tidak boleh kosong",
+	"NAME_INV_50"		=>	"Nama lengkap tidak boleh lebih dari 50 karakter",
+	"USERNAME_INV_EMPTY"=>	"Username tidak boleh kosong",
+	"USERNAME_INV_CHAR"	=>	"Username hanya boleh terdiri dari huruf kecil, angka, dan underscore maksimum 25 karakter",
+	"USERNAME_INV_USED"	=>	"Username sudah dipakai",
+	"VER_CAPTCHA_ERR"	=>	"Verifikasi manusia gagal",
+	"EMAIL_INV"			=>	"Email tidak valid",
+	"PHONE_INV"			=> 	"Nomor telepon tidak valid",
+	"VER_SUCCEED"		=>	"Akun berhasil diverifikasi",
+	"VER_CODE_INV"		=>	"Kode verifikasi salah",
+	"SETTINGS_UPDATED"	=>	"Pengaturan telah diperbarui",
+	"ACT_ERR"			=>	"Aksi gagal",
+	"EMAIL_INV_USED"	=>	"Email sudah dipakai",
+	"PHONE_INV_USED"	=>	"Nomor telepon sudah dipakai",
+	"VER_ERR"			=> 	"Kami tidak bisa memverifikasi akun Anda",
+	"PHONE_SUCCEED"		=>	"Nomor telepon berhasil dikonfirmasi",
+	"ACC_INV_NOTFOUND"	=>	"Kami tidak bisa menemukan akun Anda",
+	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi"
+
+
 );
 
 ?>

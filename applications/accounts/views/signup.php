@@ -38,7 +38,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		</div><br>
 		<div class="input-group<?php if($GLOBALS["unmsd"]) echo " has-error"?>">
 			<span class="input-group-addon"><i class="fa fa-user"></i></span>
-			<input oninvalid="setCustomValidity('Username hanya boleh terdiri dari huruf kecil, angka, dan uderscore')" onchange="try{setCustomValidity('')}catch(e){}" maxlength="25" value="<?php echo $_POST["user"]?>" pattern="^[0-9a-z_]*$" required name="user" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
+			<input oninvalid="setCustomValidity('<?php $language->dump("USERNAME_VALIDITY")?>')" onchange="try{setCustomValidity('')}catch(e){}" maxlength="25" value="<?php echo $_POST["user"]?>" pattern="^[0-9a-z_]*$" required name="user" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
 		</div><br>
 		<?php if(Accounts::$customM_UE || Accounts::getSettings()["f_reg_required1"] == "on"):?>
         <div class="input-group<?php if($GLOBALS["aemsd"]) echo " has-error"?>">

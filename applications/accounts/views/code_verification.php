@@ -19,7 +19,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 ?>
 <?php ob_start()?>
 <style>
-.f_center{		
+.f_center{
 	width: 100%;
 	height: 70vh;
 	display: flex;
@@ -53,7 +53,7 @@ input.big.wrong{
 		<?php elseif(isset($_SESSION["account"]["confirm_email"])):?>
 		<form action="<?php echo __SITEURL?>/users/verifyemail" method="POST">
 		<?php endif?>
-			<span style="font-size:20pt;font-weight:500;">Verifikasi Akun</span><br>
+			<span style="font-size:20pt;font-weight:500;"><?php $language->dump("VER_ACC") ?></span><br>
 			<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
 			<span style="font-size:16pt;font-weight:400;"><?php echo $_SESSION["account"]["confirm_activation"]["msg"]?></span>
 			<?php elseif(isset($_SESSION["account"]["change_pass"])):?>
@@ -61,10 +61,10 @@ input.big.wrong{
 			<?php elseif(isset($_SESSION["account"]["confirm_email"])):?>
 			<span style="font-size:16pt;font-weight:400;"><?php echo $_SESSION["account"]["confirm_email"]["msg"]?></span>
 			<?php else:?>
-			<span style="font-size:16pt;font-weight:400;">Kode verifikasi telah dikirim</span>
+			<span style="font-size:16pt;font-weight:400;"><?php $language->dump("VER_CODE_SENT")?></span>
 			<?php endif?>
 			<div style="height:60px;"></div>
-			<span>Masukkan kode verifikasi:</span><br>
+			<span><?php $language->dump("VER_CODE_INPUT")?></span><br>
 			<input required autocomplete="off" type="text" class="big <?php if($_SESSION["account"]["confirm_email"]["wrong"] || $_SESSION["account"]["confirm_activation"]["wrong"] || $_SESSION["account"]["change_pass"]["wrong"] ) echo "wrong"?>" maxlength="6" name="code_input_usr" autofocus>
 			<br><br>
 			<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
@@ -76,7 +76,7 @@ input.big.wrong{
 			<?php endif?>
 			<input type="hidden" name="thiscamefromverify" value="1">
 			<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
-			<button type="submit" class="btn btn-default">Lanjutkan</button>
+			<button type="submit" class="btn btn-default"><?php $language->dump("CONTINUE")?></button>
 		</form>
 	</div>
 </div>
