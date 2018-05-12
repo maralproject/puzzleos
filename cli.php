@@ -10,7 +10,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * 
  * @software     Release: 1.2.3
  */
- 
+
 class PuzzleCLI{
     private static $list=[];
     private static function init(){
@@ -88,11 +88,9 @@ class PuzzleCLI{
 		}else{
 			//This is part of the system
 			$sys = explode("sys/",$app)[1];
-			switch($sys){
-			case "cron":
+			if($sys == "cron"){
 				if($arg["run"]) CronJob::run();
-				break;
-			default:
+			}else{
 				throw new PuzzleError("Invalid parameter");
 			}
 		}

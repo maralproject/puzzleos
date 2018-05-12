@@ -695,17 +695,17 @@ class Database{
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
-
-		if(!isset(self::$t_cache['Checksum'])){
-			if(file_exists(__ROOTDIR . "/cache/database_track.json")){
-				self::$t_cache['Checksum'] = json_decode(file_get_contents(__ROOTDIR . "/cache/database_track.json"),true);
+		
+		if(!isset(self::$t_cache[$table])){
+			if(file_exists(__ROOTDIR . "/db_cache/$table")){
+				self::$t_cache[$table] = file_get_contents(__ROOTDIR . "/db_cache/$table");
 			}else{
-				self::$t_cache['Checksum'] = [];
+				self::$t_cache[$table] = NULL;
 			}
 		}
 
 		/* Checking checksum */
-		$old_checksum = self::$t_cache['Checksum'][$table];
+		$old_checksum = self::$t_cache[$table];
 		$current_checksum = hash("sha256",serialize($structure));
 		$write_cache_file = false;
 		if($old_checksum != ""){
@@ -719,7 +719,7 @@ class Database{
 				$q = false;
 				$insertData = true;
 			}else{
-				self::$t_cache['Checksum'][$table] = $current_checksum;
+				self::$t_cache[$table] = $current_checksum;
 				$write_cache_file = true;
 				$q = self::isTableExist($table);
 				/* Drop table if necessary */
@@ -731,7 +731,7 @@ class Database{
 			}
 		}else{
 			//Brand new table
-			self::$t_cache['Checksum'][$table] = $current_checksum;
+			self::$t_cache[$table] = $current_checksum;
 			$write_cache_file = true;
 			$insertData = true;
 			$q = self::isTableExist($table);
@@ -767,8 +767,7 @@ class Database{
 						self::newRowAdvanced($table,$row);
 					}
 				}
-				if($write_cache_file)
-					file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$t_cache['Checksum']));
+				if($write_cache_file) file_put_contents(__ROOTDIR . "/db_cache/$table",self::$t_cache[$table]);
 				set_time_limit(30);
 				return true;
 			}else{
@@ -909,8 +908,7 @@ class Database{
 				}
 			} while(mysqli_next_result(self::$link));
 
-			if($write_cache_file)
-				file_put_contents(__ROOTDIR . "/cache/database_track.json",json_encode(self::$t_cache['Checksum']));
+			if($write_cache_file) file_put_contents(__ROOTDIR . "/db_cache/$table",self::$t_cache[$table]);
 			set_time_limit(30);
 			return true;
 		}

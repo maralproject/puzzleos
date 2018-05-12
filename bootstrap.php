@@ -65,6 +65,18 @@ if(!file_exists(__ROOTDIR . "/cache")){
 }
 
 /***********************************
+ * Making sure that DB cache folder
+ * always exists
+ ***********************************/
+if(!file_exists(__ROOTDIR . "/db_cache")){
+	@mkdir(__ROOTDIR . "/db_cache");
+	file_put_contents(__ROOTDIR . "/db_cache/.htaccess",'Deny from all');
+}else{
+	if(!file_exists(__ROOTDIR . "/db_cache/.htaccess"))
+		file_put_contents(__ROOTDIR . "/db_cache/.htaccess",'Deny from all');
+}
+
+/***********************************
  * Making sure that user_data folder
  * always exists
  ***********************************/
