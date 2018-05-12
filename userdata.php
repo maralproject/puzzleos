@@ -169,7 +169,7 @@ class UserData{
 		if($appname == "") return false;
 		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
 		$filename = $d["physical_path"];
-		if($with_cache_control){
+		if($with_cache_control && $filename != ""){
 			$filename .= "?v=" . $d["ver"];
 		}
 		return($reveal_private_path ? $filename : str_replace("user_private/","user_data/",$filename));
