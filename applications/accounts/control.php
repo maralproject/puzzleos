@@ -238,7 +238,6 @@ if(__getURI("app") == $appProp->appname){
 			}
 
 			if(Accounts::authUserId($_POST['user'],$_POST['pass'])){
-				Accounts::addSession(Accounts::findUserID($_POST['user']));
 				if($_POST['redir'] == ""){
 					redirect();
 				}else{
