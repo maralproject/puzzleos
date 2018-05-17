@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 1.2.5
  */
 
 /**
@@ -27,7 +27,7 @@ class FastCache{
 	 * @param string $file_ext Only "css", or "js"
 	 * @return string
 	 */
-	public static function start($file_ext){
+	public static function start($file_ext, $return = false){
 		$data = ob_get_clean();
 		$data = str_replace(__SITEURL , "#_SITEURL#", $data);
 		if($file_ext == "") return;
@@ -64,12 +64,16 @@ class FastCache{
 			throw new PuzzleError("Only css and js are available!");
 		}		
 		$data = str_replace("#_SITEURL#", __SITEURL , $data);
-		$hash = hash("md5",$data);
-		$path = "/cache/" . $hash . '.' . $file_ext;
-		if(!IO::exists($path)){						
-			IO::write($path,$data);	
+		if(!$return){
+			$hash = hash("md5",$data);
+			$path = "/cache/" . $hash . '.' . $file_ext;
+			if(!IO::exists($path)){						
+				IO::write($path,$data);	
+			}
+			return($path);
+		}else{
+			return $data;
 		}
-		return($path);
 	}
 	
 	/**
@@ -78,8 +82,8 @@ class FastCache{
 	 */
 	public static function outJSMin(){
 		//ob_flush();return; //Use this to disable caching
-		$file = FastCache::start("js");
-		return('<script type="text/javascript">'.file_get_contents(IO::physical_path($file)).'</script>');
+		$file = FastCache::start("js",true);
+		return('<script type="text/javascript">'.$file.'</script>');
 	}
 	
 	/**
@@ -98,8 +102,8 @@ class FastCache{
 	 */
 	public static function outCSSMin(){
 		//ob_flush();return; //Use this to disable caching
-		$file = FastCache::start("css");
-		return('<style type="text/css">'.file_get_contents(IO::physical_path($file)).'</style>');
+		$file = FastCache::start("css",true);
+		return('<style type="text/css">'.$file.'</style>');
 	}
 	/**
 	 * Start caching file and get instant script to include CSS file.
