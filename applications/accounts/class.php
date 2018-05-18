@@ -368,7 +368,8 @@ class Accounts{
 		}elseif(!self::$customM_UE && self::$customM_UP){
 			$userid = Database::read("app_users_list","id","username",strtolower($username));
 			if($userid == ""){
-				$userid = Database::read("app_users_list","id","phone",self::getE164(strtolower($username)));
+				$phone = self::getE164(strtolower($username));
+				if($phone != "") $userid = Database::read("app_users_list","id","phone",self::getE164(strtolower($username)));
 			}
 		}else{
 			$userid = Database::read("app_users_list","id","username",strtolower($username));
