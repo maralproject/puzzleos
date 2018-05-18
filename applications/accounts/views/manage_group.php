@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.1") or die("You need to upgrade the system");
+__requiredSystem("1.2.5") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -174,8 +174,8 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 		<td><input autocomplete="off" id="groupName" type="text" ></td>
 		<td>
 			<select class="authList" name="level" id="level">
-			<option value="1"><?php $language->dump("EMPLOYEE")?></option>
-			<option value="2" selected><?php $language->dump("REGISTERED")?></option>
+			<option value="1"><?php $l->dump("EMPLOYEE")?></option>
+			<option value="2" selected><?php $l->dump("REGISTERED")?></option>
 			</select>
 		</td>
 		<td><button class="btn btn-default" type="submit"><i style="color:inherit;" class="fa fa-check"></i></button></td>
