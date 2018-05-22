@@ -15,6 +15,14 @@ __requiredSystem("1.1.1") or die("You need to upgrade the system");
 $language = new Language; $language->app = "users";
 if(!isset($_GET["redir"])) $_GET["redir"] = "";
 
+if(Accounts::$customM_UE && !Accounts::$customM_UP){
+	$u_label = $language->get("uom");
+}elseif(!Accounts::$customM_UE && Accounts::$customM_UP){
+	$u_label = $language->get("uop");
+}else{
+	$u_label = $language->get("username");
+}
+
 $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 ?>
 <?php if($en_recaptcha):?>
@@ -31,7 +39,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	<form action="<?php echo __SITEURL?>/users/login" method="post">
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
+		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php echo $u_label?>">
 		</div><br>
 		<div class="input-group">
 		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>

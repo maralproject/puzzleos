@@ -13,6 +13,8 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  */
 
 return array(
+	"UOM"				=>	"Username atau email",
+	"UOP"				=>	"Username atau No. Telpon",
 	"APP_ON_GROUP"		=>	"Mohon merubah aplikasi yang tertaut pada kelompok ini ke kelompok lainnya",
 	"SEL_GROUP"			=>	"Pilih kelompok pengguna",
 	"GNAME_NO_BLANK"	=>	"Nama kelompok harus diisi",

@@ -15,6 +15,14 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 $language = new Language; $language->app = "users";
 if(!isset($_GET["redir"])) $_GET["redir"] = "";
 
+if(Accounts::$customM_UE && !Accounts::$customM_UP){
+	$u_label = $language->get("uom");
+}elseif(!Accounts::$customM_UE && Accounts::$customM_UP){
+	$u_label = $language->get("uop");
+}else{
+	$u_label = $language->get("username");
+}
+
 $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 ?>
 <?php if($en_recaptcha):?>
@@ -34,7 +42,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	<form onsubmit="$(this).find('button').prop('disabled',true);$(this).find('input').trigger('blur')" action="<?php echo __SITEURL?>/users/login" method="post" style="text-align:center;">
 		<div class="input-group <?php if($GLOBALS["ULFailed"]) echo "has-error"?>">
 			<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-			<input maxlength="50" required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php $language->dump("username")?>" >
+			<input maxlength="50" required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control" placeholder="<?php echo $u_label?>" >
 		</div><br>
 		<div class="input-group <?php if($GLOBALS["ULFailed"]) echo "has-error"?>">
 			<span class="input-group-addon" id="sizing-addon2"><i class="fa fa-key"></i></span>

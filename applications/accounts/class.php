@@ -111,7 +111,7 @@ class Accounts{
 	public static function verifyRecapctha(){
 		$url = 'https://www.google.com/recaptcha/api/siteverify';
 		$data = [
-			'secret' => Accounts::getSettings()["f_recaptcha_secret"], 
+			'secret' => self::getSettings()["f_recaptcha_secret"], 
 			'response' => $_POST["g-recaptcha-response"],
 			'remoteip' => $_SERVER["REMOTE_ADDR"]
 		];
@@ -305,7 +305,7 @@ class Accounts{
 		?>		
 		<input type="hidden" class="usergroup-input" name="<?php echo $input_name?>" id="<?php echo $input_name?>" value="<?php echo $group?>">
 		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" onclick="UGLB_SelectGroup($(this));" type="button" class="btn btn-default btn-xs dropdown-toggle">
-		<span id="UGLB_<?php echo $input_name?>"><?php echo Accounts::getGroupName($group)?></span> <span class="caret"></span>
+		<span id="UGLB_<?php echo $input_name?>"><?php echo self::getGroupName($group)?></span> <span class="caret"></span>
 		</button>
 		<?php
 		return(ob_get_clean());
@@ -359,11 +359,29 @@ class Accounts{
 	 * @return bool
 	 */
 	public static function authUserId($username,$pass){
-		$userid = Database::read("app_users_list","id","username",strtolower($username));
-		if(Database::read("app_users_list","enabled","id",$userid) != 1) return false;
+		if(self::$customM_UE && !self::$customM_UP){
+			if(filter_var($username,FILTER_VALIDATE_EMAIL)){
+				$userid = Database::read("app_users_list","id","email",strtolower($username));
+			}else{
+				$userid = Database::read("app_users_list","id","username",strtolower($username));
+			}
+		}elseif(!self::$customM_UE && self::$customM_UP){
+			$userid = Database::read("app_users_list","id","username",strtolower($username));
+			if($userid == ""){
+				$phone = self::getE164(strtolower($username));
+				if($phone != "") $userid = Database::read("app_users_list","id","phone",self::getE164(strtolower($username)));
+			}
+		}else{
+			$userid = Database::read("app_users_list","id","username",strtolower($username));
+		}
+		if($userid == "" || Database::read("app_users_list","enabled","id",$userid) != 1) return false;
 		$auth_user = $userid != "" ? 1 : 0;
-		$auth_pass = Accounts::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
-		return($auth_user && $auth_pass);
+		$auth_pass = self::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
+		if($auth_user && $auth_pass){
+			Accounts::addSession($userid);
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -385,7 +403,7 @@ class Accounts{
 		$_SESSION['account']['phone'] = "";
 		$_SESSION['account']['name'] = "";
 		$_SESSION['account']['lang'] = "en";
-		$_SESSION['account']['group'] = Accounts::getRootGroupId(USER_AUTH_PUBLIC);
+		$_SESSION['account']['group'] = self::getRootGroupId(USER_AUTH_PUBLIC);
 	}
 	
 	/**
@@ -416,8 +434,8 @@ class Accounts{
 		//If user level > app level, then authAccess
 		//If user level = app leve, compare
 		$result = false;
-		$user_level = Accounts::getAuthLevel($_SESSION['account']['group']);
-		if($user_level == Accounts::getAuthLevel($requiredGroup)){
+		$user_level = self::getAuthLevel($_SESSION['account']['group']);
+		if($user_level == self::getAuthLevel($requiredGroup)){
 			$result = ($_SESSION['account']['group'] == $requiredGroup);
 			if(!$result){
 				switch($_SESSION['account']['group']){
@@ -431,11 +449,11 @@ class Accounts{
 				}
 			}
 		}else{
-			$result = (Accounts::authAccess(Accounts::getAuthLevel($requiredGroup)));
+			$result = (self::authAccess(self::getAuthLevel($requiredGroup)));
 		}
 		return($result);
 	}
 }
 
-if( Accounts::getSettings()["f_reg_activate"] == "on" ) Accounts::$customM_UE = true;
+if(Accounts::getSettings()["f_reg_activate"] == "on" ) Accounts::$customM_UE = true;
 ?>

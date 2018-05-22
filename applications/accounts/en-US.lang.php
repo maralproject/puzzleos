@@ -13,6 +13,8 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  */
 
 return array(
+	"UOM"				=>	"Username or email",
+	"UOP"				=>	"Username or phone",
 	"APP_ON_GROUP"		=>	"Please change application permission to other group first",
 	"SEL_GROUP"			=>	"Select user group",
 	"GNAME_NO_BLANK"	=>	"Group name cannot be blank",
