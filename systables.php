@@ -68,7 +68,7 @@ Database::newStructure("sessions",$a);
 
 /* Table `cron` */
 $a = new DatabaseTableBuilder;
-$a->addColumn("key","VARCHAR(20)")->setAsPrimaryKey();
+$a->addColumn("key","VARCHAR(50)")->setAsPrimaryKey();
 $a->addColumn("last_exec","INT");
 
 Database::newStructure("cron",$a);
