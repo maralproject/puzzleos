@@ -361,7 +361,7 @@ class Application{
 		$dir = $list_app["dir_name"];
 		$this->appfound = true;
 		
-		if(!__defined("__POSCLI")){
+		if(!defined("__POSCLI")){
 			if(!AppManager::$MainAppStarted){
 				/* In multidomain mode, there is a feature called App resctriction,
 				 * meaning the app cannot start as the main user interface for that session.
