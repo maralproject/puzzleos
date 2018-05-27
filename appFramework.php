@@ -361,41 +361,46 @@ class Application{
 		$dir = $list_app["dir_name"];
 		$this->appfound = true;
 		
-		if(!AppManager::$MainAppStarted){
-			/* In multidomain mode, there is a feature called App resctriction,
-			 * meaning the app cannot start as the main user interface for that session.
-			 * But, that app can be still called and run by another apps if necessary,
-			 * also it's services and menus still can be called
-			 */
-			if(ConfigurationGlobal::$use_multidomain){
-				if(in_array($list_app["rootname"],ConfigurationMultidomain::$restricted_app)){					
-					$this->appfound = false;
-					return false;
-				}
-			}
-			 
-			//If user level > app level, then authAccess
-			//If user level = app level, compare
-			$user_level = Accounts::getAuthLevel($_SESSION['account']['group']);
-			$app_level = $list_app["permission"];
-			if($user_level == $app_level){
-				$this->forbidden = ($_SESSION['account']['group'] == $list_app["group"]?0:1);
-				if($this->forbidden != 0){
-					switch($_SESSION['account']['group']){
-						case 0:
-						case 1:
-						case 2:
-						case 3:
-							$this->forbidden = 0;
-							break;
-						default:
+		if(!__defined("__POSCLI")){
+			if(!AppManager::$MainAppStarted){
+				/* In multidomain mode, there is a feature called App resctriction,
+				 * meaning the app cannot start as the main user interface for that session.
+				 * But, that app can be still called and run by another apps if necessary,
+				 * also it's services and menus still can be called
+				 */
+				if(ConfigurationGlobal::$use_multidomain){
+					if(in_array($list_app["rootname"],ConfigurationMultidomain::$restricted_app)){					
+						$this->appfound = false;
+						return false;
 					}
+				}
+				 
+				//If user level > app level, then authAccess
+				//If user level = app level, compare
+				$user_level = Accounts::getAuthLevel($_SESSION['account']['group']);
+				$app_level = $list_app["permission"];
+				if($user_level == $app_level){
+					$this->forbidden = ($_SESSION['account']['group'] == $list_app["group"]?0:1);
+					if($this->forbidden != 0){
+						switch($_SESSION['account']['group']){
+							case 0:
+							case 1:
+							case 2:
+							case 3:
+								$this->forbidden = 0;
+								break;
+							default:
+						}
+					}
+				}else{
+					$this->forbidden = (Accounts::authAccess($list_app["permission"]) ? 0 :1);
 				}
 			}else{
 				$this->forbidden = (Accounts::authAccess($list_app["permission"]) ? 0 :1);
 			}
 		}else{
-			$this->forbidden = (Accounts::authAccess($list_app["permission"]) ? 0 :1);
+			//On CLI, user always authenticated as USER_AUTH_SU
+			$this->forbidden = 0;
 		}
 		
 		if($this->forbidden == 0){

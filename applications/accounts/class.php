@@ -431,6 +431,9 @@ class Accounts{
 	 * @return bool
 	 */
 	public static function authAccessAdvanced($requiredGroup){
+		//On CLI, user always authenticated as USER_AUTH_SU
+		if(defined("__POSCLI")) return true;
+		
 		//If user level > app level, then authAccess
 		//If user level = app leve, compare
 		$result = false;

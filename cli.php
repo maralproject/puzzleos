@@ -37,6 +37,8 @@ class PuzzleCLI{
 	/**
 	 * Run CLI routine, calling PuzzleOS from CLI will automatically
 	 * authenticate user as USER_AUTH_SU
+	 * 
+	 * @see accounts/class.php
 	 * @param array $a
 	 */
 	public static function run($a){
