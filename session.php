@@ -193,6 +193,14 @@ class PuzzleSession implements SessionHandlerInterface{
 		$this->destroyed = true;
 	}
 	
+	/**
+	 * End all active session in PuzzleOS for this user worldwide,
+	 * except this session.
+	 */
+	public function endUser(){
+		Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'",$_SESSION["account"]["id"],$this->id);
+	}
+	
 	public function __get($k){
 		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		switch($k){

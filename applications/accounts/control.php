@@ -558,14 +558,15 @@ if(__getURI("app") == $appProp->appname){
 					if($_POST['passnew'] != $_POST['passver']){
 						Prompt::postError($language->get("pnm"));
 					}else{
+						$uidcp = ($changePass_LC == 1) ? $_SESSION['account']['change_pass']['id'] : $_SESSION["account"]["id"];
+						Database::exec("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';", Accounts::hashPassword($_POST['passnew']),$uidcp);
+						PuzzleOSGlobal::$session->endUser($uidcp); //Logging out any user worldwide
 						if($changePass_LC == 1){
-							Database::exec("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';", Accounts::hashPassword($_POST['passnew']),$_SESSION['account']['change_pass']['id']);
 							unset($_SESSION['account']['change_pass']);
-							redirect("users");
 						}else{
-							Database::exec("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';",Accounts::hashPassword($_POST['passnew']),$_SESSION['account']['id']);
-							Prompt::postGood($language->get("pass_changed"));
+							Prompt::postGood($language->get("pass_changed"),true);
 						}
+						redirect("users");
 					}
 				}else{
 					Prompt::postError($language->get("pass_E"));
