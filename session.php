@@ -194,11 +194,12 @@ class PuzzleSession implements SessionHandlerInterface{
 	}
 	
 	/**
-	 * End all active session in PuzzleOS for this user worldwide,
-	 * except this session.
+	 * End all active session in PuzzleOS based on specific user id,
+	 * except current user
 	 */
-	public function endUser(){
-		Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'",$_SESSION["account"]["id"],$this->id);
+	public function endUser($id){
+		if($id == NULL) return false;
+		Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'",$id,$this->id);
 	}
 	
 	public function __get($k){
