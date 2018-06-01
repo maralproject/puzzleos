@@ -4,14 +4,14 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
- * 
+ *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
- * 
+ *
  * @software     Release: 1.2.3
  */
- 
+
 define("USER_AUTH_SU", 0);
 define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
@@ -20,22 +20,22 @@ define("USER_AUTH_PUBLIC", 3);
 /**
  * Use this class to manage User, and authenticate user permission
  */
-class Accounts{	
+class Accounts{
 	/**
-	 * @var array 
+	 * @var array
 	 */
 	private static $users = [];
-	
+
 	public static $customET_CE = NULL;
 	public static $customET_RP = NULL;
 	public static $customET_AC = NULL;
-	
+
 	public static $customM_F = NULL;
 	public static $customM_M = NULL;
 	public static $customM_EN = false;
 	public static $customM_UE = false;
 	public static $customM_UP = false;
-	
+
 	/**
 	 * Count the number of registered user
 	 * @return integer
@@ -43,11 +43,11 @@ class Accounts{
 	public static function count(){
 		return mysqli_num_rows(Database::exec("SELECT `id` from app_users_list"));
 	}
-	
+
 	/**
 	 * Re-format phone number according to E164 format, in Indonesia Country
-	 * @param string $phone 
-	 * @return string 
+	 * @param string $phone
+	 * @return string
 	 */
 	public static function getE164($phone){
 		//Speedup things. Donot load the library if not required
@@ -61,7 +61,7 @@ class Accounts{
 			return "";
 		}
 	}
-	
+
 	/**
 	 * Change the confirmation through custom method
 	 * The callable should return a message or FALSE boolean
@@ -76,7 +76,7 @@ class Accounts{
 		self::$customM_UE = $email_or_phone;
 		self::$customM_UP = !$email_or_phone;
 	}
-	
+
 	/**
 	 * Change default email confirmation template
 	 * Available variable :
@@ -85,7 +85,7 @@ class Accounts{
 	public static function setEmailTemplate_ConfirmEmail($html){
 		self::$customET_CE = $html;
 	}
-	
+
 	/**
 	 * Change default reset password template
 	 * Available variable :
@@ -94,7 +94,7 @@ class Accounts{
 	public static function setEmailTemplate_ResetPassword($html){
 		self::$customET_RP = $html;
 	}
-	
+
 	/**
 	 * Change default activate account template
 	 * Available variable :
@@ -103,15 +103,15 @@ class Accounts{
 	public static function setEmailTemplate_ActivateAccount($html){
 		self::$customET_AC = $html;
 	}
-	
+
 	public static function getSettings(){
 		return(json_decode(UserData::read("settings"),true));
 	}
-	
+
 	public static function verifyRecapctha(){
 		$url = 'https://www.google.com/recaptcha/api/siteverify';
 		$data = [
-			'secret' => self::getSettings()["f_recaptcha_secret"], 
+			'secret' => self::getSettings()["f_recaptcha_secret"],
 			'response' => $_POST["g-recaptcha-response"],
 			'remoteip' => $_SERVER["REMOTE_ADDR"]
 		];
@@ -129,17 +129,17 @@ class Accounts{
 		if ($result === FALSE) throw new PuzzleError("Cannot contact Google for Recaptcha");
 		return(json_decode($result)->success);
 	}
-	
+
 	/**
 	 * Hash password
 	 * This function use default php password_hash()
 	 * @param string $password
 	 * @return string
 	 */
-	public static function hashPassword($password){		
+	public static function hashPassword($password){
 		return(password_hash($password, PASSWORD_BCRYPT));
 	}
-	
+
 	/**
 	 * Verify Password Hash
 	 * This function use default php password_verify()
@@ -162,7 +162,7 @@ class Accounts{
 		if($auth == 2) return("Regitered");
 		if($auth == 3) return("Public");
 	}
-	
+
 	/**
 	 * Get system group id from USER_AUTH type
 	 * @param integer $level Selected authentication type, use "USER_AUTH" constant!
@@ -171,7 +171,7 @@ class Accounts{
 	public static function getRootGroupId($level){
 		return Database::read("app_users_grouplist","id","level",$level);
 	}
-	
+
 	/**
 	 * Get user group name
 	 * @param integer $group Selected authentication type
@@ -180,7 +180,7 @@ class Accounts{
 	public static function getGroupName($group){
 		return(Database::read("app_users_grouplist","name","id",$group));
 	}
-	
+
 	/**
 	 * Get authentication level based on the group id
 	 * @param integer $group Selected authentication type
@@ -189,7 +189,7 @@ class Accounts{
 	public static function getAuthLevel($group){
 		return(Database::read("app_users_grouplist","level","id",$group));
 	}
-	
+
 	/**
 	 * Return user group input
 	 * Get button which will show Propmt input
@@ -229,12 +229,12 @@ class Accounts{
 				content:"\f007";
 				margin-right:10px;
 			}
-			.group_card:before{	
+			.group_card:before{
 				font-family:FontAwesome;
 				content:"\f0c0"!important;
 				margin-right:10px;
 			}
-			.group_card{	
+			.group_card{
 				color:black!important;
 			}
 			.ugitem:hover{
@@ -299,10 +299,10 @@ class Accounts{
 			<?php
 			Template::appendBody(ob_get_clean());
 			unset($dataLvl);
-		}		
+		}
 		self::$users["printedDiv"] = true;
 		ob_start();
-		?>		
+		?>
 		<input type="hidden" class="usergroup-input" name="<?php echo $input_name?>" id="<?php echo $input_name?>" value="<?php echo $group?>">
 		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" onclick="UGLB_SelectGroup($(this));" type="button" class="btn btn-default btn-xs dropdown-toggle">
 		<span id="UGLB_<?php echo $input_name?>"><?php echo self::getGroupName($group)?></span> <span class="caret"></span>
@@ -310,7 +310,7 @@ class Accounts{
 		<?php
 		return(ob_get_clean());
 	}
-	
+
 	/**
 	 * Get user details
 	 * @param string $userID User ID
@@ -325,7 +325,7 @@ class Accounts{
 		$s['group'] = Database::read("app_users_list","group","id",$userID);
 		return $s;
 	}
-	
+
 	/**
 	 * Check if user exists or not
 	 * @param string $userID User ID
@@ -351,7 +351,7 @@ class Accounts{
 		$_SESSION['account']['group'] = Database::read("app_users_list","group","id",$userID);
 		return true;
 	}
-	
+
 	/**
 	 * Authenticate a user
 	 * @param string $username Username will be converted to lowercase
@@ -383,7 +383,7 @@ class Accounts{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get User ID based on username
 	 * @param string $username Username will be converted to lowercase
@@ -392,7 +392,7 @@ class Accounts{
 	public static function findUserID($username){
 		return(Database::read("app_users_list","id","username",strtolower($username)));
 	}
-	
+
 	/**
 	 * Remove login session
 	 */
@@ -405,7 +405,7 @@ class Accounts{
 		$_SESSION['account']['lang'] = "en";
 		$_SESSION['account']['group'] = self::getRootGroupId(USER_AUTH_PUBLIC);
 	}
-	
+
 	/**
 	 * Compare user authentication with authentication level
 	 * @param string $auth_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
@@ -414,17 +414,17 @@ class Accounts{
 	public static function authAccess($auth_level){
 		//On CLI, user always authenticated as USER_AUTH_SU
 		if(defined("__POSCLI")) return true;
-		
+
 		if($_SESSION['account']['loggedIn'] == 0){
 			return(USER_AUTH_PUBLIC <= $auth_level);
 		}else{
 			$usr_group = $_SESSION["account"]["group"];
 			$group_level = Database::read("app_users_grouplist","level","id",$usr_group);
 			if($group_level == "") $group_level = USER_AUTH_PUBLIC;
-			return($group_level <= $auth_level);			
+			return($group_level <= $auth_level);
 		}
 	}
-	
+
 	/**
 	 * Compare user authentication with group
 	 * @param string $requiredGroup User group ID
@@ -433,7 +433,7 @@ class Accounts{
 	public static function authAccessAdvanced($requiredGroup){
 		//On CLI, user always authenticated as USER_AUTH_SU
 		if(defined("__POSCLI")) return true;
-		
+
 		//If user level > app level, then authAccess
 		//If user level = app leve, compare
 		$result = false;
@@ -456,6 +456,14 @@ class Accounts{
 		}
 		return($result);
 	}
+
+    /**
+	 * Get logged-in user id
+	 * @return string
+	 */
+     public static getUserId() {
+         return $_SESSION["account"]["id"];
+     }
 }
 
 if(Accounts::getSettings()["f_reg_activate"] == "on" ) Accounts::$customM_UE = true;
