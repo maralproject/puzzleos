@@ -461,7 +461,7 @@ class Accounts{
 	 * Get logged-in user id
 	 * @return string
 	 */
-     public static getUserId() {
+     public static function getUserId() {
          return $_SESSION["account"]["id"];
      }
 }
