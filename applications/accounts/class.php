@@ -35,6 +35,13 @@ class Accounts{
 	public static $customM_EN = false;
 	public static $customM_UE = false;
 	public static $customM_UP = false;
+	
+	public static $aflfl = [];
+	
+	public static function register_post_login_function($f){
+		if(!is_callable($f)) throw new PuzzleError("Invalid function input");
+		self::$aflfl[] = $f;
+	}
 
 	/**
 	 * Count the number of registered user
@@ -378,7 +385,8 @@ class Accounts{
 		$auth_user = $userid != "" ? 1 : 0;
 		$auth_pass = self::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
 		if($auth_user && $auth_pass){
-			Accounts::addSession($userid);
+			self::addSession($userid);
+			foreach(self::$aflfl as $alf) $alf();
 			return true;
 		}
 		return false;
