@@ -152,6 +152,10 @@ class Database{
 	 * @var mysqli
 	 */
 	public static $link;
+	
+	public static function flushCache(){
+		self::$cache = [];
+	}
 
 	private static function query($query){
 		$new_query = "";

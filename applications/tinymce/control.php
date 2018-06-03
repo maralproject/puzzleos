@@ -18,7 +18,7 @@ if($appProp->appname == AppManager::$MainApp->appname){
 	case "uploadImage":
 		$time = time();
 		UserData::move_uploaded($_FILES["file"]["name"] . ".$time","file");
-		die(json_encode(array('location' => __SITEURL . UserData::getPath($_FILES["file"]["name"] . ".$time"))));
+		die(json_encode(array('location' => UserData::getPath($_FILES["file"]["name"] . ".$time"))));
 		break;
 	default:
 		redirect();
