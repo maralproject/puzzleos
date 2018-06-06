@@ -87,7 +87,7 @@ class PuzzleSession implements SessionHandlerInterface{
 			}
 		}
 		
-		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],$_SERVER['HTTP_HOST']];
+		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],explode(":",$_SERVER['HTTP_HOST'])[0]];
 		$this->id = md5(json_encode([$this->client,time()]));
 		$this->cnf = [0,false];
 		
