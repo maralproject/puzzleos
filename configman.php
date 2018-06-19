@@ -428,29 +428,33 @@ require_once("database.php");
 /* Build system table in the database */
 require_once("systables.php");
 
-/* Removing www. and port from domain */
-$host_without_port = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
-PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_without_port : "{root}");
+if(!defined("__POSCLI")){
+	/* Removing www. and port from domain */
+	$host_without_port = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
+	PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_without_port : "{root}");
 
-/* Include configuration for specific domain */
-if(ConfigurationGlobal::$use_multidomain){
-	if(substr($host_without_port,0,1) == '{') throw new PuzzleError("Not a valid domain!");
-	if(!file_exists("configs/$host_without_port.config.php")){
-		try{
-			throw new PuzzleError("PuzzleOS accessed from unregistered domain @ {$host_without_port}");
-		}catch(PuzzleError $e){}
+	/* Include configuration for specific domain */
+	if(ConfigurationGlobal::$use_multidomain){
+		if(substr($host_without_port,0,1) == '{') throw new PuzzleError("Not a valid domain!");
+		if(!file_exists("configs/$host_without_port.config.php")){
+			try{
+				throw new PuzzleError("PuzzleOS accessed from unregistered domain @ {$host_without_port}");
+			}catch(PuzzleError $e){}
 
-		header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
-		include( __ROOTDIR . "/templates/system/404.php" );
-		exit;
+			header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
+			include( __ROOTDIR . "/templates/system/404.php" );
+			exit;
+		}
+		require_once("configs/$host_without_port.config.php");
+		ConfigurationMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",PuzzleOSGlobal::$domain_zone),true);
+	}else{
+		ConfigurationMultidomain::$restricted_app = [];
 	}
-	require_once("configs/$host_without_port.config.php");
-	ConfigurationMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",PuzzleOSGlobal::$domain_zone),true);
-}else{
-	ConfigurationMultidomain::$restricted_app = [];
-}
 
-unset($host_without_port);
+	unset($host_without_port);
+}else{
+	PuzzleOSGlobal::$domain_zone = "{root}";
+}
 
 /* Define default stuff */
 ConfigurationMultidomain::$default_application = Database::read("multidomain_config","default_app","host", PuzzleOSGlobal::$domain_zone);
