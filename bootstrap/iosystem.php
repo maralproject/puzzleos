@@ -45,16 +45,16 @@ class IO{
 	 */
 	public static function publish($filename){
 		$filename = self::physical_path($filename);
-		$name = end(explode("/",$filename));
-		$ext = end(explode(".",$name));
-		$name = rtrim(str_replace($ext,"",$name),".");
-		if($ext == $name) $ext = "tmp";
 		if(is_dir($filename)){
 			$hash = substr(md5($filename),0,10);
 			if(!file_exists(__ROOTDIR . "/public/res/$hash"))
 				self::copy_r($filename, __ROOTDIR . "/public/res/$hash");
 			return "/res/$hash";
 		}else{
+			$name = end(explode("/",$filename));
+			$ext = end(explode(".",$name));
+			$name = rtrim(str_replace($ext,"",$name),".");
+			if($ext == $name) $ext = "tmp";
 			$hash = substr(md5_file($filename),0,10);
 			if(!file_exists(__ROOTDIR . "/public/res/$name.1$hash.$ext"))
 				@copy($filename, __ROOTDIR . "/public/res/$name.$hash.$ext");
