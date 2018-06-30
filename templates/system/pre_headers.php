@@ -8,11 +8,11 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 ?>
-<meta name="description" content="<?php echo ConfigurationGlobal::$meta_description;?>"/>
+<meta name="description" content="<?php echo POSConfigGlobal::$meta_description;?>"/>
 <meta name="generator" content="PuzzleOS"/>
 <?php ob_start();?>
 <style type="text/css">

@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
  
 /**
@@ -150,7 +150,7 @@ class PuzzleError extends Exception{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
 
-		$f = fopen(__DIR__ . "/error.log","a+");
+		$f = fopen(__ROOTDIR . "/error.log","a+");
 		fwrite($f,date("d/m/Y H:i:s",time())." ".date_default_timezone_get()."\r\n");
 		fwrite($f,"Message: ".$this->message."\r\n");
 		fwrite($f,"Suggestion: ".$this->suggestion."\r\n");

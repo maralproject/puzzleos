@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 define("T_DAY", 86400);
@@ -141,7 +141,7 @@ class CronJob {
     private static $list=[];
     private static function init(){
 		$caller = debug_backtrace()[1]["file"];
-		$filenameStr = str_replace(__ROOTDIR,"",str_replace("\\","/",$caller));
+		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
 		$filename = explode("/",$filenameStr);
         if($filename[1] != "applications") throw new PuzzleError("CronJob must be called from applications");
 		$appDir = $filename[2];

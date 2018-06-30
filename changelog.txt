@@ -1,4 +1,22 @@
 ## PuzzleOS Changelog ##
+2.0.0 (Backward Compatible to 2.0.0) - But need a little changes
+[x] Moving all system file
+[x] Merging cache folder
+[x] Separating server-side and public side
+[x] Finding out what's make PuzzleOS very sloww
+
+To migrate from version 1.2.x:
+-PuzzleOSGlobal -> POSGlobal
+-ConfigurationDB -> POSConfigDB
+-ConfigurationMailer -> POSConfigMailer
+-ConfigurationGlobal -> POSConfigGlobal
+-ConfigurationMultidomain -> POSConfigMultidomain
+-New function btfslash()
+-New function preparedir()
+-Services class removed
+-UserData::getPath -> UserData::getURL() and UserData::getPath()
+-New function ImageUploader::getURL($key)
+
 1.2.4 (Backward Compatible to 1.2.2)
 -CronJob was released
 -New CLI interface

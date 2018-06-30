@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
  
 if(__getURI("app") == "admin"){
@@ -19,30 +19,30 @@ if(__getURI("app") == "admin"){
 		redirect("admin#templates");
 	}else if(__getURI("action") == "saveConfig"){
 		if($_POST["trueForm"] == "1"){
-			ConfigurationDB::$username = str_replace("'","\"",$_POST["dbuser"]);
-			ConfigurationDB::$password = str_replace("'","\"",$_POST["dbpass"]);
-			ConfigurationDB::$host = str_replace("'","\"",$_POST["dbhost"]);
-			ConfigurationDB::$database_name = str_replace("'","\"",$_POST["dbdb"]);
-			ConfigurationGlobal::$default_language = str_replace("'","\"",$_POST["deflang"]);
-			ConfigurationGlobal::$sitename = str_replace("'","\"",$_POST["sitename"]);
-			ConfigurationGlobal::$timezone = str_replace("'","\"",$_POST["timezone"]);
-			ConfigurationGlobal::$copyright	= str_replace("'","\"",$_POST["copytext"]);
-			ConfigurationGlobal::$meta_description = str_replace("'","\"",$_POST["metadesc"]);
-			ConfigurationMailer::$From = str_replace("'","\"",$_POST["mailfrom"]);
-			ConfigurationMailer::$Sender = str_replace("'","\"",$_POST["mailname"]);
-			ConfigurationMailer::$UsePHP = ($_POST["use_smtp"]!="on"? true:false);
-			ConfigurationMailer::$smtp_host = str_replace("'","\"",$_POST["smtp_host"]);
-			ConfigurationMailer::$smtp_username = str_replace("'","\"",$_POST["smtp_user"]);
-			ConfigurationMailer::$smtp_password = str_replace("'","\"",$_POST["smtp_pass"]);
-			ConfigurationMailer::$smtp_encryption = str_replace("'","\"",$_POST["smtp_enc"]);
-			ConfigurationGlobal::$error_code = (int) str_replace("'","\"",$_POST["ep"]);
-			ConfigurationMailer::$smtp_port = str_replace("'","\"",$_POST["smtp_port"]);
-			ConfigurationMailer::$smtp_use_auth = ($_POST["smtp_auth"]!="on"? false:true);
-			ConfigurationGlobal::$use_multidomain = ($_POST["allow_mdomain"]!="on"?false:true);
+			POSConfigDB::$username = str_replace("'","\"",$_POST["dbuser"]);
+			POSConfigDB::$password = str_replace("'","\"",$_POST["dbpass"]);
+			POSConfigDB::$host = str_replace("'","\"",$_POST["dbhost"]);
+			POSConfigDB::$database_name = str_replace("'","\"",$_POST["dbdb"]);
+			POSConfigGlobal::$default_language = str_replace("'","\"",$_POST["deflang"]);
+			POSConfigGlobal::$sitename = str_replace("'","\"",$_POST["sitename"]);
+			POSConfigGlobal::$timezone = str_replace("'","\"",$_POST["timezone"]);
+			POSConfigGlobal::$copyright	= str_replace("'","\"",$_POST["copytext"]);
+			POSConfigGlobal::$meta_description = str_replace("'","\"",$_POST["metadesc"]);
+			POSConfigMailer::$From = str_replace("'","\"",$_POST["mailfrom"]);
+			POSConfigMailer::$Sender = str_replace("'","\"",$_POST["mailname"]);
+			POSConfigMailer::$UsePHP = ($_POST["use_smtp"]!="on"? true:false);
+			POSConfigMailer::$smtp_host = str_replace("'","\"",$_POST["smtp_host"]);
+			POSConfigMailer::$smtp_username = str_replace("'","\"",$_POST["smtp_user"]);
+			POSConfigMailer::$smtp_password = str_replace("'","\"",$_POST["smtp_pass"]);
+			POSConfigMailer::$smtp_encryption = str_replace("'","\"",$_POST["smtp_enc"]);
+			POSConfigGlobal::$error_code = (int) str_replace("'","\"",$_POST["ep"]);
+			POSConfigMailer::$smtp_port = str_replace("'","\"",$_POST["smtp_port"]);
+			POSConfigMailer::$smtp_use_auth = ($_POST["smtp_auth"]!="on"? false:true);
+			POSConfigGlobal::$use_multidomain = ($_POST["allow_mdomain"]!="on"?false:true);
 			
-			if(ConfigurationDB::commit()){				
-				if(ConfigurationGlobal::commit()){
-					if(ConfigurationMailer::commit()){					
+			if(POSConfigDB::commit()){				
+				if(POSConfigGlobal::commit()){
+					if(POSConfigMailer::commit()){					
 						Prompt::postGood($l->get("CONFIGURATION_UPDATED"),true);
 						redirect("admin");
 					}
@@ -63,18 +63,18 @@ if(__getURI("app") == "admin"){
 			die();
 	}else if(__getURI("action") == "restrictApp"){
 		if($_POST["appid"] == "") redirect("admin");
-		ConfigurationMultidomain::$restricted_app[] = $_POST["appid"];
+		POSConfigMultidomain::$restricted_app[] = $_POST["appid"];
 		try{
-			ConfigurationMultidomain::commit();
+			POSConfigMultidomain::commit();
 		}catch(PuzzleError $e){
 			die($e->getMessage());
 		}
 		die("Y");
 	}else if(__getURI("action") == "unrestrictApp"){
 		if($_POST["appid"] == "") redirect("admin");
-		ConfigurationMultidomain::$restricted_app = array_diff(ConfigurationMultidomain::$restricted_app,[$_POST["appid"]]);
+		POSConfigMultidomain::$restricted_app = array_diff(POSConfigMultidomain::$restricted_app,[$_POST["appid"]]);
 		try{
-			ConfigurationMultidomain::commit();
+			POSConfigMultidomain::commit();
 		}catch(PuzzleError $e){
 			die($e->getMessage());
 		}
@@ -82,7 +82,7 @@ if(__getURI("app") == "admin"){
 	}else if(__getURI("action") == "addDomain"){
 		if($_POST["trueForm"] == 1){
 			try{
-				if(ConfigurationMultidomain::addDomain($_POST["domain"]) == true) die("yes");			
+				if(POSConfigMultidomain::addDomain($_POST["domain"]) == true) die("yes");			
 			}catch(PuzzleError $e){
 				die($e->getMessage());
 			}
@@ -93,7 +93,7 @@ if(__getURI("app") == "admin"){
 	}else if(__getURI("action") == "rmDomain"){
 		if($_POST["trueForm"] == 1){
 			try{
-				if(ConfigurationMultidomain::removeDomain($_POST["domain"]) == true) die("yes");			
+				if(POSConfigMultidomain::removeDomain($_POST["domain"]) == true) die("yes");			
 			}catch(PuzzleError $e){
 				die($e->getMessage());
 			}

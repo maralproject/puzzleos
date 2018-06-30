@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -55,7 +55,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 		foreach(Template::listAll() as $d){
 			$link = 'onclick="window.location=\''.__SITEURL.'/admin/changeTemplate/'.$d["name"].'\';"';
 			$preview = glob(__ROOTDIR . "/templates/".$d["name"]."/preview.*");
-			$preview = str_replace(__ROOTDIR,"",$preview[0]);
+			$preview = IO::publish($preview[0]);
 			echo('
 			<div style="margin:0px;" class="col col-md-4 '.($d["active"] == 1?"selected_t":"").'" '.($d["active"] == 1?"":$link).'>
 				<div style="background-image:url(\''.$preview.'\');background-repeat:no-repeat;background-size:contain;width:100%;height:180px;background-position:center;"></div>

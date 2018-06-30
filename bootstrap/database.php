@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -198,7 +198,7 @@ class Database{
 				/* Perform a reconnect */
 				mysqli_close(self::$link);
 
-				self::$link = mysqli_connect(ConfigurationDB::$host,ConfigurationDB::$username,ConfigurationDB::$password,ConfigurationDB::$database_name);
+				self::$link = mysqli_connect(POSConfigDB::$host,POSConfigDB::$username,POSConfigDB::$password,POSConfigDB::$database_name);
 				if(!self::$link)
 					throw new DatabaseError(mysqli_connect_error(), "Anyway, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
 				self::$link->set_charset("utf8");
@@ -216,13 +216,10 @@ class Database{
 	}
 
 	private static function verifyExecCaller($filename,$query){
-		//This function is a protection to prevent database violation
-		$filename = str_replace(__ROOTDIR,"",str_replace("\\","/",$filename));
-		if($filename == "/applications/admin/installer.php") return(true); //Special Request
-		if($filename == "/debug.php") return(true); //Special Request
-		$filename = explode("/",$filename);
-		$directory = $filename[1];
-		switch($directory){
+		$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
+		switch($filename[1]){
+		case "bootstrap":
+			switch($filename[2]){
 			case "debug.php":
 			case "appFramework.php":
 			case "services.php":
@@ -236,30 +233,29 @@ class Database{
 			case "configman.php":
 				if((preg_match('/`multidomain_config`/',$query))) return(true); break;
 			case "userdata.php":
-			case "bootstrap.php":
+			case "boot.php":
 				if((preg_match('/`userdata`/',$query))) return(true); break;
-			case "applications":
-				$appname = isset($filename[2])?$filename[2]:"";
+			}
+			break;
+		case "applications":
+			$appname = isset($filename[2])?$filename[2]:"";
 
-				if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
-				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
+			if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) 
+				throw new DatabaseError("Application do not have manifest!");
+			
+			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
+			$appname = $manifest["rootname"];
 
-				$appname = $manifest["rootname"];
-
-				if((preg_match('/app_'.$appname.'_/',$query))) return(true);
-			default:
-				return(false);
+			if((preg_match('/app_'.$appname.'_/',$query))) return(true);
 		}
 		return(false);
 	}
+	
 	private static function verifyCaller($filename,$table){
-		//This function is a protection to prevent database violation
-		$filename = str_replace(__ROOTDIR,"",str_replace("\\","/",$filename));
-		if($filename == "/applications/admin/installer.php") return(true); //Special Request
-		if($filename == "/debug.php") return(true); //Special Request
-		$filename = explode("/",$filename);
-		$directory = $filename[1];
-		switch($directory){
+		$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
+		switch($filename[1]){
+		case "bootstrap":
+			switch($filename[2]){
 			case "debug.php":
 			case "appFramework.php":
 			case "services.php":
@@ -273,18 +269,18 @@ class Database{
 			case "configman.php":
 				if($table == "multidomain_config") return(true); break;
 			case "userdata.php":
-			case "bootstrap.php":
+			case "boot.php":
 				if($table == "userdata") return(true); break;
-			case "applications":
-				$appname = isset($filename[2])?$filename[2]:"";
+			}
+			break;
+		case "applications":
+			$appname = isset($filename[2])?$filename[2]:"";
 
-				if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
-				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
+			if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
+			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 
-				$appname = $manifest["rootname"];
-				if((preg_match('/app_'.$appname.'_/',$table))) return(true);
-			default:
-				return(false);
+			$appname = $manifest["rootname"];
+			if((preg_match('/app_'.$appname.'_/',$table))) return(true);
 		}
 		return(false);
 	}
@@ -701,8 +697,8 @@ class Database{
 		unset($caller);
 		
 		if(!isset(self::$t_cache[$table])){
-			if(file_exists(__ROOTDIR . "/db_cache/$table")){
-				self::$t_cache[$table] = file_get_contents(__ROOTDIR . "/db_cache/$table");
+			if(file_exists(__ROOTDIR . "/storage/dbcache/$table")){
+				self::$t_cache[$table] = file_get_contents(__ROOTDIR . "/storage/dbcache/$table");
 			}else{
 				self::$t_cache[$table] = NULL;
 			}
@@ -771,7 +767,7 @@ class Database{
 						self::newRowAdvanced($table,$row);
 					}
 				}
-				if($write_cache_file) file_put_contents(__ROOTDIR . "/db_cache/$table",self::$t_cache[$table]);
+				if($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table",self::$t_cache[$table]);
 				set_time_limit(30);
 				return true;
 			}else{
@@ -912,14 +908,17 @@ class Database{
 				}
 			} while(mysqli_next_result(self::$link));
 
-			if($write_cache_file) file_put_contents(__ROOTDIR . "/db_cache/$table",self::$t_cache[$table]);
+			if($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table",self::$t_cache[$table]);
 			set_time_limit(30);
 			return true;
 		}
 	}
 }
 
-Database::$link = mysqli_connect(ConfigurationDB::$host,ConfigurationDB::$username,ConfigurationDB::$password,ConfigurationDB::$database_name);
-if(!Database::$link)
-	throw new DatabaseError(mysqli_connect_error(), "Anyway, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
+/* Opening connection to database */
+Database::$link = mysqli_connect(POSConfigDB::$host,POSConfigDB::$username,POSConfigDB::$password,POSConfigDB::$database_name);
+if(!Database::$link){
+	throw new DatabaseError(mysqli_connect_error(), 
+	"Fyi, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
+}
 ?>

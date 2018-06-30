@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.5") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,12 +9,17 @@ __requiredSystem("1.2.5") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.5
+ * @software     Release: 2.0.0
  */
 
+/* Register SU if not found */
+if(Database::readAll("app_users_list")->num < 1){
+	Database::newRow("app_users_list", Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
+}
+
 /* Setting up user session */
-PuzzleOSGlobal::$session->retain_on_same_pc = Accounts::getSettings()["f_en_remember_me"] == "on";
-PuzzleOSGlobal::$session->share_on_subdomain = Accounts::getSettings()["f_share_session"] == "on";
+POSGlobal::$session->retain_on_same_pc = Accounts::getSettings()["f_en_remember_me"] == "on";
+POSGlobal::$session->share_on_subdomain = Accounts::getSettings()["f_share_session"] == "on";
 
 if(!isset($_SESSION["account"])){
 	Accounts::rmSession();

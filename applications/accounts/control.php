@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.5") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -264,9 +264,9 @@ if(__getURI("app") == $appProp->appname){
 		}
 
 		if(UserData::store("settings",json_encode($o),"json",true)){
-			PuzzleOSGlobal::$session->endAll();
-			PuzzleOSGlobal::$session->open();
-			PuzzleOSGlobal::$session->write_cookie();
+			POSGlobal::$session->endAll();
+			POSGlobal::$session->open();
+			POSGlobal::$session->write_cookie();
 			Prompt::postGood($language->get("SETTINGS_UPDATED"),true);
 		}else{
 			Prompt::postError($language->get("ACT_ERR"),true);
@@ -560,7 +560,7 @@ if(__getURI("app") == $appProp->appname){
 					}else{
 						$uidcp = ($changePass_LC == 1) ? $_SESSION['account']['change_pass']['id'] : $_SESSION["account"]["id"];
 						Database::exec("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';", Accounts::hashPassword($_POST['passnew']),$uidcp);
-						PuzzleOSGlobal::$session->endUser($uidcp); //Logging out any user worldwide
+						POSGlobal::$session->endUser($uidcp); //Logging out any user worldwide
 						if($changePass_LC == 1){
 							unset($_SESSION['account']['change_pass']);
 						}else{

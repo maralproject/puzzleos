@@ -13,9 +13,7 @@
 define("__POSEXEC", 1);
 define("__POSCLI",1);
 
-//define("__SYSTEM_NAME", "PuzzleOS");		//You can change the system name in this directive
-
-require_once("bootstrap.php");
+require("bootstrap/boot.php");
 
 /* Run the requested app and resources */
 PuzzleCLI::run($argv);

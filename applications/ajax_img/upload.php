@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.3") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -100,7 +100,7 @@ if(isset($_FILES["file"]) && $_FILES["file"]["error"]== UPLOAD_ERR_OK){
 		$img = compress(UserData::getPath($id));
 		UserData::remove($id);
 		UserData::store($id,$img,$filetype);
-		die('<div style="margin-top:10px;background:url(\''. __SITEURL . "/" . UserData::getPath($id,true) .'\') center center / contain no-repeat;width:inherit;height:inherit;"></div>');
+		die('<div style="margin-top:10px;background:url(\''. __SITEURL . UserData::getURL($id,true) .'\') center center / contain no-repeat;width:inherit;height:inherit;"></div>');
 	}else{
 		echo($_POST["prev"]);
 		die(Prompt::postErrorInScript($l->get("ERROR_UPLOAD")));

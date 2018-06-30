@@ -1,7 +1,0 @@
-*.txt
-*.log
-cache
-user_data
-user_private
-!robots.txt
-!changelog.txt

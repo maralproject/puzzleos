@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 require_once( $appProp->path . "/class/PHPMailerAutoload.php"); 
@@ -60,20 +60,20 @@ class Mailer extends PHPMailer{
 	}
 	
 	function __construct() {
-		$this->setFrom(ConfigurationMailer::$From,ConfigurationMailer::$Sender);
+		$this->setFrom(POSConfigMailer::$From,POSConfigMailer::$Sender);
 		
 		$lang = explode("-",LangManager::getDisplayedNow())[0];
 		$this->setLanguage($lang);
 		
 		//Future, configure SMTP here
-		if(!ConfigurationMailer::$UsePHP){
+		if(!POSConfigMailer::$UsePHP){
 			$this->isSMTP();
-			$this->Host = ConfigurationMailer::$smtp_host;
-			$this->SMTPAuth = ConfigurationMailer::$smtp_use_auth;
-			$this->Username = ConfigurationMailer::$smtp_username;
-			$this->Password = ConfigurationMailer::$smtp_password;
-			if($smtp["Encryption"]!="none")	$this->SMTPSecure = ConfigurationMailer::$smtp_encryption;
-			$this->Port = ConfigurationMailer::$smtp_port;
+			$this->Host = POSConfigMailer::$smtp_host;
+			$this->SMTPAuth = POSConfigMailer::$smtp_use_auth;
+			$this->Username = POSConfigMailer::$smtp_username;
+			$this->Password = POSConfigMailer::$smtp_password;
+			if($smtp["Encryption"]!="none")	$this->SMTPSecure = POSConfigMailer::$smtp_encryption;
+			$this->Port = POSConfigMailer::$smtp_port;
 		}
 	}
 	

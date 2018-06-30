@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -70,9 +70,9 @@ class Template{
 		if(self::$Loaded) return;
 		flush();
 				
-		self::$active = ConfigurationMultidomain::$default_template;
-		self::$url = __SITEURL."/templates/".self::$active;
-		self::$dir = "templates/".self::$active;
+		self::$active = POSConfigMultidomain::$default_template;
+		self::$url = IO::publish(__ROOTDIR . "/templates/".self::$active);
+		self::$dir = __ROOTDIR . "/templates/".self::$active;
 		
 		if(!IO::exists(self::$dir . "/manifest.ini"))
 			throw new PuzzleError("Template " . self::$active . " not exists!","Please check the manifest!");
@@ -88,11 +88,11 @@ class Template{
 			}
 		));
 		$tmpl->app = &AppManager::$MainApp;
-		$tmpl->http_code = &PuzzleOSGlobal::$http_code;
+		$tmpl->http_code = &POSGlobal::$http_code;
 		$tmpl->postBody = &self::$addOnBody;
 		$tmpl->url = self::$url;
 		$tmpl->path = self::$dir;
-		$tmpl->copyright = ConfigurationGlobal::$copyright;
+		$tmpl->copyright = POSConfigGlobal::$copyright;
 		$tmpl->title = (self::$SubTitle === NULL ? ($tmpl->app->title) : self::$SubTitle);
 		$tmpl->navigation = new Application; 
 		$tmpl->navigation->run("menus");
@@ -104,7 +104,7 @@ class Template{
 		 */
 		if(!defined("DISABLE_MINIFY")) ob_start(function($b){return preg_replace(['/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s'],['>','<','\\1'],$b);});
 		if(!include_once(self::$dir."/".$manifest["controller"])){
-			throw new PuzzleError("Cannot load template!", "Please the default template");
+			throw new PuzzleError("Cannot load template!", "Please set the default template");
 		}
 		unset($tmpl);
 		self::$Loaded = true;
@@ -142,8 +142,8 @@ class Template{
 	 * @return bool
 	 */
 	public static function setDefaultByName($name){
-		ConfigurationMultidomain::$default_template = $name;
-		return ConfigurationMultidomain::commit();
+		POSConfigMultidomain::$default_template = $name;
+		return POSConfigMultidomain::commit();
 	}
 }
 ?>

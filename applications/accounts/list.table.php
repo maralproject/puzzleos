@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.3") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,12 +9,8 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
-
-/* Table app_users_list require app_users_grouplist. Build one if not exists */
-if(Database::isTableExist("app_users_grouplist")) 
-	Database::newStructure("app_users_grouplist",require("grouplist.table.php"));
 
 /* This file defines, and update the structure of table `app_users_list` */
 $table = new DatabaseTableBuilder;
@@ -36,7 +32,8 @@ $table->addColumn("registered_time","INT")->defaultValue(0);
  * Username: admin
  * Password: admin
  */
-$table->newInitialRow(Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
+//$table->newInitialRow(1,"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
+//Let installation do the creation of user
 
 return $table;
 ?>

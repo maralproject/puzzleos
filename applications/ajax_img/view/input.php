@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -18,7 +18,7 @@ $l = new Language;
 
 <?php if($GLOBALS["ImageUploader"]["scLoaded"] != 1):?>
 	<?php $GLOBALS["ImageUploader"]["scLoaded"] = 1;?>
-	<script type="text/javascript" src="<?php echo __SITEURL . self::$appProp->rootdir?>/js/jquery.form.min.js"></script>
+	<script type="text/javascript" src="<?php echo IO::publish(self::$appProp->rootdir."/js/jquery.form.min.js")?>"></script>
 	<script>
 		var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
 		var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";

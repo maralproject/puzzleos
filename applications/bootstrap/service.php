@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
  
 /* This file is manually configured to load between bootstrap version and themes */
@@ -46,8 +46,8 @@ require_once("bootstrap-3.3.7.php");
  * Jquery-datepicker provided by https://github.com/fengyuanchen/datepicker
  */
 function __bs_enable_datepicker(){
-	Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/jquery-datepicker/datepicker.min.js"></script>',true);
-	Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/jquery-datepicker/datepicker.min.css"/>');
+	Template::addHeader('<script type="text/javascript" src="'.IO::publish($appProp->path.'/lib/jquery-datepicker/datepicker.min.js').'"></script>',true);
+	Template::addHeader('<link rel="stylesheet" href="'.IO::publish($appProp->path.'/lib/jquery-datepicker/datepicker.min.css').'"/>');
 }
 
 ob_start();?>

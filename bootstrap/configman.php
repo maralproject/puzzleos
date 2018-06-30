@@ -8,13 +8,13 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
  * Global variables in PuzzleOS
  */
-class PuzzleOSGlobal{
+class POSGlobal{
 	/**
 	 * Current HTTP Code Response
 	 * @var int
@@ -40,7 +40,7 @@ class PuzzleOSGlobal{
 	public static $session = NULL;
 
 	/**
-	 * This variable set up by bootstrap.php
+	 * This variable set up by boot.php
 	 * @var array
 	 */
 	public static $uri;
@@ -49,7 +49,7 @@ class PuzzleOSGlobal{
 /**
  * Database Configuration stuff
  */
-class ConfigurationDB{
+class POSConfigDB{
 	/**
 	 * @var string
 	 */
@@ -86,13 +86,14 @@ class ConfigurationDB{
 	 * @return bool
 	 */
 	public static function commit(){
-		if(!IO::exists("/configs/root.sys.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
+		if(!IO::exists("/configs/root.sys.php")) 
+			throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
+		
 		$current_config = file(__ROOTDIR . "/configs/root.sys.php");
-
-		self::findAndReplace($current_config,'ConfigurationDB::$username','ConfigurationDB::$username = "'.self::$username.'";');
-		self::findAndReplace($current_config,'ConfigurationDB::$password','ConfigurationDB::$password = "'.self::$password.'";');
-		self::findAndReplace($current_config,'ConfigurationDB::$host','ConfigurationDB::$host = "'.self::$host.'";');
-		self::findAndReplace($current_config,'ConfigurationDB::$database_name','ConfigurationDB::$database_name = "'.self::$database_name.'";');
+		self::findAndReplace($current_config,'POSConfigDB::$username','POSConfigDB::$username = "'.self::$username.'";');
+		self::findAndReplace($current_config,'POSConfigDB::$password','POSConfigDB::$password = "'.self::$password.'";');
+		self::findAndReplace($current_config,'POSConfigDB::$host','POSConfigDB::$host = "'.self::$host.'";');
+		self::findAndReplace($current_config,'POSConfigDB::$database_name','POSConfigDB::$database_name = "'.self::$database_name.'";');
 
 		return file_put_contents(__ROOTDIR . "/configs/root.sys.php",implode("",$current_config)) == FALSE ? false :true;
 	}
@@ -101,7 +102,7 @@ class ConfigurationDB{
 /**
  * Mailer Configuration stuff
  */
-class ConfigurationMailer{
+class POSConfigMailer{
 	/**
 	 * @var string
 	 */
@@ -170,27 +171,27 @@ class ConfigurationMailer{
 		if(!is_bool(self::$UsePHP)) throw new PuzzleError("UsePHP must be boolean!");
 		if(!is_bool(self::$smtp_use_auth)) throw new PuzzleError("smtp_use_auth code must be boolean!");
 
-		if(ConfigurationGlobal::$use_multidomain){
-			if(!file_exists(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
-			$current_config = file(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php");
+		if(POSConfigGlobal::$use_multidomain){
+			if(!file_exists(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
+			$current_config = file(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php");
 		}else{
 			if(!IO::exists("/configs/root.sys.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
 			$current_config = file(__ROOTDIR . "/configs/root.sys.php");
 		}
 
-		self::findAndReplace($current_config,'ConfigurationMailer::$From','ConfigurationMailer::$From = "'.self::$From.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$Sender','ConfigurationMailer::$Sender = "'.self::$Sender.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$UsePHP','ConfigurationMailer::$UsePHP = '. (self::$UsePHP ? 'true':'false') .';');
+		self::findAndReplace($current_config,'POSConfigMailer::$From','POSConfigMailer::$From = "'.self::$From.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$Sender','POSConfigMailer::$Sender = "'.self::$Sender.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$UsePHP','POSConfigMailer::$UsePHP = '. (self::$UsePHP ? 'true':'false') .';');
 
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_host','ConfigurationMailer::$smtp_host = "'.self::$smtp_host.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_username','ConfigurationMailer::$smtp_username = "'.self::$smtp_username.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_password','ConfigurationMailer::$smtp_password = "'.self::$smtp_password.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_encryption','ConfigurationMailer::$smtp_encryption = "'.self::$smtp_encryption.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_port','ConfigurationMailer::$smtp_port = "'.self::$smtp_port.'";');
-		self::findAndReplace($current_config,'ConfigurationMailer::$smtp_use_auth','ConfigurationMailer::$smtp_use_auth = '. (self::$smtp_use_auth ? 'true':'false') . ';');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_host','POSConfigMailer::$smtp_host = "'.self::$smtp_host.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_username','POSConfigMailer::$smtp_username = "'.self::$smtp_username.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_password','POSConfigMailer::$smtp_password = "'.self::$smtp_password.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_encryption','POSConfigMailer::$smtp_encryption = "'.self::$smtp_encryption.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_port','POSConfigMailer::$smtp_port = "'.self::$smtp_port.'";');
+		self::findAndReplace($current_config,'POSConfigMailer::$smtp_use_auth','POSConfigMailer::$smtp_use_auth = '. (self::$smtp_use_auth ? 'true':'false') . ';');
 
-		if(ConfigurationGlobal::$use_multidomain){
-			return file_put_contents(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php",implode("",$current_config)) == FALSE ? false :true;
+		if(POSConfigGlobal::$use_multidomain){
+			return file_put_contents(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php",implode("",$current_config)) == FALSE ? false :true;
 		}else{
 			return file_put_contents(__ROOTDIR . "/configs/root.sys.php",implode("",$current_config)) == FALSE ? false :true;
 		}
@@ -200,7 +201,7 @@ class ConfigurationMailer{
 /**
  * Global Configuration stuff
  */
-class ConfigurationGlobal{
+class POSConfigGlobal{
 	/**
 	 * PHP Error code for error_reporting()
 	 * You can insert like E_ERROR|E_WARNING
@@ -266,37 +267,37 @@ class ConfigurationGlobal{
 
 		if(!file_exists(__ROOTDIR . "/configs/root.sys.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
 		$current_config = file(__ROOTDIR . "/configs/root.sys.php");
-		self::findAndReplace($current_config,'ConfigurationGlobal::$use_multidomain','ConfigurationGlobal::$use_multidomain = '. (self::$use_multidomain ? 'true':'false') .';');
+		self::findAndReplace($current_config,'POSConfigGlobal::$use_multidomain','POSConfigGlobal::$use_multidomain = '. (self::$use_multidomain ? 'true':'false') .';');
 		if(file_put_contents(__ROOTDIR . "/configs/root.sys.php",implode("",$current_config)) == FALSE) return false;
 
-		if(ConfigurationGlobal::$use_multidomain){
-			PuzzleOSGlobal::$domain_zone = explode(":", $_SERVER["HTTP_HOST"])[0];
-			if(ConfigurationMultidomain::addDomain(PuzzleOSGlobal::$domain_zone) != true){
+		if(POSConfigGlobal::$use_multidomain){
+			POSGlobal::$domain_zone = explode(":", $_SERVER["HTTP_HOST"])[0];
+			if(POSConfigMultidomain::addDomain(POSGlobal::$domain_zone) != true){
 				return false;
 			}
 		}else{
-			PuzzleOSGlobal::$domain_zone = "{root}";
+			POSGlobal::$domain_zone = "{root}";
 		}
 
 		$current_config = NULL;
 
-		if(ConfigurationGlobal::$use_multidomain){
-			if(!file_exists(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
-			$current_config = file(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php");
+		if(POSConfigGlobal::$use_multidomain){
+			if(!file_exists(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
+			$current_config = file(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php");
 		}else{
 			if(!IO::exists("/configs/root.sys.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
 			$current_config = file(__ROOTDIR . "/configs/root.sys.php");
 		}
 
-		self::findAndReplace($current_config,'ConfigurationGlobal::$error_code','ConfigurationGlobal::$error_code = '.self::$error_code.';');
-		self::findAndReplace($current_config,'ConfigurationGlobal::$default_language','ConfigurationGlobal::$default_language = "'.self::$default_language.'";');
-		self::findAndReplace($current_config,'ConfigurationGlobal::$sitename','ConfigurationGlobal::$sitename = "'.self::$sitename.'";');
-		self::findAndReplace($current_config,'ConfigurationGlobal::$timezone','ConfigurationGlobal::$timezone = "'.self::$timezone.'";');
-		self::findAndReplace($current_config,'ConfigurationGlobal::$copyright','ConfigurationGlobal::$copyright = "'.self::$copyright.'";');
-		self::findAndReplace($current_config,'ConfigurationGlobal::$meta_description','ConfigurationGlobal::$meta_description = "'.self::$meta_description.'";');
+		self::findAndReplace($current_config,'POSConfigGlobal::$error_code','POSConfigGlobal::$error_code = '.self::$error_code.';');
+		self::findAndReplace($current_config,'POSConfigGlobal::$default_language','POSConfigGlobal::$default_language = "'.self::$default_language.'";');
+		self::findAndReplace($current_config,'POSConfigGlobal::$sitename','POSConfigGlobal::$sitename = "'.self::$sitename.'";');
+		self::findAndReplace($current_config,'POSConfigGlobal::$timezone','POSConfigGlobal::$timezone = "'.self::$timezone.'";');
+		self::findAndReplace($current_config,'POSConfigGlobal::$copyright','POSConfigGlobal::$copyright = "'.self::$copyright.'";');
+		self::findAndReplace($current_config,'POSConfigGlobal::$meta_description','POSConfigGlobal::$meta_description = "'.self::$meta_description.'";');
 
-		if(ConfigurationGlobal::$use_multidomain){
-			return file_put_contents(__ROOTDIR . "/configs/".PuzzleOSGlobal::$domain_zone.".config.php",implode("",$current_config)) == FALSE ? false :true;
+		if(POSConfigGlobal::$use_multidomain){
+			return file_put_contents(__ROOTDIR . "/configs/".POSGlobal::$domain_zone.".config.php",implode("",$current_config)) == FALSE ? false :true;
 		}else{
 			return file_put_contents(__ROOTDIR . "/configs/root.sys.php",implode("",$current_config)) == FALSE ? false :true;
 		}
@@ -306,7 +307,7 @@ class ConfigurationGlobal{
 /**
  * Cross-domain Configuration stuff
  */
-class ConfigurationMultidomain{
+class POSConfigMultidomain{
 
 	/**
 	 * Default Application for homepage
@@ -361,11 +362,11 @@ class ConfigurationMultidomain{
 			if(!IO::exists("/configs/root.sys.php")) throw new PuzzleError("No configuration file available!", "Please reconfigure configuration files!");
 			$root_config = file(__ROOTDIR . "/configs/root.sys.php");
 
-			self::findAndReplace($root_config,'ConfigurationDB::$username',"/* Please configure database username from root.sys.php */");
-			self::findAndReplace($root_config,'ConfigurationDB::$password',"/* Please configure database password from root.sys.php */");
-			self::findAndReplace($root_config,'ConfigurationDB::$host',"/* Please configure database host from root.sys.php */");
-			self::findAndReplace($root_config,'ConfigurationDB::$database_name',"/* Please configure database name from root.sys.php */");
-			self::findAndReplace($root_config,'ConfigurationGlobal::$use_multidomain',"/* Please configure multidomain from root.sys.php */");
+			self::findAndReplace($root_config,'POSConfigDB::$username',"/* Please configure database username from root.sys.php */");
+			self::findAndReplace($root_config,'POSConfigDB::$password',"/* Please configure database password from root.sys.php */");
+			self::findAndReplace($root_config,'POSConfigDB::$host',"/* Please configure database host from root.sys.php */");
+			self::findAndReplace($root_config,'POSConfigDB::$database_name',"/* Please configure database name from root.sys.php */");
+			self::findAndReplace($root_config,'POSConfigGlobal::$use_multidomain',"/* Please configure multidomain from root.sys.php */");
 
 			return (file_put_contents(__ROOTDIR . "/configs/$domain_zone.config.php",implode("",$root_config)) == FALSE ? false :true);
 		}
@@ -407,22 +408,24 @@ class ConfigurationMultidomain{
 			if(!$app["system"]) continue;
 			if(in_array($app["rootname"],self::$restricted_app)) throw new PuzzleError("System app cannot be restricted!");
 		}
-		return Database::exec("UPDATE `multidomain_config` SET `default_app`='?', `default_template`='?', `restricted_app`='?' WHERE `host`='?'",self::$default_application,self::$default_template,json_encode(self::$restricted_app), PuzzleOSGlobal::$domain_zone);
+		return Database::exec("UPDATE `multidomain_config` SET `default_app`='?', `default_template`='?', `restricted_app`='?' WHERE `host`='?'",self::$default_application,self::$default_template,json_encode(self::$restricted_app), POSGlobal::$domain_zone);
 	}
 }
 
-if(!file_exists(__ROOTDIR . "/configs")) @mkdir(__ROOTDIR . "/configs");
-if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
-	if(file_exists(__ROOTDIR . "/install")){
-		header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
-		die();
-	}else
-		throw new PuzzleError("No configuration file!","Please build configuration file under /configs directory");
+if(file_exists(__ROOTDIR . "/configs")){
+	if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
+		if(file_exists(__ROOTDIR . "/public/install")){
+			header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
+			exit;
+		}else{
+			throw new PuzzleError("No configuration file!","Please build configuration file under /configs directory");
+		}
+	}
+}else{
+	throw new PuzzleError("No configuration directory!","Please re-download PuzzleOS and patch it");
 }
 
-/* Include the main config.php */
 require_once(__ROOTDIR . '/configs/root.sys.php');
-
 require_once("database.php");
 
 /* Build system table in the database */
@@ -430,33 +433,33 @@ require_once("systables.php");
 
 if(!defined("__POSCLI")){
 	/* Removing www. and port from domain */
-	$host_without_port = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
-	PuzzleOSGlobal::$domain_zone = (ConfigurationGlobal::$use_multidomain ? $host_without_port : "{root}");
+	$hnp = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
+	POSGlobal::$domain_zone = (POSConfigGlobal::$use_multidomain ? $hnp : "{root}");
 
 	/* Include configuration for specific domain */
-	if(ConfigurationGlobal::$use_multidomain){
-		if(substr($host_without_port,0,1) == '{') throw new PuzzleError("Not a valid domain!");
-		if(!file_exists("configs/$host_without_port.config.php")){
+	if(POSConfigGlobal::$use_multidomain){
+		if(substr($hnp,0,1) == '{') throw new PuzzleError("Not a valid domain!");
+		if(!file_exists("configs/$hnp.config.php")){
 			try{
-				throw new PuzzleError("PuzzleOS accessed from unregistered domain @ {$host_without_port}");
+				throw new PuzzleError("PuzzleOS accessed from unregistered domain @ {$hnp}");
 			}catch(PuzzleError $e){}
 
 			header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
 			include( __ROOTDIR . "/templates/system/404.php" );
 			exit;
 		}
-		require_once("configs/$host_without_port.config.php");
-		ConfigurationMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",PuzzleOSGlobal::$domain_zone),true);
+		require_once("configs/$hnp.config.php");
+		POSConfigMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",POSGlobal::$domain_zone),true);
 	}else{
-		ConfigurationMultidomain::$restricted_app = [];
+		POSConfigMultidomain::$restricted_app = [];
 	}
 
-	unset($host_without_port);
+	unset($hnp);
 }else{
-	PuzzleOSGlobal::$domain_zone = "{root}";
+	POSGlobal::$domain_zone = "{root}";
 }
 
 /* Define default stuff */
-ConfigurationMultidomain::$default_application = Database::read("multidomain_config","default_app","host", PuzzleOSGlobal::$domain_zone);
-ConfigurationMultidomain::$default_template = Database::read("multidomain_config","default_template","host", PuzzleOSGlobal::$domain_zone);
+POSConfigMultidomain::$default_application = Database::read("multidomain_config","default_app","host", POSGlobal::$domain_zone);
+POSConfigMultidomain::$default_template = Database::read("multidomain_config","default_template","host", POSGlobal::$domain_zone);
 ?>

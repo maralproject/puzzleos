@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
  
 /**
@@ -19,7 +19,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
 /* Bootstrap CSS */
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/css/bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/paper.bootstrap.min.css"/>');
-Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/cosmo.bootstrap.min.css"/>');
+Template::addHeader('<link rel="stylesheet" href="'.IO::publish($appProp->path.'/lib/themes/cosmo.bootstrap.min.css').'"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/readable.bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/spacelab.bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/yeti.bootstrap.min.css"/>');
@@ -27,10 +27,10 @@ Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/boo
 
 /* JQuery and Bootstrap things */
 //Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/jquery-1.11.3.min.js"></script>');
-Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/jquery-3.2.1.min.js"></script>');
-Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/jquery-migrate-3.0.1.js"></script>');
+Template::addHeader('<script type="text/javascript" src="'.IO::publish($appProp->path.'/lib/jquery-3.2.1.min.js').'"></script>');
+Template::addHeader('<script type="text/javascript" src="'.IO::publish($appProp->path.'/lib/jquery-migrate-3.0.1.js').'"></script>');
 //Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>');
-Template::appendBody('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>');
+Template::appendBody('<script type="text/javascript" src="'.IO::publish($appProp->path.'/lib/bootstrap-3.3.7/js/bootstrap.min.js').'"></script>');
 
 /* Optimized one, disable block rendering */
 //Template::addHeader('<style type="text/css">'.file_get_contents(IO::physical_path("/applications/bootstrap/lib/bootstrap-3.3.7/css/bootstrap.min.css")).'</style>');

@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -34,12 +34,21 @@ class ImageUploader{
 	}
 	
 	/**
-	 * Get file name. e.g. "/user_data/path/file.ext"
+	 * Get file name in the server
 	 * @param string $key
 	 * @return string
 	 */
 	public static function getFileName($key){
 		return(UserData::getPath($_SESSION["ImageUploader"][$key]));
+	}
+	
+	/**
+	 * Get public URL address
+	 * @param string $key
+	 * @return string
+	 */
+	public static function getURL($key){
+		return(UserData::getURL($_SESSION["ImageUploader"][$key],true));
 	}
 }
 

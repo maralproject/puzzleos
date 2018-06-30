@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 define("APP_DEFAULT", 1);
@@ -46,16 +46,16 @@ class AppManager{
 	 */
 	public static function startApp($app = ""){
 		if(self::$MainAppStarted) throw new PuzzleError("Main application can be only started once!");
-		PuzzleOSGlobal::$http_code = 200; //200:ok, 403:Forbidden, 404:Not Found
-		$defaultApp = ConfigurationMultidomain::$default_application;		
+		POSGlobal::$http_code = 200; //200:ok, 403:Forbidden, 404:Not Found
+		$defaultApp = POSConfigMultidomain::$default_application;		
 		if(__getURI("app") == "" && $defaultApp == ""){
 			throw new PuzzleError("No any application to run!","Please set one default application!");
 		}else{
 			self::$MainApp = new Application();
-			if(ConfigurationGlobal::$use_multidomain){
-				if(in_array((__getURI("app") == ""?$defaultApp:__getURI("app")),ConfigurationMultidomain::$restricted_app)){
+			if(POSConfigGlobal::$use_multidomain){
+				if(in_array((__getURI("app") == ""?$defaultApp:__getURI("app")),POSConfigMultidomain::$restricted_app)){
 					Template::setSubTitle("Not found");
-					PuzzleOSGlobal::$http_code = 404;
+					POSGlobal::$http_code = 404;
 					header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
 					self::$MainAppStarted = true;
 					return false;
@@ -66,11 +66,11 @@ class AppManager{
 			}catch(AppStartError $e){
 				switch($e->getCode()){
 				case 404:
-					PuzzleOSGlobal::$http_code = 404;
+					POSGlobal::$http_code = 404;
 					header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found", true, 404);
 					break;
 				case 403:
-					PuzzleOSGlobal::$http_code = 403;
+					POSGlobal::$http_code = 403;
 					header($_SERVER["SERVER_PROTOCOL"]." 403 Access Forbidden", true, 403);
 					break;
 				}
@@ -88,6 +88,24 @@ class AppManager{
 	 */
 	public static function listAll(){
 		if(self::$AppList != NULL) return self::$AppList;
+		
+		$fval = function($a,$f,$v){
+			foreach($a as $t){
+				if($t[$f] == $v) return $t;
+			}
+		};
+		
+		/* Caching database operation */
+		try{
+			$agroup = Database::readAll("app_users_grouplist")->data;
+		}catch(PuzzleError $e){
+			/* Rebuild grouplist */
+			Database::newStructure("app_users_grouplist",require_once(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
+			$agroup = Database::readAll("app_users_grouplist");
+		}
+		
+		$appsec = Database::readAll("app_security")->data;
+		
 		$a = [];
 		foreach(IO::list_directory("/applications") as $dir){
 			if(!is_dir(IO::physical_path("/applications/$dir"))) continue;
@@ -103,19 +121,12 @@ class AppManager{
 						default:
 							break;
 					}
+					
 					/* Make sure that rootname always lowercase */
 					$manifest["rootname"] = strtolower($manifest["rootname"]);					
 					
-					$group = Database::read("app_security","group","rootname",$manifest["rootname"]);
-					
-					/* Code below requires app_users_grouplist to be available */
-					try{
-						if($group == "" || $group == "NULL") $group = Database::read("app_users_grouplist","id","level",$manifest["permission"]);
-					}catch(PuzzleError $e){
-						/* Rebuild grouplist */
-						Database::newStructure("app_users_grouplist",require_once(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
-						if($group == "" || $group == "NULL") $group = Database::read("app_users_grouplist","id","level",$manifest["permission"]);
-					}
+					$group = $fval($appsec,"rootname",$manifest["rootname"])["group"];
+					if($group == "" || $group == "NULL") $group = $fval($agroup,"level",$manifest["permission"])["id"];
 					
 					$a[$manifest["rootname"]] = [
 						"name" 		=> $manifest["rootname"],
@@ -124,13 +135,13 @@ class AppManager{
 						"dir_name"	=> $dir,
 						"title" 	=> $manifest["title"],
 						"desc" 		=> $manifest["description"],
-						"default" 	=> ($manifest["canBeDefault"] == 0 ? APP_CANNOT_DEFAULT : (ConfigurationMultidomain::$default_application == $manifest["rootname"] ? APP_DEFAULT : APP_NOT_DEFAULT)),
+						"default" 	=> ($manifest["canBeDefault"] == 0 ? APP_CANNOT_DEFAULT : (POSConfigMultidomain::$default_application == $manifest["rootname"] ? APP_DEFAULT : APP_NOT_DEFAULT)),
 						"level" 	=> $manifest["permission"],
 						"permission"=> $group,
 						"group" 	=> $group,
 						"services" 	=> explode(",",trim($manifest["services"])),
 						"menus"		=> explode(",",trim($manifest["menus"])),
-						"system" 	=> (Database::read("app_security","system","rootname",$manifest["rootname"]) == "1")
+						"system" 	=> ($fval($appsec,"rootname",$manifest["rootname"])["system"] == "1")
 					];
 					if($a[$manifest["rootname"]]["services"][0] == "") $a[$manifest["rootname"]]["services"] = [];
 					if($a[$manifest["rootname"]]["menus"][0] == "") $a[$manifest["rootname"]]["menus"] = [];
@@ -159,7 +170,7 @@ class AppManager{
 	public static function isDefault($name){
 		if($name == "") throw new PuzzleError("Name cannot be empty!");
 		if(!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
-		return($name == ConfigurationMultidomain::$default_application);
+		return($name == POSConfigMultidomain::$default_application);
 	}
 
 	/**
@@ -207,8 +218,8 @@ class AppManager{
 	public static function setDefaultByName($name){		
 		if($name == "") throw new PuzzleError("Name cannot be empty!");
 		if(!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
-		ConfigurationMultidomain::$default_application = $name;
-		return ConfigurationMultidomain::commit();
+		POSConfigMultidomain::$default_application = $name;
+		return POSConfigMultidomain::commit();
 	}
 	
 	/**
@@ -368,8 +379,8 @@ class Application{
 				 * But, that app can be still called and run by another apps if necessary,
 				 * also it's services and menus still can be called
 				 */
-				if(ConfigurationGlobal::$use_multidomain){
-					if(in_array($list_app["rootname"],ConfigurationMultidomain::$restricted_app)){					
+				if(POSConfigGlobal::$use_multidomain){
+					if(in_array($list_app["rootname"],POSConfigMultidomain::$restricted_app)){					
 						$this->appfound = false;
 						return false;
 					}

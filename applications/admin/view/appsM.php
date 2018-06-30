@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 $s_app = new Application; $s_app->run("search_box");
@@ -59,10 +59,11 @@ small{
 		if($d["default"]==APP_DEFAULT) $dTitle = $l->get("CURRENTLY_DEFAULT");
 		if($d["default"]==APP_CANNOT_DEFAULT) $dTitle = $l->get("NOT_AVAILABLE");
 		$theresrv = "";
-		foreach(Services::listServiceOnApps($d["name"]) as $q){
+		foreach(AppManager::listAll()[$d["name"]]["services"] as $q){
 			$theresrv = '<span class="label label-primary" style="font-size:6pt;">Services</span>';
+			break;
 		}
-		$appR = in_array($d["name"],ConfigurationMultidomain::$restricted_app);
+		$appR = in_array($d["name"],POSConfigMultidomain::$restricted_app);
 		echo('
 		<div class="grid col-lg-4 col-sm-12 '.$s->getDomClass($d["name"]).'">
 		<table appid="'.$d["name"].'" class="appgrid" style="width:100%;">
@@ -84,7 +85,7 @@ small{
 		</tr>
 		<tr>
 			<td colspan="2" style="text-align:right;height:35px;">
-				'.((!$d["system"] && ConfigurationGlobal::$use_multidomain)?'<button stat="'.($appR?1:0).'" style="'.($dDis?"display:none":"").'" appid='.$d["name"].' type="button" class="restrict btn btn-xs btn-'.($appR?"primary":"danger").'">'.($appR?$l->get("TURN_ON"):$l->get("TURN_OFF")).'</button>':'').'
+				'.((!$d["system"] && POSConfigGlobal::$use_multidomain)?'<button stat="'.($appR?1:0).'" style="'.($dDis?"display:none":"").'" appid='.$d["name"].' type="button" class="restrict btn btn-xs btn-'.($appR?"primary":"danger").'">'.($appR?$l->get("TURN_ON"):$l->get("TURN_OFF")).'</button>':'').'
 				'.($d["default"]==3?"":'<button appid='.$d["name"].' type="button" id="sdb-'.$d["name"].'" style="'.($appR?"display:none":"").'" class="sdb btn btn-xs '.($dDis?"disabled":"").' '.($d["default"]==3?"btn-danger":"btn-success").'">'.$dTitle.'</button>').(file_exists($d["dir"]."/panel.admin.php")?'
 				<a href="'.__SITEURL.'/admin/manage/'.$d["name"].'"><button type="button" class="btn btn-default btn-xs">'.$l->get("MANAGE").'</button></a>':"").'
 			</td>

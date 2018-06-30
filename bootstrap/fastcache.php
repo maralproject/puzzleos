@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.5
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -65,12 +65,12 @@ class FastCache{
 		}		
 		$data = str_replace("#_SITEURL#", __SITEURL , $data);
 		if(!$return){
-			$hash = hash("md5",$data);
-			$path = "/cache/" . $hash . '.' . $file_ext;
+			$hash = substr(hash("md5",$data),0,10);
+			$path = "/public/cache/" . $hash . '.' . $file_ext;
 			if(!IO::exists($path)){						
 				IO::write($path,$data);	
 			}
-			return($path);
+			return("/cache/" . $hash . '.' . $file_ext);
 		}else{
 			return $data;
 		}
@@ -101,16 +101,15 @@ class FastCache{
 	 * @return string
 	 */
 	public static function outCSSMin(){
-		//ob_flush();return; //Use this to disable caching
 		$file = FastCache::start("css",true);
 		return('<style type="text/css">'.$file.'</style>');
 	}
+	
 	/**
 	 * Start caching file and get instant script to include CSS file.
 	 * @return string
 	 */
 	public static function getCSSFile(){
-		//ob_flush();return; //Use this to disable caching
 		$file = __SITEURL . FastCache::start("css");
 		return('<link rel="stylesheet" type="text/css" href="'.$file.'"/>');
 	}

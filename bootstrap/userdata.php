@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 define("__DENY_HTACCESS_HASH", "ee9a29b31d78b2e52120610ed51f732453580f7c");
@@ -22,37 +22,19 @@ class UserData{
 	
 	private static function init(){
 		$caller = debug_backtrace()[1]["file"];
-		$filenameStr = str_replace(__ROOTDIR,"",str_replace("\\","/",$caller));
+		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
 		$filename = explode("/",$filenameStr);
 		switch($filename[1]){
 		case "applications":
 			break;
-		case "debug.php":
-			if(PuzzleOSGlobal::$debug_app == "") return("");
-			if(AppManager::isInstalled(PuzzleOSGlobal::$debug_app)){
-				//Check the folder for user_data
-				if(!IO::exists("/user_data/". PuzzleOSGlobal::$debug_app)){
-					@mkdir(IO::physical_path("/user_data/". PuzzleOSGlobal::$debug_app));
-				}
-				return(PuzzleOSGlobal::$debug_app);
-			}
-			break;
 		default:
-			return("");
+			throw new PuzzleError("UserData can only be called from application");
 		}
 		$appDir = $filename[2];
 		$appname = AppManager::getNameFromDirectory($appDir);		
 		//Check the folder for user_data
-		if(!IO::exists("/user_data/". $appname)){
-			@mkdir(IO::physical_path("/user_data/". $appname));
-		}
-		if(!IO::exists("/user_private/". $appname)){
-			@mkdir(IO::physical_path("/user_private/". $appname));
-			file_put_contents(IO::physical_path("/user_private/.htaccess"),"Deny from all\r\n");
-		}else{
-			if(hash("sha1",file_get_contents(__ROOTDIR . "/user_private/.htaccess")) != __DENY_HTACCESS_HASH)
-				file_put_contents(IO::physical_path("/user_private/.htaccess"),"Deny from all\r\n");
-		}
+		preparedir(__ROOTDIR . "/storage/data/$appname");
+		preparedir(__ROOTDIR . "/public/assets/$appname");
 		return($appname);
 	}
 	
@@ -70,10 +52,8 @@ class UserData{
 		$appname = self::init();
 		if($appname == "") return false;
 		$fileext = strtolower(end(explode(".",$_FILES[$inputname]['name'])));
-		if(!$secure)
-			$filename = "/user_data/$appname/$key.$fileext";
-		else
-			$filename = "/user_private/$appname/$key.$fileext";
+		if(!$secure) $filename = "/public/assets/$appname/$key.$fileext";
+		else $filename = "/storage/data/$appname/$key.$fileext";
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if($oldfile != ""){
 			//If old file is present, it'll be overwritten
@@ -103,9 +83,9 @@ class UserData{
 		$fileext = strtolower(end(explode(".",$path_to_file)));
 		
 		if(!$secure)
-			$filename = "/user_data/$appname/" . $key . "." . $fileext;
+			$filename = "/public/assets/$appname/" . $key . "." . $fileext;
 		else
-			$filename = "/user_private/$appname/" . $key . "." . $fileext;
+			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 		
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if($oldfile != ""){
@@ -139,9 +119,9 @@ class UserData{
 		$fileext = strtolower(end(explode(".",$path_to_file)));
 		
 		if(!$secure)
-			$filename = "/user_data/$appname/" . $key . "." . $fileext;
+			$filename = "/public/assets/$appname/" . $key . "." . $fileext;
 		else
-			$filename = "/user_private/$appname/" . $key . "." . $fileext;
+			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 		
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if($oldfile != ""){
@@ -151,28 +131,6 @@ class UserData{
 		if(!copy(IO::physical_path($path_to_file),IO::physical_path($filename))) return(false);
 		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
 		return true;
-	}
-	
-	/**
-	 * Get file path.
-	 * e.g. /user_data/app/file.ext
-	 * 
-	 * If you use cache control, it will look like this:
-	 * /user_data/app/file.ext?v=0123
-	 * 
-	 * @param string $key
-	 * @param bool $with_cache_control
-	 * @return string
-	 */
-	public static function getPath($key, $with_cache_control = false, $reveal_private_path = false){
-		$appname = self::init();
-		if($appname == "") return false;
-		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
-		$filename = $d["physical_path"];
-		if($with_cache_control && $filename != ""){
-			$filename .= "?v=" . $d["ver"];
-		}
-		return($reveal_private_path ? $filename : str_replace("user_private/","user_data/",$filename));
 	}
 	
 	/**
@@ -188,9 +146,9 @@ class UserData{
 		$appname = self::init();
 		if($appname == "") return false;
 		if(!$secure)
-			$filename = "/user_data/$appname/" . $key . "." . $file_ext;
+			$filename = "/public/assets/$appname/" . $key . "." . $file_ext;
 		else
-			$filename = "/user_private/$appname/" . $key . "." . $file_ext;
+			$filename = "/storage/data/$appname/" . $key . "." . $file_ext;
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if($oldfile != ""){
 			unlink(IO::physical_path($oldfile));
@@ -212,6 +170,44 @@ class UserData{
 		if($appname == "") return false;
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		return($filename != "" && IO::exists($filename));
+	}
+	
+	/**
+	 * Get file path in system.
+	 * e.g. /storage/data/app/file.ext
+	 * 
+	 * @param string $key
+	 * @param bool $with_cache_control
+	 * @return string
+	 */
+	public static function getPath($key){
+		$appname = self::init();
+		if($appname == "") return false;
+		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
+		$filename = $d["physical_path"];
+		return(__ROOTDIR . $filename);
+	}
+	
+	/**
+	 * Get URL address of the file.
+	 * e.g. /assets/app/file.ext
+	 * 
+	 * @param string $key
+	 * @param bool $with_cache_control
+	 * @return string
+	 */
+	public static function getURL($key, $with_cache_control = false){
+		$appname = self::init();
+		if($appname == "") return false;
+		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
+		$filename = $d["physical_path"];
+		if($with_cache_control && $filename != ""){
+			$filename .= "?v=" . $d["ver"];
+		}
+		if($d["secure"])
+			return(str_replace("/storage/data","/assets",$filename));
+		else
+			return(str_replace("/public","",$filename));
 	}
 	
 	/**

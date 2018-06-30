@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /applications
-Disallow: /cache
-Disallow: /templates

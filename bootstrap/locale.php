@@ -11,7 +11,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 1.1.1
  */
  
-return array(
+return [
     'aa-DJ' => 'Afar (Djibouti)',
     'aa-ER' => 'Afar (Eritrea)',
     'aa-ET' => 'Afar (Ethiopia)',
@@ -255,5 +255,5 @@ return array(
     'yi-US' => 'Yiddish (United States)',
     'yo-NG' => 'Yoruba (Nigeria)',
     'zu-ZA' => 'Zulu (South Africa)'
-);
+];
 ?>

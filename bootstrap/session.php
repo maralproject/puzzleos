@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -213,9 +213,9 @@ class PuzzleSession implements SessionHandlerInterface{
 	}
 }
 
-/* Configuring session */
-PuzzleOSGlobal::$session = new PuzzleSession;
-session_set_save_handler(PuzzleOSGlobal::$session);
+/* Starting session session */
+POSGlobal::$session = new PuzzleSession;
+session_set_save_handler(POSGlobal::$session);
 ini_set('session.use_cookies', 0); 
 session_start();
 

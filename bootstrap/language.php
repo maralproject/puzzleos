@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -47,8 +47,9 @@ class LangManager{
 		if(!$without_default) $r .= '<option value="def"'.($val=="def"?' selected':'').'>Default</option>';
 		
 		/* Finding through app which language are available */
-		$locale = require(__ROOTDIR . "/locale.php");
+		$locale = require(__ROOTDIR . "/bootstrap/locale.php");
 		$temp = [];
+		
 		foreach(IO::list_directory("applications") as $appdir){
 			if($appdir == "." || $appdir == "..") continue;
 			if(!is_dir(IO::physical_path("applications/$appdir"))) continue;
@@ -96,14 +97,14 @@ class LangManager{
 	public static function getDisplayedNow(){
 		$langs = "en_US";
 		if($_SESSION['account']['loggedIn'] == 0){
-			$langs = ConfigurationGlobal::$default_language;
+			$langs = POSConfigGlobal::$default_language;
 		}else{
 			$langs = $_SESSION['account']['lang'];
-			if($langs == "def") $langs = ConfigurationGlobal::$default_language;
+			if($langs == "def") $langs = POSConfigGlobal::$default_language;
 		}
 		if($langs == "loc") {
 			$httpaccept = locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-			$locale = require(__ROOTDIR . "/locale.php");
+			$locale = require(__ROOTDIR . "/bootstrap/locale.php");
 			foreach($locale as $k=>$l){
 				if(preg_match("/".$httpaccept."/",$k)){
 					$langs = $k;
@@ -150,14 +151,14 @@ class Language{
 	public function get($code){
 		$langs = "en_US";
 		if($_SESSION['account']['loggedIn'] == 0){
-			$langs = ConfigurationGlobal::$default_language;
+			$langs = POSConfigGlobal::$default_language;
 		}else{
 			$langs = $_SESSION['account']['lang'];
-			if($langs == "def") $langs = ConfigurationGlobal::$default_language;
+			if($langs == "def") $langs = POSConfigGlobal::$default_language;
 		}
 		if($langs == "loc") { //Previous value usr
 			$httpaccept = str_replace("_","-",locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']));
-			$locale = require(__ROOTDIR . "/locale.php");
+			$locale = require(__ROOTDIR . "/bootstrap/locale.php");
 			foreach($locale as $k=>$l){
 				if(preg_match("/".$httpaccept."/",$k)){
 					$langs = $k;

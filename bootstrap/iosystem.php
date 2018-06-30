@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 /**
@@ -21,7 +21,7 @@ class IO{
 	 * @param string $filename Just use /path/to-path/file
 	 */
 	public static function streamFile($filename,$force_download = false, $custom_filename = NULL){
-		$filename = self::physical_path($filename);		
+		$filename = self::physical_path($filename);
 		if(headers_sent()) throw new PuzzleError("Header is already sent! Cannot output file to browser!");
 		if(!file_exists($filename)) throw new IOError("Filename ".str_replace(__ROOTDIR, "",$filename)." not found!");
 		while (ob_get_level())	ob_get_clean();
@@ -36,6 +36,30 @@ class IO{
 		$v->start();
 		
 		exit();
+	}
+	
+	/**
+	 * Publish private file/directory to public
+	 * @param string $filename Just use /path/to-path/file
+	 * @return string The public file path
+	 */
+	public static function publish($filename){
+		$filename = self::physical_path($filename);
+		$name = end(explode("/",$filename));
+		$ext = end(explode(".",$name));
+		$name = rtrim(str_replace($ext,"",$name),".");
+		if($ext == $name) $ext = "tmp";
+		if(is_dir($filename)){
+			$hash = substr(md5($filename),0,10);
+			if(!file_exists(__ROOTDIR . "/public/res/$hash"))
+				self::copy_r($filename, __ROOTDIR . "/public/res/$hash");
+			return "/res/$hash";
+		}else{
+			$hash = substr(md5_file($filename),0,10);
+			if(!file_exists(__ROOTDIR . "/public/res/$name.1$hash.$ext"))
+				@copy($filename, __ROOTDIR . "/public/res/$name.$hash.$ext");
+			return "/res/$name.$hash.$ext";
+		}
 	}
 
 	/**
@@ -53,7 +77,7 @@ class IO{
 	 * @return string
 	 */
 	public static function physical_path($path){
-		$path = str_replace("\\","/",$path);
+		$path = btfslash($path);
 		if(!file_exists($path) || strpos($path,__ROOTDIR) !== false){
 			//Assume that this directory is inside PuzzleOS env
 			$path = str_replace(__ROOTDIR,"",$path);

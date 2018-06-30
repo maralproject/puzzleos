@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
  
 $location = $arguments[0];
@@ -19,7 +19,7 @@ if($location == "") throw new PuzzleError("Location cannot be empty!");
 $menus = [];
 foreach(AppManager::listAll() as $app){
 	/* Donot show menu from restricted app */
-	if(in_array($app["rootname"],ConfigurationMultidomain::$restricted_app) || !Accounts::authAccess($app["level"])) continue;
+	if(in_array($app["rootname"],POSConfigMultidomain::$restricted_app) || !Accounts::authAccess($app["level"])) continue;
 	foreach($app["menus"] as $menu){
 		$exp = explode(">",$menu);
 		$file = trim($exp[0]);

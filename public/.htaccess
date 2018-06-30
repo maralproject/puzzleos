@@ -8,34 +8,25 @@ ErrorDocument 404 /404app
 
 Options -Indexes
 
-<FilesMatch "\.(txt|ini|log|php|htaccess|bak|json|offline|html|lock)$">
-	Order Deny,Allow
-	Deny from all
-</FilesMatch>
-
-<FilesMatch "\.(js|css|woff|woff2)$">
+<FilesMatch "\.(js|css|woff|woff2|png|jpg|gif|svg)$">
 	Header set Cache-Control "max-age=2628000, public"
 </FilesMatch>
-
-<Files index.php>
-	Order Allow,Deny
-	Allow from all
-</Files>
-
-<Files robots.txt>
-	Order Allow,Deny
-	Allow from all
-</Files>
 
 #Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
 
 <IfModule mod_rewrite.c>
+	# HTTPS Rule
+	#RewriteEngine On
+	#RewriteCond %{HTTPS} !=on
+	#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+	
 	RewriteEngine On
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule ^(.*)$ index.php/$1 [L]
 </IfModule>
 
+## Below is for gzip compression
 <IfModule mod_mime.c>
 	AddType application/x-javascript .js
 	AddType text/css .css
@@ -50,4 +41,4 @@ Options -Indexes
 </IfModule>
 Header append Vary User-Agent env=!dont-vary
 
-#End of PuzzleOS configuration
+# End of PuzzleOS configuration

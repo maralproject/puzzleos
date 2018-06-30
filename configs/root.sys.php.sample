@@ -9,42 +9,42 @@
 /**
  * Define database credentials - only for MySQL
  */
-ConfigurationDB::$username = "%DB_USER%";
-ConfigurationDB::$password = "%DB_PASS%";
-ConfigurationDB::$host = "%DB_HOST%";
-ConfigurationDB::$database_name = "%DB_NAME%";
+POSConfigDB::$username = "%DB_USER%";
+POSConfigDB::$password = "%DB_PASS%";
+POSConfigDB::$host = "%DB_HOST%";
+POSConfigDB::$database_name = "%DB_NAME%";
 
 /**
  * Mailer Settings
  * Some SMTP Relayer doesn't allow to use fake email address
  */
-ConfigurationMailer::$From = "%MAIL_FROM%";
-ConfigurationMailer::$Sender = "%MAIL_SENDER%";
-ConfigurationMailer::$UsePHP = %MAIL_USEPHP%;
+POSConfigMailer::$From = "%MAIL_FROM%";
+POSConfigMailer::$Sender = "%MAIL_SENDER%";
+POSConfigMailer::$UsePHP = %MAIL_USEPHP%;
 
-ConfigurationMailer::$smtp_host = "%SMTP_HOST%";
-ConfigurationMailer::$smtp_username = "%SMTP_USER%";
-ConfigurationMailer::$smtp_password = "%SMTP_PASS%";
-ConfigurationMailer::$smtp_encryption = "%SMTP_ENCR%";
-ConfigurationMailer::$smtp_port = %SMTP_PORT%;
-ConfigurationMailer::$smtp_use_auth = %SMTP_AUTH%;
+POSConfigMailer::$smtp_host = "%SMTP_HOST%";
+POSConfigMailer::$smtp_username = "%SMTP_USER%";
+POSConfigMailer::$smtp_password = "%SMTP_PASS%";
+POSConfigMailer::$smtp_encryption = "%SMTP_ENCR%";
+POSConfigMailer::$smtp_port = %SMTP_PORT%;
+POSConfigMailer::$smtp_use_auth = %SMTP_AUTH%;
  
 /**
  * Define the error report code for php
  */
-ConfigurationGlobal::$error_code = %ERR_CODE%;
+POSConfigGlobal::$error_code = %ERR_CODE%;
 
 /**
  * Define if server can server multidomain functionality
  */
-ConfigurationGlobal::$use_multidomain = %USE_MDM%;
+POSConfigGlobal::$use_multidomain = %USE_MDM%;
 
 /**
  * Additional Settings
  */
-ConfigurationGlobal::$default_language = "%LANG%";
-ConfigurationGlobal::$sitename = "%SITENAME%";
-ConfigurationGlobal::$timezone = "%TIMEZONE%";
-ConfigurationGlobal::$copyright = "%COPYRIGHT%";
-ConfigurationGlobal::$meta_description = "%META_DESC%";
+POSConfigGlobal::$default_language = "%LANG%";
+POSConfigGlobal::$sitename = "%SITENAME%";
+POSConfigGlobal::$timezone = "%TIMEZONE%";
+POSConfigGlobal::$copyright = "%COPYRIGHT%";
+POSConfigGlobal::$meta_description = "%META_DESC%";
 ?>

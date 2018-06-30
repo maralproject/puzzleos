@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.2") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.2") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 $l=new Language; $l->app="admin";
@@ -37,8 +37,8 @@ $l=new Language; $l->app="admin";
 		</div>
 	</div>	
 	<div id="confirmation_bar">
-		<?php if(ConfigurationGlobal::$use_multidomain):?>
-		<button onclick="$('#conf_f').submit()" type="button" class="btn btn-success"><?php echo $l->get("SAVE_ON") . "<span style=\"display:block;font-size:8pt\">" . PuzzleOSGlobal::$domain_zone . "</span>"?></button>
+		<?php if(POSConfigGlobal::$use_multidomain):?>
+		<button onclick="$('#conf_f').submit()" type="button" class="btn btn-success"><?php echo $l->get("SAVE_ON") . "<span style=\"display:block;font-size:8pt\">" . POSGlobal::$domain_zone . "</span>"?></button>
 		<?php else:?>
 		<input onclick="$('#conf_f').submit()" type="button" class="btn btn-success" value="<?php $l->dump("SAVE")?>">
 		<?php endif;?>

@@ -11,8 +11,9 @@ __requiredSystem("1.1.1") or die("You need to upgrade the system");
  * 
  * @software     Release: 1.1.1
  */
- 
-Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/fa/lib/css/font-awesome.min.css"/>');
-//Template::addHeader('<style type="text/css">'.file_get_contents(IO::physical_path("'.__SITEURL.'/applications/fa/lib/css/font-awesome.min.css")).'</style>');
+
+$dir = IO::publish($appProp->path."/lib");
+
+Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/font-awesome.min.css"/>');
 
 ?>

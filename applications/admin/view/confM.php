@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.3") or die("You need to upgrade the system");
+__requiredSystem("2.0.0") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +9,7 @@ __requiredSystem("1.2.3") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.3
+ * @software     Release: 2.0.0
  */
 
 $l = new Language;
@@ -35,11 +35,11 @@ $l = new Language;
 	<div class="col-md-6">	
 		<legend style="margin-bottom:10px;"><?php $l->dump("mdomain")?></legend>
 		<fieldset style="margin-left:25px;margin:15px 0;">
-			<label class="checkbox-inline"><input type="checkbox" id="allow_mdomain" name="allow_mdomain" <?php if(ConfigurationGlobal::$use_multidomain) echo "checked";?>/>
+			<label class="checkbox-inline"><input type="checkbox" id="allow_mdomain" name="allow_mdomain" <?php if(POSConfigGlobal::$use_multidomain) echo "checked";?>/>
 				<?php $l->dump("mdomain_ask")?>
 			</label>
 			
-			<?php if(ConfigurationGlobal::$use_multidomain):?>
+			<?php if(POSConfigGlobal::$use_multidomain):?>
 			<br><br><button type="button" data-toggle="modal" data-target="#domain_dlg" class="btn-sm btn btn-info"><?php $l->dump("mz")?></button>
 			<?php endif?>
 		</fieldset>
@@ -51,19 +51,19 @@ $l = new Language;
 		<fieldset style="max-width:600px;">
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-user"></i></span>
-			  <input type="text" class="form-control" placeholder="<?php $l->dump("USERNAME")?>" name="dbuser" value="<?php echo ConfigurationDB::$username?>">
+			  <input type="text" class="form-control" placeholder="<?php $l->dump("USERNAME")?>" name="dbuser" value="<?php echo POSConfigDB::$username?>">
 		</div>
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-key"></i></span>
-			  <input type="password" class="form-control" name="dbpass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo ConfigurationDB::$password?>">
+			  <input type="password" class="form-control" name="dbpass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo POSConfigDB::$password?>">
 		</div>
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-server"></i></span>
-			  <input type="text" class="form-control" name="dbhost" placeholder="<?php $l->dump("HOST")?>" value="<?php echo ConfigurationDB::$host ?>">
+			  <input type="text" class="form-control" name="dbhost" placeholder="<?php $l->dump("HOST")?>" value="<?php echo POSConfigDB::$host ?>">
 		</div>
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-database"></i></span>
-			  <input type="text" class="form-control" name="dbdb" placeholder="<?php $l->dump("DATABASE")?>" value="<?php echo ConfigurationDB::$database_name ?>">
+			  <input type="text" class="form-control" name="dbdb" placeholder="<?php $l->dump("DATABASE")?>" value="<?php echo POSConfigDB::$database_name ?>">
 		</div>
 		</fieldset><br>
 	</div>
@@ -81,11 +81,11 @@ $l = new Language;
 		</div>
 		<div class="input-group" style="margin-top:10px;">
 			  <span class="input-group-addon"><i class="fa fa-copyright"></i></span>
-			  <input type="text" class="form-control" name="copytext" placeholder="<?php $l->dump("COPYRIGHT")?>" value="<?php echo ConfigurationGlobal::$copyright?>">
+			  <input type="text" class="form-control" name="copytext" placeholder="<?php $l->dump("COPYRIGHT")?>" value="<?php echo POSConfigGlobal::$copyright?>">
 		</div>
 		<div class="input-group" style="margin-top:10px;">
 			  <span class="input-group-addon"><i class="fa fa-info"></i></span>
-			  <input type="text" class="form-control" name="metadesc" placeholder="<?php $l->dump("META_DESCRIPTION")?>" value="<?php echo ConfigurationGlobal::$meta_description?>">
+			  <input type="text" class="form-control" name="metadesc" placeholder="<?php $l->dump("META_DESCRIPTION")?>" value="<?php echo POSConfigGlobal::$meta_description?>">
 		</div>
 		</fieldset><br>
 	</div>
@@ -96,11 +96,11 @@ $l = new Language;
 		<fieldset style="max-width:600px;">
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
-			  <input type="text" class="form-control" name="mailfrom" placeholder="<?php $l->dump("EMAIL_FROM")?>" value="<?php echo ConfigurationMailer::$From?>">
+			  <input type="text" class="form-control" name="mailfrom" placeholder="<?php $l->dump("EMAIL_FROM")?>" value="<?php echo POSConfigMailer::$From?>">
 		</div>
 		<div class="input-group" style="padding:5px;">
 			  <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
-			  <input type="text" class="form-control" name="mailname" placeholder="<?php $l->dump("EMAIL_NAME")?>" value="<?php echo ConfigurationMailer::$Sender?>">
+			  <input type="text" class="form-control" name="mailname" placeholder="<?php $l->dump("EMAIL_NAME")?>" value="<?php echo POSConfigMailer::$Sender?>">
 		</div>
 		<div class="input-group" style="padding:5px;">
 			  <button type="button" onclick="testEmail();" class="btn btn-sm btn-info"><?php $l->dump("email_test")?></button>
@@ -109,37 +109,37 @@ $l = new Language;
 	</div>
 	<div class="col-md-6">
 		<legend style="margin-bottom:10px;"><?php $l->dump("smtp_option")?></legend>
-		<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_details').slideToggle(200);" id="use_smtp" name="use_smtp" <?php if(!ConfigurationMailer::$UsePHP) echo "checked";?>/><?php $l->dump("USE_SMTP_EN")?></label>
-		<div id="smtp_details" style="<?php if(ConfigurationMailer::$UsePHP) echo "display:none;";?>">
+		<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_details').slideToggle(200);" id="use_smtp" name="use_smtp" <?php if(!POSConfigMailer::$UsePHP) echo "checked";?>/><?php $l->dump("USE_SMTP_EN")?></label>
+		<div id="smtp_details" style="<?php if(POSConfigMailer::$UsePHP) echo "display:none;";?>">
 			<div class="input-group" style="padding:5px 0;">
 				<span class="input-group-addon">
-					<input value="none" type="radio" name="smtp_enc" id="radio0" <?php if(ConfigurationMailer::$smtp_encryption == "none") echo "checked";?>> <label for="radio0"><?php $l->dump("SMTP_NO_ENC")?></label>
+					<input value="none" type="radio" name="smtp_enc" id="radio0" <?php if(POSConfigMailer::$smtp_encryption == "none") echo "checked";?>> <label for="radio0"><?php $l->dump("SMTP_NO_ENC")?></label>
 				</span>
 				<span class="input-group-addon">
-					<input type="radio" value="tls" name="smtp_enc" id="radio1" <?php if(ConfigurationMailer::$smtp_encryption == "tls") echo "checked";?>> <label for="radio1">TLS</label>
+					<input type="radio" value="tls" name="smtp_enc" id="radio1" <?php if(POSConfigMailer::$smtp_encryption == "tls") echo "checked";?>> <label for="radio1">TLS</label>
 				</span>
 				<span class="input-group-addon">
-					<input type="radio" value="ssl" name="smtp_enc" id="radio2" <?php if(ConfigurationMailer::$smtp_encryption == "ssl") echo "checked";?>> <label for="radio2">SSL</label>
+					<input type="radio" value="ssl" name="smtp_enc" id="radio2" <?php if(POSConfigMailer::$smtp_encryption == "ssl") echo "checked";?>> <label for="radio2">SSL</label>
 				</span>
 			</div><br>
-			<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_auth_details').slideToggle(200);" id="use_smtp_auth" name="smtp_auth" <?php if(ConfigurationMailer::$smtp_use_auth) echo "checked";?>/><?php $l->dump("use_smtp_auth")?></label>
-			<div id="smtp_auth_details" style="<?php if(!ConfigurationMailer::$smtp_use_auth) echo "display:none;";?>">
+			<label class="checkbox-inline"><input type="checkbox" onclick="$('#smtp_auth_details').slideToggle(200);" id="use_smtp_auth" name="smtp_auth" <?php if(POSConfigMailer::$smtp_use_auth) echo "checked";?>/><?php $l->dump("use_smtp_auth")?></label>
+			<div id="smtp_auth_details" style="<?php if(!POSConfigMailer::$smtp_use_auth) echo "display:none;";?>">
 				<div class="input-group" style="padding:5px 0;">
 					  <span class="input-group-addon"><i class="fa fa-user"></i></span>
-					  <input type="text" class="form-control" placeholder="<?php $l->dump("username")?>" name="smtp_user" value="<?php echo ConfigurationMailer::$smtp_username;?>">
+					  <input type="text" class="form-control" placeholder="<?php $l->dump("username")?>" name="smtp_user" value="<?php echo POSConfigMailer::$smtp_username;?>">
 				</div>
 				<div class="input-group" style="padding:5px 0;">
 					  <span class="input-group-addon"><i class="fa fa-key"></i></span>
-					  <input type="password" class="form-control" name="smtp_pass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo ConfigurationMailer::$smtp_password;?>">
+					  <input type="password" class="form-control" name="smtp_pass" placeholder="<?php $l->dump("no_password")?>" value="<?php echo POSConfigMailer::$smtp_password;?>">
 				</div>
 			</div>
 			<div class="input-group" style="padding:5px 0;">
 				  <span class="input-group-addon"><i class="fa fa-server"></i></span>
-				  <input type="text" class="form-control" name="smtp_host" placeholder="<?php $l->dump("host")?>" value="<?php echo ConfigurationMailer::$smtp_host;?>">
+				  <input type="text" class="form-control" name="smtp_host" placeholder="<?php $l->dump("host")?>" value="<?php echo POSConfigMailer::$smtp_host;?>">
 			</div>
 			<div class="input-group" style="padding:5px 0;">
 				  <span class="input-group-addon"><i class="fa fa-wrench"></i></span>
-				  <input type="text" class="form-control" name="smtp_port" type="number" pattern="[0-9]*" inputmode="numeric" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="<?php $l->dump("port")?>" value="<?php echo ConfigurationMailer::$smtp_port?>">
+				  <input type="text" class="form-control" name="smtp_port" type="number" pattern="[0-9]*" inputmode="numeric" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="<?php $l->dump("port")?>" value="<?php echo POSConfigMailer::$smtp_port?>">
 			</div>
 		</div>
 	</div>
@@ -159,7 +159,7 @@ $l = new Language;
 	</div>
 </div>
 
-<?php if(ConfigurationGlobal::$use_multidomain):?>
+<?php if(POSConfigGlobal::$use_multidomain):?>
 <!-- Domain manager dialog -->
 <div class="modal fade" role="dialog" id="domain_dlg">
 	<div class="modal-dialog">
