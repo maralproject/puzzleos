@@ -46,8 +46,8 @@ require_once("bootstrap-3.3.7.php");
  * Jquery-datepicker provided by https://github.com/fengyuanchen/datepicker
  */
 function __bs_enable_datepicker(){
-	Template::addHeader('<script type="text/javascript" src="'.IO::publish($appProp->path.'/lib/jquery-datepicker/datepicker.min.js').'"></script>',true);
-	Template::addHeader('<link rel="stylesheet" href="'.IO::publish($appProp->path.'/lib/jquery-datepicker/datepicker.min.css').'"/>');
+	Template::addHeader('<script type="text/javascript" src="'.IO::publish('/applications/bootstrap/lib/jquery-datepicker/datepicker.min.js').'"></script>',true);
+	Template::addHeader('<link rel="stylesheet" href="'.IO::publish('/applications/bootstrap/lib/jquery-datepicker/datepicker.min.css').'"/>');
 }
 
 ob_start();?>
