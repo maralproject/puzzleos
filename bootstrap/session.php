@@ -67,7 +67,7 @@ class PuzzleSession implements SessionHandlerInterface{
 				}
 				
 				if($_SERVER["HTTP_USER_AGENT"] == $i[0] || $i[1] == $_SERVER["REMOTE_ADDR"]){
-					if(($c[1] && (strpos($_SERVER["HTTP_HOST"],$root_domain) === false)) || (!$c[1] && $_SERVER["HTTP_HOST"] != $i[2])){
+					if(($c[1] && (strpos($_SERVER["HTTP_HOST"],$root_domain) === false)) || (!$c[1] && explode(":",$_SERVER['HTTP_HOST'])[0] != $i[2])){
 						//Failed to verify user
 					}else{
 						//User verified
