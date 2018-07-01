@@ -185,7 +185,7 @@ class UserData{
 		if($appname == "") return false;
 		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
 		$filename = $d["physical_path"];
-		return(__ROOTDIR . $filename);
+		if($filename!= "") return(__ROOTDIR . $filename);
 	}
 	
 	/**
