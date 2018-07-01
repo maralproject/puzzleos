@@ -49,10 +49,8 @@ class IO{
 			$hash = substr(md5($filename),0,10);
 			if(!file_exists(__ROOTDIR . "/public/res/$hash")){
 				self::copy_r($filename, __ROOTDIR . "/public/res/$hash");
-				
-				//Removing PHP files from directory
-				IO::remove_r_ext(__ROOTDIR . "/public/res/$hash","php");
-				IO::remove_r_ext(__ROOTDIR . "/public/res/$hash","ini");
+				IO::remove_r_ext("/public/res/$hash","php");
+				IO::remove_r_ext("/public/res/$hash","ini");
 			}
 			return "/res/$hash";
 		}else{
@@ -61,9 +59,8 @@ class IO{
 			$name = rtrim(str_replace($ext,"",$name),".");
 			if($ext == $name) $ext = "tmp";
 			$hash = substr(md5_file($filename),0,10);
-			if(!file_exists(__ROOTDIR . "/public/res/$name.1$hash.$ext")){
+			if(!file_exists(__ROOTDIR . "/public/res/$name.1$hash.$ext"))
 				@copy($filename, __ROOTDIR . "/public/res/$name.$hash.$ext");
-			}
 			return "/res/$name.$hash.$ext";
 		}
 	}

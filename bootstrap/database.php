@@ -635,12 +635,14 @@ class Database{
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
-
-		$q = mysqli_query(self::$link,"SHOW TABLES");
-		while($r = mysqli_fetch_array($q)){
-			if($r[0] == strtolower($table)) return true;
+		
+		if(!isset(self::$cache["tables"])){
+			self::$cache["tables"] = [];
+			$q = mysqli_query(self::$link,"SHOW TABLES");
+			while($r = mysqli_fetch_array($q)) self::$cache["tables"][] = $r[0];
 		}
-		return false;
+		
+		return (in_array($table,self::$cache["tables"]));
 	}
 
 	/**
@@ -703,7 +705,7 @@ class Database{
 				self::$t_cache[$table] = NULL;
 			}
 		}
-
+		
 		/* Checking checksum */
 		$old_checksum = self::$t_cache[$table];
 		$current_checksum = hash("sha256",serialize($structure));
