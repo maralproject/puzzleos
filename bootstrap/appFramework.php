@@ -137,7 +137,6 @@ class AppManager{
 						"desc" 		=> $manifest["description"],
 						"default" 	=> ($manifest["canBeDefault"] == 0 ? APP_CANNOT_DEFAULT : (POSConfigMultidomain::$default_application == $manifest["rootname"] ? APP_DEFAULT : APP_NOT_DEFAULT)),
 						"level" 	=> $manifest["permission"],
-						"permission"=> $group,
 						"group" 	=> $group,
 						"services" 	=> explode(",",trim($manifest["services"])),
 						"menus"		=> explode(",",trim($manifest["menus"])),
@@ -389,13 +388,11 @@ class Application{
 				//If user level > app level, then authAccess
 				//If user level = app level, compare
 				$user_level = Accounts::getAuthLevel($_SESSION['account']['group']);
-				$app_level = $list_app["permission"];
+				$app_level = $list_app["level"];
 				if($user_level == $app_level){
 					$this->forbidden = ($_SESSION['account']['group'] == $list_app["group"]?0:1);
-					if($this->forbidden != 0){
+					if($this->forbidden == 1){
 						switch($_SESSION['account']['group']){
-							case 0:
-							case 1:
 							case 2:
 							case 3:
 								$this->forbidden = 0;
@@ -404,10 +401,10 @@ class Application{
 						}
 					}
 				}else{
-					$this->forbidden = (Accounts::authAccess($list_app["permission"]) ? 0 :1);
+					$this->forbidden = (Accounts::authAccess($list_app["level"]) ? 0 :1);
 				}
 			}else{
-				$this->forbidden = (Accounts::authAccess($list_app["permission"]) ? 0 :1);
+				$this->forbidden = (Accounts::authAccess($list_app["level"]) ? 0 :1);
 			}
 		}else{
 			//On CLI, user always authenticated as USER_AUTH_SU
