@@ -11,8 +11,6 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 2.0.0
  */
 
-define("__DENY_HTACCESS_HASH", "ee9a29b31d78b2e52120610ed51f732453580f7c");
-
 /**
  * Store and manage user data
  * Only allowed to be called from applications

@@ -416,20 +416,17 @@ class Accounts{
 
 	/**
 	 * Compare user authentication with authentication level
-	 * @param string $auth_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
+	 * @param string $required_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
 	 * @return bool
 	 */
-	public static function authAccess($auth_level){
+	public static function authAccess($required_level){
 		//On CLI, user always authenticated as USER_AUTH_SU
 		if(defined("__POSCLI")) return true;
 
 		if($_SESSION['account']['loggedIn'] == 0){
-			return(USER_AUTH_PUBLIC <= $auth_level);
+			return($required_level >= USER_AUTH_PUBLIC);
 		}else{
-			$usr_group = $_SESSION["account"]["group"];
-			$group_level = Database::read("app_users_grouplist","level","id",$usr_group);
-			if($group_level == "") $group_level = USER_AUTH_PUBLIC;
-			return($group_level <= $auth_level);
+			return(self::getAuthLevel($_SESSION['account']["group"]) <= $required_level);
 		}
 	}
 
@@ -442,27 +439,22 @@ class Accounts{
 		//On CLI, user always authenticated as USER_AUTH_SU
 		if(defined("__POSCLI")) return true;
 
-		//If user level > app level, then authAccess
-		//If user level = app leve, compare
 		$result = false;
-		$user_level = self::getAuthLevel($_SESSION['account']['group']);
-		if($user_level == self::getAuthLevel($requiredGroup)){
-			$result = ($_SESSION['account']['group'] == $requiredGroup);
-			if(!$result){
-				switch($_SESSION['account']['group']){
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						$result = true;
-						break;
-					default:
-				}
+		
+		$level_required = self::getAuthLevel($requiredGroup);
+		$level_user = self::getAuthLevel($_SESSION['account']['group']);
+		
+		if($level_user == $level_required){
+			if($_SESSION['account']['group'] == $requiredGroup) return true;
+			switch($_SESSION['account']['group']){				
+			case 2:case 3: 
+				return true;
+			default: 
+				return false;
 			}
 		}else{
-			$result = (self::authAccess(self::getAuthLevel($requiredGroup)));
+			return ($level_user < $level_required);
 		}
-		return($result);
 	}
 
     /**

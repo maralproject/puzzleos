@@ -62,7 +62,9 @@ class AppManager{
 				}
 			}
 			try{
+				self::$MainAppStarted = true;
 				self::$MainApp->run(__getURI("app") == ""?$defaultApp:__getURI("app"));
+				return true;
 			}catch(AppStartError $e){
 				switch($e->getCode()){
 				case 404:
@@ -74,12 +76,9 @@ class AppManager{
 					header($_SERVER["SERVER_PROTOCOL"]." 403 Access Forbidden", true, 403);
 					break;
 				}
-				Template::setSubTitle("Not found");	
-				return false;
+				Template::setSubTitle("Not found");
 			}
 		}
-		self::$MainAppStarted = true;
-		return(true);
 	}
 	
 	/**
@@ -384,27 +383,10 @@ class Application{
 						return false;
 					}
 				}
-				 
-				//If user level > app level, then authAccess
-				//If user level = app level, compare
-				$user_level = Accounts::getAuthLevel($_SESSION['account']['group']);
-				$app_level = $list_app["level"];
-				if($user_level == $app_level){
-					$this->forbidden = ($_SESSION['account']['group'] == $list_app["group"]?0:1);
-					if($this->forbidden == 1){
-						switch($_SESSION['account']['group']){
-							case 2:
-							case 3:
-								$this->forbidden = 0;
-								break;
-							default:
-						}
-					}
-				}else{
-					$this->forbidden = (Accounts::authAccess($list_app["level"]) ? 0 :1);
-				}
+				
+				$this->forbidden = !Accounts::authAccessAdvanced($list_app["group"]);
 			}else{
-				$this->forbidden = (Accounts::authAccess($list_app["level"]) ? 0 :1);
+				$this->forbidden = !Accounts::authAccess($list_app["level"]);
 			}
 		}else{
 			//On CLI, user always authenticated as USER_AUTH_SU
