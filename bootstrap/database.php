@@ -650,7 +650,7 @@ class Database{
 	 * @param string $table Table name
 	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
 	 * @param array $param
-	 * @return array
+	 * @return stdClass
 	 */
 	public static function readAll($table,$options = "", ...$param){
 		if($table == "") throw new DatabaseError("Please fill the table name!");
@@ -675,6 +675,26 @@ class Database{
 		}else{
 			return(self::$cache["readAll"][$table.$options.serialize($param)]);
 		}
+	}
+	
+	/**
+	 * Fetch all mysql result and convert it into array
+	 * @param mysqli_result $result 
+	 * @return stdClass
+	 */
+	public static function toArray($result){
+		if(!is_a($result,"mysqli_result")) throw new DatabaseError('$result should a mysqli_result!');
+		$array = new stdClass();
+		$array->data = [];
+		$array->num = 0;
+		if(!$result){
+		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+		}
+		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
+			$array->data[$array->num] = $row;
+			$array->num++;
+		}
+		return($array);
 	}
 
 	/**

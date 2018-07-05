@@ -332,6 +332,20 @@ class Accounts{
 		$s['group'] = Database::read("app_users_list","group","id",$userID);
 		return $s;
 	}
+	
+	/**
+	 * Find user based on email, phone, or name
+	 * @param string $email_phone_name 
+	 * @return  
+	 */
+	public static function findUser($email_phone_name, $limit = NULL){
+		if(strlen($email_phone_name) < 3) return [];
+		$p = self::getE164($email_phone_name);
+		if($p == "") $p = "NULL";
+		return(Database::toArray(Database::exec(
+			"SELECT `id`,`name`,`group`,`email`,`registered_time` from `app_users_list` where name like '%?%' or email like '%?%' or phone like '%?%'".($limit!==NULL?" LIMIT ?":""),
+		$email_phone_name,$email_phone_name,$p,$limit))->data);
+	}
 
 	/**
 	 * Check if user exists or not

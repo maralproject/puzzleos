@@ -280,19 +280,18 @@ if(__getURI("app") == $appProp->appname){
 		 */
 
 		if(!$_SESSION['account']['loggedIn']){
-			//If user not logged in, abort this action
-			redirect();
+			redirect(); //If user not logged in, abort this action
 		}
 		Accounts::rmSession();
 		redirect();
 	}else if(__getURI("action") == "ajax"){
 		/**
-		 * Logout Action
+		 * Ajax Action
 		 * URI	: /users/ajax
 		 * Note	: A part of panel.admin.php which used in admin panel
 		 */
-
-		require( $appProp->path . "/ajax.php");
+		
+		if(Accounts::authAccess(USER_AUTH_SU)) require( $appProp->path . "/ajax.php");
 	}elseif(__getURI("action") == "profile" && isset($_POST["tf"]) && $_POST["ineedtochangesettings"] == "pass" && $_SESSION['account']['loggedIn']){
 		/**
 		 * Change user account settings
