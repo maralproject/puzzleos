@@ -18,22 +18,18 @@ $table = new DatabaseTableBuilder;
 $table->addColumn("id","INT")->setAsPrimaryKey()->defaultValue("AUTO_INCREMENT");
 $table->addColumn("group","INT");
 $table->addColumn("name");
-$table->addColumn("email")->allowNull(true);
-$table->addColumn("phone")->allowNull(true);
+$table->addColumn("email","VARCHAR(50)")->allowNull(true);
+$table->addColumn("phone","VARCHAR(20)")->allowNull(true);
 $table->addColumn("lang");
 $table->addColumn("password");
 $table->addColumn("username","VARCHAR(50)");
 $table->addColumn("enabled","INT(1)")->defaultValue(1);
 $table->addColumn("registered_time","INT")->defaultValue(0);
 
-/* 
- * Warning! This is the default user credentials!
- * Do not remove the app_users_list table, or this will compromise the security
- * Username: admin
- * Password: admin
- */
-//$table->newInitialRow(1,"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
-//Let installation do the creation of user
+$table->createIndex("email",["email"]);
+$table->createIndex("phone",["phone"]);
+$table->createIndex("registered_time",["registered_time"]);
+$table->createIndex("group",["group"]);
 
 return $table;
 ?>

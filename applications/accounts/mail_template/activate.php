@@ -21,6 +21,10 @@ if(Accounts::$customET_AC === NULL):
 <p><?php $language->dump("e16")?></p>
 <?php 
 else: 
-echo str_replace("{email}",$_POST["email"],str_replace("{link}",$link,str_replace("{name}",Database::read("app_users_list","name","email",$_POST['email']),Accounts::$customET_AC)));
+echo str_replace(
+	["{email}","{link}","{name}"],
+	[$_POST["email"],$link,Database::read("app_users_list","name","email",$_POST['email'])],
+	Accounts::$customET_AC
+);
 endif;
 ?>

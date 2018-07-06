@@ -654,7 +654,7 @@ class Database{
 	 * @return bool
 	 */
 	public static function isTableExist($table){
-		if($table == "") throw new DatabaseError("Please fill the table name!");
+		if($table == "") throw new DatabaseError("Table name cannot be empty!");
 		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
@@ -663,10 +663,10 @@ class Database{
 		if(!isset(self::$cache["tables"])){
 			self::$cache["tables"] = [];
 			$q = mysqli_query(self::$link,"SHOW TABLES");
-			while($r = mysqli_fetch_array($q)) self::$cache["tables"][] = $r[0];
+			while($r = mysqli_fetch_array($q)) self::$cache["tables"][$r[0]] = 1;
 		}
 		
-		return (in_array($table,self::$cache["tables"]));
+		return (isset(self::$cache["tables"][$table]));
 	}
 
 	/**
@@ -915,7 +915,7 @@ class Database{
 						$query .= $addition . "ALTER TABLE `".$table."` DROP PRIMARY KEY$addpk;\n";
 					}
 				}else{
-					if($pkey != "") $query .= "ALTER TABLE `".$table."` ADD PRIMARY KEY (`".$pkey."`)";
+					if($pkey != "") $query .= "ALTER TABLE `".$table."` ADD PRIMARY KEY (`".$pkey."`);";
 				}
 			}
 			
@@ -956,6 +956,7 @@ class Database{
 			$q = mysqli_query(self::$link,"show index from `$table`");
 			$dik = [];
 			while($d = mysqli_fetch_array($q)){
+				if($d["Key_name"] == "PRIMARY") continue;
 				if(in_array($d["Key_name"],$dik)) continue;
 				$dik[] = $d["Key_name"];
 				$query .= "ALTER TABLE `$table` DROP INDEX `{$d["Key_name"]}`;\n";

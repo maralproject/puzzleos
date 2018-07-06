@@ -42,6 +42,10 @@ class Accounts{
 		if(!is_callable($f)) throw new PuzzleError("Invalid function input");
 		self::$aflfl[] = $f;
 	}
+	
+	public static function getSession(){
+		return $_SESSION['account'];
+	}
 
 	/**
 	 * Count the number of registered user
@@ -321,9 +325,11 @@ class Accounts{
 	/**
 	 * Get user details
 	 * @param string $userID User ID
-	 * @return array
+	 * @return array If success
+	 * @return NULL If user doesn't exists
 	 */
 	public static function getDetails($userID){
+		if(Database::read("app_users_list","id","id",$userID) != $userID) return NULL;
 		$s = [];
 		$s['email'] = Database::read("app_users_list","email","id",$userID);
 		$s['phone'] = Database::read("app_users_list","phone","id",$userID);

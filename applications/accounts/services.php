@@ -21,9 +21,7 @@ if(Database::readAll("app_users_list")->num < 1){
 POSGlobal::$session->retain_on_same_pc = Accounts::getSettings()["f_en_remember_me"] == "on";
 POSGlobal::$session->share_on_subdomain = Accounts::getSettings()["f_share_session"] == "on";
 
-if(!isset($_SESSION["account"])){
-	Accounts::rmSession();
-}
+if(!isset($_SESSION["account"])) Accounts::rmSession();
 
 if($_SESSION['account']['loggedIn'] == 1){
 	/* Re-check the user existance */
@@ -43,7 +41,6 @@ if($_SESSION['account']['loggedIn'] == 1){
 /**
  * Automatically remove old key when email not confirmed after 10m
  */
- 
 if(isset($_SESSION['account']['confirm_activation'])){
 	if ($_SESSION['account']['confirm_activation']['timeout'] + 10 * 60 < time()) {
 		unset($_SESSION['account']['confirm_activation']);
@@ -65,6 +62,8 @@ if(isset($_SESSION['account']['change_pass']['linkClicked']))
 /**
  * Automatically remove account that not activated longer than 10 minutes
  */
-Database::exec("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
-Database::exec("delete from `app_users_activate` where expires<'?'", time());
+CronJob::register("rm_acc",function(){
+	Database::exec("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
+	Database::exec("delete from `app_users_activate` where expires<'?'", time());
+},_CT()->interval(15*T_MINUTE));
 ?>

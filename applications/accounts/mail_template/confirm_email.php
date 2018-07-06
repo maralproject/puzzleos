@@ -25,6 +25,10 @@ if(Accounts::$customET_CE === NULL):
 <p><?php $language->dump("e16")?></p>
 <?php 
 else: 
-echo str_replace("{email}",$_POST["email"],str_replace("{link}",$link,str_replace("{name}",$_SESSION["account"]["name"],Accounts::$customET_CE)));
+echo str_replace(
+	["{email}","{link}","{name}"],
+	[$_POST["email"],$link,$_SESSION["account"]["name"]],
+	Accounts::$customET_CE
+);
 endif;
 ?>
