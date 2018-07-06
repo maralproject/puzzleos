@@ -50,7 +50,28 @@ class DatabaseTableBuilder{
 	private $arrayStructure = [];
 	private $rowStructure = [];
 	private $selectedColumn;
+	private $indexes = [];
 	private $needToDrop = false;
+	
+	/**
+	 * Add index to this table
+	 * See Mysql reference about index
+	 * 
+	 * @param string $name Give the index a name
+	 * @param array $column Provide column that you want to add to this index
+	 * @param string $type Choose UNIQUE, FULLTEXT, SPATIAL, or leave it empty
+	 */
+	public function createIndex($name,$column,$type = ""){
+		switch($type){
+		case "UNIQUE":case "FULLTEXT":case "SPATIAL":case "":break;
+		default:
+			throw new DatabaseError("Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty");
+		}
+		
+		if(!is_array($column)) throw new DatabaseError("Columns should be an array");
+		$this->indexes[] = [$name,$column,$type];
+		return $this;
+	}
 
 	/* Create structure along with initial record
 	 * If the table already have some record, than this data will not be inserted
@@ -128,6 +149,10 @@ class DatabaseTableBuilder{
 
 	public function getStructure(){
 		return($this->arrayStructure);
+	}
+
+	public function getIndexes(){
+		return($this->indexes);
 	}
 
 	public function getInitialRow(){
@@ -704,8 +729,9 @@ class Database{
 	 * @return array
 	 */
 	public static function newStructure($table,$structure){
-		set_time_limit(30);
+		set_time_limit(0);
 		if(is_a($structure,"DatabaseTableBuilder")){
+			$indexes = $structure->getIndexes();
 			$initialData = $structure->getInitialRow();
 			$needToDrop = $structure->needToDropTable();
 			$structure = $structure->getStructure();
@@ -728,7 +754,7 @@ class Database{
 		
 		/* Checking checksum */
 		$old_checksum = self::$t_cache[$table];
-		$current_checksum = hash("sha256",serialize($structure));
+		$current_checksum = md5(serialize([$structure,$indexes]));
 		$write_cache_file = false;
 		if($old_checksum != ""){
 			//Old table, new structure
@@ -763,6 +789,8 @@ class Database{
 		if(!$q){
 			//Create Table
 			$query = "CREATE TABLE `".$table."` ( ";
+			
+			//Appending table structure
 			foreach($structure as $k=>$d){
 				if($d[1]) $pkey = $k;
 				$ds = (($d[3] === NULL) ? "" : "DEFAULT '".$d[3]."'");
@@ -770,16 +798,24 @@ class Database{
 
 				$query .= "`".$k."` ".strtoupper($d[0])." ".($d[2] === true ? "NULL" : "NOT NULL")." ".$ds.",";
 			}
-			if($pkey!=""){
-				$query .= "PRIMARY KEY (`".$pkey."`)";
-			}else{
-				$query = rtrim($query,",");
+			
+			//Appending Primary key
+			if($pkey!="") $query .= "PRIMARY KEY (`".$pkey."`),";
+			
+			//Appending all index
+			foreach($indexes as $i){
+				$c = "";
+				foreach($i[1] as $ci) $c .= "`$ci`,";
+				$c = rtrim($c,",");
+				$query .= "{$i[2]} INDEX `{$i[0]}` ($c),";
 			}
+			
+			//Using InnoDB engine is better than MyISAM
+			$query = rtrim($query,",");
 			$query .= ") COLLATE='utf8_general_ci' ENGINE=InnoDB;";
 
-			if(defined("DB_DEBUG")){
-				file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
-			}
+			if(defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
+			
 			if(mysqli_query(self::$link,$query)){
 				if($insertData){
 					foreach($initialData["simple"] as $row){
@@ -800,7 +836,8 @@ class Database{
 			$query = "";
 			$a = [];
 			$cpkey = "";
-			//Fetching table data, and remove auto_incement column
+			
+			//Fetching table data, and remove auto_increment column
 			$q = mysqli_query(self::$link,"show columns from `$table`");
 			while($d = mysqli_fetch_array($q)){
 				$fd = ($d["Extra"]=="auto_increment" ? "AUTO_INCREMENT" : $d["Default"]);
@@ -812,6 +849,7 @@ class Database{
 				}
 			}
 			$pkey = "";
+			
 			//DROP Column
 			foreach($a as $k=>$b){
 				if(!isset($structure[$k])){
@@ -819,6 +857,7 @@ class Database{
 					$query .= "ALTER TABLE `".$table."` DROP COLUMN `".$k."`;\n";
 				}
 			}
+			
 			//ALTER Table
 			foreach($structure as $k=>$d){
 				if($d[1]) $pkey = $k;
@@ -866,8 +905,10 @@ class Database{
 					}
 				}
 			}
-			//Change Primary Key
-			/* Correct order
+			
+			/**
+			 * Change Primary Key
+			 * Correct order
 			 * Add primary key first then add AI
 			 * When removing primary key, make sure that table is not AI anymore
 			 */
@@ -876,7 +917,7 @@ class Database{
 				$needtodropkey = ($cpkey != "");
 				if($needtodropkey) {
 					if($pkey != "") $addpk = ", ADD PRIMARY KEY (`".$pkey."`)";
-					$pri_ai_col = mysqli_fetch_array(mysqli_query(self::$link,"show columns from `?` where `Extra` = 'auto_increment' AND `Key`='PRI';",$table));
+					$pri_ai_col = mysqli_fetch_array(mysqli_query(self::$link,"show columns from `$table` where `Extra` = 'auto_increment' AND `Key`='PRI';"));
 					if(count($pri_ai_col) < 1)
 						$query .= "ALTER TABLE `".$table."` DROP PRIMARY KEY$addpk;\n";
 					else{
@@ -888,7 +929,8 @@ class Database{
 					if($pkey != "") $query .= "ALTER TABLE `".$table."` ADD PRIMARY KEY (`".$pkey."`)";
 				}
 			}
-			//Execution
+			
+			//First Alter Execution
 			if($query != ""){
 				if(defined("DB_DEBUG")){
 					file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
@@ -920,9 +962,27 @@ class Database{
 				$firstCol = false;
 				$prevCol = $k;
 			}
-			if(defined("DB_DEBUG")){
-				file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
+			
+			//Deleting all Index
+			$q = mysqli_query(self::$link,"show index from `$table`");
+			$dik = [];
+			while($d = mysqli_fetch_array($q)){
+				if(in_array($d["Key_name"],$dik)) continue;
+				$dik[] = $d["Key_name"];
+				$query .= "ALTER TABLE `$table` DROP INDEX `{$d["Key_name"]}`;\n";
 			}
+			
+			//Re add defined index
+			foreach($indexes as $i){
+				$c = "";
+				foreach($i[1] as $ci) $c .= "`$ci`,";
+				$c = rtrim($c,",");
+				$query .= "ALTER TABLE `$table` ADD {$i[2]} INDEX `{$i[0]}` ($c);\n";
+			}
+			
+			if(defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log","$query\r\n",FILE_APPEND);
+			
+			//Second Round Execution
 			if(!mysqli_multi_query(self::$link,$query)) throw new DatabaseError(mysqli_error(self::$link), $query);
 			do {
 				if($result = mysqli_store_result(self::$link)){

@@ -120,7 +120,7 @@ class Template{
 			if(isset(self::$header_md5[md5($text)])) return;
 			self::$header_md5[md5($text)] = "yes";
 		}
-		self::$addOnHeader .= $text;
+		self::$addOnHeader .= $text . PHP_EOL;
 	}
 	
 	/**
@@ -133,7 +133,7 @@ class Template{
 			if(isset(self::$body_md5[md5($text)])) return;
 			self::$body_md5[md5($text)] = "yes";
 		}
-		self::$addOnBody .= $text;
+		self::$addOnBody .= $text . PHP_EOL;
 	}
 	
 	/**
