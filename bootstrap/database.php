@@ -469,13 +469,17 @@ class Database{
 
 	/**
 	 * Write a new record
+	 * 
+	 * AUTO_INCRECEMENT column will be ignored
+	 * If Default on while field is empty will be discarded too.
+	 * If default on while field isn't empty, won't be discarded.
+	 * 
 	 * @param string $table Table Name
 	 * @param array $array array(field1,field2,field3,..); Field will be discarded if column has default value.
 	 * @return bool
 	 */
 	public static function newRow($table,...$array){
 		if(!is_array($array[0])){
-			//Check for another input
 			if(func_num_args()<2) throw new PuzzleError("Input must be more than two argument");
 		}else{
 			$array = $array[0];
@@ -484,11 +488,7 @@ class Database{
 		$f = $caller[0]["file"];
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
-		//$table : The table name
-		//$array : {field1,field2,field3,...}; Based on the column available.
-		//AUTO_INCREACEMENT column will be ignored
-		//If Default on while field is empty will be discarded too.
-		//If default on while field isn't empty, won't be discarded.
+		
 		$fList = "";
 		$cList = "";
 		$temp = self::colList($table);
@@ -636,7 +636,6 @@ class Database{
 		if(!isset(self::$cache["exec"][$query.serialize($param)])){
 			self::$cache["exec"][$query.serialize($param)] = self::query($query, ...$param);
 		}
-		//return (self::query($query, ...$param));
 		return self::$cache["exec"][$query.serialize($param)];
 	}
 
@@ -684,17 +683,7 @@ class Database{
 		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
 		unset($caller);
 		if(!isset(self::$cache["readAll"][$table.$options.serialize($param)])){
-			$array = new stdClass();
-			$array->data = [];
-			$array->num = 0;
-			$retval = self::query("SELECT * FROM `$table` $options;", ...$param);
-			if(! $retval ){
-			  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-			}
-			while($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)){
-				$array->data[$array->num] = $row;
-				$array->num++;
-			}
+			$array = self::toArray(self::query("SELECT * FROM `$table` $options;", ...$param));
 			self::$cache["readAll"][$table.$options.serialize($param)] = $array;
 			return($array);
 		}else{
@@ -754,7 +743,7 @@ class Database{
 		
 		/* Checking checksum */
 		$old_checksum = self::$t_cache[$table];
-		$current_checksum = md5(serialize([$structure,$indexes]));
+		$current_checksum = hash("crc32b",serialize([$structure,$indexes]));
 		$write_cache_file = false;
 		if($old_checksum != ""){
 			//Old table, new structure
