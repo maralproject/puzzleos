@@ -83,7 +83,6 @@ define("__TIMEZONE", POSConfigGlobal::$timezone);
  * Configuring user session
  ***********************************/
 require_once("session.php");
-POSGlobal::$session->write_cookie();
 
 /***********************************
  * Prepare all directories
@@ -128,6 +127,9 @@ require_once("appFramework.php");
 require_once("cron.php");
 require_once("cli.php");
 require_once("services.php");
+
+/* Must be loaded after services */
+POSGlobal::$session->write_cookie();
 
 /***********************************
  * Process private file if requested
