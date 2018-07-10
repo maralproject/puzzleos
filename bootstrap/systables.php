@@ -21,7 +21,6 @@ $a->addColumn("physical_path","VARCHAR(4000)");
 $a->addColumn("mime_type","VARCHAR(100)");
 $a->addColumn("ver","INT");
 $a->addColumn("secure","TINYINT(1)");
-$a->addColumn("hash","CHAR(32)");
 
 $a->createIndex("main",["app","identifier"]);
 
