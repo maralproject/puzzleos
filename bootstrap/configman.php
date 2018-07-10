@@ -425,11 +425,11 @@ if(file_exists(__ROOTDIR . "/configs")){
 	throw new PuzzleError("No configuration directory!","Please re-download PuzzleOS and patch it");
 }
 
-require_once(__ROOTDIR . '/configs/root.sys.php');
-require_once("database.php");
+require(__ROOTDIR . '/configs/root.sys.php');
+require("database.php");
 
 /* Build system table in the database */
-require_once("systables.php");
+require("systables.php");
 
 if(!defined("__POSCLI")){
 	/* Removing www. and port from domain */
@@ -448,7 +448,7 @@ if(!defined("__POSCLI")){
 			include( __ROOTDIR . "/templates/system/404.php" );
 			exit;
 		}
-		require_once("configs/$hnp.config.php");
+		require("configs/$hnp.config.php");
 		POSConfigMultidomain::$restricted_app = json_decode(Database::read("multidomain_config","restricted_app","host",POSGlobal::$domain_zone),true);
 	}else{
 		POSConfigMultidomain::$restricted_app = [];

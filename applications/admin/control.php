@@ -13,7 +13,8 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  */
  
 if(__getURI("app") == "admin"){
-	$l = new Language; $l->app="admin";
+	new Application("phpmailer");
+	$l = new Language;
 	if(__getURI("action") == "changeTemplate"){
 		Template::setDefaultByName(__getURI(2));
 		redirect("admin#templates");

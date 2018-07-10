@@ -47,7 +47,7 @@ define("__HTTP_REQUEST",ltrim(str_replace(__SITEURL,"",str_replace(str_replace("
 define("__HTTP_URI", explode("?",__HTTP_REQUEST)[0]);
 
 set_time_limit(30);
-require_once("runtime_error.php");
+require("exception.php");
 
 /***********************************
  * Maintenance Mode Handler
@@ -68,12 +68,12 @@ if(file_exists(__ROOTDIR . "/site.offline")){
 /***********************************
  * Define global functions
  ***********************************/
-require_once("functions.php");
+require("functions.php");
 
 /***********************************
  * Get the configuration files
  ***********************************/
-require_once('configman.php');
+require('configman.php');
 error_reporting(POSConfigGlobal::$error_code);
 define("__SITENAME", POSConfigGlobal::$sitename);
 define("__SITELANG", POSConfigGlobal::$default_language);
@@ -82,7 +82,7 @@ define("__TIMEZONE", POSConfigGlobal::$timezone);
 /***********************************
  * Configuring user session
  ***********************************/
-require_once("session.php");
+require("session.php");
 
 /***********************************
  * Prepare all directories
@@ -104,11 +104,11 @@ POSGlobal::$uri["APP"] = POSGlobal::$uri[0];
 if(POSGlobal::$uri["APP"] == "") POSGlobal::$uri["APP"] = POSConfigMultidomain::$default_application;
 POSGlobal::$uri["ACTION"] = (isset(POSGlobal::$uri[1]) ? POSGlobal::$uri[1] : "");
 
-require_once("iosystem.php");
-require_once("fastcache.php");
-require_once("message.php");
-require_once("userdata.php");
-require_once("language.php");
+require("iosystem.php");
+require("fastcache.php");
+require("message.php");
+require("userdata.php");
+require("language.php");
 
 /***********************************
  * Removing installation directory
@@ -121,12 +121,12 @@ if(IO::exists("/public/install")){
 /***********************************
  * Loading another features
  ***********************************/
-require_once("templates.php");
-require_once("time.php");
-require_once("appFramework.php");
-require_once("cron.php");
-require_once("cli.php");
-require_once("services.php");
+require("templates.php");
+require("time.php");
+require("appFramework.php");
+require("cron.php");
+require("cli.php");
+require("services.php");
 
 /* Must be loaded after services */
 POSGlobal::$session->write_cookie();

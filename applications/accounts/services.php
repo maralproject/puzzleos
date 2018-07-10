@@ -12,15 +12,17 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * @software     Release: 2.0.0
  */
 
-/* Register SU if not found */
-if(Database::readAll("app_users_list")->num < 1){
+/* Register SU if no any user found */
+if(file_exists(__ROOTDIR."/create.admin")){
 	Database::newRow("app_users_list", Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
+	unlink(__ROOTDIR."/create.admin");
 }
 
 /* Setting up user session */
-POSGlobal::$session->retain_on_same_pc = Accounts::getSettings()["f_en_remember_me"] == "on";
-POSGlobal::$session->share_on_subdomain = Accounts::getSettings()["f_share_session"] == "on";
-
+$ac = Accounts::getSettings();
+POSGlobal::$session->retain_on_same_pc = $ac["f_en_remember_me"] == "on";
+POSGlobal::$session->share_on_subdomain = $ac == "on";
+return true;
 if(!isset($_SESSION["account"])) Accounts::rmSession();
 
 if($_SESSION['account']['loggedIn'] == 1){
@@ -58,7 +60,7 @@ if(isset($_SESSION['account']['change_pass'])){
 }
 if(isset($_SESSION['account']['change_pass']['linkClicked']))
 	if($_SESSION['account']['change_pass']['linkClicked'] == 1 && __getURI("app") != "users") redirect("users");
-	
+
 /**
  * Automatically remove account that not activated longer than 10 minutes
  */

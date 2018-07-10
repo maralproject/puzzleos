@@ -342,7 +342,7 @@ class Accounts{
 	/**
 	 * Find user based on email, phone, or name
 	 * @param string $email_phone_name 
-	 * @return  
+	 * @return array
 	 */
 	public static function findUser($email_phone_name, $limit = NULL){
 		if(strlen($email_phone_name) < 3) return [];

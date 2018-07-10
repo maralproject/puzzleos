@@ -13,13 +13,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
 
 foreach(AppManager::listAll() as $data){
 	if(!empty($data["services"])){
-		// Prepare the database before loading the service
-		foreach(glob($data["dir"] . "/*.table.php") as $table_abstract){
-			$t = explode("/",rtrim($table_abstract,"/"));
-			$table_name = str_replace(".table.php","",end($t));
-			$table_structure = include($table_abstract);
-			Database::newStructure("app_" . $data["rootname"] . "_" . $table_name,$table_structure);
-		}
+		AppManager::migrateTable($data["rootname"]);
 		foreach($data["services"] as $service){
 			if($service == "") continue;
 			
@@ -27,7 +21,7 @@ foreach(AppManager::listAll() as $data){
 			$appProp = new Application();
 			$appProp->prepare($data["rootname"]);
 			
-			if(!include_once($data["dir"]."/".$service)){			
+			if(!include($data["dir"]."/".$service)){			
 				throw new PuzzleError("Cannot start '".$data['name']."' services!", "Please recheck the existence of ".$data["dir"]."/".$service);
 			}
 			

@@ -4,6 +4,9 @@
 [x] Merging cache folder
 [x] Separating server-side and public side
 [x] Finding out what's make PuzzleOS very sloww
+	- PHPMailer now donot have an always running class. Run the app before sending email
+	- If somehow administrator account is lost, you can build new one by creating create.admin file in the root directory
+	- App rootname limited to 50 characters only
 
 To migrate from version 1.2.x:
 -PuzzleOSGlobal -> POSGlobal

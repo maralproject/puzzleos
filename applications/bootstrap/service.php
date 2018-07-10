@@ -12,42 +12,17 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * @software     Release: 2.0.0
  */
  
-/* This file is manually configured to load between bootstrap version and themes */
+$pubdir = IO::publish($appProp->path . "/lib");
 
 /* Load bootstrap-3.3.7 */
 require_once("bootstrap-3.3.7.php");
-
-/* Load bootstrap-4.0.0b2 */
-//require_once("bootstrap-4.0.0b2.php");
-
-/* ========== End of loader ========== */
-
-/* Custom Bootstrap Function */
-/* Add hashing link to a tab */
-
-/**
- * Bootstrap-select provided by https://silviomoreto.github.io/bootstrap-select/ *
- */
-//Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-select/js/bootstrap-select.min.js"></script>');
-//Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-select/css/bootstrap-select.min.css"/>');
-
-/**
- * Bootstrap-tagsinput provided by https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/examples/ *
- */
-//Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>');
-//Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-tagsinput/bootstrap-tagsinput.css"/>');
-
-/**
- * Typeahead provided by http://twitter.github.io/typeahead.js/examples/ *
- */
-//Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/typeahead/typeahead.bundle.min.js"></script>');
 
 /**
  * Jquery-datepicker provided by https://github.com/fengyuanchen/datepicker
  */
 function __bs_enable_datepicker(){
-	Template::addHeader('<script type="text/javascript" src="'.IO::publish('/applications/bootstrap/lib/jquery-datepicker/datepicker.min.js').'"></script>',true);
-	Template::addHeader('<link rel="stylesheet" href="'.IO::publish('/applications/bootstrap/lib/jquery-datepicker/datepicker.min.css').'"/>');
+	Template::addHeader('<script type="text/javascript" src="'.$pubdir.'/jquery-datepicker/datepicker.min.js"></script>',true);
+	Template::addHeader('<link rel="stylesheet" href="'.$pubdir.'jquery-datepicker/datepicker.min.css"/>');
 }
 
 ob_start();?>

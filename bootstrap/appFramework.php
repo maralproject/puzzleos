@@ -82,6 +82,23 @@ class AppManager{
 	}
 	
 	/**
+	 * Prepare table database for specified app
+	 * @param string $rootname 
+	 */
+	public static function migrateTable($rootname){
+		$list_app = AppManager::listAll()[$rootname];
+		if($list_app["rootname"] != $rootname) throw new AppStartError("Application $rootname not found!","",404);
+		
+		/* Prepare the database */
+		foreach(glob($list_app["dir"] . "/*.table.php") as $table_abstract){
+			$t = explode("/",rtrim($table_abstract,"/"));
+			$table_name = str_replace(".table.php","",end($t));			
+			$table_structure = include($table_abstract);
+			Database::newStructure("app_" . $list_app["rootname"] . "_" . $table_name,$table_structure);
+		}
+	}
+	
+	/**
 	 * List all Applications
 	 * @return array
 	 */
@@ -99,7 +116,7 @@ class AppManager{
 			$agroup = Database::readAll("app_users_grouplist")->data;
 		}catch(PuzzleError $e){
 			/* Rebuild grouplist */
-			Database::newStructure("app_users_grouplist",require_once(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
+			Database::newStructure("app_users_grouplist",require(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
 			$agroup = Database::readAll("app_users_grouplist");
 		}
 		
@@ -113,6 +130,7 @@ class AppManager{
 					$manifest = parse_ini_file(IO::physical_path("/applications/$dir/manifest.ini"));
 					if($manifest["rootname"] == "") continue;
 					if(isset($a[$manifest["rootname"]])) continue;
+					if(strlen($manifest["rootname"]) > 50) continue;
 					switch($manifest["rootname"]){
 						//Filter pre-used rootname
 						case "security":
@@ -130,7 +148,7 @@ class AppManager{
 					$a[$manifest["rootname"]] = [
 						"name" 		=> $manifest["rootname"],
 						"rootname"	=> $manifest["rootname"],
-						"dir" 		=> __ROOTDIR."/applications/" . $dir,
+						"dir" 		=> __ROOTDIR."/applications/$dir",
 						"dir_name"	=> $dir,
 						"title" 	=> $manifest["title"],
 						"desc" 		=> $manifest["description"],
@@ -359,14 +377,7 @@ class Application{
 			throw new AppStartError("Application `$name` not found!",__HTTP_URI,404);
 		}
 		
-		/* Prepare the database */
-		foreach(glob($list_app["dir"] . "/*.table.php") as $table_abstract){
-			$t = explode("/",rtrim($table_abstract,"/"));
-			$table_name = str_replace(".table.php","",end($t));			
-			$table_structure = include($table_abstract);
-			Database::newStructure("app_" . $list_app["rootname"] . "_" . $table_name,$table_structure);
-		}
-		
+		AppManager::migrateTable($name);
 		$dir = $list_app["dir_name"];
 		$this->appfound = true;
 		

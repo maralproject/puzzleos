@@ -1,7 +1,8 @@
 [PuzzleApp]
 
 ; Rootname is the unique name of this application
-; White space, and symbol character are not allowed
+; White space, and symbol character are not allowed.
+; Maximum character length is 50
 ;
 ; Apps will be ignored if the rootname is exist, or doesn't match
 ; the requirement

@@ -19,6 +19,7 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
 if(__getURI("app") == $appProp->appname){
 
 	$language = new Language;
+	new Application("phpmailer");
 
 	if(!$_SESSION['account']['loggedIn']){
 		if(__getURI("action") == "changepassword"){

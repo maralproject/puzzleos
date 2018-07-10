@@ -214,7 +214,7 @@ class UserData{
 	 * @param string $key
 	 * @return contents
 	 */
-	public static function read($key){		
+	public static function read($key){
 		$appname = self::init();
 		if($appname == "") return false;
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);

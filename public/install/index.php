@@ -7,7 +7,7 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 1.2.2
+ * @software     Release: 2.0.0
  */
  
 /* Performs and installation
@@ -55,9 +55,7 @@ if($_POST["finale"] == "yes"){
 	$sample = str_replace("%META_DESC%","",$sample);
 	if(file_put_contents("../../configs/root.sys.php",$sample) === false) die("2");
 	
-	/* Installing other things */
-	/* We're going to send an ajax request to the admin app */
-	/* The app that is included with this installation, will be installed as usual, but will not listed in package manager */
+	file_put_contents("../../create.admin",1);
 	
 	die("0");
 }
@@ -194,9 +192,6 @@ if($_POST["finale"] == "yes"){
 							break;
 						case "1":
 							$(".info").html("Cannot connect to database!").show();
-							break;
-						case "3":
-							$(".info").html("Cannot write to database!").show();
 							break;
 						case "0":					
 							window.location="..";

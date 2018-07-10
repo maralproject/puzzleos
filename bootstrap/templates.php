@@ -81,7 +81,7 @@ class Template{
 		$tmpl = new PObject(array(
 			"dumpHeaders" => function() { 
 				echo self::$addOnHeader;
-				require_once(__ROOTDIR . "/templates/system/pre_headers.php"); 
+				require(__ROOTDIR . "/templates/system/pre_headers.php"); 
 			},
 			"printPrompt" => function() { 
 				Prompt::printPrompt(); 
