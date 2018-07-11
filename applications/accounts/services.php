@@ -22,7 +22,7 @@ if(file_exists(__ROOTDIR."/create.admin")){
 $ac = Accounts::getSettings();
 POSGlobal::$session->retain_on_same_pc = $ac["f_en_remember_me"] == "on";
 POSGlobal::$session->share_on_subdomain = $ac == "on";
-return true;
+
 if(!isset($_SESSION["account"])) Accounts::rmSession();
 
 if($_SESSION['account']['loggedIn'] == 1){
