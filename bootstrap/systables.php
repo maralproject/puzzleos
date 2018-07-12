@@ -66,6 +66,9 @@ $a->addColumn("start","INT");
 $a->addColumn("expire","INT");
 $a->addColumn("user","INT")->allowNull(true);
 
+$a->createIndex("ses",["user","session_id"]);
+$a->createIndex("expire",["expire"]);
+
 Database::newStructure("sessions",$a);
 
 /* Table `cron` */
