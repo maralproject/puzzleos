@@ -129,7 +129,7 @@ class AppManager{
 				if(IO::exists("/applications/$dir/manifest.ini")){
 					$manifest = parse_ini_file(IO::physical_path("/applications/$dir/manifest.ini"));
 					if($manifest["rootname"] == "") continue;
-					if(isset($a[$manifest["rootname"]])) continue;
+					if(isset($a[$manifest["rootname"]])) throw new PuzzleError("Rootname conflict detected on path: <b>".__ROOTDIR."/applications/".$dir."</b> and <b>".$a[$manifest["rootname"]]["dir"]."</b>");
 					if(strlen($manifest["rootname"]) > 50) continue;
 					switch($manifest["rootname"]){
 						//Filter pre-used rootname
