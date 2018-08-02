@@ -155,6 +155,7 @@ class PuzzleError extends Exception{
 		fwrite($f,"Message: ".$this->message."\r\n");
 		fwrite($f,"Suggestion: ".$this->suggestion."\r\n");
 		fwrite($f,"Caller: ".$this->getFile()." line ".$this->getLine()."\r\n");
+		fwrite($f,"URL: ".__HTTP_REQUEST."\r\n");
 		fwrite($f,str_replace("#","\r\n#",$this->getTraceAsString()));
 		fwrite($f,"\r\n=========\r\n");
 		fclose($f);
