@@ -743,7 +743,7 @@ class Database{
 		
 		/* Checking checksum */
 		$old_checksum = self::$t_cache[$table];
-		$current_checksum = hash("crc32b",serialize([$structure,$indexes]));
+		$current_checksum = hash("crc32b",serialize([$structure,$indexes,$initialData]));
 		$write_cache_file = false;
 		if($old_checksum != ""){
 			//Old table, new structure
