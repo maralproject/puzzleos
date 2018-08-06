@@ -33,13 +33,21 @@ class DatabaseRowInput{
 		return $this;
 	}
 
-	public function getStructure(){
-		return $this->rowStructure;
-	}
-
 	public function clearStructure(){
+		$this->x_call();
 		$this->rowStructure = [];
 		return $this;
+	}
+
+	public function getStructure(){
+		$this->x_call();
+		return $this->rowStructure;
+	}
+	
+	private function x_call(){
+		$caller = btfslash(debug_backtrace(null,2)[1]["file"]);
+		if(str_replace(__ROOTDIR."/","",$caller) != "bootstrap/database.php")
+			throw new DatabaseError("DatabaseTableBuilder violation!");
 	}
 }
 
@@ -52,6 +60,10 @@ class DatabaseTableBuilder{
 	private $selectedColumn;
 	private $indexes = [];
 	private $needToDrop = false;
+	
+	public function __construct(){
+		return $this;
+	}
 	
 	/**
 	 * Add index to this table
@@ -91,7 +103,10 @@ class DatabaseTableBuilder{
 		$structure->clearStructure();
 	}
 
-	/* DANGER: This function will DROP the table and start new fresh table */
+	/**
+	 * Make the table dropped whenever the table structure changed
+	 * DANGER: Use this function wisely! It will drop the table is we detected a little change in table structure checksum
+	 */
 	public function dropTable(){
 		$this->needToDrop = true;
 	}
@@ -101,10 +116,6 @@ class DatabaseTableBuilder{
 		$this->selectedColumn = $name;
 		//Structure = [Type", PRIMARY, AllowNULL, Default]
 		$this->arrayStructure[$this->selectedColumn] = [$type,false,false,NULL];
-		return $this;
-	}
-
-	public function __construct(){
 		return $this;
 	}
 
@@ -147,20 +158,30 @@ class DatabaseTableBuilder{
 		return $this;
 	}
 
-	public function getStructure(){
+	public function x_getStructure(){
+		$this->x_call();
 		return($this->arrayStructure);
 	}
 
-	public function getIndexes(){
+	public function x_getIndexes(){
+		$this->x_call();
 		return($this->indexes);
 	}
 
-	public function getInitialRow(){
+	public function x_getInitialRow(){
+		$this->x_call();
 		return($this->rowStructure);
 	}
 
-	public function needToDropTable(){
+	public function x_needToDropTable(){
+		$this->x_call();
 		return($this->needToDrop);
+	}
+	
+	private function x_call(){
+		$caller = btfslash(debug_backtrace(null,2)[1]["file"]);
+		if(str_replace(__ROOTDIR."/","",$caller) != "bootstrap/database.php")
+			throw new DatabaseError("DatabaseTableBuilder violation!");
 	}
 }
 
@@ -720,10 +741,10 @@ class Database{
 	public static function newStructure($table,$structure){
 		set_time_limit(0);
 		if(is_a($structure,"DatabaseTableBuilder")){
-			$indexes = $structure->getIndexes();
-			$initialData = $structure->getInitialRow();
-			$needToDrop = $structure->needToDropTable();
-			$structure = $structure->getStructure();
+			$indexes = $structure->x_getIndexes();
+			$initialData = $structure->x_getInitialRow();
+			$needToDrop = $structure->x_needToDropTable();
+			$structure = $structure->x_getStructure();
 		}else{
 			throw new DatabaseError("Please use DatabaseTableBuilder for the structure!");
 		}
