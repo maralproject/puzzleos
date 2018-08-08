@@ -31,6 +31,8 @@ define("__POS_VERSION", "2.0.0");
 //Return /path/to/directory
 define("__ROOTDIR", str_replace("\\","/",dirname(__DIR__)));
 
+defined("__PUBLIC_D") or define("__PUBLIC_D","public");
+
 //Return something.com
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
 
@@ -90,10 +92,10 @@ require("session.php");
 preparedir(__ROOTDIR . "/storage");
 preparedir(__ROOTDIR . "/storage/dbcache");
 preparedir(__ROOTDIR . "/storage/data");
-preparedir(__ROOTDIR . "/public/assets");
-preparedir(__ROOTDIR . "/public/res");
-preparedir(__ROOTDIR . "/public/cache",function(){
-	file_put_contents(__ROOTDIR . "/public/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
+preparedir(__ROOTDIR . "/".__PUBLIC_D."/assets");
+preparedir(__ROOTDIR . "/".__PUBLIC_D."/res");
+preparedir(__ROOTDIR . "/".__PUBLIC_D."/cache",function(){
+	file_put_contents(__ROOTDIR . "/".__PUBLIC_D."/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
 });
 
 /***********************************
@@ -113,9 +115,9 @@ require("language.php");
 /***********************************
  * Removing installation directory
  ***********************************/
-if(IO::exists("/public/install")){
-	$r = IO::remove_r("/public/install");
-	if(!$r) throw new PuzzleError("Please remove /public/install directory manually for security purpose");
+if(IO::exists("/".__PUBLIC_D."/install")){
+	$r = IO::remove_r("/".__PUBLIC_D."/install");
+	if(!$r) throw new PuzzleError("Please remove /".__PUBLIC_D."/install directory manually for security purpose");
 }
 
 /***********************************

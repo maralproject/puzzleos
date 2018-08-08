@@ -28,6 +28,7 @@ class PuzzleCLI{
 	 * @param function $F($in,$out)
 	 */
 	public static function register($F){
+		if(PHP_SAPI != "cli" || !defined("__POSCLI")) return false;
 		$app = self::init();
 		if(isset(self::$list[$app])) throw new PuzzleError("One app  allowed to register one CLI commands function!");
 		if(!is_callable($F)) throw new PuzzleError("Incorrect parameter");
@@ -42,6 +43,7 @@ class PuzzleCLI{
 	 * @param array $a
 	 */
 	public static function run($a){
+		if(PHP_SAPI != "cli" || !defined("__POSCLI")) return false;
 		error_reporting(0);
 		ini_set('max_execution_time',0); //Disable PHP timeout
 		if($a[0] != "puzzleos") throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
