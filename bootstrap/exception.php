@@ -39,7 +39,7 @@ class IOError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!defined("__POSCLI")):
+		if(!__isCLI()):
 		?>
 <html>
 	<head>
@@ -91,7 +91,7 @@ class DatabaseError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!defined("__POSCLI")):
+		if(!__isCLI()):
 		?>
 <html>
 	<head>
@@ -164,7 +164,7 @@ class PuzzleError extends Exception{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!defined("__POSCLI")):
+		if(!__isCLI()):
 		?>
 <html>
 	<head>

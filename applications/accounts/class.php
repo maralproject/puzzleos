@@ -441,7 +441,7 @@ class Accounts{
 	 */
 	public static function authAccess($required_level){
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(defined("__POSCLI")) return true;
+		if(__isCLI()) return true;
 
 		if($_SESSION['account']['loggedIn'] == 0){
 			return($required_level >= USER_AUTH_PUBLIC);
@@ -457,7 +457,7 @@ class Accounts{
 	 */
 	public static function authAccessAdvanced($requiredGroup){
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(defined("__POSCLI")) return true;
+		if(__isCLI()) return true;
 
 		$result = false;
 		

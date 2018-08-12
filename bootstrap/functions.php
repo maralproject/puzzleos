@@ -106,6 +106,7 @@ function php_max_upload_size(){
  * @return string
  */
 function __getURI($name){
+	if(__isCLI()) return NULL; //No URI on CLI
 	if(is_integer($name)){
 		$key = $name;
 	}else{
@@ -123,6 +124,14 @@ function __getURI($name){
  */
 function __requiredSystem($version){
 	return(version_compare(__POS_VERSION,$version,">="));
+}
+
+/**
+ * Get if current environment is in CLI or not
+ * @return bool
+ */
+function __isCLI(){
+	return (PHP_SAPI == "cli" && defined("__POSCLI"));
 }
 
 /**
