@@ -19,7 +19,7 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
 /* Bootstrap CSS */
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/css/bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/paper.bootstrap.min.css"/>');
-Template::addHeader("<link rel=\"stylesheet\" href=\"$_bs_public/themes/cosmo.bootstrap.min.css\"/>");
+Template::addHeader('<link rel="stylesheet" href="'.$GLOBALS["_bs_pubdir"].'/themes/cosmo.bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/readable.bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/spacelab.bootstrap.min.css"/>');
 //Template::addHeader('<link rel="stylesheet" href="'.__SITEURL.'/applications/bootstrap/lib/themes/yeti.bootstrap.min.css"/>');
@@ -27,10 +27,10 @@ Template::addHeader("<link rel=\"stylesheet\" href=\"$_bs_public/themes/cosmo.bo
 
 /* JQuery and Bootstrap things */
 //Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/jquery-1.11.3.min.js"></script>');
-Template::addHeader("<script type=\"text/javascript\" src=\"$_bs_public/jquery-3.2.1.min.js\"></script>");
-Template::addHeader("<script type=\"text/javascript\" src=\"$_bs_public/jquery-migrate-3.0.1.js\"></script>");
-//Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/js/bootstrap.min.js\"></script>");
-Template::appendBody("<script type=\"text/javascript\" src=\"$_bs_public/bootstrap-3.3.7/js/bootstrap.min.js\"></script>");
+Template::addHeader('<script type="text/javascript" src="'.$GLOBALS["_bs_pubdir"].'/jquery-3.2.1.min.js"></script>');
+Template::addHeader('<script type="text/javascript" src="'.$GLOBALS["_bs_pubdir"].'/jquery-migrate-3.0.1.js"></script>');
+//Template::addHeader('<script type="text/javascript" src="'.__SITEURL.'/applications/bootstrap/lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>');
+Template::appendBody('<script type="text/javascript" src="'.$GLOBALS["_bs_pubdir"].'/bootstrap-3.3.7/js/bootstrap.min.js"></script>');
 
 /* Optimized one, disable block rendering */
 //Template::addHeader('<style type="text/css">'.file_get_contents(IO::physical_path("/applications/bootstrap/lib/bootstrap-3.3.7/css/bootstrap.min.css")).'</style>');

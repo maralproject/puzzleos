@@ -32,7 +32,7 @@ class UserData{
 		$appname = AppManager::getNameFromDirectory($appDir);		
 		//Check the folder for user_data
 		preparedir(__ROOTDIR . "/storage/data/$appname");
-		preparedir(__ROOTDIR . "/".__PUBLIC_D."/assets/$appname");
+		preparedir(__ROOTDIR . "/public/assets/$appname");
 		return($appname);
 	}
 	
@@ -50,7 +50,7 @@ class UserData{
 		$appname = self::init();
 		if($appname == "") return false;
 		$fileext = strtolower(end(explode(".",$_FILES[$inputname]['name'])));
-		if(!$secure) $filename = "/".__PUBLIC_D."/assets/$appname/$key.$fileext";
+		if(!$secure) $filename = "/public/assets/$appname/$key.$fileext";
 		else $filename = "/storage/data/$appname/$key.$fileext";
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if($oldfile != ""){
@@ -81,7 +81,7 @@ class UserData{
 		$fileext = strtolower(end(explode(".",$path_to_file)));
 		
 		if(!$secure)
-			$filename = "/".__PUBLIC_D."/assets/$appname/" . $key . "." . $fileext;
+			$filename = "/public/assets/$appname/" . $key . "." . $fileext;
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 		
@@ -117,7 +117,7 @@ class UserData{
 		$fileext = strtolower(end(explode(".",$path_to_file)));
 		
 		if(!$secure)
-			$filename = "/".__PUBLIC_D."/assets/$appname/" . $key . "." . $fileext;
+			$filename = "/public/assets/$appname/" . $key . "." . $fileext;
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 		
@@ -144,7 +144,7 @@ class UserData{
 		$appname = self::init();
 		if($appname == "") return false;
 		if(!$secure)
-			$filename = "/".__PUBLIC_D."/assets/$appname/" . $key . "." . $file_ext;
+			$filename = "/public/assets/$appname/" . $key . "." . $file_ext;
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $file_ext;
 		$oldfile = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
@@ -205,7 +205,7 @@ class UserData{
 		if($d["secure"])
 			return(str_replace("/storage/data","/assets",$filename));
 		else
-			return(str_replace("/".__PUBLIC_D,"",$filename));
+			return(str_replace("/public","",$filename));
 	}
 	
 	/**
