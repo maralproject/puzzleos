@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 /**
@@ -66,7 +66,7 @@ class FastCache{
 		$data = str_replace("#_SITEURL#", __SITEURL , $data);
 		if(!$return){
 			$hash = substr(hash("md5",$data),0,10);
-			$path = "/public/cache/" . $hash . '.' . $file_ext;
+			$path = "/".__PUBLIC_D."/cache/" . $hash . '.' . $file_ext;
 			if(!IO::exists($path)){						
 				IO::write($path,$data);	
 			}

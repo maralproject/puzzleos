@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 /**
@@ -414,7 +414,7 @@ class POSConfigMultidomain{
 
 if(file_exists(__ROOTDIR . "/configs")){
 	if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
-		if(file_exists(__ROOTDIR . "/public/install")){
+		if(file_exists(__ROOTDIR . "/".__PUBLIC_D."/install")){
 			header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
 			exit;
 		}else{
@@ -431,7 +431,7 @@ require("database.php");
 /* Build system table in the database */
 require("systables.php");
 
-if(!__isCLI()){
+if(!defined("__POSCLI")){
 	/* Removing www. and port from domain */
 	$hnp = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
 	POSGlobal::$domain_zone = (POSConfigGlobal::$use_multidomain ? $hnp : "{root}");

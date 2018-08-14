@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 define("APP_DEFAULT", 1);
@@ -381,7 +381,7 @@ class Application{
 		$dir = $list_app["dir_name"];
 		$this->appfound = true;
 		
-		if(!__isCLI()){
+		if(!defined("__POSCLI")){
 			if(!AppManager::$MainAppStarted){
 				/* In multidomain mode, there is a feature called App resctriction,
 				 * meaning the app cannot start as the main user interface for that session.
@@ -414,11 +414,11 @@ class Application{
 			$this->rootdir = "/applications/".$dir;
 			$this->datadir = "/user_data/".$this->appname;
 			$appProp = $this;
-			if(!include_once($this->path . "/control.php"))
-				throw new AppStartError("Application `{$this->appname}` not found","",404);
-			else 
-				$this->apprunning = 1;
-			return true;
+			if(!include_once($this->path . "/control.php")){
+				return(false);
+			}
+			$this->apprunning = 1;
+			return(true);
 		}else{
 			throw new AppStartError("Application `$name` forbidden","",403);
 		}
@@ -432,7 +432,7 @@ class Application{
 	 * @return object
 	 */
 	public function loadView(...$param){
-		if($this->appfound && $this->apprunning == 1){
+		if($this->appfound){
 			if($this->forbidden == 0){
 				$appProp = $this;
 				$arguments = func_get_args();
@@ -451,7 +451,7 @@ class Application{
 	 * Load the main page of the app
 	 */
 	public function loadMainView(){
-		if($this->appfound && $this->apprunning == 1){
+		if($this->appfound){
 			if($this->forbidden == 0){
 				$appProp = $this;
 				if((!include_once($this->path."/viewPage.php")) && ($this->view_loaded == 0)){

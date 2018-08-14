@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 /**
@@ -113,7 +113,7 @@ class PuzzleSession implements SessionHandlerInterface{
     }
 
     public function write($id, $data){
-		if(__isCLI()) return true; //Donot write session to the database on CLI.
+		if(defined("__POSCLI")) return true; //Donot write session to the database on CLI.
         if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		
 		/* Only rewrite data when it's needed to */

@@ -7,10 +7,11 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 define("__POSEXEC", 1);
+define("__PUBLIC_D", str_replace(dirname(__DIR__).DIRECTORY_SEPARATOR,"",__DIR__));
 
 require_once("../bootstrap/boot.php");
 

@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
  
 /**
@@ -39,7 +39,7 @@ class IOError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!__isCLI()):
+		if(!defined("__POSCLI")):
 		?>
 <html>
 	<head>
@@ -91,7 +91,7 @@ class DatabaseError extends PuzzleError{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!__isCLI()):
+		if(!defined("__POSCLI")):
 		?>
 <html>
 	<head>
@@ -164,7 +164,7 @@ class PuzzleError extends Exception{
 	public function __toString() {
 		//Clear all buffer
 		while (ob_get_level())	ob_get_clean();
-		if(!__isCLI()):
+		if(!defined("__POSCLI")):
 		?>
 <html>
 	<head>

@@ -9,7 +9,7 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 define("USER_AUTH_SU", 0);
@@ -441,7 +441,7 @@ class Accounts{
 	 */
 	public static function authAccess($required_level){
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(__isCLI()) return true;
+		if(defined("__POSCLI")) return true;
 
 		if($_SESSION['account']['loggedIn'] == 0){
 			return($required_level >= USER_AUTH_PUBLIC);
@@ -457,7 +457,7 @@ class Accounts{
 	 */
 	public static function authAccessAdvanced($requiredGroup){
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(__isCLI()) return true;
+		if(defined("__POSCLI")) return true;
 
 		$result = false;
 		

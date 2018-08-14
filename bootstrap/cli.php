@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 class PuzzleCLI{
@@ -28,7 +28,7 @@ class PuzzleCLI{
 	 * @param function $F($in,$out)
 	 */
 	public static function register($F){
-		if(!__isCLI()) return false;
+		if(PHP_SAPI != "cli" || !defined("__POSCLI")) return false;
 		$app = self::init();
 		if(isset(self::$list[$app])) throw new PuzzleError("One app  allowed to register one CLI commands function!");
 		if(!is_callable($F)) throw new PuzzleError("Incorrect parameter");
@@ -43,7 +43,7 @@ class PuzzleCLI{
 	 * @param array $a
 	 */
 	public static function run($a){
-		if(!__isCLI()) return false;
+		if(PHP_SAPI != "cli" || !defined("__POSCLI")) return false;
 		error_reporting(0);
 		ini_set('max_execution_time',0); //Disable PHP timeout
 		if($a[0] != "puzzleos") throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
@@ -94,7 +94,6 @@ class PuzzleCLI{
 			$sys = explode("sys/",$app)[1];
 			if($sys == "cron"){
 				if($arg["run"]) CronJob::run();
-				else throw new PuzzleError("Invalid action");
 			}else{
 				throw new PuzzleError("Invalid parameter");
 			}
