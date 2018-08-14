@@ -7,9 +7,9 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * 
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 /* This file defines, and update the structure of table `app_users_list` */

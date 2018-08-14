@@ -6,9 +6,9 @@ defined("__POSEXEC") or die("No direct access allowed!");
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.1
  */
 
 define("APP_DEFAULT", 1);
@@ -428,10 +428,10 @@ class Application{
 	/**
 	 * Load the small view of an app like widget
 	 * You can read $...param from viewSmall.php using $arguments
-	 * @param mixed ...$param Put anything that the app requires
+	 * @param mixed ...$arguments Put anything that the app requires
 	 * @return object
 	 */
-	public function loadView(...$param){
+	public function loadView(...$arguments){
 		if($this->appfound && $this->apprunning == 1){
 			if($this->forbidden == 0){
 				$appProp = $this;
