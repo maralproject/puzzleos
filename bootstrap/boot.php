@@ -6,7 +6,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2017 MARAL INDUSTRIES
  *
  * @software     Release: 2.0.0
  */
@@ -18,15 +18,15 @@ define("DISABLE_MINIFY",1);
  * Initial Checking
  ***********************************/
 if(!version_compare(PHP_VERSION,"7.0.0",">=")) die("PuzzleOS need PHP7 in order to work!");
-if(PHP_SAPI == "cli")
-	if(!defined("__POSCLI") && !defined("__POSWORKER")) die("Please use \"sudo -u www-data php puzzleos\"\n");
+if(PHP_SAPI == "cli" && !defined("__POSCLI")) die("\nPlease use\n     sudo -u www-data php puzzleos\n\n");
+if(PHP_SAPI != "cli" && defined("__POSCLI")) die("Please use index.php as Directory Main File!");
 error_reporting(0);
 
 /***********************************
  * Define the global variables
  ***********************************/
 define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "2.0.1");
+define("__POS_VERSION", "2.0.0");
 
 //Return /path/to/directory
 define("__ROOTDIR", str_replace("\\","/",dirname(__DIR__)));

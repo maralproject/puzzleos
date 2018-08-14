@@ -7,9 +7,9 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * 
  * @package      maral.puzzleos.core.upload_img_ajax
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 1.1.3
  */
 
 if(!isset($_SESSION["ImageUploader"])) 

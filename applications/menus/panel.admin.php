@@ -7,16 +7,17 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  * 
  * @package      maral.puzzleos.core.menus
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 1.2.1
  */
-
-$fontawesome = new Application("fontawesome");
-$acc_app = new Application("users");
-$fontawesome->loadView("JSNewInput");
-$l = new Language;
-$upload = new Application;$upload->run("upload_img_ajax");
+ 
+?>
+<?php
+	$fontawesome = new Application; $fontawesome->run("fontawesome");
+	$fontawesome->loadView("JSNewInput");
+	$l = new Language; $l->app = "menus";
+	$upload = new Application;$upload->run("upload_img_ajax");
 ?>
 <div class="container">
 <div id="menu">
@@ -77,7 +78,7 @@ $upload = new Application;$upload->run("upload_img_ajax");
 		<td style="text-align:center;width:70px;"><?php $fontawesome->loadview("getdropChoiceInput",array("fa_".$d["id"],$d["fa"]))?></td>
 		<td><input class="qtyin info2 name" type="text" name="name_<?php echo $d["id"]?>" value="<?php echo $d["name"]?>" title="<?php $l->dump("click_here")?>" placeholder="<?php $l->dump("name")?>"></td>
 		<td><input class="qtyin info2 link" type="text" name="link_<?php echo $d["id"]?>" value="<?php echo $d["link"]?>" title="<?php $l->dump("click_here")?>" placeholder="<?php $l->dump("la")?>"></td>
-		<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who")?>"><?php $acc_app->loadView("group_button",["auth_".$d["id"],$d["minUser"]])?></span></td>
+		<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who")?>"><?php echo Accounts::getGroupPromptButton("auth_".$d["id"],$d["minUser"])?></span></td>
 		<td style="width:100px;text-align:center;">
 		<select class="form-control menu_pos" name="pos_<?php echo $d["id"]?>" x="<?php echo $d["location"]?>">
 			<option value="<?php echo MENU_DEFAULT_POSITION_LEFT?>"><?php $l->dump("pos_left")?></option>
@@ -151,7 +152,7 @@ $(document).on("click","button.new_btn",function(){
 					<td style="text-align:center;width:70px;">' + getNewIconInput("fa_" + name,"tags") + '</td>\
 					<td><input class="qtyin info2 name" type="text" name="name_' + name + '" value="" title="<?php $l->dump("click_here")?>" placeholder="<?php $l->dump("name")?>"></td>\
 					<td><input class="qtyin info2 link" type="text" name="link_' + name + '" value="" title="<?php $l->dump("click_here")?>" placeholder="<?php $l->dump("la")?>"></td>\
-					<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who")?>"><?php $acc_app->loadView("group_button",["auth_' + name + '",Accounts::getRootGroupId(USER_AUTH_PUBLIC)])?></span></td>\
+					<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who")?>"><?php echo Accounts::getGroupPromptButton("auth_' + name + '",Accounts::getRootGroupId(USER_AUTH_PUBLIC))?></span></td>\
 					<td style="width:100px;text-align:center;">\
 					<select class="form-control menu_pos" name="pos_' + name + '" x="0">\
 						<option value="<?php echo MENU_DEFAULT_POSITION_LEFT?>"><?php $l->dump("pos_left")?></option>\

@@ -6,7 +6,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * 
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2017 MARAL INDUSTRIES
  * 
  * @software     Release: 2.0.0
  */
@@ -98,21 +98,6 @@ function php_max_upload_size(){
 	$max_upload = get_bytes(ini_get('post_max_size'));
 	$max_upload2 = get_bytes(ini_get('upload_max_filesize'));
 	return (int)(($max_upload < $max_upload2 && $max_upload != 0) ? $max_upload:$max_upload2);
-}
-
-/**
- * Generate random string based on character list
- * @param integer $length 
- * @param string $chr 
- * @return string
- */
-function randStr($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"){
-	$haystacklen = strlen($chr);
-	$randomString = '';
-	for ($i = 0; $i < $length; $i++) {
-		$randomString .= $chr[rand(0, $haystacklen - 1)];
-	}
-	return $randomString;
 }
 
 /**
