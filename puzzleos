@@ -7,7 +7,7 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2017 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.0
  */
 
 define("__POSEXEC", 1);

@@ -9,7 +9,7 @@ __requiredSystem("1.2.4") or die("You need to upgrade the system");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.0
  */
 
 $table = new DatabaseTableBuilder;
