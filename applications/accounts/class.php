@@ -7,7 +7,7 @@ __requiredSystem("2.0.0") or die("You need to upgrade the system");
  *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  *
  * @software     Release: 2.0.1
  */
@@ -21,10 +21,6 @@ define("USER_AUTH_PUBLIC", 3);
  * Use this class to manage User, and authenticate user permission
  */
 class Accounts{
-	/**
-	 * @var array
-	 */
-	private static $users = [];
 
 	public static $customET_CE = NULL;
 	public static $customET_RP = NULL;
@@ -38,11 +34,21 @@ class Accounts{
 	
 	public static $aflfl = [];
 	
+	/**
+	 * Register function to be executed after the user login attempt success
+	 * @param Object $f
+	 */
 	public static function register_post_login_function($f){
 		if(!is_callable($f)) throw new PuzzleError("Invalid function input");
 		self::$aflfl[] = $f;
 	}
 	
+	/**
+	 * Get Session data.
+	 * a.k.a. from $_SESSION["account"]
+	 * 
+	 * @return array
+	 */
 	public static function getSession(){
 		return $_SESSION['account'];
 	}
@@ -57,12 +63,16 @@ class Accounts{
 
 	/**
 	 * Re-format phone number according to E164 format, in Indonesia Country
+	 * 
 	 * @param string $phone
-	 * @return string
+	 * @return string It will return empty if phone number cannot be parsed.
 	 */
 	public static function getE164($phone){
-		//Speedup things. Donot load the library if not required
-		require_once("lib/libphonenumber/vendor/autoload.php");
+		if(!defined("LIBPHONENUM_H")){
+			require("vendor/libphonenumber/vendor/autoload.php");
+			define("LIBPHONENUM_H",1);
+		}
+		
 		$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
 		try{
 			//TODO: Change this things ASAP
@@ -77,8 +87,10 @@ class Accounts{
 	 * Change the confirmation through custom method
 	 * The callable should return a message or FALSE boolean
 	 * The callabe will receive 2 parameter ($email_or_phone,$code)
+	 * 
 	 * @param callable $F
 	 * @param bool $email_or_phone TRUE for email, FALSE for phone
+	 * @param string $custom_message
 	 */
 	public static function changeAccountActivationHandler($F, $email_or_phone = false, $custom_message = NULL){
 		if(!is_callable($F)) throw new PuzzleError("Invalid parameter");
@@ -92,6 +104,8 @@ class Accounts{
 	 * Change default email confirmation template
 	 * Available variable :
 	 * {name}, {email}, {link}
+	 * 
+	 * @param string $html
 	 */
 	public static function setEmailTemplate_ConfirmEmail($html){
 		self::$customET_CE = $html;
@@ -101,6 +115,8 @@ class Accounts{
 	 * Change default reset password template
 	 * Available variable :
 	 * {name}, {link}
+	 * 
+	 * @param string $html
 	 */
 	public static function setEmailTemplate_ResetPassword($html){
 		self::$customET_RP = $html;
@@ -110,33 +126,43 @@ class Accounts{
 	 * Change default activate account template
 	 * Available variable :
 	 * {name}, {link}
+	 * 
+	 * @param string $html
 	 */
 	public static function setEmailTemplate_ActivateAccount($html){
 		self::$customET_AC = $html;
 	}
 
+	/**
+	 * Get settings
+	 * 
+	 * @return array
+	 */
 	public static function getSettings(){
 		return(json_decode(UserData::read("settings"),true));
 	}
 
+	/**
+	 * Verify Re-Captcha after login
+	 * 
+	 * @return bool
+	 */
 	public static function verifyRecapctha(){
-		$url = 'https://www.google.com/recaptcha/api/siteverify';
-		$data = [
-			'secret' => self::getSettings()["f_recaptcha_secret"],
-			'response' => $_POST["g-recaptcha-response"],
-			'remoteip' => $_SERVER["REMOTE_ADDR"]
-		];
-
-		// use key 'http' even if you send the request to https://...
-		$options = array(
-			'http' => array(
-				'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-				'method'  => 'POST',
-				'content' => http_build_query($data)
-			)
+		$result = file_get_contents(
+			'https://www.google.com/recaptcha/api/siteverify', 
+			false, 
+			stream_context_create([
+				'http' => [
+					'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+					'method'  => 'POST',
+					'content' => http_build_query([
+						'secret' => self::getSettings()["f_recaptcha_secret"],
+						'response' => $_POST["g-recaptcha-response"],
+						'remoteip' => $_SERVER["REMOTE_ADDR"]
+					])
+				]
+			])
 		);
-		$context  = stream_context_create($options);
-		$result = file_get_contents($url, false, $context);
 		if ($result === FALSE) throw new PuzzleError("Cannot contact Google for Recaptcha");
 		return(json_decode($result)->success);
 	}
@@ -144,6 +170,7 @@ class Accounts{
 	/**
 	 * Hash password
 	 * This function use default php password_hash()
+	 * 
 	 * @param string $password
 	 * @return string
 	 */
@@ -154,6 +181,7 @@ class Accounts{
 	/**
 	 * Verify Password Hash
 	 * This function use default php password_verify()
+	 * 
 	 * @param string $password
 	 * @param string $hash
 	 * @return bool
@@ -164,6 +192,7 @@ class Accounts{
 
 	/**
 	 * Get authentication type in string
+	 * 
 	 * @param integer $auth
 	 * @return string
 	 */
@@ -176,161 +205,52 @@ class Accounts{
 
 	/**
 	 * Get system group id from USER_AUTH type
-	 * @param integer $level Selected authentication type, use "USER_AUTH" constant!
+	 * 
+	 * @param integer $level Selected authentication type, use "USER_AUTH_*" constant!
 	 * @return integer
 	 */
 	public static function getRootGroupId($level){
+		switch($level){
+		case USER_AUTH_SU:
+		case USER_AUTH_EMPLOYEE:
+		case USER_AUTH_REGISTERED:
+		case USER_AUTH_PUBLIC:
+			break;
+		default:
+			throw new PuzzleError("Invalid Level!");
+		}
 		return Database::read("app_users_grouplist","id","level",$level);
 	}
 
 	/**
-	 * Get user group name
-	 * @param integer $group Selected authentication type
+	 * Get group name by id
+	 * 
+	 * @param integer $group_id Selected authentication type
 	 * @return integer
 	 */
-	public static function getGroupName($group){
-		return(Database::read("app_users_grouplist","name","id",$group));
+	public static function getGroupName($group_id){
+		return(Database::read("app_users_grouplist","name","id",$group_id));
 	}
 
 	/**
-	 * Get authentication level based on the group id
-	 * @param integer $group Selected authentication type
+	 * Get authentication level by group id
+	 * 
+	 * @param integer $group_id Selected authentication type
 	 * @return integer
 	 */
-	public static function getAuthLevel($group){
-		return(Database::read("app_users_grouplist","level","id",$group));
-	}
-
-	/**
-	 * Return user group input
-	 * Get button which will show Propmt input
-	 * @param string $input_name Hidden input name
-	 * @param string $group Selected group
-	 * @param integer $level_option USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
-	 * @return string
-	 */
-	public static function getGroupPromptButton($input_name,$group,$level_option = USER_AUTH_PUBLIC){
-		switch($level_option){
-			case USER_AUTH_SU:
-			case USER_AUTH_EMPLOYEE:
-			case USER_AUTH_REGISTERED:
-			case USER_AUTH_PUBLIC:
-			break;
-			default:
-				return("");
-		}
-		if(!self::$users["printedDiv"]){
-			$dataLvl  = [];
-			$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0")->data;
-			$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
-			$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
-			$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3")->data;
-			$l = new Language;$l->app="users";
-			ob_start();
-			?>
-			<style>
-			.user_card{
-				font-size:9pt;
-				float:left;
-				padding:12px;
-				cursor:pointer;
-			}
-			.user_card:before{
-				font-family:FontAwesome;
-				content:"\f007";
-				margin-right:10px;
-			}
-			.group_card:before{
-				font-family:FontAwesome;
-				content:"\f0c0"!important;
-				margin-right:10px;
-			}
-			.group_card{
-				color:black!important;
-			}
-			.ugitem:hover{
-				border-bottom:none!important;
-			}
-			</style>
-			<?php $t1 = FastCache::outCSSMin(); ob_start();?>
-			<script>
-			var formHtmlUGSEL;
-			function UGLB_SelectGroup(btn){
-				hideMessage();
-				showMessage(formHtmlUGSEL,"info","GroupSel",false);
-				$(".ugsel").attr("inputid",btn.attr("inputid"));
-				switch(btn.attr("level")){
-					case "0":
-						$(".ugsel[inputid=" + btn.attr("inputid") + "] .ugitem[level=1]").remove();
-					case "1":
-						$(".ugsel[inputid=" + btn.attr("inputid") + "] .ugitem[level=2]").remove();
-					case "2":
-						$(".ugsel[inputid=" + btn.attr("inputid") + "] .ugitem[level=3]").remove();
-					case "3":
-					break;
-				}
-				$(".ugsel[inputid=" + btn.attr("inputid") + "] .group_card").on("click",function(){
-					hideMessage();
-					$("#" + $(this).parent().attr("inputid")).val($(this).attr("uid")).trigger("change");
-					$("#UGLB_" + $(this).parent().attr("inputid")).html($(this).html());
-				});
-			}
-			</script>
-			<?php $t2 = FastCache::outJSMin(); ob_start(); echo $t1; echo $t2;?>
-			<div id="groupListSystem" style="display:none!important;">
-				<?php $l->dump("SEL_GROUP")?>:
-				<div inputid="" class="ugsel" style="max-height:250px;overflow:auto;">
-				<?php
-				foreach($dataLvl[0] as $d){
-					echo('<div level="0" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
-				}
-				?>
-				<div level="1" style="clear:both;" class="ugitem"></div>
-				<?php
-				foreach($dataLvl[1] as $d){
-					echo('<div level="1" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
-				}
-				?>
-				<div level="2" style="clear:both;" class="ugitem"></div>
-				<?php
-				foreach($dataLvl[2] as $d){
-					echo('<div level="2" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
-				}
-				?>
-				<div level="3" style="clear:both;" class="ugitem"></div>
-				<?php
-				foreach($dataLvl[3] as $d){
-					echo('<div level="3" uid="'.$d["id"].'" class="ugitem group_card user_card material_card ripple">'.$d["name"].'</div>');
-				}
-				?>
-				<div style="clear:both;"></div>
-				</div>
-			</div>
-			<script>formHtmlUGSEL = $("#groupListSystem").html();$("#groupListSystem").remove();</script>
-			<?php
-			Template::appendBody(ob_get_clean());
-			unset($dataLvl);
-		}
-		self::$users["printedDiv"] = true;
-		ob_start();
-		?>
-		<input type="hidden" class="usergroup-input" name="<?php echo $input_name?>" id="<?php echo $input_name?>" value="<?php echo $group?>">
-		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" onclick="UGLB_SelectGroup($(this));" type="button" class="btn btn-default btn-xs dropdown-toggle">
-		<span id="UGLB_<?php echo $input_name?>"><?php echo self::getGroupName($group)?></span> <span class="caret"></span>
-		</button>
-		<?php
-		return(ob_get_clean());
+	public static function getAuthLevel($group_id){
+		return(Database::read("app_users_grouplist","level","id",$group_id));
 	}
 
 	/**
 	 * Get user details
+	 * 
 	 * @param string $userID User ID
 	 * @return array If success
 	 * @return NULL If user doesn't exists
 	 */
 	public static function getDetails($userID){
 		if(Database::read("app_users_list","id","id",$userID) != $userID) return NULL;
-		$s = [];
 		$s['email'] = Database::read("app_users_list","email","id",$userID);
 		$s['phone'] = Database::read("app_users_list","phone","id",$userID);
 		$s['lang'] = Database::read("app_users_list","lang","id",$userID);
@@ -341,6 +261,7 @@ class Accounts{
 	
 	/**
 	 * Find user based on email, phone, or name
+	 * 
 	 * @param string $email_phone_name 
 	 * @return array
 	 */
@@ -355,6 +276,7 @@ class Accounts{
 
 	/**
 	 * Check if user exists or not
+	 * 
 	 * @param string $userID User ID
 	 * @return bool
 	 */
@@ -364,6 +286,7 @@ class Accounts{
 
 	/**
 	 * Add login session
+	 * 
 	 * @param string $userID User ID
 	 * @return bool
 	 */
@@ -381,6 +304,7 @@ class Accounts{
 
 	/**
 	 * Authenticate a user
+	 * 
 	 * @param string $username Username will be converted to lowercase
 	 * @param string $pass
 	 * @return bool

@@ -41,7 +41,7 @@
 </div>
 <div class="row s_field grf">
 	<div class="col-md-4"><?php $language->dump("REG_NEW_USER_AS")?></div>
-	<div class="col-md-8"><?php echo Accounts::getGroupPromptButton("f_reg_group",($s["f_reg_group"] == ""?Accounts::getRootGroupId(USER_AUTH_REGISTERED):$s["f_reg_group"]),USER_AUTH_REGISTERED)?></div>
+	<div class="col-md-8"><?php $GLOBALS["app"]["managing"]->loadView("group_button",["f_reg_group",($s["f_reg_group"] == ""?Accounts::getRootGroupId(USER_AUTH_REGISTERED):$s["f_reg_group"]),USER_AUTH_REGISTERED])?></div>
 </div>
 
 <br><h4><?php $language->dump("PROFILE_REQ")?></h4>
