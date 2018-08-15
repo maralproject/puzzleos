@@ -12,6 +12,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  */
 
 define("DISABLE_MINIFY",1);
+define("TIME_LIMIT",30);
 //define("DB_DEBUG",1);
 
 /***********************************
@@ -31,7 +32,7 @@ define("__POS_VERSION", "2.0.1");
 //Return /path/to/directory
 define("__ROOTDIR", str_replace("\\","/",dirname(__DIR__)));
 
-defined("__PUBLIC_D") or define("__PUBLIC_D","public");
+defined("__PUBLICDIR") or define("__PUBLICDIR","public");
 
 //Return something.com
 define("__HTTP_HOST",$_SERVER["HTTP_HOST"]);
@@ -48,7 +49,7 @@ define("__HTTP_REQUEST",ltrim(str_replace(__SITEURL,"",str_replace(str_replace("
 //Return applications/dompetdinar/assets/base_1.gif
 define("__HTTP_URI", explode("?",__HTTP_REQUEST)[0]);
 
-set_time_limit(30);
+set_time_limit(TIME_LIMIT);
 require("exception.php");
 
 /***********************************
@@ -92,10 +93,10 @@ require("session.php");
 preparedir(__ROOTDIR . "/storage");
 preparedir(__ROOTDIR . "/storage/dbcache");
 preparedir(__ROOTDIR . "/storage/data");
-preparedir(__ROOTDIR . "/".__PUBLIC_D."/assets");
-preparedir(__ROOTDIR . "/".__PUBLIC_D."/res");
-preparedir(__ROOTDIR . "/".__PUBLIC_D."/cache",function(){
-	file_put_contents(__ROOTDIR . "/".__PUBLIC_D."/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/assets");
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/res");
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/cache",function(){
+	file_put_contents(__ROOTDIR . "/".__PUBLICDIR."/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
 });
 
 /***********************************
@@ -115,9 +116,9 @@ require("language.php");
 /***********************************
  * Removing installation directory
  ***********************************/
-if(IO::exists("/".__PUBLIC_D."/install")){
-	$r = IO::remove_r("/".__PUBLIC_D."/install");
-	if(!$r) throw new PuzzleError("Please remove /".__PUBLIC_D."/install directory manually for security purpose");
+if(IO::exists("/".__PUBLICDIR."/install")){
+	$r = IO::remove_r("/".__PUBLICDIR."/install");
+	if(!$r) throw new PuzzleError("Please remove /".__PUBLICDIR."/install directory manually for security purpose");
 }
 
 /***********************************

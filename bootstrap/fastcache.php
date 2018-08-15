@@ -66,7 +66,7 @@ class FastCache{
 		$data = str_replace("#_SITEURL#", __SITEURL , $data);
 		if(!$return){
 			$hash = substr(hash("md5",$data),0,10);
-			$path = "/".__PUBLIC_D."/cache/" . $hash . '.' . $file_ext;
+			$path = "/".__PUBLICDIR."/cache/" . $hash . '.' . $file_ext;
 			if(!IO::exists($path)){						
 				IO::write($path,$data);	
 			}

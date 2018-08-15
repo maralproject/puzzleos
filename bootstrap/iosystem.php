@@ -47,10 +47,10 @@ class IO{
 		$filename = self::physical_path($filename);
 		if(is_dir($filename)){
 			$hash = substr(md5($filename),0,10);
-			if(!file_exists(__ROOTDIR . "/".__PUBLIC_D."/res/$hash")){
-				self::copy_r($filename, __ROOTDIR . "/".__PUBLIC_D."/res/$hash");
-				IO::remove_r_ext("/".__PUBLIC_D."/res/$hash","php");
-				IO::remove_r_ext("/".__PUBLIC_D."/res/$hash","ini");
+			if(!file_exists(__ROOTDIR . "/".__PUBLICDIR."/res/$hash")){
+				self::copy_r($filename, __ROOTDIR . "/".__PUBLICDIR."/res/$hash");
+				IO::remove_r_ext("/".__PUBLICDIR."/res/$hash","php");
+				IO::remove_r_ext("/".__PUBLICDIR."/res/$hash","ini");
 			}
 			return "/res/$hash";
 		}else{
@@ -59,8 +59,8 @@ class IO{
 			$name = rtrim(str_replace($ext,"",$name),".");
 			if($ext == $name) $ext = "tmp";
 			$hash = substr(md5_file($filename),0,10);
-			if(!file_exists(__ROOTDIR . "/".__PUBLIC_D."/res/$name.1$hash.$ext"))
-				@copy($filename, __ROOTDIR . "/".__PUBLIC_D."/res/$name.$hash.$ext");
+			if(!file_exists(__ROOTDIR . "/".__PUBLICDIR."/res/$name.1$hash.$ext"))
+				@copy($filename, __ROOTDIR . "/".__PUBLICDIR."/res/$name.$hash.$ext");
 			return "/res/$name.$hash.$ext";
 		}
 	}

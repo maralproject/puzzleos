@@ -1,6 +1,6 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("1.2.4") or die("You need to upgrade the system");
+__requiredSystem("2.0.1") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application

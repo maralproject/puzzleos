@@ -16,8 +16,8 @@ defined("__POSEXEC") or die("No direct access allowed!");
 /* Table `userdata` */
 $a = new DatabaseTableBuilder;
 $a->addColumn("app","VARCHAR(50)");
-$a->addColumn("identifier","VARCHAR(1000)");
-$a->addColumn("physical_path","VARCHAR(4000)");
+$a->addColumn("identifier","VARCHAR(500)");
+$a->addColumn("physical_path","VARCHAR(500)");
 $a->addColumn("mime_type","VARCHAR(100)");
 $a->addColumn("ver","INT");
 $a->addColumn("secure","TINYINT(1)");

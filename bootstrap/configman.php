@@ -414,7 +414,7 @@ class POSConfigMultidomain{
 
 if(file_exists(__ROOTDIR . "/configs")){
 	if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
-		if(file_exists(__ROOTDIR . "/".__PUBLIC_D."/install")){
+		if(file_exists(__ROOTDIR . "/".__PUBLICDIR."/install")){
 			header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
 			exit;
 		}else{

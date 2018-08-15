@@ -11,7 +11,7 @@
  */
 
 define("__POSEXEC", 1);
-define("__PUBLIC_D", str_replace(dirname(__DIR__).DIRECTORY_SEPARATOR,"",__DIR__));
+define("__PUBLICDIR", str_replace(dirname(__DIR__).DIRECTORY_SEPARATOR,"",__DIR__));
 
 require_once("../bootstrap/boot.php");
 

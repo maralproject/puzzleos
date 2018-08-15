@@ -10,10 +10,37 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * 
  * @software     Release: 2.0.1
  */
+ 
+define("__WORKERDIR", __ROOTDIR . "/storage/worker");
 
-abstract class WorkerMessage{
-	public $code;
-	public $message;
+class WorkerMessage{
+	
+	private $_queue=[];
+	
+	/**
+	 * Send message to/from Worker
+	 * @param Object $message 
+	 * @return bool
+	 */
+	public function send($message){
+		
+	}
+	
+	/**
+	 * Read message to/from Worker
+	 * @return Object
+	 */
+	public function read(){
+		
+	}
+	
+	/**
+	 * Check if read buffer is available
+	 * @return bool
+	 */
+	public function available(){
+		
+	}
 }
 
 /**
@@ -23,23 +50,56 @@ class Worker{
 	
 	private $_processes=[];
 	private $_task;
-	private $_runmode;
+	private $_zombie;
 	private $_workernum;
+	private $_unique;
+	private $_app;
+	
+	private $_secret;
+	private static $_cipher = "AES-256-CBC";
 	
 	private $_started = false;
+	
+	/**
+	 * @var WorkerMessage
+	 */
+	public $message;
 	
 	/**
 	 * @var SuperClosure\Serializer
 	 */
 	private $_serialize;
 	
+	public function __get($var){
+		
+	}
+	
 	public function __construct($number = 1){
+		if($number < 1) throw new PuzzleError("Worker number expect at least one!");
+		
+		$caller = explode("/",str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])));
+		if($caller[1] != "applications") 
+			throw new PuzzleError("Only applications can create Worker!");
+		
 		if(!defined("_SUPERCLOSURE_H")){
+			if(!function_exists("proc_open")) 
+				throw new PuzzleError("To use Worker, please enable proc_open function!");
+			
+			if(!function_exists("openssl_encrypt")) 
+				throw new PuzzleError("To use Worker, please enable openssl_* function!");
+				
+			if(!function_exists("pcntl_waitpid")) 
+				throw new PuzzleError("To use Worker, please enable pcntl_waitpid function!");
+			
 			include("vendor/superclosure/autoload.php");
 			define("_SUPERCLOSURE_H");
 		}
+		
+		preparedir(__ROOTDIR . "/storage/worker");
 		$this->_serialize = new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer());
-		$this->_workernum = $number;
+		$this->_workernum = floor($number);
+		$this->_unique = randStr(8);
+		$this->_app = AppManager::getNameFromDirectory($caller[2]);
 	}
 	
 	/**
@@ -54,35 +114,55 @@ class Worker{
 	}
 	
 	/**
-	 * Start Worker as child process
-	 * You have to call join() to make sure Worker doen't stop
-	 * in the middle of progress.
+	 * Start Worker
 	 * 
-	 * Once the main Thread killed, this Worker will be killed
+	 * You can run PuzzleOS as zombie (separated process), or
+	 * as a child.
 	 * 
-	 * By calling this, you're able to send message between main Thread
-	 * and this Worker.
-	 * 
+	 * @param bool $as_zombie
 	 * @return bool
 	 */
-	public function runAsChild(){
+	public function run($as_zombie = false){
+		$this->_processes = [];
+		$this->message = new WorkerMessage($this);
+		$this->_secret = randStr(32);
+		$this->_zombie = $as_zombie;
 		
-	}
-	
-	/**
-	 * Start Worker as zombie (separated process)
-	 * If you want, you can call join() to wait this Worker.
-	 * 
-	 * Calling this, causes Worker continues to run
-	 * even the main Thread is killed.
-	 * 
-	 * But, you can only receive the result of this Worker.
-	 * You cannot send message between main Thread and This Worker.
-	 * 
-	 * @return bool
-	 */
-	public function runAsZombie(){
+		//Preparing execution file
+		$execute=[
+			"env"	=> [
+				"session"	=> $_SESSION,
+				"userid" 	=> Accounts::getUserId(),
+				"app"		=> $this->_app
+			],
+			"func"		=> $this->_serialize->serialize($this->_task[0]),
+			"args"		=> $this->_task[1]
+		];
 		
+		for($i=0;$i<$this->_workernum;$i++){
+			file_put_contents(
+				__WORKERDIR . "/{$this->_unique}.$i.job",
+				openssl_encrypt(serialize($execute), self::$_cipher, $this->_secret)
+			);
+			
+			$unique = $this->_unique;
+			register_shutdown_function(function() use($unique,$i){
+				@unlink(__WORKERDIR . "/{$this->_unique}.$i.job");
+			});
+			
+			$this->_processes[$i] = [
+				"pipe" => NULL,
+				"process" => proc_open(
+					PHP_BINARY . " puzzleworker $pwid {$this->_secret}", 
+					[
+						0 => ["pipe", "r"],
+						1 => $as_zombie ? ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "a"] : ["pipe", "w"],
+						2 => ["file", __ROOTDIR . "/error.log", "a"]
+					], 
+					$this->_processes[$i]["pipe"]
+				)
+			];
+		}
 	}
 	
 	/**
@@ -90,7 +170,14 @@ class Worker{
 	 * @return bool
 	 */
 	public function join(){
-		
+		set_time_limit(0); //Preventing from dying
+		foreach($this->_processes as $p){
+			$status = proc_get_status($p["process"]);
+			if($status["running"]){
+				pcntl_waitpid($status["pid"], $child_status);
+			}
+		}
+		set_time_limit(TIME_LIMIT);
 	}
 	
 	/**
@@ -98,25 +185,6 @@ class Worker{
 	 * @return bool
 	 */
 	public function isRunning(){
-		
-	}
-	
-	/**
-	 * Fetch the message sent by Worker
-	 * i.e. for receiving process status
-	 * 
-	 * @return WorkerMessage
-	 */
-	public function fetch(){
-		
-	}
-	
-	/**
-	 * Send message to the Worker
-	 * @param Object $object 
-	 * @return bool
-	 */
-	public function send($object){
 		
 	}
 	
@@ -141,13 +209,6 @@ class Worker{
 	 * @return Object
 	 */
 	public function result(){
-		
-	}
-	
-	/**
-	 * For internal Use only
-	 */
-	public static function __do(){
 		
 	}
 }
