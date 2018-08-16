@@ -6,9 +6,9 @@ defined("__POSEXEC") or die("No direct access allowed!");
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 /**
@@ -770,7 +770,7 @@ class Database{
 			//Old table, new structure
 			if($current_checksum == $old_checksum){
 				if(self::isTableExist($table)) {
-					set_time_limit(30);
+					set_time_limit(TIME_LIMIT);
 					return true;
 				}
 				//Checksum is found, but table is not exists
@@ -836,7 +836,7 @@ class Database{
 					}
 				}
 				if($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table",self::$t_cache[$table]);
-				set_time_limit(30);
+				set_time_limit(TIME_LIMIT);
 				return true;
 			}else{
 				throw new DatabaseError(mysqli_error(self::$link), $query);
@@ -1002,7 +1002,7 @@ class Database{
 			} while(mysqli_next_result(self::$link));
 
 			if($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table",self::$t_cache[$table]);
-			set_time_limit(30);
+			set_time_limit(TIME_LIMIT);
 			return true;
 		}
 	}

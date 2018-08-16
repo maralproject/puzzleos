@@ -1,20 +1,16 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("2.0.0") or die("You need to upgrade the system");
+__requiredSystem("2.0.2") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
  *
  * @package      maral.puzzleos.core.users
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  *
- * @software     Release: 1.2.4
+ * @software     Release: 2.0.2
  */
-
-/**
-* Since version 1.1.2, Accounts class always available to everyone
-*/
 
 if(__getURI("app") == $appProp->appname){
 
@@ -110,14 +106,6 @@ if(__getURI("app") == $appProp->appname){
 			);
 			$f_id = Database::getLastId("app_users_list","id");
 
-			$length = Accounts::$customM_EN?6:128;
-			$characters = Accounts::$customM_EN?"9012345678":'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-			$charactersLength = strlen($characters);
-			$randomString = '';
-			for ($i = 0; $i < $length; $i++) {
-				$randomString .= $characters[rand(0, $charactersLength - 1)];
-			}
-
 			if($_POST["email"] != ""){
 				$mailer = new Mailer;
 				$mailer->addRecipient = $_POST['email'];
@@ -126,13 +114,17 @@ if(__getURI("app") == $appProp->appname){
 
 			if($require_activation){
 				$act_code['confirm_activation']['email'] = $_POST['email'];
-				$act_code['confirm_activation']['key'] = $randomString;
+				if(Accounts::$customM_EN){
+					$act_code['confirm_activation']['key'] = randStr(6, "9012345678");
+				}else{
+					$act_code['confirm_activation']['key'] = randStr(128);
+				}
 				$act_code['confirm_activation']['id'] = $f_id;
 				$act_code['confirm_activation']['timeout'] = time();
 
 				if(!Accounts::$customM_EN){
-					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time());
-					$link = __SITEURL ."/users/activate/".$randomString;
+					Database::newRow("app_users_activate",$act_code['confirm_activation']['key'],json_encode($act_code),time());
+					$link = __SITEURL ."/users/activate/".$act_code['confirm_activation']['key'];
 					ob_start();
 					require( $appProp->path . "/mail_template/activate.php");
 					$mailer->body = ob_get_clean();
@@ -146,7 +138,7 @@ if(__getURI("app") == $appProp->appname){
 					redirect("users/login?signup=success&redir=" . $_POST["redir"]);
 				}else{
 					$aclb = Accounts::$customM_F;
-					$aclbr = $aclb($customM_UE ? $_POST['email'] : $_POST["phone"],$randomString);
+					$aclbr = $aclb($customM_UE ? $_POST['email'] : $_POST["phone"],$act_code['confirm_activation']['key']);
 					if($aclbr === false){
 						Prompt::postError($language->get("VER_ERR_SEND"),true);
 						Database::deleteRow("app_users_list","id",$f_id); //Cancelling account creation
@@ -161,13 +153,13 @@ if(__getURI("app") == $appProp->appname){
 				}
 			}else{
 				if($_POST["email"] != ""){
-					$link = __SITEURL ."/users/verifyemail/".$randomString;
 					$act_code['confirm_email']['new'] = $_POST['email'];
 					$act_code['confirm_email']['id'] = $f_id;
-					$act_code['confirm_email']['key'] = $randomString;
+					$act_code['confirm_email']['key'] = randStr(128);
 					$act_code['confirm_email']['timeout'] = time();
+					$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 
-					Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
+					Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
 
 					ob_start();
 					require( $appProp->path . "/mail_template/confirm_email.php");
@@ -325,22 +317,14 @@ if(__getURI("app") == $appProp->appname){
 
 					if(Accounts::$customM_EN){
 						$cf = function(){
-							$length = 6;
-							$characters = "0123456789";
-							$charactersLength = strlen($characters);
-							$randomString = '';
-							for ($i = 0; $i < $length; $i++) {
-								$randomString .= $characters[rand(0, $charactersLength - 1)];
-							}
-
 							$act_code['confirm_email']['new'] = Accounts::$customM_UE ?  $_POST['email'] : $_POST['phone'];
 							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
-							$act_code['confirm_email']['key'] = $randomString;
+							$act_code['confirm_email']['key'] = randStr(6, "0123456789");
 							$act_code['confirm_email']['timeout'] = time();
 							$act_code['confirm_email']['camefromprofile'] = Accounts::$customM_UE ?  "email" : "phone";
 							$aclb = Accounts::$customM_F;
 							if($act_code['confirm_email']['new'] != ""){
-								$aclbr = $aclb($act_code['confirm_email']['new'], $randomString);
+								$aclbr = $aclb($act_code['confirm_email']['new'], $act_code['confirm_email']['key']);
 								if($aclbr === false){
 									return false;
 								}else{
@@ -371,20 +355,12 @@ if(__getURI("app") == $appProp->appname){
 					}else{
 						$d->setField("phone",$_POST["phone"]);
 						if($_POST['email'] != $_SESSION['account']['email'] && $_POST['email'] != ""){
-							$length = 128;
-							$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-							$charactersLength = strlen($characters);
-							$randomString = '';
-							for ($i = 0; $i < $length; $i++) {
-								$randomString .= $characters[rand(0, $charactersLength - 1)];
-							}
-
 							$act_code['confirm_email']['new'] = $_POST['email'];
 							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
-							$act_code['confirm_email']['key'] = $randomString;
+							$act_code['confirm_email']['key'] = randStr(128);
 							$act_code['confirm_email']['timeout'] = time();
-							Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
-							$link = __SITEURL ."/users/verifyemail/".$randomString;
+							Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
+							$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 							$mailer = new Mailer;
 							$mailer->addRecipient = $_POST['email'];
 							$mailer->subject = $language->get("CYNE");
@@ -478,15 +454,12 @@ if(__getURI("app") == $appProp->appname){
 				Prompt::postError($language->get("ACC_INV_NOTFOUND"));
 			}else{
 				unset($_SESSION['account']['change_pass']);
-				$length = Accounts::$customM_EN?6:128;
-				$characters = Accounts::$customM_EN ? "8901234567":'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-				$charactersLength = strlen($characters);
-				$randomString = '';
-				for ($i = 0; $i < $length; $i++) {
-					$randomString .= $characters[rand(0, $charactersLength - 1)];
-				}
 				$act_code['change_pass']['linkClicked'] = 0;
-				$act_code['change_pass']['key'] = $randomString;
+				if(Accounts::$customM_EN){
+					$act_code['change_pass']['key'] = randStr(6,"8901234567");
+				}else{
+					$act_code['change_pass']['key'] = randStr(128);
+				}
 				$act_code['change_pass']['id'] = $userid;
 				$act_code['change_pass']['timeout'] = time();
 
@@ -494,8 +467,8 @@ if(__getURI("app") == $appProp->appname){
 				if(!Accounts::$customM_EN){
 					if($contact_info != ""){
 						//If not set, by default we're sending code from email
-						Database::newRow("app_users_activate",$randomString,json_encode($act_code),time()+ 10 * T_MINUTE);
-						$link = __SITEURL . "/users/changepassword/".$randomString;
+						Database::newRow("app_users_activate",$act_code['change_pass']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
+						$link = __SITEURL . "/users/changepassword/".$act_code['change_pass']['key'];
 						$send = new Mailer;
 						$send->addRecipient = Database::read("app_users_list","email","id",$userid);
 						$send->subject = $language->get("prr");
@@ -515,7 +488,7 @@ if(__getURI("app") == $appProp->appname){
 					//If set, we're going to follow the rules by the requesting handler
 					$aclb = Accounts::$customM_F;
 					if($contact_info != ""){
-						$aclbr = $aclb($contact_info, $randomString);
+						$aclbr = $aclb($contact_info, $act_code['change_pass']['key']);
 						if($aclbr === false){
 							Prompt::postError($language->get("VER_ERR_SEND"),true);
 							redirect("users");

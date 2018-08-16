@@ -6,9 +6,9 @@ defined("__POSEXEC") or die("No direct access allowed!");
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 /**
@@ -414,7 +414,7 @@ class POSConfigMultidomain{
 
 if(file_exists(__ROOTDIR . "/configs")){
 	if(!file_exists(__ROOTDIR . "/configs/root.sys.php")){
-		if(file_exists(__ROOTDIR . "/".__PUBLIC_D."/install")){
+		if(file_exists(__ROOTDIR . "/".__PUBLICDIR."/install")){
 			header("Location: //" . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) . "/install");
 			exit;
 		}else{

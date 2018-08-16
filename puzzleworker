@@ -11,11 +11,11 @@
  */
 
 define("__POSEXEC", 1);
-define("__POSCLI",1);
+define("__POSWORKER",1);
 
 require("bootstrap/boot.php");
 
-/* Run the requested app and resources */
-PuzzleCLI::run($argv);
+/* Run the Worker */
+Worker::__do($argv);
 
 ?>

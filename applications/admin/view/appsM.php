@@ -1,19 +1,20 @@
 <?php
 defined("__POSEXEC") or die("No direct access allowed!");
-__requiredSystem("2.0.0") or die("You need to upgrade the system");
+__requiredSystem("2.0.2") or die("You need to upgrade the system");
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @package      maral.puzzleos.core.admin
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 $s_app = new Application; $s_app->run("search_box");
 $s = new SearchBox("AppMan_");
+$acc_app = new Application("users");
 $s->setSubmitable(false);
 $s->setDynamic(true);
 $appList = AppManager::listAll();
@@ -52,7 +53,6 @@ small{
 	$l = new Language; $l->app="admin";
 	$empty = true;
 	foreach(AppManager::listAll() as $d){
-		//if(!file_exists($d[1]."/panel.admin.php")) continue;
 		$empty = false;
 		$dDis = ($d["default"]==1);
 		$dTitle = $l->get("SET_AS_DEFAULT");;
@@ -64,38 +64,53 @@ small{
 			break;
 		}
 		$appR = in_array($d["name"],POSConfigMultidomain::$restricted_app);
-		echo('
-		<div class="grid col-lg-4 col-sm-12 '.$s->getDomClass($d["name"]).'">
-		<table appid="'.$d["name"].'" class="appgrid" style="width:100%;">
+		?>
+		<div class="grid col-lg-4 col-sm-12 <?php echo $s->getDomClass($d["name"])?>">
+		<table appid="<?php echo $d["name"]?>" class="appgrid" style="width:100%;">
 		<tr>
-			<td class="title" rowspan="3" style="width:60px;vertical-align:top;text-align:center;padding-top:10px;"><i class="fa fa-th-large fa-2x"></i></td>
-			<td class="truncate" style="font-size:15pt;">
-				'.$d["title"].' '.$theresrv.'
+			<td class="title" rowspan="3" style="width:60px;vertical-align:top;text-align:center;padding-top:10px;">
+				<i class="fa fa-th-large fa-2x"></i>
 			</td>
+			<td class="truncate" style="font-size:15pt;"><?php echo $d["title"].' '.$theresrv?></td>
 		</tr>
 		<tr>
 			<td class="desc truncate">
-				<small>'.$d["desc"].'</small>
+				<small><?php echo $d["desc"]?></small>
 			</td>
 		</tr>
 		<tr>
 			<td class="desc truncate" style="padding-top:5px;">
-				<small><i class="fa fa-lock"></i> '.(($d["system"] == "0" && $d["default"]!="3") ? Accounts::getGroupPromptButton("auth_".$d["name"],$d["group"],$d["level"]) : Accounts::getGroupName($d["group"])).'</small>
+				<small><i class="fa fa-lock"></i> 
+				<?php if($d["system"] == "0" && $d["default"]!="3"):?>
+				<?php $acc_app->loadView("group_button",["auth_".$d["name"],$d["group"],$d["level"]])?>
+				<?php else:?>
+				<?php echo Accounts::getGroupName($d["group"])?>
+				<?php endif?>
+				</small>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2" style="text-align:right;height:35px;">
-				'.((!$d["system"] && POSConfigGlobal::$use_multidomain)?'<button stat="'.($appR?1:0).'" style="'.($dDis?"display:none":"").'" appid='.$d["name"].' type="button" class="restrict btn btn-xs btn-'.($appR?"primary":"danger").'">'.($appR?$l->get("TURN_ON"):$l->get("TURN_OFF")).'</button>':'').'
-				'.($d["default"]==3?"":'<button appid='.$d["name"].' type="button" id="sdb-'.$d["name"].'" style="'.($appR?"display:none":"").'" class="sdb btn btn-xs '.($dDis?"disabled":"").' '.($d["default"]==3?"btn-danger":"btn-success").'">'.$dTitle.'</button>').(file_exists($d["dir"]."/panel.admin.php")?'
-				<a href="'.__SITEURL.'/admin/manage/'.$d["name"].'"><button type="button" class="btn btn-default btn-xs">'.$l->get("MANAGE").'</button></a>':"").'
+				<?php if(!$d["system"] && POSConfigGlobal::$use_multidomain):?>
+				<button stat="<?php echo($appR?1:0)?>" style="<?php echo($dDis?"display:none":"")?>" appid="<?php echo $d["name"]?>" type="button" class="restrict btn btn-xs btn-<?php echo($appR?"primary":"danger")?>">
+					<?php echo($appR?$l->get("TURN_ON"):$l->get("TURN_OFF"))?>
+				</button>
+				<?php endif?>
+				
+				<?php if($d["default"]!=3):?>
+				<button appid="<?php echo $d["name"]?>" type="button" id="sdb-<?php echo $d["name"]?>" style="<?php echo($appR?"display:none":"")?>" class="sdb btn btn-xs <?php echo($dDis?"disabled":"")?> <?php echo($d["default"]==3?"btn-danger":"btn-success")?>"><?php echo $dTitle?></button>
+				<?php endif?>
+				
+				<?php if(file_exists($d["dir"]."/panel.admin.php")):?>
+				<a href="<?php echo __SITEURL?>/admin/manage/<?php echo $d["name"]?>"><button type="button" class="btn btn-default btn-xs"><?php echo $l->get("MANAGE")?></button></a>
+				<?php endif?>
 			</td>
 		</tr>
 		</table></div>
-		');
+		<?php
 	}
-	if($empty){
-		echo('<h3><i class="fa fa-check"></i> '. $l->get("NO_APPS").'</h3>');
-	}
+	
+	if($empty) echo('<h3><i class="fa fa-check"></i> '. $l->get("NO_APPS").'</h3>');
 ?>
 <script>
 var l_sad = "<?php $l->dump("SET_AS_DEFAULT");?>";

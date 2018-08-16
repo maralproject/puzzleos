@@ -6,9 +6,9 @@ defined("__POSEXEC") or die("No direct access allowed!");
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 /* This file responsible for handling system table structure */
@@ -16,8 +16,8 @@ defined("__POSEXEC") or die("No direct access allowed!");
 /* Table `userdata` */
 $a = new DatabaseTableBuilder;
 $a->addColumn("app","VARCHAR(50)");
-$a->addColumn("identifier","VARCHAR(1000)");
-$a->addColumn("physical_path","VARCHAR(4000)");
+$a->addColumn("identifier","VARCHAR(500)");
+$a->addColumn("physical_path","VARCHAR(500)");
 $a->addColumn("mime_type","VARCHAR(100)");
 $a->addColumn("ver","INT");
 $a->addColumn("secure","TINYINT(1)");

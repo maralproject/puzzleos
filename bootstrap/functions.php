@@ -6,15 +6,67 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * 
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 /**
+ * Find PHP binary location on server
+ * Modified from Symfony Component
+ * 
+ * @url https://github.com/symfony/process/blob/master/PhpExecutableFinder.php
+ * @return string If found
+ * @return FALSE If not found
+ */
+function php_bin(){
+	if ($php = getenv('PHP_BINARY')) {
+		if (!is_executable($php)) {
+			return false;
+		}
+		return $php;
+	}
+	
+	// PHP_BINARY return the current sapi executable
+	if (PHP_BINARY && \in_array(\PHP_SAPI, array('cli', 'cli-server', 'phpdbg'), true)) {
+		return PHP_BINARY;
+	}
+	
+	if ($php = getenv('PHP_PATH')) {
+		if (!@is_executable($php)) {
+			return false;
+		}
+		return $php;
+	}
+	if ($php = getenv('PHP_PEAR_PHP_BIN')) {
+		if (@is_executable($php)) {
+			return $php;
+		}
+	}
+	if (@is_executable($php = PHP_BINDIR.('\\' === \DIRECTORY_SEPARATOR ? '\\php.exe' : '/php'))) {
+		return $php;
+	}
+	
+	// May be it's exists on system environment
+	$paths = explode(PATH_SEPARATOR, getenv('PATH'));
+	foreach ($paths as $path) {
+		if (strstr($path, 'php.exe') && isset($_SERVER["WINDIR"]) && file_exists($path) && is_file($path)) {
+			return $path;
+		}else{
+			$php_executable = $path . DIRECTORY_SEPARATOR . "php" . (isset($_SERVER["WINDIR"]) ? ".exe" : "");
+			if (file_exists($php_executable) && is_file($php_executable)) {
+				return $php_executable;
+			}
+		}
+	}
+	
+	return false;
+}
+
+/**
  * Convert object to Array
- *
  * Still in BETA
+ *
  * @param object $d
  * @return array
  */
@@ -101,6 +153,21 @@ function php_max_upload_size(){
 }
 
 /**
+ * Generate random string based on character list
+ * @param integer $length 
+ * @param string $chr 
+ * @return string
+ */
+function randStr($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"){
+	$clen = strlen($chr);
+	$rs = '';
+	for ($i = 0; $i < $length; $i++) {
+		$rs .= $chr[rand(0, $clen - 1)];
+	}
+	return $rs;
+}
+
+/**
  * Get HTTP URI
  * @param string $name e.g. "app", "action", or index
  * @return string
@@ -123,6 +190,15 @@ function __getURI($name){
  */
 function __requiredSystem($version){
 	return(version_compare(__POS_VERSION,$version,">="));
+}
+
+/**
+ * Get if current environment is in CLI or not
+ * 
+ * @return bool
+ */
+function __isCLI(){
+	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
 
 /**
