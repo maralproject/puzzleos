@@ -23,7 +23,6 @@ class Worker{
 	private $_workernum;
 	private $_unique;
 	private $_app;
-	private $_pipe=[];
 	
 	private $_secret;
 	private static $_cipher = "AES-256-CBC";
@@ -44,9 +43,7 @@ class Worker{
 		
 		if($execute === false && error_get_last()["type"] == E_NOTICE) throw new WorkerError("Job cannot be parsed!");
 		
-		register_shutdown_function(function() use($job){
-			@unlink(__WORKERDIR . "/$job.job");
-		});
+		@unlink(__WORKERDIR . "/$job.job");
 		
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
 		Accounts::addSession($execute["env"]["userid"]);
@@ -60,7 +57,7 @@ class Worker{
 			$result = false;
 		}
 		
-		echo serialize($result);
+		echo @openssl_encrypt(serialize($result), self::$_cipher, $key, OPENSSL_RAW_DATA);
 		exit;
 	}
 	
@@ -90,7 +87,7 @@ class Worker{
 				throw new WorkerError("To use Worker, please enable openssl_* function!");
 			
 			include("vendor/superclosure/autoload.php");
-			define("_SUPERCLOSURE_H");
+			define("_SUPERCLOSURE_H",1);
 		}
 		
 		preparedir(__ROOTDIR . "/storage/worker");
@@ -117,14 +114,13 @@ class Worker{
 	/**
 	 * Start Worker
 	 * 
-	 * @param array $options wait_on_shutdown
+	 * @param array $options wait_on_shutdown, standalone
 	 * @return bool
 	 */
 	public function run($options=[]){
 		if($this->isRunning()) throw new WorkerError("Worker already started!");
 		
 		$this->_processes = [];
-		$this->_pipe = [];
 		$this->_secret = randStr(32);
 		$this->_unique = randStr(8);
 		
@@ -147,11 +143,10 @@ class Worker{
 				php_bin() . " " . __ROOTDIR . "/puzzleworker {$this->_unique}.$i {$this->_secret}", 
 				[
 					0 => ["pipe", "r"],
-					1 => ["pipe", "w"],
-					//1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],
+					1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],
 					2 => ["file", __ROOTDIR . "/error.log", "a"]
 				], 
-				$this->_pipe[$i]
+				$pipe
 			);
 			
 			$process = $this->_processes[$i];
@@ -161,9 +156,9 @@ class Worker{
 				if($options["wait_on_shutdown"]){
 					@proc_close($process);
 				}else{
-					@proc_terminate($process);
+					if(!$options["standalone"]) @proc_terminate($process);
 				}
-				@unlink(__WORKERDIR . "/$unique.$i.job");
+				@unlink(__WORKERDIR . "/$unique.$i.result");
 			});
 		}
 		
@@ -176,7 +171,7 @@ class Worker{
 	 */
 	public function join(){
 		set_time_limit(0); //Prevent from dying
-		while($this->isRunning()) usleep(100);
+		foreach($this->_processes as $p) @proc_close($p);
 		set_time_limit(TIME_LIMIT);
 	}
 	
@@ -196,9 +191,8 @@ class Worker{
 	 * @return bool
 	 */
 	public function kill(){
-		foreach($this->_processes as $p) proc_terminate($p);
+		foreach($this->_processes as $p) @proc_terminate($p);
 		$this->_processes = [];
-		$this->_pipe = [];
 	}
 	
 	/**
@@ -208,25 +202,18 @@ class Worker{
 	 * @return array
 	 */
 	public function result(){
-		if($this->isRunning())
-			throw new WorkerError("Worker haven't finished it's job yet!");
+		if($this->isRunning()) throw new WorkerError("Worker haven't finished it's job yet!");
 		
 		$result=[];
 		foreach($this->_processes as $id=>$p){
-			$stdin = "";
-			while(!feof($this->_pipe[$id][1])){
-				$buffer = fgets($this->_pipe[$id][1], 1024);
-				$stdin .= $buffer;
-				if(strlen($buffer) == 0) break;
-			}
-			fclose($this->_pipe[$id][1]);
-			proc_close($p);
-			
-			$result[$id] = unserialize($stdin);
+			if(!file_exists(__WORKERDIR . "/{$this->_unique}.$id.result")) continue;
+			$result[$id] = openssl_decrypt(
+				@file_get_contents(__WORKERDIR . "/{$this->_unique}.$id.result"),
+				self::$_cipher, $this->_secret, OPENSSL_RAW_DATA
+			);
 		}
 		
 		$this->_processes = [];
-		$this->_pipe = [];
 		return $result;
 	}
 }
