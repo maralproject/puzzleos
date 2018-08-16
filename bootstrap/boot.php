@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  *
- * @software     Release: 2.0.1
+ * @software     Release: 2.0.2
  */
 
 define("DISABLE_MINIFY",1);
@@ -27,8 +27,8 @@ error_reporting(0);
 /***********************************
  * Define the global variables
  ***********************************/
-define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "2.0.1");
+defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
+define("__POS_VERSION", "2.0.2");
 
 //Return /path/to/directory
 define("__ROOTDIR", str_replace("\\","/",dirname(__DIR__)));

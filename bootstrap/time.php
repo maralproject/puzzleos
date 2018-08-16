@@ -8,7 +8,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 1.1.4
+ * @software     Release: 2.0.2
  */
  
 setlocale(LC_ALL,str_replace("-","_",POSConfigGlobal::$default_language));
