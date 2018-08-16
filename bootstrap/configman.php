@@ -431,7 +431,7 @@ require("database.php");
 /* Build system table in the database */
 require("systables.php");
 
-if(!defined("__POSCLI")){
+if(!__isCLI()){
 	/* Removing www. and port from domain */
 	$hnp = str_replace("www.","",explode(":", $_SERVER["HTTP_HOST"])[0]);
 	POSGlobal::$domain_zone = (POSConfigGlobal::$use_multidomain ? $hnp : "{root}");

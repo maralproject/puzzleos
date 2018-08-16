@@ -131,6 +131,7 @@ require("appFramework.php");
 require("cron.php");
 require("cli.php");
 require("services.php");
+require("worker.php");
 
 /* Must be loaded after services */
 POSGlobal::$session->write_cookie();

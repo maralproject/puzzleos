@@ -180,7 +180,7 @@ class DatabaseTableBuilder{
 	
 	private function x_call(){
 		$caller = btfslash(debug_backtrace(null,2)[1]["file"]);
-		if(str_replace(__ROOTDIR."/","",$caller) != "bootstrap/database.php")
+		if(btfslash($caller) != btfslash(__FILE__))
 			throw new DatabaseError("DatabaseTableBuilder violation!");
 	}
 }

@@ -173,6 +173,7 @@ function randStr($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
  * @return string
  */
 function __getURI($name){
+	if(__isCLI()) return NULL; //No URI on CLI
 	if(is_integer($name)){
 		$key = $name;
 	}else{

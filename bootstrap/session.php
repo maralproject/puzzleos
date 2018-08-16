@@ -113,7 +113,7 @@ class PuzzleSession implements SessionHandlerInterface{
     }
 
     public function write($id, $data){
-		if(defined("__POSCLI")) return true; //Donot write session to the database on CLI.
+		if(__isCLI()) return true; //Donot write session to the database on CLI.
         if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
 		
 		/* Only rewrite data when it's needed to */
