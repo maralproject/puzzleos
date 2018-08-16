@@ -15,7 +15,7 @@ define("__POSWORKER",1);
 
 require("bootstrap/boot.php");
 
-/* Run the requested app and resources */
+/* Run the Worker */
 Worker::__do();
 
 ?>

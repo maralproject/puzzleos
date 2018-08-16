@@ -13,6 +13,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
 
 define("DISABLE_MINIFY",1);
 define("TIME_LIMIT",30);
+define("ENV_WIN",(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'));
 //define("DB_DEBUG",1);
 
 /***********************************

@@ -12,9 +12,61 @@ defined("__POSEXEC") or die("No direct access allowed!");
  */
 
 /**
+ * Find PHP binary location on server
+ * Modified from Symfony Component
+ * 
+ * @url https://github.com/symfony/process/blob/master/PhpExecutableFinder.php
+ * @return string If found
+ * @return FALSE If not found
+ */
+function php_bin(){
+	if ($php = getenv('PHP_BINARY')) {
+		if (!is_executable($php)) {
+			return false;
+		}
+		return $php;
+	}
+	
+	// PHP_BINARY return the current sapi executable
+	if (PHP_BINARY && \in_array(\PHP_SAPI, array('cli', 'cli-server', 'phpdbg'), true)) {
+		return PHP_BINARY;
+	}
+	
+	if ($php = getenv('PHP_PATH')) {
+		if (!@is_executable($php)) {
+			return false;
+		}
+		return $php;
+	}
+	if ($php = getenv('PHP_PEAR_PHP_BIN')) {
+		if (@is_executable($php)) {
+			return $php;
+		}
+	}
+	if (@is_executable($php = PHP_BINDIR.('\\' === \DIRECTORY_SEPARATOR ? '\\php.exe' : '/php'))) {
+		return $php;
+	}
+	
+	// May be it's exists on system environment
+	$paths = explode(PATH_SEPARATOR, getenv('PATH'));
+	foreach ($paths as $path) {
+		if (strstr($path, 'php.exe') && isset($_SERVER["WINDIR"]) && file_exists($path) && is_file($path)) {
+			return $path;
+		}else{
+			$php_executable = $path . DIRECTORY_SEPARATOR . "php" . (isset($_SERVER["WINDIR"]) ? ".exe" : "");
+			if (file_exists($php_executable) && is_file($php_executable)) {
+				return $php_executable;
+			}
+		}
+	}
+	
+	return false;
+}
+
+/**
  * Convert object to Array
- *
  * Still in BETA
+ *
  * @param object $d
  * @return array
  */
@@ -107,12 +159,12 @@ function php_max_upload_size(){
  * @return string
  */
 function randStr($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"){
-	$haystacklen = strlen($chr);
-	$randomString = '';
+	$clen = strlen($chr);
+	$rs = '';
 	for ($i = 0; $i < $length; $i++) {
-		$randomString .= $chr[rand(0, $haystacklen - 1)];
+		$rs .= $chr[rand(0, $clen - 1)];
 	}
-	return $randomString;
+	return $rs;
 }
 
 /**
