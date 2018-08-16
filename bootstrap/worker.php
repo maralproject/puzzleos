@@ -13,36 +13,6 @@ defined("__POSEXEC") or die("No direct access allowed!");
  
 define("__WORKERDIR", __ROOTDIR . "/storage/worker");
 
-class WorkerMessage{
-	
-	private $_queue=[];
-	
-	/**
-	 * Send message to/from Worker
-	 * @param Object $message 
-	 * @return bool
-	 */
-	public function send($message){
-		
-	}
-	
-	/**
-	 * Read message to/from Worker
-	 * @return Object
-	 */
-	public function read(){
-		
-	}
-	
-	/**
-	 * Check if read buffer is available
-	 * @return bool
-	 */
-	public function available(){
-		
-	}
-}
-
 /**
  * Create separated process to do long-run task
  */
@@ -50,21 +20,14 @@ class Worker{
 	
 	private $_processes=[];
 	private $_task;
-	private $_zombie;
 	private $_workernum;
 	private $_unique;
 	private $_app;
+	private $_pipe=[];
 	
 	private $_secret;
 	private static $_cipher = "AES-256-CBC";
-	
-	private $_started = false;
-	
-	/**
-	 * @var WorkerMessage
-	 */
-	public $message;
-	
+		
 	/**
 	 * @var SuperClosure\Serializer
 	 */
@@ -72,15 +35,14 @@ class Worker{
 	
 	private static function __do($job, $key){
 		if(!file_exists(__WORKERDIR . "/$job.job"))
-			throw new PuzzleError("Job not found!");
+			throw new WorkerError("Job not found!");
 		
-		$decrypted = openssl_decrypt(
+		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
 			self::$_cipher, $key, OPENSSL_RAW_DATA
-		);
+		));
 		
-		$execute = unserialize($decrypted);
-		if($execute === false && error_get_last()["type"] == E_NOTICE) throw new PuzzleError("Job cannot be parsed!");
+		if($execute === false && error_get_last()["type"] == E_NOTICE) throw new WorkerError("Job cannot be parsed!");
 		
 		register_shutdown_function(function() use($job){
 			@unlink(__WORKERDIR . "/$job.job");
@@ -89,53 +51,43 @@ class Worker{
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
 		Accounts::addSession($execute["env"]["userid"]);
 		
-		$as_zombie = $execute["zombie"];
-		
+		include("vendor/superclosure/autoload.php");
 		$function = (new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer()))->unserialize($execute["func"]);
 		
-		$result = $function(explode(".",$job)[1],new WorkerMessage());
-		
-		if($as_zombie){
-			file_put_contents(__WORKERDIR . "/$job.result",serialize($result));
-		}else{
-			echo serialize($result);
-			flush();
+		try{
+			$result = $function(explode(".",$job)[1]);
+		}catch(Exception $e){
+			$result = false;
 		}
 		
+		echo serialize($result);
 		exit;
-	}
-	
-	public function __get($var){
-		
 	}
 	
 	public static function __callstatic($func,$args){
 		switch($func){
 		case "__do":
-			if(!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($argv[0]) != "puzzleworker") throw new PuzzleError("Cannot execute Worker!");
-			self::__do($argv[1],$argv[2]);
+			error_reporting(E_ALL);
+			if(!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "puzzleworker") 
+				throw new WorkerError("Cannot execute Worker!");
+			self::__do($args[0][1],$args[0][2]);
 			break;
 		}
 	}
 	
 	public function __construct($number = 1){
-		if($number < 1) throw new PuzzleError("Worker number expect at least one!");
+		if($number < 1) throw new WorkerError("Worker number expect at least one!");
 		
 		$caller = explode("/",str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])));
 		if($caller[1] != "applications") 
-			throw new PuzzleError("Only applications can create Worker!");
+			throw new WorkerError("Only applications can create Worker!");
 		
 		if(!defined("_SUPERCLOSURE_H")){
 			if(!function_exists("proc_open")) 
-				throw new PuzzleError("To use Worker, please enable proc_open function!");
+				throw new WorkerError("To use Worker, please enable proc_open function!");
 			
 			if(!function_exists("openssl_encrypt")) 
-				throw new PuzzleError("To use Worker, please enable openssl_* function!");
-			
-			if(!ENV_WIN){
-				if(!function_exists("pcntl_waitpid"))
-					throw new PuzzleError("To use Worker, please enable pcntl_waitpid function!");
-			}
+				throw new WorkerError("To use Worker, please enable openssl_* function!");
 			
 			include("vendor/superclosure/autoload.php");
 			define("_SUPERCLOSURE_H");
@@ -144,83 +96,77 @@ class Worker{
 		preparedir(__ROOTDIR . "/storage/worker");
 		$this->_serialize = new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer());
 		$this->_workernum = floor($number);
-		$this->_unique = randStr(8);
 		$this->_app = AppManager::getNameFromDirectory($caller[2]);
+		
+		return $this;
 	}
 	
 	/**
 	 * Set the task for this Worker
 	 * @param Object $callable 
 	 * @param \... $args 
-	 * @return bool
+	 * @return Worker
 	 */
 	public function setTask($callable){
-		if(!is_callable($callable)) throw new PuzzleError('$callable expect a Callable function!');
+		if(!is_callable($callable)) throw new WorkerError('$callable expect a Callable function!');
 		$this->_task = $callable;
+		
+		return $this;
 	}
 	
 	/**
 	 * Start Worker
 	 * 
-	 * You can run PuzzleOS as zombie (separated process), or
-	 * as a child.
-	 * 
-	 * @param bool $as_zombie
+	 * @param array $options wait_on_shutdown
 	 * @return bool
 	 */
-	public function run($as_zombie = false){
-		if($this->_started)
-			throw new PuzzleError("Worker already started!");
+	public function run($options=[]){
+		if($this->isRunning()) throw new WorkerError("Worker already started!");
 		
 		$this->_processes = [];
-		$this->message = new WorkerMessage($this);
+		$this->_pipe = [];
 		$this->_secret = randStr(32);
-		$this->_zombie = $as_zombie;
+		$this->_unique = randStr(8);
 		
-		//Preparing execution file
-		$execute=[
+		$execute = serialize([
 			"env"	=> [
 				"session"	=> $_SESSION,
-				"userid" 	=> Accounts::getUserId()
+				"userid" 	=> Accounts::getUserId(),
+				"app"		=> $this->_app
 			],
-			"func"		=> $this->_serialize->serialize($this->_task),
-			"zombie"	=> $as_zombie
-		];
+			"func"	=> $this->_serialize->serialize($this->_task)
+		]);
 		
 		for($i=0;$i<$this->_workernum;$i++){
 			file_put_contents(
 				__WORKERDIR . "/{$this->_unique}.$i.job",
-				openssl_encrypt(serialize($execute), self::$_cipher, $this->_secret, OPENSSL_RAW_DATA)
+				@openssl_encrypt($execute, self::$_cipher, $this->_secret, OPENSSL_RAW_DATA)
 			);
 			
-			$this->_processes[$i] = [
-				"pipe" => NULL,
-				"process" => proc_open(
-					php_bin() . " " . __ROOTDIR . "/puzzleworker {$this->_unique}.$i {$this->_secret}", 
-					[
-						0 => ["pipe", "r"],
-						1 => $as_zombie ? ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "a"] : ["pipe", "w"],
-						2 => ["file", __ROOTDIR . "/error.log", "a"]
-					], 
-					$this->_processes[$i]["pipe"],
-					null,
-					null,
-					["bypass_shell" => true]
-				)
-			];
+			$this->_processes[$i] = proc_open(
+				php_bin() . " " . __ROOTDIR . "/puzzleworker {$this->_unique}.$i {$this->_secret}", 
+				[
+					0 => ["pipe", "r"],
+					1 => ["pipe", "w"],
+					//1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],
+					2 => ["file", __ROOTDIR . "/error.log", "a"]
+				], 
+				$this->_pipe[$i]
+			);
 			
 			$process = $this->_processes[$i];
 			$unique = $this->_unique;
 			
-			register_shutdown_function(function() use($unique,$i,$process,$as_zombie){
-				if(!$as_zombie) {
-					proc_terminate($process["process"]);
-					@unlink(__WORKERDIR . "/{$this->_unique}.$i.job");
+			register_shutdown_function(function() use($unique,$i,$process,$options){
+				if($options["wait_on_shutdown"]){
+					@proc_close($process);
+				}else{
+					@proc_terminate($process);
 				}
+				@unlink(__WORKERDIR . "/$unique.$i.job");
 			});
 		}
 		
-		$this->_started = true;
 		return true;
 	}
 	
@@ -230,9 +176,7 @@ class Worker{
 	 */
 	public function join(){
 		set_time_limit(0); //Prevent from dying
-		foreach($this->_processes as $p){
-			proc_close($p["process"]);
-		}
+		while($this->isRunning()) usleep(100);
 		set_time_limit(TIME_LIMIT);
 	}
 	
@@ -241,37 +185,49 @@ class Worker{
 	 * @return bool
 	 */
 	public function isRunning(){
-		foreach($this->_processes as $p){
-			$status = proc_get_status($p["process"]);
-			if($status["running"]) return true;
-		}
+		foreach($this->_processes as $p)
+			if(@proc_get_status($p)["running"]) return true;
 	}
 	
 	/**
 	 * Kill worker process
+	 * Force killing Worker will remove it's process
+	 * 
 	 * @return bool
 	 */
 	public function kill(){
-		foreach($this->_processes as $p){
-			proc_terminate($p["process"]);
-		}
+		foreach($this->_processes as $p) proc_terminate($p);
+		$this->_processes = [];
+		$this->_pipe = [];
 	}
 	
 	/**
-	 * Check if this Worker finished it's job
-	 * @return bool
-	 */
-	public function finished(){
-		return (!$this->isRunning() && $this->_started);
-	}
-	
-	/**
-	 * Get the result from Worker
-	 * @return Object
+	 * Get the result from Worker.
+	 * After reading the result, the process pointer will be cleared!
+	 * 
+	 * @return array
 	 */
 	public function result(){
-		if(!$this->finished())
-			throw new PuzzleError("Worker haven't finished it's job yet!");
+		if($this->isRunning())
+			throw new WorkerError("Worker haven't finished it's job yet!");
+		
+		$result=[];
+		foreach($this->_processes as $id=>$p){
+			$stdin = "";
+			while(!feof($this->_pipe[$id][1])){
+				$buffer = fgets($this->_pipe[$id][1], 1024);
+				$stdin .= $buffer;
+				if(strlen($buffer) == 0) break;
+			}
+			fclose($this->_pipe[$id][1]);
+			proc_close($p);
+			
+			$result[$id] = unserialize($stdin);
+		}
+		
+		$this->_processes = [];
+		$this->_pipe = [];
+		return $result;
 	}
 }
 

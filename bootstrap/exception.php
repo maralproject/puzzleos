@@ -134,9 +134,8 @@ class DatabaseError extends PuzzleError{
     }
 }
 
-class AppStartError extends PuzzleError{
-	
-}
+class AppStartError extends PuzzleError{}
+class WorkerError extends PuzzleError{}
 
 /**
  * Throw an error, write to error.log, and display it to user

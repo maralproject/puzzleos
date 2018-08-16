@@ -195,10 +195,11 @@ function __requiredSystem($version){
 
 /**
  * Get if current environment is in CLI or not
+ * 
  * @return bool
  */
 function __isCLI(){
-	return (PHP_SAPI == "cli" && defined("__POSCLI"));
+	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
 
 /**
