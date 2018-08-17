@@ -62,13 +62,13 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 </div>
 </div>
 
-<?php if($_GET["signup"] == "success"):?>
+<?php if(isset($_SESSION['account']['signup_emailsent'])):?>
 <div class="modal fade" id="signup_g">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Satu lagi,</h4>
+				<h4 class="modal-title"><?php $language->dump("oms")?>,</h4>
             </div>
             <div class="modal-body" style="text-align:center;max-width:400px;margin:auto;line-height:30px;">
 				<i class="fa fa-envelope-o fa-3x"></i><br><br>
@@ -83,4 +83,4 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
     </div>
 </div>
 <script>$(document).ready(function(){$("#signup_g").modal('show');})</script>
-<?php endif?>
+<?php unset($_SESSION['account']['signup_emailsent']);endif;?>

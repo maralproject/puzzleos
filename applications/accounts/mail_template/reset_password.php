@@ -12,7 +12,6 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * @software     Release: 2.0.2
  */
 
-$language = new Language;
 if(Accounts::$customET_RP === NULL):
 ?>
 <p>Hi <?php echo Database::read("app_users_list","name","email",$_POST['email'])?>!</p>
@@ -22,7 +21,7 @@ if(Accounts::$customET_RP === NULL):
 else:
 echo str_replace(
 	["{link}","{name}"],
-	[$link,Database::read("app_users_list","name","email",$_POST['email'])],
+	[$link,Database::read("app_users_list","name","email",$email)],
 	Accounts::$customET_CE
 );
 endif;

@@ -12,7 +12,6 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * @software     Release: 2.0.2
  */
 
-$language = new Language;
 if(Accounts::$customET_CE === NULL):
 ?>
 <p>Hi <?php echo $_SESSION['account']['name']?>!</p>
@@ -27,7 +26,7 @@ if(Accounts::$customET_CE === NULL):
 else: 
 echo str_replace(
 	["{email}","{link}","{name}"],
-	[$_POST["email"],$link,$_SESSION["account"]["name"]],
+	[$email,$link,Database::read("app_users_list","name","email",$email)],
 	Accounts::$customET_CE
 );
 endif;

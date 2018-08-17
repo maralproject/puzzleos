@@ -23,6 +23,7 @@ class Worker{
 	private $_workernum;
 	private $_unique;
 	private $_app;
+	private $_appdir;
 	
 	private $_secret;
 	private static $_cipher = "AES-256-CBC";
@@ -46,13 +47,23 @@ class Worker{
 		@unlink(__WORKERDIR . "/$job.job");
 		
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
+		
 		Accounts::addSession($execute["env"]["userid"]);
+		
+		$GLOBALS["_WORKER"] = [
+			"id"	=> explode(".",$job)[1],
+			"app"	=> $execute["env"]["app"],
+			"appdir"=> $execute["env"]["appdir"]
+		];
 		
 		include("vendor/superclosure/autoload.php");
 		$function = (new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer()))->unserialize($execute["func"]);
 		
 		try{
-			$result = $function(explode(".",$job)[1]);
+			ob_start();
+			$result = $function($execute["env"]["id"],$execute["env"]["app"]);
+			@ob_get_clean();
+			@ob_end_clean();
 		}catch(Exception $e){
 			$result = false;
 		}
@@ -64,7 +75,6 @@ class Worker{
 	public static function __callstatic($func,$args){
 		switch($func){
 		case "__do":
-			error_reporting(E_ALL);
 			if(!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "puzzleworker") 
 				throw new WorkerError("Cannot execute Worker!");
 			self::__do($args[0][1],$args[0][2]);
@@ -94,6 +104,7 @@ class Worker{
 		$this->_serialize = new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer());
 		$this->_workernum = floor($number);
 		$this->_app = AppManager::getNameFromDirectory($caller[2]);
+		$this->_appdir = $caller[2];
 		
 		return $this;
 	}
@@ -128,7 +139,8 @@ class Worker{
 			"env"	=> [
 				"session"	=> $_SESSION,
 				"userid" 	=> Accounts::getUserId(),
-				"app"		=> $this->_app
+				"app"		=> $this->_app,
+				"appdir"	=> $this->_appdir
 			],
 			"func"	=> $this->_serialize->serialize($this->_task)
 		]);

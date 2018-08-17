@@ -135,7 +135,8 @@ return array(
 	"VER_ERR"			=> 	"We are unable to verify your account",
 	"PHONE_SUCCEED"		=>	"Phone number has been confirmed",
 	"ACC_INV_NOTFOUND"	=>	"We are unable to find your account",
-	"VER_ERR_SEND"		=>	"Failed to send verification code"
+	"VER_ERR_SEND"		=>	"Failed to send verification code",
+	"OMS"				=>	"One more step",
 );
 
 ?>

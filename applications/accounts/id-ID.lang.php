@@ -111,7 +111,7 @@ return array(
 	"VER_CODE_SENT"		=>	"Kode verifikasi telah dikirim",
 	"VER_CODE_INPUT"	=>	"Masukkan kode verifikasi:",
 	"CONTINUE"			=>	"Lanjutkan",
-	"CONFIRM_EMAIL"		=>	"Segera cek kotak masuk dan verifikasi email Anda",
+	"CONFIRM_EMAIL"		=>	"Segera periksa Inbox Anda.",
 	"CHECK_SPAM_EMAIL"	=> 	"Silahkan periksa folder spam jika email tidak masuk",
 	"CLOSE"				=>	"Tutup",
 	"EMPLOYEE"			=>	"Pegawai",
@@ -135,9 +135,8 @@ return array(
 	"VER_ERR"			=> 	"Kami tidak bisa memverifikasi akun Anda",
 	"PHONE_SUCCEED"		=>	"Nomor telepon berhasil dikonfirmasi",
 	"ACC_INV_NOTFOUND"	=>	"Kami tidak bisa menemukan akun Anda",
-	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi"
-
-
+	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi",
+	"OMS"				=>	"Selangkah lagi",
 );
 
 ?>

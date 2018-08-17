@@ -15,14 +15,13 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
 if(__getURI("app") == $appProp->appname){
 
 	$language = new Language;
-	new Application("phpmailer");
-
+	
 	if(!$_SESSION['account']['loggedIn']){
 		if(__getURI("action") == "changepassword"){
 			Template::setSubTitle($language->get("c_pass"));
 		}else if(__getURI("action") == "forgot"){
 			Template::setSubTitle($language->get("nh"));
-		}else if(__getURI("action") == "verify"){
+		}else if(__getURI("action") == "verify" && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
 			Template::setSubTitle($language->get("VER_CODE"));
 		}else if(__getURI("action") == "signup"){
 			Template::setSubTitle($language->get("signup"));
@@ -45,7 +44,7 @@ if(__getURI("app") == $appProp->appname){
 			if(Database::read("app_users_list","email","email",$_POST["email"]) != ""){
 				$GLOBALS["aemsd"] = true;
 				Prompt::postError($language->get("EMAIL_INV_USED"));
-				return;
+				return true;
 			}
 		}
 
@@ -53,7 +52,7 @@ if(__getURI("app") == $appProp->appname){
 			if(Database::read("app_users_list","phone","phone",$_POST["phone"]) != ""){
 				$GLOBALS["nhpsd"] = true;
 				Prompt::postError("No. Telpon sudah dipakai");
-				return;
+				return true;
 			}
 		}
 
@@ -72,7 +71,7 @@ if(__getURI("app") == $appProp->appname){
 			if(Accounts::getSettings()["f_en_recaptcha"] == "on"){
 				if(!Accounts::verifyRecapctha()){
 					Prompt::postError($language->get("VER_CAPTCHA_ERR"));
-					return;
+					return true;
 				}
 			}
 
@@ -81,14 +80,14 @@ if(__getURI("app") == $appProp->appname){
 			if(Accounts::getSettings()["f_reg_required1"] == "on" || Accounts::$customM_UE){
 				if(!filter_var($_POST["email"],FILTER_VALIDATE_EMAIL) || $_POST["email"] == ""){
 					Prompt::postError($language->get("EMAIL_INV"));
-					return;
+					return true;
 				}
 			}
 
 			if(Accounts::getSettings()["f_reg_required2"] == "on" || Accounts::$customM_UP){
 				if(preg_match("/^[0-9\+]{8,15}$/", $_POST["phone"]) === FALSE || $_POST["phone"] == "") {
 					Prompt::postError($language->get("PHONE_INV"));
-					return;
+					return true;
 				}
 			}
 
@@ -105,13 +104,7 @@ if(__getURI("app") == $appProp->appname){
 				(time() + 600)
 			);
 			$f_id = Database::getLastId("app_users_list","id");
-
-			if($_POST["email"] != ""){
-				$mailer = new Mailer;
-				$mailer->addRecipient = $_POST['email'];
-				$mailer->subject = $language->get("CYNE");
-			}
-
+			
 			if($require_activation){
 				$act_code['confirm_activation']['email'] = $_POST['email'];
 				if(Accounts::$customM_EN){
@@ -125,17 +118,27 @@ if(__getURI("app") == $appProp->appname){
 				if(!Accounts::$customM_EN){
 					Database::newRow("app_users_activate",$act_code['confirm_activation']['key'],json_encode($act_code),time());
 					$link = __SITEURL ."/users/activate/".$act_code['confirm_activation']['key'];
-					ob_start();
-					require( $appProp->path . "/mail_template/activate.php");
-					$mailer->body = ob_get_clean();
-					if($mailer->sendHTML() == 1){
-						Prompt::postGood($language->get("ECHS").$_POST['email'],true);
-					}else{
-						Prompt::postError($language->get("CSCE"),true);
-					}
-
+					
+					$path = $appProp->path;
+					$email = $_POST['email'];
+					
+					$w = new Worker;
+					$w->setTask(function($id,$app) use($path,$email,$link){
+						new Application("phpmailer");
+						$language = new Language($app);
+						ob_start();
+						include("$path/mail_template/activate.php");
+						$mailer = new Mailer;
+						$mailer->addRecipient = $email;
+						$mailer->subject = $language->get("CYNE");
+						$mailer->body = ob_get_clean();
+						return $mailer->sendHTML();
+					})->run(["standalone"=>true]);
+					
 					/* Redirect to login page */
-					redirect("users/login?signup=success&redir=" . $_POST["redir"]);
+					$_SESSION['account']['signup_emailsent'] = $act_code['confirm_activation']['key'];
+					Prompt::postGood($language->get("ECHS").$email,true);
+					redirect("users/login?redir=" . $_POST["redir"]);
 				}else{
 					$aclb = Accounts::$customM_F;
 					$aclbr = $aclb($customM_UE ? $_POST['email'] : $_POST["phone"],$act_code['confirm_activation']['key']);
@@ -160,11 +163,22 @@ if(__getURI("app") == $appProp->appname){
 					$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 
 					Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
-
-					ob_start();
-					require( $appProp->path . "/mail_template/confirm_email.php");
-					$mailer->body = ob_get_clean();
-					$mailer->sendHTML();
+					
+					$path = $appProp->path;
+					$email = $_POST['email'];
+					
+					$w = new Worker;
+					$w->setTask(function($id,$app) use($path,$email,$link){
+						new Application("phpmailer");
+						$language = new Language($app);
+						ob_start();
+						include("$path/mail_template/confirm_email.php");
+						$mailer = new Mailer;
+						$mailer->addRecipient = $email;
+						$mailer->subject = $language->get("CYNE");
+						$mailer->body = ob_get_clean();
+						return $mailer->sendHTML();
+					})->run(["standalone"=>true]);
 				}
 
 				/* Authenticate */
@@ -361,17 +375,24 @@ if(__getURI("app") == $appProp->appname){
 							$act_code['confirm_email']['timeout'] = time();
 							Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
 							$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
-							$mailer = new Mailer;
-							$mailer->addRecipient = $_POST['email'];
-							$mailer->subject = $language->get("CYNE");
-							ob_start();
-							require( $appProp->path . "/mail_template/confirm_email.php");
-							$mailer->body = ob_get_clean();
-							if($mailer->sendHTML() == 1){
-								Prompt::postGood($language->get("ECHS").$_POST['email'],true);
-							}else{
-								Prompt::postError($language->get("CSCE"),true);
-							}
+								
+							$path = $appProp->path;
+							$email = $_POST['email'];
+							
+							$w = new Worker;
+							$w->setTask(function($id,$app) use($path,$email,$link){
+								new Application("phpmailer");
+								$language = new Language($app);
+								$mailer = new Mailer;
+								$mailer->addRecipient = $email;
+								$mailer->subject = $language->get("CYNE");
+								ob_start();
+								require("$path/mail_template/confirm_email.php");
+								$mailer->body = ob_get_clean();
+								return $mailer->sendHTML();
+							})->run(["standalone"=>true]);
+							
+							Prompt::postGood($language->get("ECHS").$_POST['email'],true);
 						}else if($_POST["email"] == ""){
 							Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", "", $_SESSION['account']['id']);
 							$_SESSION['account']['email'] = "";
@@ -450,7 +471,8 @@ if(__getURI("app") == $appProp->appname){
 				die();
 			}
 			$userid = Database::read("app_users_list","id","username",$_POST['user']);
-			if($userid == "" || $_POST["user"] == ""){
+			$useren = Database::read("app_users_list","enabled","username",$_POST['user']);
+			if($userid == "" || $_POST["user"] == "" || $useren == "0"){
 				Prompt::postError($language->get("ACC_INV_NOTFOUND"));
 			}else{
 				unset($_SESSION['account']['change_pass']);
@@ -469,20 +491,28 @@ if(__getURI("app") == $appProp->appname){
 						//If not set, by default we're sending code from email
 						Database::newRow("app_users_activate",$act_code['change_pass']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
 						$link = __SITEURL . "/users/changepassword/".$act_code['change_pass']['key'];
-						$send = new Mailer;
-						$send->addRecipient = Database::read("app_users_list","email","id",$userid);
-						$send->subject = $language->get("prr");
-						ob_start();
-						require( $appProp->path . "/mail_template/reset_password.php");
-						$send->body = ob_get_clean();
-						if($send->sendHTML() == 1){
-							Prompt::postGood($language->get("PRLHS"));
-						}else{
-							Prompt::postError($language->get("CSCE"));
-						}
+						
+						$path = $appProp->path;
+						$email = $_POST['email'];
+						
+						$w = new Worker;
+						$w->setTask(function($id,$app) use($path,$email,$link,$userid){
+							new Application("phpmailer");
+							$language = new Language($app);
+							$send = new Mailer;
+							$send->addRecipient = Database::read("app_users_list","email","id",$userid);
+							$send->subject = $language->get("prr");
+							ob_start();
+							require("$path/mail_template/reset_password.php");
+							$send->body = ob_get_clean();
+							return $send->sendHTML();
+						})->run(["standalone"=>true]);
+						
+						Prompt::postGood($language->get("PRLHS"),true);
+						redirect("users/forgot");
 					}else{
 						Prompt::postError($language->get("VER_ERR"),true);
-						redirect("users");
+						redirect("users/forgot");
 					}
 				}else{
 					//If set, we're going to follow the rules by the requesting handler
@@ -500,7 +530,7 @@ if(__getURI("app") == $appProp->appname){
 						redirect("users/verify?redir=" . $_POST["redir"]);
 					}else{
 						Prompt::postError($language->get("VER_ERR"),true);
-						redirect("users");
+						redirect("users/forgot");
 					}
 				}
 			}

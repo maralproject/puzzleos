@@ -262,29 +262,8 @@ class Database{
 	}
 
 	private static function verifyExecCaller($filename,$query){
-		$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
-		switch($filename[1]){
-		case "bootstrap":
-			switch($filename[2]){
-			case "debug.php":
-			case "appFramework.php":
-			case "services.php":
-			case "database.php":
-			case "systables.php":
-				return(true);
-			case "cron.php":
-				if((preg_match('/`cron`/',$query))) return(true); break;
-			case "session.php":
-				if((preg_match('/`sessions`/',$query))) return(true); break;
-			case "configman.php":
-				if((preg_match('/`multidomain_config`/',$query))) return(true); break;
-			case "userdata.php":
-			case "boot.php":
-				if((preg_match('/`userdata`/',$query))) return(true); break;
-			}
-			break;
-		case "applications":
-			$appname = isset($filename[2])?$filename[2]:"";
+		if(__isCLI() && isset($GLOBALS["_WORKER"])){
+			$appname = $GLOBALS["_WORKER"]["appdir"];
 
 			if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) 
 				throw new DatabaseError("Application do not have manifest!");
@@ -293,40 +272,83 @@ class Database{
 			$appname = $manifest["rootname"];
 
 			if((preg_match('/app_'.$appname.'_/',$query))) return(true);
+		}else{
+			$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
+			switch($filename[1]){
+			case "bootstrap":
+				switch($filename[2]){
+				case "debug.php":
+				case "appFramework.php":
+				case "services.php":
+				case "database.php":
+				case "systables.php":
+					return(true);
+				case "cron.php":
+					if((preg_match('/`cron`/',$query))) return(true); break;
+				case "session.php":
+					if((preg_match('/`sessions`/',$query))) return(true); break;
+				case "configman.php":
+					if((preg_match('/`multidomain_config`/',$query))) return(true); break;
+				case "userdata.php":
+				case "boot.php":
+					if((preg_match('/`userdata`/',$query))) return(true); break;
+				}
+				break;
+			case "applications":
+				$appname = isset($filename[2])?$filename[2]:"";
+
+				if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) 
+					throw new DatabaseError("Application do not have manifest!");
+				
+				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
+				$appname = $manifest["rootname"];
+
+				if((preg_match('/app_'.$appname.'_/',$query))) return(true);
+			}
 		}
 		return(false);
 	}
 	
 	private static function verifyCaller($filename,$table){
-		$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
-		switch($filename[1]){
-		case "bootstrap":
-			switch($filename[2]){
-			case "debug.php":
-			case "appFramework.php":
-			case "services.php":
-			case "database.php":
-			case "systables.php":
-				return(true);
-			case "cron.php":
-				if($table == "cron") return(true); break;
-			case "session.php":
-				if($table == "sessions") return(true); break;
-			case "configman.php":
-				if($table == "multidomain_config") return(true); break;
-			case "userdata.php":
-			case "boot.php":
-				if($table == "userdata") return(true); break;
-			}
-			break;
-		case "applications":
-			$appname = isset($filename[2])?$filename[2]:"";
+		if(__isCLI() && isset($GLOBALS["_WORKER"])){
+			$appname = $GLOBALS["_WORKER"]["appdir"];
 
 			if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
 			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 
 			$appname = $manifest["rootname"];
 			if((preg_match('/app_'.$appname.'_/',$table))) return(true);
+		}else{
+			$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
+			switch($filename[1]){
+			case "bootstrap":
+				switch($filename[2]){
+				case "debug.php":
+				case "appFramework.php":
+				case "services.php":
+				case "database.php":
+				case "systables.php":
+					return(true);
+				case "cron.php":
+					if($table == "cron") return(true); break;
+				case "session.php":
+					if($table == "sessions") return(true); break;
+				case "configman.php":
+					if($table == "multidomain_config") return(true); break;
+				case "userdata.php":
+				case "boot.php":
+					if($table == "userdata") return(true); break;
+				}
+				break;
+			case "applications":
+				$appname = isset($filename[2])?$filename[2]:"";
+
+				if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
+				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
+
+				$appname = $manifest["rootname"];
+				if((preg_match('/app_'.$appname.'_/',$table))) return(true);
+			}
 		}
 		return(false);
 	}

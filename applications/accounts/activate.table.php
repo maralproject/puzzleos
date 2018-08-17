@@ -18,5 +18,7 @@ $table->addColumn("id","VARCHAR(128)")->setAsPrimaryKey();
 $table->addColumn("content");
 $table->addColumn("expires","INT");
 
+$table->createIndex("expires",["expires"]);
+
 return $table;
 ?>
