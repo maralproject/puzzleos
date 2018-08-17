@@ -5,20 +5,15 @@
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
+ * @copyright    2014-2018 MARAL INDUSTRIES
  * 
- * @software     Release: 2.0.0
+ * @software     Release: 2.0.2
  */
- 
-/* Performs and installation
- * 1. Creating configuration files
- */
- 
+
 if(!version_compare(PHP_VERSION,"7.0.0",">=")){
 	die("PuzzleOS need PHP7 to run!");
 } 
- 
-/* Install script goes here */
+
 error_reporting(0);
 if($_POST["finale"] == "yes"){
 	/* Validating input */
@@ -345,7 +340,13 @@ if($_POST["finale"] == "yes"){
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">PHP JPEG GD Support</label>
+					<label class="col-xs-9 control-label">Multibyte String (mbstring)</label>
+					<div class="col-xs-3 row phpcheck" style="margin:0px;">
+						<?php echo (function_exists("mb_strlen") ? "Yes" : "No") ?>						
+					</div>
+				</div><br>
+				<div class="row">
+					<label class="col-xs-9 control-label">PHP GD</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("imagecreatefrompng") ? "Yes" : "No") ?>						
 					</div>
