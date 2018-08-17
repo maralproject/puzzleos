@@ -90,14 +90,22 @@ class PuzzleCLI{
 			$f = self::$list[$app];
 			$f($io,$arg);
 		}else{
-			//This is part of the system
+			/* This is part of the system */
 			$sys = explode("sys/",$app)[1];
 			if($sys == "cron"){
-				if($arg["run"]) CronJob::run();
-				else throw new PuzzleError("Invalid action");
-			}else{
+				if($arg["run"]) 
+					CronJob::run();
+				else 
+					throw new PuzzleError("Invalid action");
+			}elseif($sys == "cache"){
+				if($arg["flush"]){
+					IO::remove_r("/public/cache");
+					IO::remove_r("/public/res");
+				}
+				else 
+					throw new PuzzleError("Invalid action");
+			}else
 				throw new PuzzleError("Invalid parameter");
-			}
 		}
 	}
 }
