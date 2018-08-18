@@ -18,11 +18,7 @@ $language = new Language; $language->app = "users";
 <div id="loginCtn" style="display:table-cell;vertical-align:middle;padding:20px;">
 <div style="font-size:24pt;font-weight:300;margin-bottom:15px;"><?php $language->dump("c_pass")?></div>
 <form action="<?php echo __SITEURL?>/users/changepassword" method="post" style="text-align:center;">
-	<input type="hidden" name="datafromresetpassafterverify" value="ok"> 	
-	<div class="input-group">
-	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-	  <input type="text" class="form-control" value="<?php echo Database::read("app_users_list","username","id",$_SESSION['account']['change_pass']['id'])?>" disabled>
-	</div><br>
+	<input type="hidden" name="datafromresetpassafterverify" value="ok"><br>
 	<div class="input-group">
 	  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
 	  <input name="passnew" autofocus type="password" class="form-control" placeholder="<?php $language->dump("new_pass")?>" required>

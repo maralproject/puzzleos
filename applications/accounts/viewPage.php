@@ -13,34 +13,26 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  */
 
 $language = new Language;
-$needToGoChPass = false;
 
 if(!$_SESSION['account']['loggedIn']){
-	$changePass_LC = 0;
-	if(isset($_SESSION['account']['change_pass']['linkClicked'])) $changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];
-	if($changePass_LC == 1) $needToGoChPass = true;
-	if((__getURI("action") == "changepassword") || $needToGoChPass){
-		if($changePass_LC == 1){
-			require_once("views/change_reset_password.php");
-		}else{
-			redirect("users");
-		}
+	if((__getURI("action") == "changepassword") && $_SESSION['account']['change_pass']['linkClicked'] === 1){
+		require("views/change_reset_password.php");
 	}elseif((__getURI("action") == "forgot")){
-		require_once("views/reset_password_form.php");
+		require("views/reset_password_form.php");
 	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
-		require_once("views/code_verification.php");
+		require("views/code_verification.php");
 	}elseif(__getURI("action") == "signup" && Accounts::getSettings()["f_en_registration"] == "on"){
-		require_once("views/signup.php");
+		require("views/signup.php");
 	}else{
-		require_once("views/main_login.php");
+		require("views/main_login.php");
 	}
 }else{
 	if(__getURI("action") == "changepassword") {
-		require_once("views/change_password.php");
+		require("views/change_password.php");
 	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_email"]))){
-		require_once("views/code_verification.php");
+		require("views/code_verification.php");
 	}else{
-		require_once("views/change_info.php");
+		require("views/change_info.php");
 	}
 }
 ?>

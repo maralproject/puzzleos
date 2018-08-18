@@ -12,6 +12,8 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * @software     Release: 2.0.2
  */
 
+$language = new Language;
+
 /* Register SU if no any user found */
 if(file_exists(__ROOTDIR."/create.admin")){
 	Database::newRow("app_users_list", Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
@@ -60,6 +62,14 @@ if(isset($_SESSION['account']['change_pass'])){
 }
 if(isset($_SESSION['account']['change_pass']['linkClicked']))
 	if($_SESSION['account']['change_pass']['linkClicked'] == 1 && __getURI("app") != "users") redirect("users");
+	
+/**
+ * Add some notice if users haven't change their password
+ */
+if($_SESSION['account']['change_pass']['linkClicked'] === 1 && __getURI(1) != "changepassword"){
+	Prompt::postInfo($language->get("PCYP"),true);
+	redirect("users/changepassword");
+}
 
 /**
  * Automatically remove account that not activated longer than 10 minutes

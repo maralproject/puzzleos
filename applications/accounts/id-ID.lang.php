@@ -66,7 +66,7 @@ return array(
 	"E_CH"				=>	"Alamat Email telah dirubah",
 	"E_CH2"				=>	"Alamat Email berhasil dikonfirmasi",
 	"PRLHS"				=>	"Kami telah mengirimkan instruksi selanjutnya ke email Anda",
-	"PCYP"				=>	"Mohon ganti kata sandi Anda sebelum melanjutkan",
+	"PCYP"				=>	"Mohon ubah kata sandi Anda sebelum melanjutkan",
 	"PRR"				=>	"Permintaan Merubah Password",
 	"E20"				=>	"Anda telah meminta untuk mendapatkan kata sandi yang baru. Klik ",
 	"PASS_E"			=>	"Kata sandi tidak boleh kosong",

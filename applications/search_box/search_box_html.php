@@ -43,7 +43,7 @@ $l = new Language; $l->app = "search_box";
 <?php echo FastCache::outJSMin(); ob_start();?>
 <script>
 	//Create the search algorithm
-	$(document).on("keyup change","input.searchbox-input",function(e){
+	$(document).on("input change","input.searchbox-input",function(e){
 		e.stopPropagation();
 		let x=$(this);
 		if(x.attr("data-dynamic") == "no") return;

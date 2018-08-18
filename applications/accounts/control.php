@@ -463,12 +463,11 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/forgot
 		 * Note	: This will send email and confirm it at /users/changepassword/$rand
 		 */
-
+		
 		if($_POST["realforgotpaswd"] == 1){
 			if($_SESSION['account']['loggedIn']){
 				//Prevent forgot password from this way when logged in
 				redirect("users");
-				die();
 			}
 			$userid = Database::read("app_users_list","id","username",$_POST['user']);
 			$useren = Database::read("app_users_list","enabled","username",$_POST['user']);
@@ -543,13 +542,12 @@ if(__getURI("app") == $appProp->appname){
 		 */
 
 		if($_POST["realcpass"] == "1"){
-			$changePass_LC = 0;
-			if(isset($_SESSION['account']['change_pass']['linkClicked']))
-				$changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];
+			$changePass_LC = $_SESSION['account']['change_pass']['linkClicked'] === 1 ? 1 : 0;
 
 			if(!$_SESSION['account']['loggedIn']){
 				//If user not logged in and don't have the link, delete all session and redirect to home
 				if($changePass_LC != 1){
+					Accounts::rmSession();
 					redirect("users");
 				}
 			}
@@ -584,9 +582,10 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/changepassword/$rand
 		 * Note	: Allow to be accessed from logged in or not state
 		 */
-		if(!$_SESSION['account']['loggedIn']){
 
-			$cv = $_POST["ch_pass_confirm"] == "1" ? true : false;
+		if(!$_SESSION['account']['loggedIn'] && isset($_SESSION["account"]["change_pass"])){
+
+			$cv = $_POST["ch_pass_confirm"] == 1 ? true : false;
 			$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
 			$token_e = $cv ? ($_SESSION["account"]["change_pass"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
 
@@ -597,7 +596,7 @@ if(__getURI("app") == $appProp->appname){
 					Database::deleteRow("app_users_activate","id",__getURI(2));
 				}
 				$_SESSION['account']['change_pass']['linkClicked'] = 1;
-				redirect("users","changepassword");
+				redirect("users/changepassword");
 			}else{
 				if(isset($_POST["thiscamefromverify"])){
 					$_SESSION["account"]["change_pass"]["wrong"] = true;
@@ -606,15 +605,6 @@ if(__getURI("app") == $appProp->appname){
 				}
 			}
 		}
-	}
-
-	/**
-	 * Add some notice if users haven't change their password
-	 */
-	$changePass_LC = 0;
-	if(isset($_SESSION['account']['change_pass']['linkClicked'])) $changePass_LC = $_SESSION['account']['change_pass']['linkClicked'];
-	if($changePass_LC == 1){
-		Prompt::postInfo($language->get("PCYP"));
 	}
 }
 ?>
