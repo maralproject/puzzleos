@@ -21,12 +21,12 @@ $s = Accounts::getSettings();
 <form action="<?php echo __SITEURL?>/users/profile" method="post">	
 	<div class="input-group">
 		<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
+		<input type="hidden" name="ineedtochangesettings" value="pass">
 		<input maxlength="50" name="name" required type="text" autofocus class="form-control" placeholder="<?php $language->dump("name")?>"  value="<?php echo $_SESSION['account']['name']?>">
 	</div><br>
 	<?php if(Accounts::$customM_UE || Accounts::getSettings()["f_reg_required1"] == "on"):?>
 	<div class="input-group">
 		<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-envelope-o"></i></span>	
-		<input type="hidden" name="ineedtochangesettings" value="pass">
 		<input name="email" <?php if(Accounts::$customM_UE||$s["f_reg_required1"]=="on") echo "required"?> type="email" class="form-control" placeholder="<?php $language->dump("email")?>"  value="<?php echo $_SESSION['account']['email']?>">
 	</div><br>
 	<?php endif?>

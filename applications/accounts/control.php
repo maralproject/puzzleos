@@ -305,6 +305,7 @@ if(__getURI("app") == $appProp->appname){
 		 * URI	: /users/profile
 		 * Note	: -
 		 */
+		
 		if($_POST["tf"] == "1"){
 			if($_POST["phone"] != "") $_POST["phone"] = Accounts::getE164($_POST["phone"]);
 
@@ -564,9 +565,8 @@ if(__getURI("app") == $appProp->appname){
 						POSGlobal::$session->endUser($uidcp); //Logging out any user worldwide
 						if($changePass_LC == 1){
 							unset($_SESSION['account']['change_pass']);
-						}else{
-							Prompt::postGood($language->get("pass_changed"),true);
 						}
+						Prompt::postGood($language->get("pass_changed"),true);
 						redirect("users");
 					}
 				}else{
