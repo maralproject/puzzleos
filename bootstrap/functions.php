@@ -12,6 +12,23 @@ defined("__POSEXEC") or die("No direct access allowed!");
  */
 
 /**
+ * Return the absolute internal path from apps or templates.
+ * @param string $path 
+ * @return string
+ */
+function _internaldir($path){
+	$caller = explode("/",ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])),"/"));
+	switch($caller[0]){
+	case "applications":
+	case "templates":
+		break;
+	default:
+		return null;
+	}
+	return __ROOTDIR."/".$caller[0]."/".$caller[1]."/".ltrim(btfslash($path),"/");
+}
+
+/**
  * Find PHP binary location on server
  * Modified from Symfony Component
  * 

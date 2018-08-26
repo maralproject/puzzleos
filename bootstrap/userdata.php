@@ -29,8 +29,7 @@ class UserData{
 			throw new PuzzleError("UserData can only be called from application");
 		}
 		$appDir = $filename[2];
-		$appname = AppManager::getNameFromDirectory($appDir);		
-		//Check the folder for user_data
+		$appname = AppManager::getNameFromDirectory($appDir);
 		preparedir(__ROOTDIR . "/storage/data/$appname");
 		preparedir(__ROOTDIR . "/".__PUBLICDIR."/assets/$appname");
 		return($appname);
@@ -93,11 +92,6 @@ class UserData{
 		
 		if(!rename(IO::physical_path($path_to_file),IO::physical_path($filename))) return(false);
 		Database::newRow("userdata",$appname,$key,$filename,IO::get_mime($filename),time(),$secure?1:0);
-		
-		if($path_to_file_e[1] == "user_data"){
-			//Changing file ownership
-			Database::deleteRowArg("userdata","WHERE `physical_path`='?'",$path_to_file);			
-		}
 		return true;
 	}
 	
