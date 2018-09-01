@@ -17,7 +17,7 @@ if(!version_compare(PHP_VERSION,"7.0.0",">=")){
 error_reporting(0);
 if($_POST["finale"] == "yes"){
 	/* Validating input */
-	if($_POST["dbuser"] == "" || $_POST["dbhost"] == "" || $_POST["dbname"] == "" || $_POST["sitename"] == "" ){
+	if($_POST["dbuser"] == "" || $_POST["dbhost"] == "" || $_POST["dbname"] == "" || $_POST["sitename"] == "" || $_POST["username"] == "" || $_POST["password"] == ""){
 		die("2");
 	}
 	
@@ -50,7 +50,10 @@ if($_POST["finale"] == "yes"){
 	$sample = str_replace("%META_DESC%","",$sample);
 	if(file_put_contents("../../configs/root.sys.php",$sample) === false) die("2");
 	
-	file_put_contents("../../create.admin",1);
+	file_put_contents("../../create.admin",base64_encode(serialize([
+		"username"=>$_POST["username"],
+		"password"=>$_POST["password"]
+	])));
 	
 	die("0");
 }
@@ -242,46 +245,40 @@ if($_POST["finale"] == "yes"){
 						?>
 					</div>
 				</div><br>
-				<script>$("select[name=timezone]").val(jstz.determine().name());</script>
-				<div class="row">
-					<label class="col-lg-3 control-label"></label>
-					<div class="col-lg-9 row" style="margin:0px;">
-					<small><b>Please,</b> remember this username and password for your first log in. You may change it later.</small>
-					</div>
-				</div><br>				
+				<script>$("select[name=timezone]").val(jstz.determine().name());</script>			
 				<div class="row">
 					<label class="col-lg-3 control-label">Username</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" value="admin" disabled>
+						<input type="text" class="form-control" autocomplete="off" placeholder="admin" name="username" required>
 					</div>
 				</div><br>
 				<div class="row">
 					<label class="col-lg-3 control-label">Password</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-					<input type="text" class="form-control" autocomplete="off" value="admin" disabled>
+					<input type="password" class="form-control" autocomplete="off" placeholder="***" name="password" required>
 					</div>
 				</div><br>
 				<button next-tab="step2" type="button" class="tabSwitch btn btn-primary btn-big">Next</button>
 			</div>
 			<div id="step2" class="tab">
 				<div class="sub-title">Step Two</div><br>
-				<p style="font-size:10pt;">Please use MySQL database!<br><strong>WARNING:</strong> Old database will be removed!</p><br>
+				<p style="font-size:12pt;">Please use <b>MySQL</b> database!<br>
 				<div class="row">
 					<label class="col-lg-3 control-label">Database host</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" placeholder="localhost" name="dbhost" required>
+						<input type="text" class="form-control" autocomplete="off" name="dbhost" required>
 					</div>
 				</div><br>
 				<div class="row">
 					<label class="col-lg-3 control-label">Database name</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" placeholder="puzzle_os" name="dbname" required>
+						<input type="text" class="form-control" autocomplete="off" name="dbname" required>
 					</div>
 				</div><br>
 				<div class="row">
 					<label class="col-lg-3 control-label">Database username</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" placeholder="root" name="dbuser" required>
+						<input type="text" class="form-control" autocomplete="off" name="dbuser" required>
 					</div>
 				</div><br>
 				<div class="row">

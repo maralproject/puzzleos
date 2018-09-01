@@ -16,8 +16,13 @@ $language = new Language;
 
 /* Register SU if no any user found */
 if(file_exists(__ROOTDIR."/create.admin")){
-	Database::newRow("app_users_list", Database::read("app_users_grouplist","id","level",0),"Administrator","","","def",password_hash("admin", PASSWORD_BCRYPT),"admin",1,0);
-	unlink(__ROOTDIR."/create.admin");
+	$ctn=unserialize(base64_decode(file_get_contents(__ROOTDIR."/create.admin")));
+	if($ctn !== false){
+		Database::newRow("app_users_list", 
+			Database::read("app_users_grouplist","id","level",0),
+			"Administrator","","","def",password_hash($ctn["password"], PASSWORD_BCRYPT),$ctn["username"],1,0);
+		unlink(__ROOTDIR."/create.admin");
+	}
 }
 
 /* Setting up user session */
