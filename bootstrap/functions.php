@@ -133,9 +133,13 @@ function redirect($app = ""){
 	$app = ltrim($app,"/");
 	$app = preg_replace("/\s+/","",$app);
 	POSGlobal::$session->write_cookie();
-	header('HTTP/1.1 302 Found');
-	header("Location: ".__SITEURL."/" . $app);
-	die("<script>window.location='".__SITEURL."/$app';</script>");
+	if(headers_sent()){
+		die("<script>window.location='".__SITEURL."/$app';</script>");
+	}else{
+		header('HTTP/1.1 302 Found');
+		header("Location: ".__SITEURL."/" . $app);
+		exit;
+	}
 }
 
 /**

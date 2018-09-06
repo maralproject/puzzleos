@@ -247,6 +247,7 @@ class FileStream{
 	private function setHeader(){
 		ob_get_clean();
 		header("Content-Type: " . mime_content_type($this->path));
+		header('Pragma: public');
 		header("Cache-Control: max-age=2628000, public");
 		header("Expires: " . gmdate(DATE_RFC1123, time() + 2628000) . ' GMT');
 		header("Last-Modified: " . gmdate(DATE_RFC1123, @filemtime($this->path)) . ' GMT');
