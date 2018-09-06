@@ -61,7 +61,7 @@ class Worker{
 		
 		try{
 			ob_start();
-			$result = $function($execute["env"]["id"],$execute["env"]["app"]);
+			$result = $function($execute["env"]["id"],$execute["env"]["app"],$execute["env"]["appdir"]);
 			@ob_get_clean();
 			@ob_end_clean();
 		}catch(Exception $e){

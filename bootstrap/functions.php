@@ -17,11 +17,17 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @return string
  */
 function _internaldir($path){
-	$caller = explode("/",ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])),"/"));
+	$p=ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])),"/");
+	$caller = explode("/",$p);
 	switch($caller[0]){
 	case "applications":
 	case "templates":
 		break;
+	case "bootstrap":
+		if(startsWith($p,"bootstrap/vendor/superclosure/")){
+			/* _internaldir is called from a Worker Closure */
+			return __ROOTDIR."/applications/".$GLOBALS["_WORKER"]["appdir"]."/".ltrim(btfslash($path),"/");
+		}
 	default:
 		return null;
 	}
@@ -264,4 +270,30 @@ class PObject{
 		return call_user_func_array($callable, $arguments);
 	}
 } 
+
+/**
+ * Check if string is startsWith
+ * @param string $haystack 
+ * @param string $needle 
+ * @return string 
+ */
+function startsWith($haystack, $needle){
+     $length = strlen($needle);
+     return (substr($haystack, 0, $length) === $needle);
+}
+
+/**
+ * Check if string is endsWith
+ * @param string $haystack 
+ * @param string $needle 
+ * @return string 
+ */
+function endsWith($haystack, $needle){
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
+
+    return (substr($haystack, -$length) === $needle);
+}
 ?>
