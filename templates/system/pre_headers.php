@@ -116,9 +116,13 @@ defined("__POSEXEC") or die("No direct access allowed!");
 	color:#BFBFBF;
 	font-weight:bold;
 }
+.systemMessage_wrap.o{
+	transition:.13s transform;
+	transform:translate3d(0,-100%,0);
+}
 .systemMessage_wrap{
 	position: fixed;
-    bottom: 0px;
+	top:100vh;
     left: 0px;
     right: 0px;
     max-width: 600px;
@@ -137,64 +141,59 @@ defined("__POSEXEC") or die("No direct access allowed!");
 .systemMessage_wrap .systemMessage{
 	width: inherit;
 	padding: 20px;
-	display:none;
 }
 </style>
 <?php 
-	echo FastCache::getCSSFile();
+	echo FastCache::outCSSMin();
 	ob_start();
 ?>
 <script>
-function showMessage(data,type,key,auto_dismiss){
-	hideMessage();
-	if(key === undefined) key = "";
-	if(auto_dismiss === undefined) auto_dismiss = true;
-	var ad = "yes";
-	if(auto_dismiss === false) ad = "no";
-	$(".systemMessage_wrap").append('<div auto_dismiss="' + ad + '" class="systemMessage m_' + key + ' alert-'+type+'"><button onclick="hideMessage()" type="button" class="close">×</button><ul><li>' + data + '</li></ul></div>');
-	slideMessage();
-}
-function dismissMessage(key){
-	var s = $(".systemMessage_wrap .m_" + key);
-	s.fadeOut(500,function(){
-		s.remove();
-	});
-}
-function hideMessage(){
-	$(".systemMessage_wrap").html("");
-	window["systemMessageExists"] = false;
-}
-function slideMessage(){
-	setTimeout(function(){
-	$(".systemMessage_wrap .systemMessage").slideDown(130,function(){
-		window["systemMessageExists"] = ($(".systemMessage_wrap .systemMessage").length > 0);
-		var s = $(this);
-		if(s.attr("auto_dismiss") == "yes"){
-			setTimeout(function(){
-				s.fadeOut(500,function(){
-					window["systemMessageExists"] = ($(".systemMessage_wrap .systemMessage").length > 0);
-					s.remove();
-				});
-			},3000);
-		}else{
-			s.find("input").first().focus();
-		}
-	});
-	},1);
-}
-window["systemMessageExists"] = false;
-$(document).on("change focusout","input[inputmode='numeric'][lang='en-150']",function(e){
-	e.stopPropagation();	
-	$(this).val(parseFloat($(this).val().replace("+","").replace("-","")));
-	if($(this).val() == "") $(this).val(0);
-});
-setTimeout(function(){
-	slideMessage();
-},300);
-$(window).on("click",function(e){
-	if($(e.toElement).closest(".systemMessage_wrap").length < 1){
-		if(window["systemMessageExists"] == true) hideMessage();
+(function() {
+	function e(a) {
+		"undefined" == typeof a && (a = $(".systemMessage_wrap .systemMessage"));
+		setTimeout(function() {
+			setTimeout(function() {
+				b = 0 < $(".systemMessage_wrap .systemMessage").length;
+				"yes" == a.attr("auto_dismiss") ? setTimeout(function() {
+					a.fadeOut(500, function() {
+						a.remove();
+						b = 0 < $(".systemMessage_wrap .systemMessage").length;
+						1 == b && hideMessage();
+					});
+				}, 3000) : a.find("input").first().focus();
+			}, 130);
+			$(".systemMessage_wrap").addClass("o");
+		}, 1);
 	}
-});
+	var b = !1;
+	window.showMessage = function(a, b, c, d) {
+		hideMessage();
+		"string" != typeof c && (c = "");
+		"boolean" != typeof d && (d = !0);
+		a = $('<div auto_dismiss="' + (!1 === d ? "no" : "yes") + '" class="systemMessage m_' + c + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
+		e(a);
+	};
+	window.dismissMessage = function(a) {
+		var b = $(".systemMessage_wrap .m_" + a);
+		b.fadeOut(500, function() {
+		b.remove();
+		});
+	};
+	window.hideMessage = function() {
+		$(".systemMessage_wrap").html("").removeClass("o");
+		b = !1;
+	};
+	$(document).on("change focusout", "input[inputmode='numeric'][lang='en-150']", function(a) {
+		a.stopPropagation();
+		$(this).val(parseFloat($(this).val().replace("+", "").replace("-", "")));
+		"" == $(this).val() && $(this).val(0);
+	});
+	setTimeout(function() {
+		e();
+	}, 300);
+	$(window).on("click", function(a) {
+		1 > $(a.toElement).closest(".systemMessage_wrap").length && 1 == b && hideMessage();
+	});
+})();
 </script>
-<?php echo(FastCache::getJSFile())?>
+<?php echo(FastCache::outJSMin())?>
