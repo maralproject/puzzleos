@@ -207,4 +207,11 @@ class PuzzleError extends Exception{
     }
 }
 
+register_shutdown_function(function(){
+	$e = error_get_last();
+    if(in_array($e['type'],Array( E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE))){
+        throw new PuzzleError("{$e['message']} on {$e['file']}:{$e['line']}",null,$e['code']);
+    }
+});
+
 ?>

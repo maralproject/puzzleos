@@ -29,6 +29,11 @@ class FastCache{
 	 */
 	public static function start($file_ext, $return = false){
 		$data = ob_get_clean();
+		$hash = substr(md5($data),0,10);
+		if(!$return){
+			$path = "/".__PUBLICDIR."/cache/" . $hash . '.' . $file_ext;
+			if(file_exists(__ROOTDIR.$path)) return("/cache/" . $hash . '.' . $file_ext);
+		}
 		$data = str_replace(__SITEURL , "#_SITEURL#", $data);
 		if($file_ext == "") return;
 		switch($file_ext){
@@ -65,11 +70,7 @@ class FastCache{
 		}		
 		$data = str_replace("#_SITEURL#", __SITEURL , $data);
 		if(!$return){
-			$hash = substr(hash("md5",$data),0,10);
-			$path = "/".__PUBLICDIR."/cache/" . $hash . '.' . $file_ext;
-			if(!IO::exists($path)){						
-				IO::write($path,$data);	
-			}
+			if(!file_exists(__ROOTDIR.$path)) IO::write($path,$data);
 			return("/cache/" . $hash . '.' . $file_ext);
 		}else{
 			return $data;
