@@ -106,7 +106,7 @@ class Mailer extends PHPMailer{
 			try{
 				throw new PuzzleError("Mail:".$this->ErrorInfo);
 			}catch(Exception $e){}
-		}
+		}else return true;
 	}
 	
 	/*
@@ -120,7 +120,7 @@ class Mailer extends PHPMailer{
 			try{
 				throw new PuzzleError("Mail:".$this->ErrorInfo);
 			}catch(Exception $e){}
-		}
+		}else return true;
 	}
 }
 ?>
