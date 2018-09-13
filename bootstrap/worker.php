@@ -132,8 +132,8 @@ class Worker{
 		if($this->isRunning()) throw new WorkerError("Worker already started!");
 		
 		$this->_processes = [];
-		$this->_secret = randStr(32);
-		$this->_unique = randStr(8);
+		$this->_secret = rand_str(32);
+		$this->_unique = rand_str(8);
 		
 		$execute = serialize([
 			"env"	=> [

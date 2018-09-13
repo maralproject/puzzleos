@@ -108,9 +108,9 @@ if(__getURI("app") == $appProp->appname){
 			if($require_activation){
 				$act_code['confirm_activation']['email'] = $_POST['email'];
 				if(Accounts::$customM_EN){
-					$act_code['confirm_activation']['key'] = randStr(6, "9012345678");
+					$act_code['confirm_activation']['key'] = rand_str(6, "9012345678");
 				}else{
-					$act_code['confirm_activation']['key'] = randStr(128);
+					$act_code['confirm_activation']['key'] = rand_str(128);
 				}
 				$act_code['confirm_activation']['id'] = $f_id;
 				$act_code['confirm_activation']['timeout'] = time();
@@ -158,7 +158,7 @@ if(__getURI("app") == $appProp->appname){
 				if($_POST["email"] != ""){
 					$act_code['confirm_email']['new'] = $_POST['email'];
 					$act_code['confirm_email']['id'] = $f_id;
-					$act_code['confirm_email']['key'] = randStr(128);
+					$act_code['confirm_email']['key'] = rand_str(128);
 					$act_code['confirm_email']['timeout'] = time();
 					$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 
@@ -334,7 +334,7 @@ if(__getURI("app") == $appProp->appname){
 						$cf = function(){
 							$act_code['confirm_email']['new'] = Accounts::$customM_UE ?  $_POST['email'] : $_POST['phone'];
 							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
-							$act_code['confirm_email']['key'] = randStr(6, "0123456789");
+							$act_code['confirm_email']['key'] = rand_str(6, "0123456789");
 							$act_code['confirm_email']['timeout'] = time();
 							$act_code['confirm_email']['camefromprofile'] = Accounts::$customM_UE ?  "email" : "phone";
 							$aclb = Accounts::$customM_F;
@@ -372,7 +372,7 @@ if(__getURI("app") == $appProp->appname){
 						if($_POST['email'] != $_SESSION['account']['email'] && $_POST['email'] != ""){
 							$act_code['confirm_email']['new'] = $_POST['email'];
 							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
-							$act_code['confirm_email']['key'] = randStr(128);
+							$act_code['confirm_email']['key'] = rand_str(128);
 							$act_code['confirm_email']['timeout'] = time();
 							Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
 							$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
@@ -478,9 +478,9 @@ if(__getURI("app") == $appProp->appname){
 				unset($_SESSION['account']['change_pass']);
 				$act_code['change_pass']['linkClicked'] = 0;
 				if(Accounts::$customM_EN){
-					$act_code['change_pass']['key'] = randStr(6,"8901234567");
+					$act_code['change_pass']['key'] = rand_str(6,"8901234567");
 				}else{
-					$act_code['change_pass']['key'] = randStr(128);
+					$act_code['change_pass']['key'] = rand_str(128);
 				}
 				$act_code['change_pass']['id'] = $userid;
 				$act_code['change_pass']['timeout'] = time();

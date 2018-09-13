@@ -70,9 +70,9 @@ if(file_exists(__ROOTDIR . "/site.offline")){
 }
 
 /***********************************
- * Define global functions
+ * Load helper functions
  ***********************************/
-require("functions.php");
+require("helper.php");
 
 /***********************************
  * Get the configuration files

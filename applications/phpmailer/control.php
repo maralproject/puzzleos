@@ -14,7 +14,7 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
 
 if(__getURI("app") == $appProp->appname) redirect("");
 
-require( $appProp->path . "/class/PHPMailerAutoload.php"); 
+require(my_dir("/class/PHPMailerAutoload.php"));
  
 /*
  * Mailer Instance
@@ -77,6 +77,22 @@ class Mailer extends PHPMailer{
 			if($smtp["Encryption"]!="none")	$this->SMTPSecure = POSConfigMailer::$smtp_encryption;
 			$this->Port = POSConfigMailer::$smtp_port;
 		}
+		
+		//DKIM Stuff
+		//See https://github.com/PHPMailer/PHPMailer/blob/master/examples/DKIM_gen_keys.phps for generating DKIM keys
+		if(defined("__POSDKIM")){
+			$this->DKIM_domain = __POSDKIM_DOMAIN;
+			$this->DKIM_private = __POSDKIM_PEM;
+			$this->DKIM_selector = __POSDKIM_SELECTOR;
+			$this->DKIM_passphrase = __POSDKIM_PASS;
+			$this->DKIM_identity = $this->From;
+			$this->mailer->DKIM_copyHeaderFields = false;
+			
+			if(defined("__POSDKIM_EXTRA")){
+				//Optionally you can add extra headers for signing to meet special requirements
+				$this->mailer->DKIM_extraHeaders = ['List-Unsubscribe', 'List-Help'];
+			}
+		}
 	}
 	
 	/*
@@ -85,7 +101,12 @@ class Mailer extends PHPMailer{
 	 */
 	public function sendHTML(){
 		$this->isHTML(true);
-		return($this->send());
+		$r = $this->send();
+		if(!$r){
+			try{
+				throw new PuzzleError("Mail:".$this->ErrorInfo);
+			}catch($e){}
+		}
 	}
 	
 	/*
@@ -94,7 +115,12 @@ class Mailer extends PHPMailer{
 	 */
 	public function sendPlain(){
 		$this->isHTML(false);
-		return($this->send());
+		$r = $this->send();
+		if(!$r){
+			try{
+				throw new PuzzleError("Mail:".$this->ErrorInfo);
+			}catch($e){}
+		}
 	}
 }
 ?>

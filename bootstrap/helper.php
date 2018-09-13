@@ -16,7 +16,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @param string $path 
  * @return string
  */
-function _internaldir($path){
+function my_dir($path){
 	$p=ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(null,1)[0]["file"])),"/");
 	$caller = explode("/",$p);
 	switch($caller[0]){
@@ -24,8 +24,8 @@ function _internaldir($path){
 	case "templates":
 		break;
 	case "bootstrap":
-		if(startsWith($p,"bootstrap/vendor/superclosure/")){
-			/* _internaldir is called from a Worker Closure */
+		if(starts_with($p,"bootstrap/vendor/superclosure/")){
+			/* my_dir is called from a Worker Closure */
 			return __ROOTDIR."/applications/".$GLOBALS["_WORKER"]["appdir"]."/".ltrim(btfslash($path),"/");
 		}
 	default:
@@ -88,15 +88,12 @@ function php_bin(){
 
 /**
  * Convert object to Array
- * Still in BETA
  *
  * @param object $d
  * @return array
  */
-function objectToArray($d) {
-	if (is_object($d)) {
-		$d = get_object_vars($d);
-	}
+function obtarr($d){
+	if (is_object($d)) $d = get_object_vars($d);
 
 	if (is_array($d)) {
 		return array_map(__FUNCTION__, $d);
@@ -185,48 +182,13 @@ function php_max_upload_size(){
  * @param string $chr 
  * @return string
  */
-function randStr($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"){
+function rand_str($length,$chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"){
 	$clen = strlen($chr);
 	$rs = '';
 	for ($i = 0; $i < $length; $i++) {
 		$rs .= $chr[rand(0, $clen - 1)];
 	}
 	return $rs;
-}
-
-/**
- * Get HTTP URI
- * @param string $name e.g. "app", "action", or index
- * @return string
- */
-function __getURI($name){
-	if(__isCLI()) return NULL; //No URI on CLI
-	if(is_integer($name)){
-		$key = $name;
-	}else{
-		$key = strtoupper($name);
-	}
-	if(isset(POSGlobal::$uri[$key])) return(POSGlobal::$uri[$key]);
-	return("");
-}
-
-/**
- * Match required version with system version
- * Return TRUE if system requirement fulfilled
- * @param string $version Required function
- * @return bool
- */
-function __requiredSystem($version){
-	return(version_compare(__POS_VERSION,$version,">="));
-}
-
-/**
- * Get if current environment is in CLI or not
- * 
- * @return bool
- */
-function __isCLI(){
-	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
 
 /**
@@ -277,7 +239,7 @@ class PObject{
  * @param string $needle 
  * @return string 
  */
-function startsWith($haystack, $needle){
+function starts_with($haystack, $needle){
      $length = strlen($needle);
      return (substr($haystack, 0, $length) === $needle);
 }
@@ -288,12 +250,44 @@ function startsWith($haystack, $needle){
  * @param string $needle 
  * @return string 
  */
-function endsWith($haystack, $needle){
+function ends_with($haystack, $needle){
     $length = strlen($needle);
-    if ($length == 0) {
-        return true;
-    }
+    if ($length == 0) return true;
+	return (substr($haystack, -$length) === $needle);
+}
 
-    return (substr($haystack, -$length) === $needle);
+/**
+ * Get HTTP URI
+ * @param string $name e.g. "app", "action", or index
+ * @return string
+ */
+function __getURI($name){
+	if(__isCLI()) return NULL; //No URI on CLI
+	if(is_integer($name)){
+		$key = $name;
+	}else{
+		$key = strtoupper($name);
+	}
+	if(isset(POSGlobal::$uri[$key])) return(POSGlobal::$uri[$key]);
+	return("");
+}
+
+/**
+ * Match required version with system version
+ * Return TRUE if system requirement fulfilled
+ * @param string $version Required function
+ * @return bool
+ */
+function __requiredSystem($version){
+	return(version_compare(__POS_VERSION,$version,">="));
+}
+
+/**
+ * Get if current environment is in CLI or not
+ * 
+ * @return bool
+ */
+function __isCLI(){
+	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
 ?>
