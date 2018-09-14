@@ -18,14 +18,24 @@ foreach(AppManager::listAll() as $data){
 			if($service == "") continue;
 			
 			// Preparing information 
-			$appProp = new Application();
-			$appProp->prepare($data["rootname"]);
+			$app = new Application();
+			$app->prepare($data["rootname"]);
 			
-			if(!include($data["dir"]."/".$service)){			
-				throw new PuzzleError("Cannot start '".$data['name']."' services!", "Please recheck the existence of ".$data["dir"]."/".$service);
-			}
+			$appProp = (object)[
+				"title"		=> $app->title,
+				"desc"		=> $app->desc,
+				"appname"	=> $app->appname,
+				"path"		=> $app->path,
+				"rootdir"	=> $app->rootdir,
+				"uri"		=> $app->uri,
+				"url"		=> $app->uri
+			];
 			
-			unset($appProp);
+			$_f = function() use($service,$appProp){
+				return include($appProp->path."/".$service);
+			};
+			
+			if(!$_f()) throw new PuzzleError("Cannot start '".$data['name']."' services!", "Please recheck the existence of ".$data["dir"]."/".$service);
 		}
 	}
 }

@@ -23,6 +23,7 @@ $a->addColumn("ver","INT");
 $a->addColumn("secure","TINYINT(1)");
 
 $a->createIndex("main",["app","identifier"]);
+$a->createIndex("path",["physical_path"]);
 
 Database::newStructure("userdata",$a);
 

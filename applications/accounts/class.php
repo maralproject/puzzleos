@@ -21,6 +21,8 @@ define("USER_AUTH_PUBLIC", 3);
  * Use this class to manage User, and authenticate user permission
  */
 class Accounts{
+	
+	private static $cache=[];
 
 	public static $customET_CE = NULL;
 	public static $customET_RP = NULL;
@@ -33,6 +35,10 @@ class Accounts{
 	public static $customM_UP = false;
 	
 	public static $aflfl = [];
+	
+	public static function purgeCache(){
+		self::$cache = [];
+	}
 	
 	/**
 	 * Register function to be executed after the user login attempt success
@@ -139,7 +145,9 @@ class Accounts{
 	 * @return array
 	 */
 	public static function getSettings(){
-		return(json_decode(UserData::read("settings"),true));
+		if(!isset(self::$cache["settings"]))
+			self::$cache["settings"] = json_decode(UserData::read("settings"),true);
+		return(self::$cache["settings"]);
 	}
 
 	/**

@@ -16,7 +16,6 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * This is part of upload_img_ajax app
  */
 class ImageUploader{
-	public static $appProp;
 	
 	/**
 	 * Print input file HTML Form
@@ -51,6 +50,4 @@ class ImageUploader{
 		return(UserData::getURL($_SESSION["ImageUploader"][$key],true));
 	}
 }
-
-ImageUploader::$appProp = $appProp;
 ?>

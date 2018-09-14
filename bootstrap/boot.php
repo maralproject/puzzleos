@@ -11,6 +11,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 2.0.2
  */
 
+(function(){
 define("DISABLE_MINIFY",1);
 define("TIME_LIMIT",30);
 define("ENV_WIN",(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'));
@@ -75,6 +76,18 @@ if(file_exists(__ROOTDIR . "/site.offline")){
 require("helper.php");
 
 /***********************************
+ * Prepare all directories
+ ***********************************/
+preparedir(__ROOTDIR . "/storage");
+preparedir(__ROOTDIR . "/storage/dbcache");
+preparedir(__ROOTDIR . "/storage/data");
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/assets");
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/res");
+preparedir(__ROOTDIR . "/".__PUBLICDIR."/cache",function(){
+	file_put_contents(__ROOTDIR . "/".__PUBLICDIR."/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
+});
+
+/***********************************
  * Get the configuration files
  ***********************************/
 require('configman.php');
@@ -89,18 +102,6 @@ define("__TIMEZONE", POSConfigGlobal::$timezone);
 require("session.php");
 
 /***********************************
- * Prepare all directories
- ***********************************/
-preparedir(__ROOTDIR . "/storage");
-preparedir(__ROOTDIR . "/storage/dbcache");
-preparedir(__ROOTDIR . "/storage/data");
-preparedir(__ROOTDIR . "/".__PUBLICDIR."/assets");
-preparedir(__ROOTDIR . "/".__PUBLICDIR."/res");
-preparedir(__ROOTDIR . "/".__PUBLICDIR."/cache",function(){
-	file_put_contents(__ROOTDIR . "/".__PUBLICDIR."/cache/.htaccess",'Header set Cache-Control "max-age=2628000, public"');
-});
-
-/***********************************
  * Process incoming Request
  ***********************************/
 POSGlobal::$uri = explode("/",__HTTP_URI);
@@ -108,16 +109,49 @@ POSGlobal::$uri["APP"] = POSGlobal::$uri[0];
 if(POSGlobal::$uri["APP"] == "") POSGlobal::$uri["APP"] = POSConfigMultidomain::$default_application;
 POSGlobal::$uri["ACTION"] = (isset(POSGlobal::$uri[1]) ? POSGlobal::$uri[1] : "");
 
-require("iosystem.php");
-require("fastcache.php");
-require("message.php");
-require("userdata.php");
-require("language.php");
+/***********************************
+ * Registering SPL Autoload
+ * This is bundled Library that 
+ * shipped with PuzzleOS.
+ * 
+ * This will speed up loading time
+ ***********************************/
+spl_autoload_register(function($c){
+	$r=__ROOTDIR."/bootstrap";
+	switch($c){
+	case "FileStream":
+	case "IO":
+		require("$r/iosystem.php");
+		break;
+	case "FastCache":
+		require("$r/fastcache.php");
+		break;
+	case "Prompt":
+		require("$r/message.php");
+		break;
+	case "UserData":
+		require("$r/userdata.php");
+		break;
+	case "LangManager":
+	case "Language":
+		require("$r/language.php");
+		break;
+	case "Template":
+		require("$r/templates.php");
+		break;
+	case "Worker":
+		require("$r/worker.php");
+		break;
+	case "PuzzleCLI":
+		require("$r/cli.php");
+		break;
+	}
+});
 
 /***********************************
  * Removing installation directory
  ***********************************/
-if(IO::exists("/".__PUBLICDIR."/install")){
+if(file_exists(__ROOTDIR."/".__PUBLICDIR."/install")){
 	$r = IO::remove_r("/".__PUBLICDIR."/install");
 	if(!$r) throw new PuzzleError("Please remove /".__PUBLICDIR."/install directory manually for security purpose");
 }
@@ -125,12 +159,9 @@ if(IO::exists("/".__PUBLICDIR."/install")){
 /***********************************
  * Loading another features
  ***********************************/
-require("templates.php");
 require("time.php");
 require("appFramework.php");
 require("cron.php");
-require("cli.php");
-require("worker.php");
 require("services.php");
 
 /* Must be loaded after services */
@@ -144,15 +175,17 @@ POSGlobal::$session->write_cookie();
 if(__getURI(0) == "assets"){
 	$f = "/" . str_replace("assets/","storage/data/",__HTTP_URI);
 	$d = Database::readAll("userdata","where `physical_path`='?'",$f)->data[0];
-	$app = $d["app"];
-	if($app != ""){
+	$appProp = $d["app"];
+	if($appProp != ""){
 		try{
-			$app = new Application($app);
-			if(!$app->isForbidden){
-				if(file_exists($app->path . "/authorize.userdata.php")){
-					$file_key = $d["identifier"];
-					$result = include($app->path . "/authorize.userdata.php");
-					if($result) IO::streamFile($f);
+			$appProp = new Application($appProp);
+			if(!$appProp->isForbidden){
+				if(file_exists($appProp->path . "/authorize.userdata.php")){
+					//Isolating superglobal vars from auth file
+					$fa = function($file_key, $file_mime)use($appProp){
+						return include($appProp->path . "/authorize.userdata.php");
+					};
+					if($fa($d["identifier"],$d["mime_type"])) IO::streamFile($f);
 				}else{
 					IO::streamFile($f);
 				}
@@ -160,4 +193,5 @@ if(__getURI(0) == "assets"){
 		}catch(AppStartError $e){}
 	}
 }
+})();
 ?>

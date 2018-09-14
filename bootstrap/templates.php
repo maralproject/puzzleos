@@ -87,6 +87,7 @@ class Template{
 				Prompt::printPrompt(); 
 			}
 		));
+		
 		$tmpl->app = &AppManager::$MainApp;
 		$tmpl->http_code = &POSGlobal::$http_code;
 		$tmpl->postBody = &self::$addOnBody;
@@ -103,10 +104,10 @@ class Template{
 		 * https://stackoverflow.com/questions/6225351/how-to-minify-php-page-html-output
 		 */
 		if(!defined("DISABLE_MINIFY")) ob_start(function($b){return preg_replace(['/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s'],['>','<','\\1'],$b);});
-		if(!include_once(self::$dir."/".$manifest["controller"])){
+		
+		if(!include_ext(self::$dir."/".$manifest["controller"],["tmpl"=>$tmpl]))
 			throw new PuzzleError("Cannot load template!", "Please set the default template");
-		}
-		unset($tmpl);
+		
 		self::$Loaded = true;
 	}
 	

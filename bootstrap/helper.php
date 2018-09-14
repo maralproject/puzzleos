@@ -11,6 +11,30 @@ defined("__POSEXEC") or die("No direct access allowed!");
  * @software     Release: 2.0.2
  */
 
+function include_ext($__path,$vars=null){
+	extract($vars);
+	unset($vars);
+	return include $__path;
+}
+
+function include_once_ext($__path,$vars=null){
+	extract($vars);
+	unset($vars);
+	return include_once $__path;
+}
+
+function require_ext($__path,$vars=null){
+	extract($vars);
+	unset($vars);
+	return require $__path;
+}
+
+function require_once_ext($__path,$vars=null){
+	extract($vars);
+	unset($vars);
+	return require_once $__path;
+}
+
 /**
  * Return the absolute internal path from apps or templates.
  * @param string $path 

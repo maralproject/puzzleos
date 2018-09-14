@@ -171,12 +171,12 @@ class Language{
 			$langs = LangManager::$forcedLang;
 		}
 		if(IO::exists(AppManager::listAll()[$this->app]["dir"]."/".$langs.".lang.php")){
-			$LANG = include(AppManager::listAll()[$this->app]["dir"]."/".$langs.".lang.php");
+			$LANG = include_ext(AppManager::listAll()[$this->app]["dir"]."/".$langs.".lang.php");
 			return($LANG[strtoupper($code)]);
 			unset($LANG);
 		}else{
 			if(IO::exists(AppManager::listAll()[$this->app]["dir"]."/en-US.lang.php")){
-				$LANG = include(AppManager::listAll()[$this->app]["dir"]."/en-US.lang.php");
+				$LANG = include_ext(AppManager::listAll()[$this->app]["dir"]."/en-US.lang.php");
 				return($LANG[strtoupper($code)]);
 				unset($LANG);
 			}else
@@ -192,7 +192,4 @@ class Language{
 		echo ($this->get($code));
 	}
 }
-
-/* Defining the first choosen language */
-define("__LOCALE_NOW",LangManager::getDisplayedNow());
 ?>

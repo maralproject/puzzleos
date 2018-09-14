@@ -12,8 +12,6 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * @software     Release: 2.0.2
  */
 
-$language = new Language;
-
 /* Register SU if no any user found */
 if(file_exists(__ROOTDIR."/create.admin")){
 	$ctn=unserialize(base64_decode(file_get_contents(__ROOTDIR."/create.admin")));
@@ -72,6 +70,7 @@ if(isset($_SESSION['account']['change_pass']['linkClicked']))
  * Add some notice if users haven't change their password
  */
 if($_SESSION['account']['change_pass']['linkClicked'] === 1 && __getURI(1) != "changepassword"){
+	$language = new Language;
 	Prompt::postInfo($language->get("PCYP"),true);
 	redirect("users/changepassword");
 }

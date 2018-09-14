@@ -93,7 +93,7 @@ class AppManager{
 		foreach(glob($list_app["dir"] . "/*.table.php") as $table_abstract){
 			$t = explode("/",rtrim($table_abstract,"/"));
 			$table_name = str_replace(".table.php","",end($t));			
-			$table_structure = include($table_abstract);
+			$table_structure = include_ext($table_abstract);
 			Database::newStructure("app_" . $list_app["rootname"] . "_" . $table_name,$table_structure);
 		}
 	}
@@ -116,7 +116,7 @@ class AppManager{
 			$agroup = Database::readAll("app_users_grouplist")->data;
 		}catch(PuzzleError $e){
 			/* Rebuild grouplist */
-			Database::newStructure("app_users_grouplist",require(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
+			Database::newStructure("app_users_grouplist",require_ext(__ROOTDIR."/applications/accounts/grouplist.table.php"));
 			$agroup = Database::readAll("app_users_grouplist");
 		}
 		
@@ -264,36 +264,38 @@ class Application{
 	/**
 	 * Root directory. /applications/$appdir
 	 */
-	protected $rootdir;
+	private $rootdir;
 	
 	/**
 	 * User data directory. /user_data/$appdir
 	 */
-	protected $datadir;
+	private $datadir;
 	
 	/**
 	 * URL path. http://localhost/puzzleos/$yourApp
 	 * URL path. http://localhost/$yourApp
 	 */
-	protected $uri;
+	private $uri;
 		
 	/**
 	 * Physical directory. /www/cms/$appdir or C:/htdocs/cms/$appdir
 	 */
-	protected $path;
+	private $path;
 
 	/**
 	 * Application Name
 	 */
-	protected $title;
+	private $title;
+	
 	/**
 	 * Application Description
 	 */
-	protected $desc;
+	private $desc;
+	
 	/**
 	 * Application root name
 	 */
-	protected $appname;
+	private $appname;
 	
 	public function __construct($appname = ""){
 		if($appname != "") $this->run($appname);
@@ -337,6 +339,18 @@ class Application{
 			break;
 		}
     }
+	
+	private function __papp(){
+		return (object)[
+			"title"		=>$this->title,
+			"desc"		=>$this->desc,
+			"appname"	=>$this->appname,
+			"path"		=>$this->path,
+			"rootdir"	=>$this->rootdir,
+			"uri"		=>$this->uri,
+			"url"		=>$this->uri
+		];
+	}
 	
 	/**
 	 * NOTE!:
@@ -413,10 +427,9 @@ class Application{
 			$this->view_loaded = 0;
 			$this->rootdir = "/applications/".$dir;
 			$this->datadir = "/user_data/".$this->appname;
-			$appProp = $this;
-			if(!include_once($this->path . "/control.php"))
+			if(!include_once_ext($this->path."/control.php",["appProp"=>$this->__papp()]))
 				throw new AppStartError("Application `{$this->appname}` not found","",404);
-			else 
+			else
 				$this->apprunning = 1;
 			return true;
 		}else{
@@ -434,9 +447,7 @@ class Application{
 	public function loadView(...$arguments){
 		if($this->appfound && $this->apprunning == 1){
 			if($this->forbidden == 0){
-				$appProp = $this;
-				$arguments = func_get_args();
-				if((!include($this->path."/viewSmall.php")) && ($this->view_loaded == 0)){
+				if((!include_ext($this->path."/viewSmall.php",["appProp"=>$this->__papp(),"arguments"=>func_get_args()])) && ($this->view_loaded == 0)){
 					throw new AppStartError("Cannot load view for app <strong>'".$this->title."'</strong><br>","",503);
 				}else{
 					$this->view_loaded = 1;
@@ -453,8 +464,7 @@ class Application{
 	public function loadMainView(){
 		if($this->appfound && $this->apprunning == 1){
 			if($this->forbidden == 0){
-				$appProp = $this;
-				if((!include_once($this->path."/viewPage.php")) && ($this->view_loaded == 0)){
+				if((!include_once_ext($this->path."/viewPage.php",["appProp"=>$this->__papp()])) && ($this->view_loaded == 0)){
 					throw new PuzzleError("Cannot load view for app <strong>'".$this->title."'</strong><br>");
 				}else{
 					$this->view_loaded = 1;
