@@ -149,51 +149,47 @@ defined("__POSEXEC") or die("No direct access allowed!");
 ?>
 <script>
 (function() {
-	function e(a) {
-		"undefined" == typeof a && (a = $(".systemMessage_wrap .systemMessage"));
-		setTimeout(function() {
-			setTimeout(function() {
-				b = 0 < $(".systemMessage_wrap .systemMessage").length;
-				"yes" == a.attr("auto_dismiss") ? setTimeout(function() {
-					a.fadeOut(500, function() {
-						a.remove();
-						b = 0 < $(".systemMessage_wrap .systemMessage").length;
-						1 == b && hideMessage();
-					});
-				}, 3000) : a.find("input").first().focus();
-			}, 130);
-			$(".systemMessage_wrap").addClass("o");
-		}, 1);
-	}
-	var b = !1;
-	window.showMessage = function(a, b, c, d) {
-		hideMessage();
-		"string" != typeof c && (c = "");
-		"boolean" != typeof d && (d = !0);
-		a = $('<div auto_dismiss="' + (!1 === d ? "no" : "yes") + '" class="systemMessage m_' + c + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
-		e(a);
-	};
-	window.dismissMessage = function(a) {
-		var b = $(".systemMessage_wrap .m_" + a);
-		b.fadeOut(500, function() {
-		b.remove();
-		});
-	};
-	window.hideMessage = function() {
-		$(".systemMessage_wrap").html("").removeClass("o");
-		b = !1;
-	};
-	$(document).on("change focusout", "input[inputmode='numeric'][lang='en-150']", function(a) {
-		a.stopPropagation();
-		$(this).val(parseFloat($(this).val().replace("+", "").replace("-", "")));
-		"" == $(this).val() && $(this).val(0);
-	});
-	setTimeout(function() {
-		e();
-	}, 300);
-	$(window).on("click", function(a) {
-		1 > $(a.toElement).closest(".systemMessage_wrap").length && 1 == b && hideMessage();
-	});
+  function f() {
+    1 > $(".systemMessage_wrap .systemMessage").length && hideMessage();
+  }
+  function c(a) {
+    setTimeout(function() {
+      $(".systemMessage_wrap").addClass("o");
+      setTimeout(function() {
+        ("undefined" == typeof a ? $(".systemMessage_wrap .systemMessage") : a).fadeOut(500, function() {
+          $(this).remove();
+          f();
+        });
+      }, 3000);
+    }, 1);
+  }
+  window.showMessage = function(a, b, d, e) {
+    hideMessage();
+    "string" != typeof d && (d = "");
+    "boolean" != typeof e && (e = !0);
+    a = $('<div auto_dismiss="' + (!1 === e ? "no" : "yes") + '" class="systemMessage m_' + d + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
+    c(a);
+  };
+  window.dismissMessage = function(a) {
+    var b = $(".systemMessage_wrap .m_" + a);
+    b.fadeOut(500, function() {
+      b.remove();
+    });
+  };
+  window.hideMessage = function() {
+    $(".systemMessage_wrap").html("").removeClass("o");
+  };
+  $(document).on("change focusout", "input[inputmode='numeric'][lang='en-150']", function(a) {
+    a.stopPropagation();
+    $(this).val(parseFloat($(this).val().replace("+", "").replace("-", "")));
+    "" == $(this).val() && $(this).val(0);
+  }).ready(function() {
+    setTimeout(function() {
+      c();
+    }, 300);
+  }).on("click", function(a) {
+    1 > $(a.toElement).closest(".systemMessage_wrap").length && f();
+  });
 })();
 </script>
 <?php echo(FastCache::outJSMin())?>
