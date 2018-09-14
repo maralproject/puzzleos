@@ -29,7 +29,7 @@ class ImageUploader{
 			UserData::remove($_SESSION["ImageUploader"][$key]);
 			unset($_SESSION["ImageUploader"][$key]);
 		}
-		include("view/input.php");
+		include(my_dir("view/input.php"));
 	}
 	
 	/**

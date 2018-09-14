@@ -18,7 +18,7 @@ $l = new Language;
 
 <?php if($GLOBALS["ImageUploader"]["scLoaded"] != 1):?>
 	<?php $GLOBALS["ImageUploader"]["scLoaded"] = 1;?>
-	<script type="text/javascript" src="<?php echo IO::publish(self::$appProp->rootdir."/js/jquery.form.min.js")?>"></script>
+	<script type="text/javascript" src="<?php echo IO::publish(my_dir("/js/jquery.form.min.js"))?>"></script>
 	<script>
 		var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
 		var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
