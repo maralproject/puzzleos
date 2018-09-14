@@ -8,8 +8,8 @@ return[
 	"Date",
 	"Message-ID",
 	"Subject",
-	"To"
-	"Sender"
+	"To",
+	"Sender",
 	"Cc",
 	"Content-ID",
 	"Content-Description",
