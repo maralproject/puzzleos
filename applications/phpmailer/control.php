@@ -88,10 +88,9 @@ class Mailer extends PHPMailer{
 			$this->DKIM_identity = $this->From;
 			$this->mailer->DKIM_copyHeaderFields = false;
 			
-			if(defined("__POSDKIM_EXTRA")){
-				//Optionally you can add extra headers for signing to meet special requirements
-				$this->mailer->DKIM_extraHeaders = ['List-Unsubscribe', 'List-Help'];
-			}
+			//Gmail requirements
+			//Optionally you can add extra headers for signing to meet special requirements
+			$this->mailer->DKIM_extraHeaders = include(my_dir("dkimh.php"));
 		}
 	}
 	
