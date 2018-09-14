@@ -124,41 +124,40 @@ class LangManager{
  * Language Instance
  */
 class Language{
-	/**
-	 * Set the language for specific app
-	 */
-	public $app;
+	
+	private $set = [];
+	
+	public function __set($v,$l){
+		if($v=="app")
+			$this->__construct($l);
+		else
+			throw new PuzzleError("Invalid input!");
+	}
 	
 	public function __construct($app = ""){
 		//If app is empty, get the referer and get the app
-		$uri = explode("/",str_replace(__ROOTDIR . "/","",str_replace("\\", "/", debug_backtrace()[0]["file"])));
+		$uri = explode("/",str_replace(__ROOTDIR . "/","",btfslash(debug_backtrace()[0]["file"])));
 		if($uri[0] == "applications" && $app == ""){
-			foreach(AppManager::listAll() as $data){
-				if($data["dir_name"] == $uri[1]){
-					$this->app = $data["rootname"];
-					return;
-				}
-			}
+			$dir=$uri[1];
+		}elseif($app != ""){
+			$dir=AppManager::listAll()[$app]["dir_name"];
+			if($dir == "") throw new PuzzleError("Cannot find $app application");
+		}else{
+			throw new PuzzleError("Language can only be loaded from Application");
 		}
-		$this->app = $app;
-	}
-	
-	/**
-	 * Get language
-	 * @param string $code Language code
-	 * @return string
-	 */
-	public function get($code){
+		
 		$langs = "en_US";
+		$fallback = "en_US";
 		if($_SESSION['account']['loggedIn'] == 0){
 			$langs = POSConfigGlobal::$default_language;
 		}else{
 			$langs = $_SESSION['account']['lang'];
 			if($langs == "def") $langs = POSConfigGlobal::$default_language;
 		}
-		if($langs == "loc") { //Previous value usr
+		
+		if($langs == "loc"){ //Previous value usr
 			$httpaccept = str_replace("_","-",locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']));
-			$locale = require(__ROOTDIR . "/bootstrap/locale.php");
+			$locale = require(__ROOTDIR."/bootstrap/locale.php");
 			foreach($locale as $k=>$l){
 				if(preg_match("/".$httpaccept."/",$k)){
 					$langs = $k;
@@ -167,21 +166,29 @@ class Language{
 			}
 			unset($locale);
 		}
+		
 		if(LangManager::$forced){
 			$langs = LangManager::$forcedLang;
 		}
-		if(IO::exists(AppManager::listAll()[$this->app]["dir"]."/".$langs.".lang.php")){
-			$LANG = include_ext(AppManager::listAll()[$this->app]["dir"]."/".$langs.".lang.php");
-			return($LANG[strtoupper($code)]);
-			unset($LANG);
+		
+		if(file_exists(__ROOTDIR."/applications/$dir/$langs.lang.php")){
+			$this->set = include_ext(__ROOTDIR."/applications/$dir/$langs.lang.php");
 		}else{
-			if(IO::exists(AppManager::listAll()[$this->app]["dir"]."/en-US.lang.php")){
-				$LANG = include_ext(AppManager::listAll()[$this->app]["dir"]."/en-US.lang.php");
-				return($LANG[strtoupper($code)]);
-				unset($LANG);
-			}else
-				return($code);
+			if(file_exists(__ROOTDIR."/applications/$dir/$fallback.lang.php")){
+				$this->set = include_ext(__ROOTDIR."/applications/$dir/$fallback.lang.php");
+			}else{
+				$this->set = [];
+			}
 		}
+	}
+	
+	/**
+	 * Get language
+	 * @param string $code Language code
+	 * @return string
+	 */
+	public function get($code){
+		return($this->set[strtoupper($code)]);
 	}
 
 	/**

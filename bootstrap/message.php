@@ -122,11 +122,7 @@ class Prompt{
 	 * Print all prompt.
 	 */
 	public static function printPrompt(){
-		$l = new Language; $l->app="admin";	?>
-		<div class="systemMessage_wrap">
-		<?php echo self::$prompt?>
-		</div>
-		<?php
+		echo('<div class="systemMessage_wrap">'.self::$prompt.'</div>');
 	}
 }
 
