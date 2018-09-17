@@ -45,12 +45,14 @@ class IO{
 	 */
 	public static function publish($filename){
 		$filename = self::physical_path($filename);
+		//Do not copy from destination which is it's parent
+		if(starts_with(self::physical_path("/".__PUBLICDIR."/res"),$filename)) return false;
 		if(is_dir($filename)){
 			$hash = substr(md5($filename),0,10);
 			if(!file_exists(__ROOTDIR . "/".__PUBLICDIR."/res/$hash")){
 				self::copy_r($filename, __ROOTDIR . "/".__PUBLICDIR."/res/$hash");
-				IO::remove_r_ext("/".__PUBLICDIR."/res/$hash","php");
-				IO::remove_r_ext("/".__PUBLICDIR."/res/$hash","ini");
+				self::remove_r_ext("/".__PUBLICDIR."/res/$hash","php");
+				self::remove_r_ext("/".__PUBLICDIR."/res/$hash","ini");
 			}
 			return "/res/$hash";
 		}else{
@@ -168,7 +170,7 @@ class IO{
 		while(false !== ( $file = readdir($dir)) ) { 
 			if (( $file != '.' ) && ( $file != '..' )) { 
 				if ( is_dir($src . '/' . $file) ) { 
-					IO::copy_r($src . '/' . $file,$dst . '/' . $file); 
+					self::copy_r($src . '/' . $file,$dst . '/' . $file); 
 				} else { 
 					copy($src . '/' . $file,$dst . '/' . $file); 
 				} 
@@ -183,8 +185,8 @@ class IO{
 	 * @param string $dst Just use /path/to-path/file
 	 */
 	public static function move_r($src,$dst){
-		IO::copy_r($src,$dst);
-		IO::remove_r($src);
+		self::copy_r($src,$dst);
+		self::remove_r($src);
 	}
 	
 	/**

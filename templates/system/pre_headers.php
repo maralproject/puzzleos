@@ -122,7 +122,7 @@ defined("__POSEXEC") or die("No direct access allowed!");
 }
 .systemMessage_wrap{
 	position: fixed;
-	top:100vh;
+	top:100%;
     left: 0px;
     right: 0px;
     max-width: 600px;
@@ -149,26 +149,26 @@ defined("__POSEXEC") or die("No direct access allowed!");
 ?>
 <script>
 (function() {
-  function f() {
+  function e() {
     1 > $(".systemMessage_wrap .systemMessage").length && hideMessage();
   }
-  function c(a) {
+  function f(a, b) {
     setTimeout(function() {
       $(".systemMessage_wrap").addClass("o");
-      setTimeout(function() {
+      !1 !== b && setTimeout(function() {
         ("undefined" == typeof a ? $(".systemMessage_wrap .systemMessage") : a).fadeOut(500, function() {
           $(this).remove();
-          f();
+          e();
         });
       }, 3000);
     }, 1);
   }
-  window.showMessage = function(a, b, d, e) {
+  window.showMessage = function(a, b, d, c) {
     hideMessage();
     "string" != typeof d && (d = "");
-    "boolean" != typeof e && (e = !0);
-    a = $('<div auto_dismiss="' + (!1 === e ? "no" : "yes") + '" class="systemMessage m_' + d + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
-    c(a);
+    "boolean" != typeof c && (c = !0);
+    a = $('<div auto_dismiss="' + (!1 === c ? "no" : "yes") + '" class="systemMessage m_' + d + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
+    f(a, c);
   };
   window.dismissMessage = function(a) {
     var b = $(".systemMessage_wrap .m_" + a);
@@ -185,10 +185,10 @@ defined("__POSEXEC") or die("No direct access allowed!");
     "" == $(this).val() && $(this).val(0);
   }).ready(function() {
     setTimeout(function() {
-      c();
+      f();
     }, 300);
-  }).on("click", function(a) {
-    1 > $(a.toElement).closest(".systemMessage_wrap").length && f();
+  }).on("click", "body", function(a) {
+    1 > $(a.toElement).closest(".systemMessage_wrap").length && e();
   });
 })();
 </script>

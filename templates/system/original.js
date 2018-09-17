@@ -12,7 +12,7 @@
 		if(typeof key != "string") key = "";
 		if(typeof auto_dismiss != "boolean") auto_dismiss = true;
 		var d=$('<div auto_dismiss="' + (auto_dismiss === false?"no":"yes") + '" class="systemMessage m_' + key + ' alert-'+type+'"><button onclick="hideMessage()" type="button" class="close">×</button><ul><li>' + data + '</li></ul></div>').appendTo(".systemMessage_wrap");
-		slideMessage(d);
+		slideMessage(d,auto_dismiss);
 	};
 
 	window["dismissMessage"] = function(key){
@@ -30,15 +30,17 @@
 		if($(".systemMessage_wrap .systemMessage").length < 1) hideMessage();
 	}
 	
-	function slideMessage(d){
+	function slideMessage(d,i){
 		setTimeout(function(){
 			$(".systemMessage_wrap").addClass("o");
-			setTimeout(function(){
-				(typeof d=="undefined"?$(".systemMessage_wrap .systemMessage"):d).fadeOut(500,function(){
-					$(this).remove();
-					checkHideMessage();
-				});
-			},3000);
+			if(i !== false){
+				setTimeout(function(){
+					(typeof d=="undefined"?$(".systemMessage_wrap .systemMessage"):d).fadeOut(500,function(){
+						$(this).remove();
+						checkHideMessage();
+					});
+				},3000);
+			}
 		},1);
 	}
 
@@ -48,7 +50,7 @@
 		if($(this).val() == "") $(this).val(0);
 	}).ready(function(){
 		setTimeout(function(){slideMessage();},300);
-	}).on("click",function(e){
+	}).on("click","body",function(e){
 		if($(e.toElement).closest(".systemMessage_wrap").length < 1){
 			checkHideMessage();
 		}
