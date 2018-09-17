@@ -12,5 +12,5 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
  * @software     Release: 2.0.2
  */
 
-if(__getURI("app") == $appProp->appname) redirect("");
+if(__getURI("app") == $appProp->appname) return false;
 ?>

@@ -15,16 +15,7 @@ __requiredSystem("2.0.2") or die("You need to upgrade the system");
 $_bs_public = IO::publish($appProp->path . "/lib");
 
 /* Load bootstrap-3.3.7 */
-require_once("bootstrap-3.3.7.php");
-
-/**
- * Jquery-datepicker provided by https://github.com/fengyuanchen/datepicker
- */
-function __bs_enable_datepicker(){
-	$_bs_public = IO::publish(__DIR__ . "/lib");
-	Template::addHeader('<script type="text/javascript" src="'.$_bs_public.'/jquery-datepicker/datepicker.min.js"></script>',true);
-	Template::addHeader('<link rel="stylesheet" href="'.$_bs_public.'/jquery-datepicker/datepicker.min.css"/>');
-}
+require("bootstrap-3.3.7.php");
 
 ob_start();?>
 <script>

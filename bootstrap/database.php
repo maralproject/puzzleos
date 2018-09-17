@@ -717,7 +717,7 @@ class Database{
 	 * @param string $table Table name
 	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
 	 * @param array $param
-	 * @return stdClass
+	 * @return object
 	 */
 	public static function readAll($table,$options = "", ...$param){
 		if($table == "") throw new DatabaseError("Please fill the table name!");
@@ -735,23 +735,60 @@ class Database{
 	}
 	
 	/**
+	 * Read all record in a table, and process it with custom iterator
+	 * @param string $table Table name
+	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
+	 * @param array $param
+	 * @return array
+	 */
+	public static function readAllCustom($table,$iterator,$options="", ...$param){
+		if($table == "") throw new DatabaseError("Please fill the table name!");
+		if(!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
+		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
+		$f = $caller[0]["file"];
+		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
+		unset($caller);
+		if(!isset(self::$cache["readAllCustom"][$table.$options.serialize($param).spl_object_hash($iterator)])){
+			$array = self::toCustom(self::query("SELECT * FROM `$table` $options;", ...$param),$iterator);
+			self::$cache["readAllCustom"][$table.$options.serialize($param)] = $array;
+			return($array);
+		}else{
+			return(self::$cache["readAllCustom"][$table.$options.serialize($param).spl_object_hash($iterator)]);
+		}
+	}
+	
+	/**
 	 * Fetch all mysql result and convert it into array
 	 * @param mysqli_result $result 
-	 * @return stdClass
+	 * @return object
 	 */
 	public static function toArray($result){
 		if(!is_a($result,"mysqli_result")) throw new DatabaseError('$result should a mysqli_result!');
-		$array = new stdClass();
-		$array->data = [];
-		$array->num = 0;
-		if(!$result){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-		}
+		$array = ["data"=>[],"num"=>0];
+		if(!$result) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
 		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
-			$array->data[$array->num] = $row;
-			$array->num++;
+			$array["data"][] = $row;
+			$array["num"]++;
 		}
-		return($array);
+		return((object) $array);
+	}
+
+	/**
+	 * Fetch all mysql result and convert it into custom object
+	 * @param mysqli_result $result 
+	 * @param Closure $iterator 
+	 * @return object
+	 */
+	public static function toCustom($result,$iterator){
+		if(!is_a($result,"mysqli_result")) throw new DatabaseError('$result should a mysqli_result!');
+		if(!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
+		$array = ["data"=>[],"num"=>0];
+		if(!$result) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
+			$array["data"][] = $iterator($row);
+			$array["num"]++;
+		}
+		return((object) $array);
 	}
 
 	/**
