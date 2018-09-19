@@ -1,15 +1,10 @@
 <?php ob_start()?>
 <script>
-$(document).ready(function() { 
-$('.img_ajax').submit(function() { 
-	return false; 
-}); 
-		
-$(".img_ajax input[type=file]").change(function(){
+$(document).on("change",".img_ajax input[type=file]",function(){
 	if($(this).hasClass("disabled")) return false;
 	var key = $(this).attr("key");
 	$(this).attr("status","0");
-	let maxsize = $(this).parent().parent().attr("msz");
+	let maxsize = parseInt($(this).parent().parent().attr("msz"));
 	let preview = $(this).attr("preview");
 	let upload_obj = $(this);
 	let timer;
@@ -17,6 +12,7 @@ $(".img_ajax input[type=file]").change(function(){
 	$(this).parent().parent().ajaxSubmit({ 
 		target: preview,
 		beforeSubmit: function(){
+			$(preview).trigger("clear");
 			if (window.File && window.FileReader && window.FileList && window.Blob){		
 				if( !upload_obj.val()){
 					showMessage(L_NO_FILE,"warning");
@@ -50,6 +46,7 @@ $(".img_ajax input[type=file]").change(function(){
 			upload_obj.parent().parent().find(".upload_progress").hide();
 			upload_obj.parent().parent().find(".upload_progress .progress-bar").css("width","0%");
 			upload_obj.parent().parent().find(".upload_progress .progress-bar").attr("aria-valuenow","0");
+			$(preview).change();
 		},
 		uploadProgress: function(event, position, total, percentComplete){			
 			upload_obj.attr("status","1");
@@ -59,7 +56,8 @@ $(".img_ajax input[type=file]").change(function(){
 		resetForm: true
 	}); 
 	return false;
-});
+}).on("submit",".img_ajax",function(){
+	return false;
 });
 </script>
 <?php echo FastCache::getJSFile();?>

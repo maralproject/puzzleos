@@ -20,35 +20,35 @@ $l = new Language;
 	<?php $GLOBALS["ImageUploader"]["scLoaded"] = 1;?>
 	<script type="text/javascript" src="<?php echo IO::publish(my_dir("/js/jquery.form.min.js"))?>"></script>
 	<script>
-		var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
-		var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
-		var L_UPGRADE = "<?php $l->dump("UPGRADE")?>";
+	var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
+	var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
+	var L_UPGRADE = "<?php $l->dump("UPGRADE")?>";
 	</script>
 	<?php require_once( __ROOTDIR . "/applications/ajax_img/js/form_action.js.php")?>
 <?php endif;?>
 
 <?php ob_start();?>
-	<style>
-	.btn-file {
-		position: relative;
-		overflow: hidden;
-	}
-	.btn-file input[type=file] {
-		position: absolute;
-		top: 0;
-		right: 0;
-		min-width: 100%;
-		min-height: 100%;
-		font-size: 100px;
-		text-align: right;
-		filter: alpha(opacity=0);
-		opacity: 0;
-		outline: none;
-		background: white;
-		cursor: inherit;
-		display: block;
-	}
-	</style>
+<style>
+.btn-file {
+	position: relative;
+	overflow: hidden;
+}
+.btn-file input[type=file] {
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-width: 100%;
+	min-height: 100%;
+	font-size: 100px;
+	text-align: right;
+	filter: alpha(opacity=0);
+	opacity: 0;
+	outline: none;
+	background: white;
+	cursor: inherit;
+	display: block;
+}
+</style>
 <?php echo FastCache::outCSSMin(); ?>
 
 <form action="<?php echo __SITEURL?>/upload_img_ajax/upload" msz="<?php echo php_max_upload_size()?>" style="height:33px;" method="post" enctype="multipart/form-data" class="img_ajax">
