@@ -12,25 +12,25 @@ defined("__POSEXEC") or die("No direct access allowed!");
  */
 
 function include_ext($__path,$vars=null){
-	extract($vars);
+	$vars != null ? extract($vars) : null;
 	unset($vars);
 	return include $__path;
 }
 
 function include_once_ext($__path,$vars=null){
-	extract($vars);
+	$vars != null ? extract($vars) : null;
 	unset($vars);
 	return include_once $__path;
 }
 
 function require_ext($__path,$vars=null){
-	extract($vars);
+	$vars != null ? extract($vars) : null;
 	unset($vars);
 	return require $__path;
 }
 
 function require_once_ext($__path,$vars=null){
-	extract($vars);
+	$vars != null ? extract($vars) : null;
 	unset($vars);
 	return require_once $__path;
 }

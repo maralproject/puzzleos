@@ -428,10 +428,10 @@ if(file_exists(__ROOTDIR . "/configs")){
 require_ext(__ROOTDIR.'/configs/root.sys.php');
 require("database.php");
 
-if(file_get_contents(__ROOTDIR . "/storage/dbcache/systables") != md5(file_get_contents("systables.php"))){
+if(file_get_contents(__ROOTDIR . "/storage/dbcache/systables") != md5(file_get_contents(__ROOTDIR . "/bootstrap/systables.php"))){
 	/* Build system table in the database. Only run if file is modified. */
 	require("systables.php");
-	file_put_contents(__ROOTDIR . "/storage/dbcache/systables",md5(file_get_contents("systables.php")));
+	file_put_contents(__ROOTDIR . "/storage/dbcache/systables",md5(file_get_contents(__ROOTDIR . "/bootstrap/systables.php")));
 }
 
 if(!__isCLI()){
