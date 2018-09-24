@@ -752,6 +752,24 @@ class Database{
 			return(self::$cache["readAllCustom"][$table.$options.serialize($param).spl_object_hash($iterator)]);
 		}
 	}
+
+	/**
+	 * Do a transaction in Database Engine.
+	 * If some of the function throws an error,
+	 * we will Rollback the database action.
+	 * 
+	 * @param Closure $handler
+	 */
+	public static function transaction($handler){
+		if(!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
+		self::query("START TRANSACTION");
+		try{
+			$handler();
+			self::query("COMMIT");
+		}catch(Exception $e){
+			self::query("ROLLBACK");
+		}
+	}
 	
 	/**
 	 * Fetch all mysql result and convert it into array
