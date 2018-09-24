@@ -1,14 +1,10 @@
 <?php
-defined("__POSEXEC") or die("No direct access allowed!");
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
- * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
- * 
- * @software     Release: 2.0.2
  */
  
 setlocale(LC_ALL,str_replace("-","_",POSConfigGlobal::$default_language));

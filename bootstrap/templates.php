@@ -1,14 +1,10 @@
 <?php
-defined("__POSEXEC") or die("No direct access allowed!");
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
- * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
- * 
- * @software     Release: 2.0.2
  */
 
 /**
@@ -77,7 +73,7 @@ class Template{
 		if(!IO::exists(self::$dir . "/manifest.ini"))
 			throw new PuzzleError("Template " . self::$active . " not exists!","Please check the manifest!");
 			
-		$manifest = parse_ini_file(IO::physical_path(self::$dir . "/manifest.ini"));		
+		$manifest = parse_ini_file(IO::physical_path(self::$dir . "/manifest.ini"));
 		$tmpl = new PObject(array(
 			"dumpHeaders" => function() { 
 				echo self::$addOnHeader;

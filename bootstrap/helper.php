@@ -1,14 +1,10 @@
 <?php
-defined("__POSEXEC") or die("No direct access allowed!");
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
- * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
- * 
- * @software     Release: 2.0.2
  */
 
 function include_ext($__path,$vars=null){
@@ -238,26 +234,6 @@ function preparedir($dir, $post_prep_func = NULL){
 }
 
 /**
- * A custom class like stdObject,
- * the differences is, you can fill it with a bunch of fucntion
- */
-class PObject{
-	protected $methods = [];
-	public function __construct(array $options){
-		$this->methods = $options;
-	}
-	public function __call($name, $arguments){
-		$callable = null;
-		if (array_key_exists($name, $this->methods)) $callable = $this->methods[$name];
-		else if(isset($this->$name)) $callable = $this->$name;
-
-		if (!is_callable($callable)) throw new PuzzleError("Method {$name} does not exists");
-
-		return call_user_func_array($callable, $arguments);
-	}
-} 
-
-/**
  * Check if string is startsWith
  * @param string $haystack 
  * @param string $needle 
@@ -281,19 +257,18 @@ function ends_with($haystack, $needle){
 }
 
 /**
- * Get HTTP URI
- * @param string $name e.g. "app", "action", or index
+ * Get HTTP URI based on index
+ * @param string $index e.g. "app", "action", or index
  * @return string
  */
-function __getURI($name){
+function __getURI($index){
 	if(__isCLI()) return NULL; //No URI on CLI
-	if(is_integer($name)){
-		$key = $name;
+	if(is_integer($index)){
+		$key = $index;
 	}else{
-		$key = strtoupper($name);
+		$key = strtoupper($index);
 	}
-	if(isset(POSGlobal::$uri[$key])) return(POSGlobal::$uri[$key]);
-	return("");
+	return(isset(POSGlobal::$uri[$key]) ? POSGlobal::$uri[$key] : null);
 }
 
 /**
@@ -308,10 +283,29 @@ function __requiredSystem($version){
 
 /**
  * Get if current environment is in CLI or not
- * 
  * @return bool
  */
 function __isCLI(){
 	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
+
+/**
+ * A custom class like stdObject,
+ * the differences is, you can fill it with a bunch of fucntion
+ */
+class PObject{
+	protected $methods = [];
+	public function __construct(array $options){
+		$this->methods = $options;
+	}
+	public function __call($name, $arguments){
+		$callable = null;
+		if (array_key_exists($name, $this->methods)) $callable = $this->methods[$name];
+		else if(isset($this->$name)) $callable = $this->$name;
+
+		if (!is_callable($callable)) throw new PuzzleError("Method {$name} does not exists");
+
+		return call_user_func_array($callable, $arguments);
+	}
+} 
 ?>
