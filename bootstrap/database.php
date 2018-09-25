@@ -264,6 +264,7 @@ class Database{
 			$escaped .= $token;
 			$processedLen += strlen($token) + 1;
 			if($processedLen >= strlen($query)){
+				if(current($param) !== false) $escaped .= self::escape(current($param));
 				break;
 			}else if(current($param) === false){
 				throw new DatabaseError("Not enough parameter");
@@ -287,10 +288,10 @@ class Database{
 			file_put_contents(__ROOTDIR . "/db.log",$re["file"].":".$re["line"]."\r\n\t$escaped\r\n\r\n",FILE_APPEND);
 		}
 
-		if($r = mysqli_query(self::$link,$escaped)){
+		if($r = self::$link->query($escaped)){
 			return $r;
 		}else{
-			throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $query);
+			throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $escaped);
 		}
 	}
 
