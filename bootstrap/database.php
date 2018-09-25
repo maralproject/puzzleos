@@ -291,7 +291,16 @@ class Database{
 		if($r = self::$link->query($escaped)){
 			return $r;
 		}else{
-			throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $escaped);
+			if(mysqli_errno(self::$link) == "2014"){
+				/* Perform a reconnect */
+				self::$link->close();
+				self::connect();
+				self::flushCache();
+				if(!($r = self::$link->query($escaped))){
+					throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $escaped);
+				}
+			}else
+				throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $escaped);
 		}
 	}
 
@@ -450,6 +459,7 @@ class Database{
 			//Skip auto_increment column
 			if(str_contains($k["Extra"],"auto_increment")) continue;
 			if(current($array) === false){
+				if($k["Default"] != null) break;
 				throw new DatabaseError("Not enough parameter");
 			}else{
 				$cList .= '`'.$k["Field"].'`,';
@@ -657,12 +667,12 @@ class Database{
 	 */
 	public static function transaction($handler){
 		if(!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
-		self::query("START TRANSACTION");
+		self::$link->begin_transaction();
 		try{
 			$handler();
-			self::query("COMMIT");
+			self::$link->commit();
 		}catch(Exception $e){
-			self::query("ROLLBACK");
+			self::$link->rollback();
 		}
 	}
 
@@ -756,7 +766,7 @@ class Database{
 			if(mysqli_query(self::$link,$query)){
 				if($insertData){
 					foreach($initialData["simple"] as $row){
-						self::newRow($table,$row);
+						self::newRow($table,...$row);
 					}
 					foreach($initialData["advance"] as $row){
 						self::newRowAdvanced($table,$row);
