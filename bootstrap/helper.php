@@ -32,6 +32,15 @@ function require_once_ext($__path,$vars=null){
 }
 
 /**
+ * Check if stack caller is from the file itself
+ * @return bool
+ */
+function is_callbyme(){
+	$d=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2);
+	return ($d[0]["file"] == $d[1]["file"]);
+}
+
+/**
  * Return the absolute internal path from apps or templates.
  * @param string $path 
  * @return string
@@ -254,6 +263,16 @@ function ends_with($haystack, $needle){
     $length = strlen($needle);
     if ($length == 0) return true;
 	return (substr($haystack, -$length) === $needle);
+}
+
+/**
+ * Check if string contains
+ * @param string $haystack 
+ * @param string $needle 
+ * @return bool
+ */
+function str_contains($haystack, $needle){
+	return (strpos($haystack, $needle) !== false);
 }
 
 /**

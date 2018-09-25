@@ -99,7 +99,7 @@ if(__getURI("app") == $appProp->appname){
 				($require_activation?"0":1),
 				(time() + 600)
 			);
-			$f_id = Database::getLastId("app_users_list","id");
+			$f_id = Database::max("app_users_list","id");
 			
 			if($require_activation){
 				$act_code['confirm_activation']['email'] = $_POST['email'];

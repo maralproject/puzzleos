@@ -102,9 +102,7 @@ class AppManager{
 		if(self::$AppList != NULL) return self::$AppList;
 		
 		$fval = function($a,$f,$v){
-			foreach($a as $t){
-				if($t[$f] == $v) return $t;
-			}
+			foreach($a as $t) if($t[$f] == $v) return $t;
 		};
 		
 		/* Caching database operation */
@@ -373,7 +371,7 @@ class Application{
 		$this->rootdir = "/applications/".$dir;
 		$this->datadir = "/user_data/".$this->appname;
 		
-		return $this;
+		return $this->__papp();
 	}
 
 	/**
@@ -393,7 +391,8 @@ class Application{
 		
 		if(!__isCLI()){
 			if(!AppManager::$MainAppStarted){
-				/* In multidomain mode, there is a feature called App resctriction,
+				/**
+				 * In multidomain mode, there is a feature called App resctriction,
 				 * meaning the app cannot start as the main user interface for that session.
 				 * But, that app can be still called and run by another apps if necessary,
 				 * also it's services and menus still can be called

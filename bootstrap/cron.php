@@ -53,6 +53,7 @@ class CronTrigger{
      * Add an interval trigger
      * You can use T_MINUTE, T_HOUR, T_DAY definition: see /cron.php
      * @param integer $seconds
+     * @return CronTrigger
      */
     public function interval($seconds) {
         if ($this->hour!=-1 || $this->day!=-1 || $this->date!=-1 || $this->month!=-1 || $this->year!=-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
@@ -64,6 +65,7 @@ class CronTrigger{
     /**
      * Add an hour trigger (24-hour format)
      * @param integer $hour
+     * @return CronTrigger
      */
     public function hour($hour) {
         if (idate("H", CronJob::$time)==$hour) {
@@ -78,6 +80,7 @@ class CronTrigger{
      * Add day trigger
      * Day 0 (Sun) through 6 (Sat)
      * @param day number $day
+     * @return CronTrigger
      */
     public function day($day) {
         $today=idate("w", CronJob::$time);
@@ -92,6 +95,7 @@ class CronTrigger{
     /**
      * Add date trigger
      * @param integer $date
+     * @return CronTrigger
      */
     public function date($date) {
         $currentDate=idate("d", CronJob::$time);
@@ -106,6 +110,7 @@ class CronTrigger{
     /**
      * Add month trigger
      * @param integer $month
+     * @return CronTrigger
      */
     public function month($month) {
         $currentMonth=idate("m", CronJob::$time);
@@ -120,6 +125,7 @@ class CronTrigger{
     /**
      * Add year trigger
      * @param integer $year
+     * @return CronTrigger
      */
     public function year($year) {
         $currentYear=idate("Y", CronJob::$time);

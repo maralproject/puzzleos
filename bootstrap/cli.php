@@ -70,16 +70,12 @@ class PuzzleCLI{
 				throw new PuzzleError("Application doesn't register handler for CLI");
 			
 			$io = new PObject([
-				"in" => function() { 
-					if (PHP_OS == 'WINNT')
-					  $line = stream_get_line(STDIN, 1024, PHP_EOL);
-					else
-					  $line = readline();
-					  
-					return $line;
+				"in" => function() {
+					return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
 				},
 				"out" => function($o) { 
 					echo trim($o,"\t");
+					flush();
 				}
 			]);
 			
@@ -91,19 +87,16 @@ class PuzzleCLI{
 			if($sys == "cron"){
 				if($arg["run"]) 
 					CronJob::run();
-				else 
-					throw new PuzzleError("Invalid action");
+				else throw new PuzzleError("Invalid action");
 			}elseif($sys == "cache"){
 				if($arg["flush"]){
 					IO::remove_r("/public/cache");
 					IO::remove_r("/public/res");
 				}
-				else 
-					throw new PuzzleError("Invalid action");
+				else throw new PuzzleError("Invalid action");
 			}else
 				throw new PuzzleError("Invalid parameter");
 		}
 	}
 }
-
 ?>

@@ -19,9 +19,11 @@ class DatabaseRowInput{
 		return $this;
 	}
 
-	/* Set Column field
+	/** 
+	 * Set Column field
 	 * @param string $column_name
 	 * @param $value
+	 * @return DatabaseRowInput
 	 */
 	public function setField($column_name, $value){
 		if($column_name == "") throw new DatabaseError("Column name cannot be empty");
@@ -29,21 +31,23 @@ class DatabaseRowInput{
 		return $this;
 	}
 
+	/**
+	 * Get array from current RowInput
+	 * @return array
+	 */
+	public function toArray(){
+		return $this->rowStructure;
+	}
+
 	public function clearStructure(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseRowInput violation!");
 		$this->rowStructure = [];
 		return $this;
 	}
 
 	public function getStructure(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseRowInput violation!");
 		return $this->rowStructure;
-	}
-	
-	private function x_call(){
-		$caller = btfslash(debug_backtrace(null,2)[1]["file"]);
-		if(str_replace(__ROOTDIR."/","",$caller) != "bootstrap/database.php")
-			throw new DatabaseError("DatabaseTableBuilder violation!");
 	}
 }
 
@@ -68,6 +72,7 @@ class DatabaseTableBuilder{
 	 * @param string $name Give the index a name
 	 * @param array $column Provide column that you want to add to this index
 	 * @param string $type Choose UNIQUE, FULLTEXT, SPATIAL, or leave it empty
+	 * @return DatabaseTableBuilder
 	 */
 	public function createIndex($name,$column,$type = ""){
 		switch($type){
@@ -76,37 +81,49 @@ class DatabaseTableBuilder{
 			throw new DatabaseError("Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty");
 		}
 		
-		if(!is_array($column)) throw new DatabaseError("Columns should be an array");
+		if(!is_array($column)) throw new DatabaseError('$column should be an array');
 		$this->indexes[] = [$name,$column,$type];
 		return $this;
 	}
 
-	/* Create structure along with initial record
+	/** 
+	 * Create structure along with initial record
 	 * If the table already have some record, than this data will not be inserted
-	 * @param array $structure
+	 * @param mixed ...$structure
+	 * @return DatabaseTableBuilder
 	 */
 	public function newInitialRow(...$structure){
 		$this->rowStructure["simple"][] = $structure;
+		return $this;
 	}
 
-	/* Create structure along with initial record
+	/** 
+	 * Create structure along with initial record
 	 * If the table already have some record, than this data will not be inserted
 	 * @param DatabaseRowInput $structure
+	 * @return DatabaseTableBuilder
 	 */
 	public function newInitialRowAdvanced($structure){
 		if(!is_a($structure,"DatabaseRowInput")) throw new DatabaseError("Please use DatabaseRowInput as a structure!");
 		$this->rowStructure["advance"][] = clone $structure;
 		$structure->clearStructure();
+		return $this;
 	}
 
 	/**
 	 * Make the table dropped whenever the table structure changed
-	 * DANGER: Use this function wisely! It will drop the table is we detected a little change in table structure checksum
+	 * DANGER: Use this function wisely! It will drop the table is we detected a change in table structure checksum
 	 */
 	public function dropTable(){
 		$this->needToDrop = true;
 	}
 
+	/**
+	 * Add column attribute to table
+	 * @param string $name
+	 * @param string $type Use Qualified Mysql data type (e.g. TEXT, TINYTEXT)
+	 * @return DatabaseTableBuilder
+	 */
 	public function addColumn($name, $type="TEXT"){
 		if(strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		$this->selectedColumn = $name;
@@ -115,6 +132,11 @@ class DatabaseTableBuilder{
 		return $this;
 	}
 
+	/**
+	 * Change column selection
+	 * @param string $name
+	 * @return DatabaseTableBuilder
+	 */
 	public function selectColumn($name){
 		if(strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		if(!isset($this->arrayStructure[$name])) throw new DatabaseError("Column not found");
@@ -122,6 +144,10 @@ class DatabaseTableBuilder{
 		return $this;
 	}
 
+	/**
+	 * Set current column as Primary Key
+	 * @return DatabaseTableBuilder
+	 */
 	public function setAsPrimaryKey(){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		foreach($this->arrayStructure as $key=>$data){
@@ -130,24 +156,44 @@ class DatabaseTableBuilder{
 		return $this;
 	}
 
+	/**
+	 * Remove any current primary key from table
+	 * @return DatabaseTableBuilder
+	 */
 	public function removePrimaryKey(){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][1] = false;
 		return $this;
 	}
 
+	/**
+	 * Allow column to be NULL
+	 * @param bool $bool
+	 * @return DatabaseTableBuilder
+	 */
 	public function allowNull($bool){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][2] = $bool;
 		return $this;
 	}
 
+	/**
+	 * Set default value for this column.
+	 * Make sure that your data type suppport defaultValue
+	 * @param mixed $str
+	 * @return DatabaseTableBuilder
+	 */
 	public function defaultValue($str){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][3] = (string)$str;
 		return $this;
 	}
 
+	/**
+	 * Set data tpe for this column
+	 * @param string $type
+	 * @return DatabaseTableBuilder
+	 */
 	public function setType($type){
 		if($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][0] = $type;
@@ -155,109 +201,102 @@ class DatabaseTableBuilder{
 	}
 
 	public function x_getStructure(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
 		return($this->arrayStructure);
 	}
 
 	public function x_getIndexes(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
 		return($this->indexes);
 	}
 
 	public function x_getInitialRow(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
 		return($this->rowStructure);
 	}
 
 	public function x_needToDropTable(){
-		$this->x_call();
+		if(!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
 		return($this->needToDrop);
-	}
-	
-	private function x_call(){
-		$caller = btfslash(debug_backtrace(null,2)[1]["file"]);
-		if(btfslash($caller) != btfslash(__FILE__))
-			throw new DatabaseError("DatabaseTableBuilder violation!");
 	}
 }
 
 /**
- * Database operation.
- * Use it as Procedural style.
+ * Database operation class
  */
 class Database{
+	/**
+	 * @var mysqli
+	 */
+	private static $link;
 	private static $cache = [];
 	private static $t_cache = [];
 
-	/**
-	 * Mysql database link
-	 * @var mysqli
-	 */
-	public static $link;
-	
-	public static function flushCache(){
-		self::$cache = [];
+	public static function connect(){
+		if(!is_callbyme()) throw new DatabaseError("Database violation!");
+		self::$link = mysqli_connect(
+			POSConfigDB::$host,
+			POSConfigDB::$username,
+			POSConfigDB::$password,
+			POSConfigDB::$database_name
+		);
+		if(!self::$link){
+			throw new DatabaseError(mysqli_connect_error(), 
+				"Fyi, PuzzleOS only support MySQL server for now. Please re-configure database information in config.php"
+			);
+		}
 	}
 
-	private static function query($query){
-		$new_query = "";
-		$last_occurence = 0;
-		foreach(func_get_args() as $key => $param){
-			if($key == 0) continue;
-			$occurence = strpos($query, "?",$last_occurence);
-			if($occurence !== false){
-				$temp = substr($query,$last_occurence,$occurence - $last_occurence + 1);
-				$temp = str_replace("?",mysqli_real_escape_string(self::$link,$param),$temp);
-				$new_query .= $temp;
-				$last_occurence = $occurence + 1;
-			}else
+	private static function dumpError(){
+		throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+	}
+
+	/**
+	 * Perform MySQL queries
+	 * @return mysqli_result
+	 */
+	private static function query($query,...$param){
+		$escaped = "";
+		$token = strtok($query,'?');
+		reset($param);
+		$processedLen = 0;
+		do{
+			$escaped .= $token;
+			$processedLen += strlen($token) + 1;
+			if($processedLen >= strlen($query)){
 				break;
-		}
-		if($last_occurence < strlen($query))
-			$new_query .= substr($query,$last_occurence);
+			}else if(current($param) === false){
+				throw new DatabaseError("Not enough parameter");
+			}else{
+				$escaped .= self::escape(current($param));
+				next($param);
+			}
+		}while($token = strtok('?'));
 
-		$query = $new_query;
-		unset($new_query);
-
-		switch(strtoupper(explode(" ",$query)[0])){
+		switch(strtoupper(explode(" ",$escaped)[0])){
 			case "SELECT":
 			case "SHOW":
 				break;
 			default:
-				self::$cache = [];
-				if(defined("DB_DEBUG")){
-					file_put_contents(__ROOTDIR . "/db.log","CACHE PURGED\r\n",FILE_APPEND);
-				}
+				self::flushCache();
 		}
+		
 		//See Database caching performance
 		if(defined("DB_DEBUG")){
 			$re = debug_backtrace()[1];
-			file_put_contents(__ROOTDIR . "/db.log",$re["file"].":".$re["line"]."\r\n\t$query\r\n\r\n",FILE_APPEND);
+			file_put_contents(__ROOTDIR . "/db.log",$re["file"].":".$re["line"]."\r\n\t$escaped\r\n\r\n",FILE_APPEND);
 		}
-		$r = mysqli_query(self::$link,$query);
-		if(!$r){
-			if(mysqli_errno(self::$link) == "2014"){
-				/* Perform a reconnect */
-				mysqli_close(self::$link);
 
-				self::$link = mysqli_connect(POSConfigDB::$host,POSConfigDB::$username,POSConfigDB::$password,POSConfigDB::$database_name);
-				if(!self::$link)
-					throw new DatabaseError(mysqli_connect_error(), "Anyway, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
-				self::$link->set_charset("utf8");
-
-				self::$cache = [];
-
-				$r = mysqli_query(self::$link,$query);
-				if(!$r){
-					throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $query);
-				}
-			}else
-				throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $query);
+		if($r = mysqli_query(self::$link,$escaped)){
+			return $r;
+		}else{
+			throw new DatabaseError('Could not execute('.mysqli_errno(self::$link).'): ' . mysqli_error(self::$link), $query);
 		}
-		return ($r);
 	}
 
-	private static function verifyExecCaller($filename,$query){
+	private static function x_verify($find){
+		if($find=="") return false;
+		$filename=debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,3)[2]["file"];
 		if(__isCLI() && isset($GLOBALS["_WORKER"])){
 			$appname = $GLOBALS["_WORKER"]["appdir"];
 
@@ -267,27 +306,27 @@ class Database{
 			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 			$appname = $manifest["rootname"];
 
-			if((preg_match('/app_'.$appname.'_/',$query))) return(true);
+			if((preg_match('/app_'.$appname.'_/',$find))) return(true);
 		}else{
 			$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
 			switch($filename[1]){
 			case "bootstrap":
 				switch($filename[2]){
-				case "debug.php":
-				case "appFramework.php":
-				case "services.php":
-				case "database.php":
-				case "systables.php":
-					return(true);
-				case "cron.php":
-					if((preg_match('/`cron`/',$query))) return(true); break;
-				case "session.php":
-					if((preg_match('/`sessions`/',$query))) return(true); break;
-				case "configman.php":
-					if((preg_match('/`multidomain_config`/',$query))) return(true); break;
-				case "userdata.php":
-				case "boot.php":
-					if((preg_match('/`userdata`/',$query))) return(true); break;
+					case "debug.php":
+					case "appFramework.php":
+					case "services.php":
+					case "database.php":
+					case "systables.php":
+						return(true);
+					case "cron.php":
+						if((preg_match('/`cron`/',$find))) return(true); break;
+					case "session.php":
+						if((preg_match('/`sessions`/',$find))) return(true); break;
+					case "configman.php":
+						if((preg_match('/`multidomain_config`/',$find))) return(true); break;
+					case "userdata.php":
+					case "boot.php":
+						if((preg_match('/`userdata`/',$find))) return(true); break;
 				}
 				break;
 			case "applications":
@@ -299,163 +338,48 @@ class Database{
 				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 				$appname = $manifest["rootname"];
 
-				if((preg_match('/app_'.$appname.'_/',$query))) return(true);
+				if((preg_match('/app_'.$appname.'_/',$find))) return(true);
 			}
 		}
 		return(false);
 	}
 	
-	private static function verifyCaller($filename,$table){
-		if(__isCLI() && isset($GLOBALS["_WORKER"])){
-			$appname = $GLOBALS["_WORKER"]["appdir"];
-
-			if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
-			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
-
-			$appname = $manifest["rootname"];
-			if((preg_match('/app_'.$appname.'_/',$table))) return(true);
-		}else{
-			$filename = explode("/",str_replace(__ROOTDIR,"",btfslash($filename)));
-			switch($filename[1]){
-			case "bootstrap":
-				switch($filename[2]){
-				case "debug.php":
-				case "appFramework.php":
-				case "services.php":
-				case "database.php":
-				case "systables.php":
-					return(true);
-				case "cron.php":
-					if($table == "cron") return(true); break;
-				case "session.php":
-					if($table == "sessions") return(true); break;
-				case "configman.php":
-					if($table == "multidomain_config") return(true); break;
-				case "userdata.php":
-				case "boot.php":
-					if($table == "userdata") return(true); break;
-				}
-				break;
-			case "applications":
-				$appname = isset($filename[2])?$filename[2]:"";
-
-				if(!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
-				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
-
-				$appname = $manifest["rootname"];
-				if((preg_match('/app_'.$appname.'_/',$table))) return(true);
-			}
+	/**
+	 * Flush database cache
+	 */
+	public static function flushCache(){
+		self::$cache = [];
+		if(defined("DB_DEBUG")){
+			file_put_contents(__ROOTDIR . "/db.log","CACHE PURGED\r\n",FILE_APPEND);
 		}
-		return(false);
-	}
-
-	private static function colAI($table){
-		if(isset(self::$cache["colAI"][$table])) return self::$cache["colAI"][$table];
-		$res = self::query("show columns from `?` where extra like '%auto_increment%';", $table);
-		if(! $res ){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error($res));
-		}
-		$n = 0;
-		$arrayL = [];
-		while($row = mysqli_fetch_array($res))
-		{
-			$arrayL[$n] = $row[0];
-			$n++;
-		}
-		self::$cache["colAI"][$table] = $arrayL;
-		return($arrayL);
-	}
-
-	private static function colNum($table){
-		if(isset(self::$cache["colNum"][$table])) return self::$cache["colNum"][$table];
-		$res = self::query("show columns from `?`;", $table);
-		if(! $res ){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error($res));
-		}
-		$count = mysqli_num_rows($res);
-		self::$cache["colNum"][$table] = $count;
-		return($count);
-	}
-
-	private static function colList($table){
-		if(isset(self::$cache["colList"][$table])) return self::$cache["colList"][$table];
-		$res = self::query("show columns from `?`;", $table);
-		if(! $res ){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error($res));
-		}
-		$n = 0;
-		$arrayL;
-		while($row = mysqli_fetch_array($res))
-		{
-			$arrayL[$n] = $row[0];
-			$n++;
-		}
-		self::$cache["colList"][$table] = $arrayL;
-		return($arrayL);
-	}
-
-	private static function colType($table,$col){
-		if(isset(self::$cache["colType"][$table.$col])) return self::$cache["colType"][$table.$col];
-		$res = self::query("show columns from `?` WHERE `Field`='?';", $table, $col);
-		if(! $res ){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error($res));
-		}
-		$n = 0;
-		$type;
-		while($row = mysqli_fetch_array($res))
-		{
-			$type = $row["Type"];
-			break;
-		}
-		self::$cache["colType"][$table.$col] = $type;
-		return($type);
-	}
-
-	private static function colDefVal($table,$col){
-		if(isset(self::$cache["colDefVal"][$table.$col])) return self::$cache["colDefVal"][$table.$col];
-		$res = self::query("show columns from `?` WHERE `Field`='?';", $table, $col);
-		if(! $res ){
-		  throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-		}
-		$n = 0;
-		$type;
-		while($row = mysqli_fetch_array($res))
-		{
-			$type = $row["Default"];
-			break;
-		}
-		self::$cache["colDefVal"][$table.$col] = $type;
-		return($type);
 	}
 
 	/**
-	 * Get last Id or any value from specific column
-	 * NOTE!: This function only implement MAX() function from mysql
+	 * Get max value from column in table
 	 * @param string $table Table Name
-	 * @param string $col Column Name
-	 * @param string $arg Additional custom parameter
-	 * @param string $param Additional custom parameter
+	 * @param string $column Column Name
+	 * @param string $arg Custom parameter
+	 * @param string $param Custom parameter
 	 * @return string
 	 */
-	public static function getLastId($table,$col,$arg = "",...$param){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
-		if(!isset(self::$cache["getLastId"][$table.$col])){
-			$r = self::query("SELECT MAX(`?`) FROM `?` $arg",$col,$table,...$param);
-			if( !$r ) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-			while($row = mysqli_fetch_array($r, MYSQLI_ASSOC)){
-				self::$cache["getLastId"][$table.$col] = $row;
-				return($row["MAX(`".$col."`)"]);
+	public static function max($table,$column,$arg = "",...$param){
+		self::x_verify($table);
+		if(!isset(self::$cache["max"][$table.$column])){
+			if($r = self::query("SELECT MAX(`?`) FROM `?` $arg",$column,$table,...$param)){
+				while($row = $r->fetch_array(MYSQLI_ASSOC)){
+					self::$cache["max"][$table.$column] = $row;
+					return($row["MAX(`".$column."`)"]);
+				}
+			}else{
+				self::dumpError();
 			}
 		}else{
-			return(self::$cache["getLastId"][$table.$col]["MAX(`".$col."`)"]);
+			return(self::$cache["max"][$table.$column]["MAX(`".$column."`)"]);
 		}
 	}
 
 	/**
-	 * Read a single record.
+	 * Read a single column.
 	 * @param string $table Table Name
 	 * @param string $column Column Name
 	 * @param string $findByCol Column need to be matched
@@ -463,16 +387,15 @@ class Database{
 	 * @return string
 	 */
 	public static function read($table,$column,$findByCol,$findByVal){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		if(!isset(self::$cache["read"][$table.$findByCol.$findByVal])){
-			$retval = self::query("SELECT * FROM `?` WHERE `?`='?' LIMIT 1;", $table, $findByCol, $findByVal);
-			if( !$retval ) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-			while($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)){
-				self::$cache["read"][$table.$findByCol.$findByVal] = $row;
-				return($row[$column]);
+			if($retval = self::query("SELECT * FROM `?` WHERE `?`='?' LIMIT 1;", $table, $findByCol, $findByVal)){
+				while($row = $retval->fetch_array(MYSQLI_ASSOC)){
+					self::$cache["read"][$table.$findByCol.$findByVal] = $row;
+					return($row[$column]);
+				}
+			}else{
+				self::dumpError();
 			}
 		}else{
 			return(self::$cache["read"][$table.$findByCol.$findByVal][$column]);
@@ -480,7 +403,7 @@ class Database{
 	}
 
 	/**
-	 * Read a single record with custom argument.
+	 * Read a single column with custom argument.
 	 * @param string $table Table Name
 	 * @param string $column Column Name
 	 * @param string $arg Additional custom parameter
@@ -488,19 +411,18 @@ class Database{
 	 * @return string
 	 */
 	public static function readArg($table,$column,$arg = "",...$param){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		$c_param = serialize($param);
 		if(!isset(self::$cache["readArg"][$table.$arg.$c_param])){
-			$retval = self::query("SELECT * FROM `?` ".$arg.";", $table, ...$param);
-			if(!$retval) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
-			while($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)){
-				self::$cache["readArg"][$table.$arg.$c_param] = $row;
-				return(self::$cache["readArg"][$table.$arg.$c_param][$column]);
+			if($retval = self::query("SELECT * FROM `?` ".$arg.";", $table, ...$param)){
+				while($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)){
+					self::$cache["readArg"][$table.$arg.$c_param] = $row;
+					return(self::$cache["readArg"][$table.$arg.$c_param][$column]);
+				}
+				self::$cache["readArg"][$table.$arg.$c_param] = [];
+			}else{
+				self::dumpError();
 			}
-			self::$cache["readArg"][$table.$arg.$c_param] = [];
 		}else{
 			return(self::$cache["readArg"][$table.$arg.$c_param][$column]);
 		}
@@ -508,43 +430,54 @@ class Database{
 
 	/**
 	 * Write a new record
+	 * NOTE: AUTO_INCRECEMENT column will be ignored
 	 * 
-	 * AUTO_INCRECEMENT column will be ignored
-	 * If Default on while field is empty will be discarded too.
-	 * If default on while field isn't empty, won't be discarded.
-	 * 
-	 * @param string $table Table Name
-	 * @param array $array array(field1,field2,field3,..); Field will be discarded if column has default value.
-	 * @return bool
+	 * @param string $table
+	 * @param mixed ...$array
+	 * @return mysqli_result
 	 */
-	public static function newRow($table,...$array){
-		if(!is_array($array[0])){
-			if(func_num_args()<2) throw new PuzzleError("Input must be more than two argument");
-		}else{
-			$array = $array[0];
-		}
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+	public static function newRow($table, ...$array){
+		self::x_verify($table);
+		if(count($array)<1) throw new DatabaseError('$array expecting array');
 		
 		$fList = "";
 		$cList = "";
-		$temp = self::colList($table);
-		$AIcol = self::colAI($table); //Coloumn that enables AUTO_INCREACEMENT
-		for($i = 0, $n=0; $i<self::colNum($table); $i++){
-			if(!in_array($temp[$i],$AIcol)){
-				if(!(($array[$n] == "") && (self::colDefVal($table,$temp[$i])!=""))){
-					if($array[$n] === NULL){
-						$fList .= "NULL,";
-					}else
-						$fList .= "'".self::escapeStr($array[$n])."',";
-					$cList .= "`".$temp[$i]."`,";
-				}
-				$n++;
+		$columns = self::toArray(self::query("show columns from `?`;", $table))->data;
+		reset($array);
+
+		foreach($columns as $k){
+			//Skip auto_increment column
+			if(str_contains($k["Extra"],"auto_increment")) continue;
+			if(current($array) === false){
+				throw new DatabaseError("Not enough parameter");
+			}else{
+				$cList .= '`'.$k["Field"].'`,';
+				$fList .= current($array) === null ? "NULL," : "'".self::escape(current($array))."',";
+				next($array);
 			}
 		}
-		return (self::query("INSERT INTO `".$table."` (".rtrim($cList, ",").") VALUES (".rtrim($fList, ",").");"));
+
+		return (self::query("INSERT INTO `$table` (".rtrim($cList, ",").") VALUES (".rtrim($fList, ",").");"));
+	}
+
+	/**
+	 * Write a new record by specifiying column name
+	 * @param string $table Table Name
+	 * @param DatabaseRowInput $row_input
+	 * @return mysqli_result
+	 */
+	public static function newRowAdvanced($table,DatabaseRowInput $row_input){
+		self::x_verify($table);
+		$structure = $row_input->getStructure();
+		$col_list = "";
+		$value_list = "";
+		foreach($structure as $column=>$value){
+			if($column == "") continue;
+			$col_list .= "`$column`, ";
+			$value_list .= ($value === NULL) ? "NULL," : "'".self::escape($value)."', ";
+		}
+		$row_input->clearStructure();
+		return (self::query("INSERT INTO `".$table."` (".rtrim($col_list,", ").") VALUES (".rtrim($value_list,", ").");"));
 	}
 
 	/**
@@ -555,66 +488,17 @@ class Database{
 	 * @param string $findByVal
 	 * @return bool
 	 */
-	public static function updateRowAdvanced($table,$row_input,$findByCol,$findByVal){
-		if(!is_a($row_input,"DatabaseRowInput")) throw new DatabaseError("Please use DatabaseRowInput for the structure!");
-
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
-
-		$findByCol = self::escapeStr($findByCol);
-		$findByVal = self::escapeStr($findByVal);
+	public static function updateRowAdvanced($table,DatabaseRowInput $row_input,$findByCol,$findByVal){
+		self::x_verify($table);
+		$findByCol = self::escape($findByCol);
+		$findByVal = self::escape($findByVal);
 		$structure = $row_input->getStructure();
-
 		$data = "";
-
 		foreach($structure as $column=>$value){
 			if($column == "") continue;
-			if($value === NULL)
-				$data .= "`$column`=NULL,";
-			else
-				$data .= "`$column`='".self::escapeStr($value)."',";
-
+			$data .= ($value === NULL) ? "`$column`=NULL," : "`$column`='".self::escape($value)."',";
 		}
-
-		$data =	rtrim($data,",");
-
-		return (self::query("UPDATE `$table` SET $data WHERE `$findByCol`='$findByVal'"));
-	}
-
-	/**
-	 * Write a new record by specifiying column name
-	 * @param string $table Table Name
-	 * @param DatabaseRowInput $row_input
-	 * @return bool
-	 */
-	public static function newRowAdvanced($table,$row_input){
-		if(!is_a($row_input,"DatabaseRowInput")) throw new DatabaseError("Please use DatabaseRowInput for the structure!");
-
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
-
-		$structure = $row_input->getStructure();
-		$col_list = "";
-		$value_list = "";
-		foreach($structure as $column=>$value){
-			if($column == "") continue;
-			$col_list .= "`$column`, ";
-			if($value === NULL)
-				$value_list .= "NULL, ";
-			else
-				$value_list .= "'".self::escapeStr($value)."', ";
-		}
-
-		$col_list = rtrim($col_list,", ");
-		$value_list = rtrim($value_list,", ");
-
-		$row_input->clearStructure();
-
-		return (self::query("INSERT INTO `".$table."` ($col_list) VALUES ($value_list);"));
+		return (self::query("UPDATE `$table` SET ".	rtrim($data,",")." WHERE `$findByCol`='$findByVal'"));
 	}
 
 	/**
@@ -625,10 +509,7 @@ class Database{
 	 * @return bool
 	 */
 	public static function deleteRow($table,$findByCol,$findByVal){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		return(self::query("DELETE FROM `?` WHERE `?`='?';", $table, $findByCol, $findByVal));
 	}
 
@@ -640,10 +521,7 @@ class Database{
 	 * @return bool
 	 */
 	public static function deleteRowArg($table,$arg,...$param){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		return(self::query("DELETE FROM `?` ".$arg.";", $table, ...$param));
 	}
 
@@ -654,24 +532,18 @@ class Database{
 	 * @return bool
 	 */
 	public static function dropTable($table){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		return(self::query("DROP TABLE `?`;", $table));
 	}
 
 	/**
 	 * Execute a single query.
 	 * @param string $query For better security, use '?' as a mark for each parameter.
-	 * @param object ...$param Will replace the '?' as parameterized queries
-	 * @return bool
+	 * @param mixed ...$param Will replace the '?' as parameterized queries
+	 * @return mysqli_result
 	 */
 	public static function exec($query, ...$param){
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyExecCaller($f,$query); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($query);
 		if(!isset(self::$cache["exec"][$query.serialize($param)])){
 			self::$cache["exec"][$query.serialize($param)] = self::query($query, ...$param);
 		}
@@ -679,12 +551,11 @@ class Database{
 	}
 
 	/**
-	 * Escape a string for database query
-	 * @param string $str For better security, use '?' as a mark for each parameter.
+	 * Escape string for database query
 	 * @return string
 	 */
-	public static function escapeStr($str){
-		return(mysqli_real_escape_string(self::$link,$str));
+	public static function escape($str){
+		return(self::$link->real_escape_string($str));
 	}
 
 	/**
@@ -694,17 +565,13 @@ class Database{
 	 */
 	public static function isTableExist($table){
 		if($table == "") throw new DatabaseError("Table name cannot be empty!");
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
-		
+		self::x_verify($table);
 		if(!isset(self::$cache["tables"])){
-			self::$cache["tables"] = [];
-			$q = mysqli_query(self::$link,"SHOW TABLES");
-			while($r = mysqli_fetch_array($q)) self::$cache["tables"][$r[0]] = 1;
+			$q = self::query("SHOW TABLES");
+			while($r = mysqli_fetch_array($q)){
+				self::$cache["tables"][$r[0]] = 1;
+			}
 		}
-		
 		return (isset(self::$cache["tables"][$table]));
 	}
 
@@ -717,10 +584,7 @@ class Database{
 	 */
 	public static function readAll($table,$options = "", ...$param){
 		if($table == "") throw new DatabaseError("Please fill the table name!");
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		if(!isset(self::$cache["readAll"][$table.$options.serialize($param)])){
 			$array = self::toArray(self::query("SELECT * FROM `$table` $options;", ...$param));
 			self::$cache["readAll"][$table.$options.serialize($param)] = $array;
@@ -733,6 +597,7 @@ class Database{
 	/**
 	 * Read all record in a table, and process it with custom iterator
 	 * @param string $table Table name
+	 * @param callable $iterator
 	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
 	 * @param array $param
 	 * @return array
@@ -740,10 +605,7 @@ class Database{
 	public static function readAllCustom($table,$iterator,$options="", ...$param){
 		if($table == "") throw new DatabaseError("Please fill the table name!");
 		if(!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		if(!isset(self::$cache["readAllCustom"][$table.$options.serialize($param).spl_object_hash($iterator)])){
 			$array = self::toCustom(self::query("SELECT * FROM `$table` $options;", ...$param),$iterator);
 			self::$cache["readAllCustom"][$table.$options.serialize($param)] = $array;
@@ -754,32 +616,13 @@ class Database{
 	}
 
 	/**
-	 * Do a transaction in Database Engine.
-	 * If some of the function throws an error,
-	 * we will Rollback the database action.
-	 * 
-	 * @param Closure $handler
-	 */
-	public static function transaction($handler){
-		if(!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
-		self::query("START TRANSACTION");
-		try{
-			$handler();
-			self::query("COMMIT");
-		}catch(Exception $e){
-			self::query("ROLLBACK");
-		}
-	}
-	
-	/**
 	 * Fetch all mysql result and convert it into array
 	 * @param mysqli_result $result 
 	 * @return object
 	 */
-	public static function toArray($result){
-		if(!is_a($result,"mysqli_result")) throw new DatabaseError('$result should a mysqli_result!');
+	public static function toArray(mysqli_result $result){
 		$array = ["data"=>[],"num"=>0];
-		if(!$result) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+		if(!$result) self::dumpError();
 		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
 			$array["data"][] = $row;
 			$array["num"]++;
@@ -793,11 +636,10 @@ class Database{
 	 * @param Closure $iterator 
 	 * @return object
 	 */
-	public static function toCustom($result,$iterator){
-		if(!is_a($result,"mysqli_result")) throw new DatabaseError('$result should a mysqli_result!');
+	public static function toCustom(mysqli_result $result,$iterator){
 		if(!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
 		$array = ["data"=>[],"num"=>0];
-		if(!$result) throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+		if(!$result) self::dumpError();
 		while($row = mysqli_fetch_array($result, MYSQLI_ASSOC)){
 			$array["data"][] = $iterator($row);
 			$array["num"]++;
@@ -806,26 +648,37 @@ class Database{
 	}
 
 	/**
+	 * Do a transaction in Database Engine.
+	 * If some of the function throws an error,
+	 * we will Rollback the database action.
+	 * 
+	 * @param callable $handler
+	 */
+	public static function transaction($handler){
+		if(!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
+		self::query("START TRANSACTION");
+		try{
+			$handler();
+			self::query("COMMIT");
+		}catch(Exception $e){
+			self::query("ROLLBACK");
+		}
+	}
+
+	/**
 	 * Create or change table structure
 	 * @param string $table Table name
 	 * @param DatabaseTableBuilder $structure
 	 * @return array
 	 */
-	public static function newStructure($table,$structure){
+	public static function newStructure($table,DatabaseTableBuilder $structure){
 		set_time_limit(0);
-		if(is_a($structure,"DatabaseTableBuilder")){
-			$indexes = $structure->x_getIndexes();
-			$initialData = $structure->x_getInitialRow();
-			$needToDrop = $structure->x_needToDropTable();
-			$structure = $structure->x_getStructure();
-		}else{
-			throw new DatabaseError("Please use DatabaseTableBuilder for the structure!");
-		}
+		$indexes = $structure->x_getIndexes();
+		$initialData = $structure->x_getInitialRow();
+		$needToDrop = $structure->x_needToDropTable();
+		$structure = $structure->x_getStructure();
 
-		$caller = (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,1));
-		$f = $caller[0]["file"];
-		$r = self::verifyCaller($f,$table); if(!$r) throw new DatabaseError("Database access denied! " . $f . " on line " . $caller[0]["line"]);
-		unset($caller);
+		self::x_verify($table);
 		
 		if(!isset(self::$t_cache[$table])){
 			if(file_exists(__ROOTDIR . "/storage/dbcache/$table")){
@@ -1082,9 +935,5 @@ class Database{
 }
 
 /* Opening connection to database */
-Database::$link = mysqli_connect(POSConfigDB::$host,POSConfigDB::$username,POSConfigDB::$password,POSConfigDB::$database_name);
-if(!Database::$link){
-	throw new DatabaseError(mysqli_connect_error(), 
-	"Fyi, PuzzleOS only support MySQL server. Please re-configure database information in config.php");
-}
+Database::connect();
 ?>
