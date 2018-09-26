@@ -664,16 +664,43 @@ class Database{
 	 * we will Rollback the database action.
 	 * 
 	 * @param callable $handler
+	 * @return mixed
 	 */
 	public static function transaction($handler){
 		if(!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
 		self::$link->begin_transaction();
 		try{
-			$handler();
+			$r = $handler();
 			self::$link->commit();
+			return $r;
 		}catch(Exception $e){
 			self::$link->rollback();
+			throw new PuzzleError($e->getMessage(),$e->getCode());
 		}
+	}
+
+	/**
+	 * Begin a transaction manually.
+	 * @return bool
+	 */
+	public static function transaction_begin(){
+		return self::$link->begin_transaction();
+	}
+
+	/**
+	 * Commit transaction manually.
+	 * @return bool
+	 */
+	public static function transaction_commit(){
+		return self::$link->commit();
+	}
+
+	/**
+	 * Rollback transaction manually.
+	 * @return bool
+	 */
+	public static function transaction_rollback(){
+		return self::$link->rollback();
 	}
 
 	/**
