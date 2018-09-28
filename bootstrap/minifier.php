@@ -10,7 +10,7 @@
 /**
  * Cache on-demand css, js, or any file instantly
  */ 
-class FastCache{
+class Minifier{
 	/**
 	 * Same with ob_start()
 	 */
@@ -79,7 +79,7 @@ class FastCache{
 	 */
 	public static function outJSMin(){
 		//ob_flush();return; //Use this to disable caching
-		$file = FastCache::start("js",true);
+		$file = Minifier::start("js",true);
 		return('<script type="text/javascript">'.$file.'</script>');
 	}
 	
@@ -89,7 +89,7 @@ class FastCache{
 	 */
 	public static function getJSFile(){
 		//ob_flush();return; //Use this to disable caching
-		$file = __SITEURL . FastCache::start("js");
+		$file = __SITEURL . Minifier::start("js");
 		return('<script type="text/javascript" src="'.$file.'"></script>');
 	}
 	
@@ -98,7 +98,7 @@ class FastCache{
 	 * @return string
 	 */
 	public static function outCSSMin(){
-		$file = FastCache::start("css",true);
+		$file = Minifier::start("css",true);
 		return('<style type="text/css">'.$file.'</style>');
 	}
 	
@@ -107,7 +107,7 @@ class FastCache{
 	 * @return string
 	 */
 	public static function getCSSFile(){
-		$file = __SITEURL . FastCache::start("css");
+		$file = __SITEURL . Minifier::start("css");
 		return('<link rel="stylesheet" type="text/css" href="'.$file.'"/>');
 	}
 }

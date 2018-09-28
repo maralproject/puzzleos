@@ -35,7 +35,7 @@ $l = new Language;
 		});
 	});
 </script>
-<?php echo FastCache::outJSMin(); ob_start();?>
+<?php echo Minifier::outJSMin(); ob_start();?>
 <script>
 	//Create the search algorithm
 	$(document).on("input change","input.searchbox-input",function(e){
@@ -67,5 +67,5 @@ $l = new Language;
 		}
 	});
 </script>
-<?php Template::appendBody(FastCache::outJSMin(),true);?>
+<?php Template::appendBody(Minifier::outJSMin(),true);?>
 <div style="clear:both;height:15px;"></div>

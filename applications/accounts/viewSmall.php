@@ -51,7 +51,7 @@ $func = [
 				border-bottom:none!important;
 			}
 			</style>
-			<?php $t1 = FastCache::outCSSMin(); ob_start();?>
+			<?php $t1 = Minifier::outCSSMin(); ob_start();?>
 			<script>
 			$(document).on("click","button.uglb_trig",function(){
 				var btn = $(this);
@@ -75,7 +75,7 @@ $func = [
 				});
 			});
 			</script>
-			<?php $t2 = FastCache::outJSMin(); ob_start(); echo $t1; echo $t2;?>
+			<?php $t2 = Minifier::outJSMin(); ob_start(); echo $t1; echo $t2;?>
 			<div id="groupListSystem" style="display:none!important;">
 				<?php $l->dump("SEL_GROUP")?>:
 				<div inputid="" class="ugsel" style="max-height:250px;overflow:auto;">

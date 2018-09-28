@@ -40,7 +40,7 @@ $l = new Language;
 		display: block;
 	}
 	</style>
-	<?php echo FastCache::outCSSMin(); ?>
+	<?php echo Minifier::outCSSMin(); ?>
 <?php endif?>
 
 <form style="height:33px;" class="img_ajax">

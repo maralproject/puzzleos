@@ -140,7 +140,7 @@
 }
 </style>
 <?php 
-	echo FastCache::outCSSMin();
+	echo Minifier::outCSSMin();
 	ob_start();
 ?>
 <script>
@@ -188,4 +188,4 @@
   });
 })();
 </script>
-<?php echo(FastCache::outJSMin())?>
+<?php echo(Minifier::outJSMin())?>

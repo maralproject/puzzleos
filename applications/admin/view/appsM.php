@@ -40,7 +40,7 @@ small{
 	margin-bottom:10px;
 	height:112px;
 }
-</style><?php echo FastCache::getCSSFile()?>
+</style><?php echo Minifier::getCSSFile()?>
 <?php $s->dumpSearchBox(); ?>
 <div class="row">
 <div style="clear:both;"></div>
@@ -166,5 +166,5 @@ $(".usergroup-input").on("change",function(){
 	});
 });
 </script>
-<?php echo FastCache::getJSFile()?>
+<?php echo Minifier::getJSFile()?>
 </div>

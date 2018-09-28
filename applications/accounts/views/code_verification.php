@@ -38,7 +38,7 @@ input.big.wrong{
 	border-bottom: 2px solid #f93e3e;
 }
 </style>
-<?php echo FastCache::outCSSMin()?>
+<?php echo Minifier::outCSSMin()?>
 
 <div class="f_center">
 	<div>

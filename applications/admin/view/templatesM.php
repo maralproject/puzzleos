@@ -44,7 +44,7 @@
 .tmpl .selected_t h5{	
 	color:white!important;
 }
-</style><?php echo FastCache::getCSSFile()?>
+</style><?php echo Minifier::getCSSFile()?>
 <div class="tmpl row" style="margin-left:5px;margin-right:5px;">
 	<?php
 		foreach(Template::listAll() as $d){

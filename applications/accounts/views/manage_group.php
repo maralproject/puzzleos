@@ -92,7 +92,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 	display:none!important;
 }
 </style>
-<?php echo FastCache::getCSSFile();?>
+<?php echo Minifier::getCSSFile();?>
 <h3><?php $l->dump("group_editor")?> <i onclick="newGroup();" class="fa fa-plus btn btn-link addItem"></i></h3>
 <?php $se->dumpSearchBox();?>
 <div level="0" class="horizontal_axes" style="background-color:#B9F6CA;">
@@ -245,4 +245,4 @@ $(".h_child .user_card").on("click",function(){
 	}
 });
 </script>
-<?php echo FastCache::getJSFile();?>
+<?php echo Minifier::getJSFile();?>

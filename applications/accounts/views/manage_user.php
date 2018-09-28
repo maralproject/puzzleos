@@ -44,7 +44,7 @@ table select{
 }
 </style>
 <?php 
-	echo FastCache::outCSSMin();
+	echo Minifier::outCSSMin();
 	ob_start();
 ?>
 <script>
@@ -122,7 +122,7 @@ $(document).on("click",".new_user",function(e){
 		succ();
 	});
 });
-</script><?php echo FastCache::getJSFile()?>
+</script><?php echo Minifier::getJSFile()?>
 <div class="table-responsive">
 <table class="table table-hover" id="user_config" style="width:100%;">
 <tr>

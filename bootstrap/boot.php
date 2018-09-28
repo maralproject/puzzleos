@@ -11,6 +11,7 @@
 define("DISABLE_MINIFY",1);
 define("TIME_LIMIT",30);
 define("ENV_WIN",(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'));
+define("IO_STREAM_BUFFER",102400);
 //define("DB_DEBUG",1);
 
 /***********************************
@@ -119,8 +120,8 @@ spl_autoload_register(function($c){
 	case "IO":
 		require("$r/iosystem.php");
 		break;
-	case "FastCache":
-		require("$r/fastcache.php");
+	case "Minifier":
+		require("$r/minifier.php");
 		break;
 	case "Prompt":
 		require("$r/message.php");

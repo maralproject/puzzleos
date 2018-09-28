@@ -53,7 +53,7 @@ if($arg1 == "getdropChoiceInput"){
 			$('#selector_' + name).bind("click",function(e){e.stopPropagation();});
 			$('#selector_' + name).parent().bind("click",function(e){e.stopPropagation();});
 		}
-		</script><?php echo FastCache::outJSMin();?>
+		</script><?php echo Minifier::outJSMin();?>
 		<?php ob_start();?><style>
 		.fa-explorer{
 			display:none;position:absolute;z-index:999;background: #f0f0f0;border-radius: 7px;border: 1px solid #c0c0c0;width:240px;margin-top:3px;margin-left:5px;
@@ -64,7 +64,7 @@ if($arg1 == "getdropChoiceInput"){
 		.fa-icon{
 			border:1px solid #e0e0e0;height:35px;padding:0px;margin:3px;font-size:20px;
 		}
-		</style><?php echo FastCache::outCSSMin();?>
+		</style><?php echo Minifier::outCSSMin();?>
 		<?php
 	}
 	$name = $arg2[0];
@@ -121,7 +121,7 @@ if($arg1 == "getdropChoiceInput"){
 			$('#selector_' + name).bind("click",function(e){e.stopPropagation();});
 			$('#selector_' + name).parent().bind("click",function(e){e.stopPropagation();});
 		}
-		</script><?php echo FastCache::outJSMin();?>
+		</script><?php echo Minifier::outJSMin();?>
 		<?php ob_start();?><style>
 		.fa-explorer{
 			display:none;position:absolute;z-index:999;background: #f0f0f0;border-radius: 7px;border: 1px solid #c0c0c0;width:240px;margin-top:3px;margin-left:5px;
@@ -132,7 +132,7 @@ if($arg1 == "getdropChoiceInput"){
 		.fa-icon{
 			border:1px solid #e0e0e0;height:35px;padding:0px;margin:3px;font-size:20px;
 		}
-		</style><?php echo FastCache::outCSSMin();?>
+		</style><?php echo Minifier::outCSSMin();?>
 		<?php
 		//$search = array('/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s');
 		//$replace = array('>','<','\\1');
@@ -161,7 +161,7 @@ if($arg1 == "getdropChoiceInput"){
 			</div>';
 			return (html.replace(new RegExp("%INPUTNAME%", 'g'), inputName));
 		}
-		</script><?php echo FastCache::outJSMin();?>
+		</script><?php echo Minifier::outJSMin();?>
 		<?php
 		//$search = array('/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s');
 		//$replace = array('>','<','\\1');

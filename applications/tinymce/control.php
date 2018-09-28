@@ -59,4 +59,4 @@ $.ajax({
 	}
 });
 </script>
-<?php Template::appendBody(FastCache::outJSMin(),true); ?>
+<?php Template::appendBody(Minifier::outJSMin(),true); ?>

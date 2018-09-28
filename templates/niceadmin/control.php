@@ -38,7 +38,7 @@
 			});
 		});
 		</script>
-		<?php echo FastCache::outJSMin()?>
+		<?php echo Minifier::outJSMin()?>
 	</head>	
 	<body style="height:100%">
 		<div id="openArea" style="z-index:10000;background:black;opacity:0;width:20px;position:fixed;left:0;height:100%;"></div>

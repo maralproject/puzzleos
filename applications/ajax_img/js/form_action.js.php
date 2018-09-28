@@ -85,4 +85,4 @@
 
 }());
 </script>
-<?php echo FastCache::getJSFile();?>
+<?php echo Minifier::getJSFile();?>

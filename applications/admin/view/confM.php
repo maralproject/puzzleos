@@ -262,4 +262,4 @@ function testEmail(addr){
 	}
 }
 </script>
-<?php echo FastCache::outJSMin();?>
+<?php echo Minifier::outJSMin();?>

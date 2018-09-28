@@ -24,7 +24,7 @@ function Bootstrap_LinkTab(){
 	if (hash){$('.nav-tabs a[href="'+hash+'"]').click();}
 }
 </script>
-<?php Template::addHeader(FastCache::outJSMin(),true); ob_start();?>
+<?php Template::addHeader(Minifier::outJSMin(),true); ob_start();?>
 <script>
 	$(document).ready(function(){
 		$('[data-toggle="tooltip"]').tooltip(); 
@@ -43,4 +43,4 @@ function Bootstrap_LinkTab(){
 			$(".modal.modalOpened").modal("hide");		
 	});
 </script>
-<?php Template::appendBody(FastCache::outJSMin(),true);?>
+<?php Template::appendBody(Minifier::outJSMin(),true);?>

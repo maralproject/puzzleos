@@ -57,7 +57,7 @@ $upload = new Application;$upload->run("upload_img_ajax");
 	border: 1px solid rgba(81, 203, 238, 1);
 }
 </style>
-<?php echo FastCache::getCSSFile()?>
+<?php echo Minifier::getCSSFile()?>
 <table style="width:100%;" class="tableMenu">
 	<tr style="font-weight:bold;">
 		<td style="width:70px;"><?php $l->dump("ICON")?></td>
@@ -163,6 +163,6 @@ $(document).on("click","button.new_btn",function(){
 	});
 });
 </script>
-<?php echo FastCache::outJSMin();?>
+<?php echo Minifier::outJSMin();?>
 </div>
 </div>
