@@ -8,10 +8,9 @@
  */
 
 $l = new Language;
-$l->app = "upload_img_ajax";
 
 $filetype = "png";
-function compress($source, $reducerpoint = 600) {
+$compress = function($source, $reducerpoint = 600) {
 	$source = IO::physical_path($source);
 	$info = getimagesize($source);	
 	list($imgw, $imgh) = getimagesize($source);
@@ -55,20 +54,17 @@ function compress($source, $reducerpoint = 600) {
 		return(file_get_contents($source));
 	}	
     return $imgFile;
-}
+};
 
 if(isset($_FILES["file"]) && $_FILES["file"]["error"]== UPLOAD_ERR_OK){	
-	if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])){
-		die();
-	}	
+	if(!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) die();
 	
-	if ($_FILES["file"]["size"] > 5242880) {
-		echo($_POST["prev"]);
-		Prompt::postErrorInScript($l->get("TOO_BIG"));
-		die();
+	if($_FILES["file"]["size"] > php_max_upload_size()){
+		die(json_encode([
+			"success"=>false,
+			"reason"=>$l->get("TOO_BIG")
+		]));
 	}
-	
-	$fileext = ""; $img;
 	
 	switch(strtolower($_FILES['file']['type'])){
 		case 'image/png': 
@@ -79,32 +75,40 @@ if(isset($_FILES["file"]) && $_FILES["file"]["error"]== UPLOAD_ERR_OK){
 			$fileext = "jpg";
 			break;
 		case 'image/x-icon':
-			echo($_POST["prev"]);
-			die(Prompt::postWarnInScript($l->get("ICO_NOT_SUPPORT")));
-			break;
+			die(json_encode([
+				"success"=>false,
+				"reason"=>$l->get("ICO_NOT_SUPPORT")
+			]));
 		default:
-			echo($_POST["prev"]);
-			die(Prompt::postErrorInScript($l->get("NOT_VALID")));
+			die(json_encode([
+				"success"=>false,
+				"reason"=>$l->get("NOT_VALID")
+			]));
 	}
 	
 	$key = $_POST["key"];
-	$id = $key . '.' . session_id() . '.' . $fileext;
+	$id = "$key.".session_id().".$fileext";
 	$_SESSION["ImageUploader"][$key] = $id;
 	
 	if(UserData::move_uploaded($id,"file")){
-		$img = compress(UserData::getPath($id));
+		$img = $compress(UserData::getPath($id));
 		UserData::remove($id);
 		UserData::store($id,$img,$filetype);
-		die('<div style="margin-top:10px;background:url(\''. __SITEURL . UserData::getURL($id,true) .'\') center center / contain no-repeat;width:inherit;height:inherit;"></div>');
+		die(json_encode([
+			"success"=>true
+		]));
 	}else{
-		echo($_POST["prev"]);
-		die(Prompt::postErrorInScript($l->get("ERROR_UPLOAD")));
+		die(json_encode([
+			"success"=>false,
+			"reason"=>$l->get("ERROR_UPLOAD")
+		]));
 	}
 	
-	echo($_POST["prev"]);
-	die(Prompt::postErrorInScript($l->get("ERROR_UNKNOWN")));
+	die(json_encode([
+		"success"=>false,
+		"reason"=>$l->get("ERROR_UNKNOWN")
+	]));
 }
 
-redirect("");
-
+return false;
 ?>

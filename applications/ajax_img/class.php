@@ -8,7 +8,7 @@
  */
 
 /**
- * This is part of upload_img_ajax app
+ * Create simple ImageUploader form with AJAX
  */
 class ImageUploader{
 	
@@ -25,6 +25,10 @@ class ImageUploader{
 			unset($_SESSION["ImageUploader"][$key]);
 		}
 		include(my_dir("view/input.php"));
+	}
+
+	public static function dumpPreviewTemplate($imgurl=""){
+		include(my_dir("view/preview.php"));
 	}
 	
 	/**
