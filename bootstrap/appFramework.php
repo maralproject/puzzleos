@@ -291,6 +291,11 @@ class Application{
 	 * Application root name
 	 */
 	private $appname;
+
+	/**
+	 * A variable that use to pass data from controller to view
+	 */
+	private $bundle = [];
 	
 	public function __construct($appname = ""){
 		if($appname != "") $this->run($appname);
@@ -343,7 +348,8 @@ class Application{
 			"path"		=>$this->path,
 			"rootdir"	=>$this->rootdir,
 			"uri"		=>$this->uri,
-			"url"		=>$this->uri
+			"url"		=>$this->uri,
+			"bundle"	=>&$this->bundle
 		];
 	}
 	
@@ -423,7 +429,9 @@ class Application{
 			$this->view_loaded = 0;
 			$this->rootdir = "/applications/".$dir;
 			$this->datadir = "/user_data/".$this->appname;
-			if(!include_once_ext($this->path."/control.php",["appProp"=>$this->__papp()]))
+			if(!include_once_ext($this->path."/control.php",[
+				"appProp"=>$this->__papp()
+			]))
 				throw new AppStartError("Application `{$this->appname}` not found","",404);
 			else
 				$this->apprunning = 1;
@@ -443,7 +451,10 @@ class Application{
 	public function loadView(...$arguments){
 		if($this->appfound && $this->apprunning == 1){
 			if($this->forbidden == 0){
-				if((!include_ext($this->path."/viewSmall.php",["appProp"=>$this->__papp(),"arguments"=>func_get_args()])) && ($this->view_loaded == 0)){
+				if((!include_ext($this->path."/viewSmall.php",[
+					"appProp"=>$this->__papp(),
+					"arguments"=>func_get_args()
+				])) && ($this->view_loaded == 0)){
 					throw new AppStartError("Cannot load view for app <strong>'".$this->title."'</strong><br>","",503);
 				}else{
 					$this->view_loaded = 1;
@@ -460,7 +471,9 @@ class Application{
 	public function loadMainView(){
 		if($this->appfound && $this->apprunning == 1){
 			if($this->forbidden == 0){
-				if((!include_once_ext($this->path."/viewPage.php",["appProp"=>$this->__papp()])) && ($this->view_loaded == 0)){
+				if((!include_once_ext($this->path."/viewPage.php",
+					array_merge(["appProp"=>$this->__papp()],$this->bundle)
+				)) && ($this->view_loaded == 0)){
 					throw new PuzzleError("Cannot load view for app <strong>'".$this->title."'</strong><br>");
 				}else{
 					$this->view_loaded = 1;
