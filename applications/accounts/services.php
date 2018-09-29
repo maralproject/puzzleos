@@ -61,20 +61,18 @@ if(isset($_SESSION['account']['change_pass'])){
 if(isset($_SESSION['account']['change_pass']['linkClicked']))
 	if($_SESSION['account']['change_pass']['linkClicked'] == 1 && __getURI("app") != "users") redirect("users");
 	
-/**
- * Add some notice if users haven't change their password
- */
+//Add some notice if users haven't change their password
 if($_SESSION['account']['change_pass']['linkClicked'] === 1 && __getURI(1) != "changepassword"){
 	$language = new Language;
 	Prompt::postInfo($language->get("PCYP"),true);
 	redirect("users/changepassword");
 }
 
-/**
- * Automatically remove account that not activated longer than 10 minutes
- */
-CronJob::register("rm_acc",function(){
-	Database::exec("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
-	Database::exec("delete from `app_users_activate` where expires<'?'", time());
-},_CT()->interval(15*T_MINUTE));
+if(__isCLI()){
+	//Automatically remove account that not activated longer than 10 minutes
+	CronJob::register("rm_acc",function(){
+		Database::exec("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
+		Database::exec("delete from `app_users_activate` where expires<'?'", time());
+	},_CT()->interval(15*T_MINUTE));
+}
 ?>

@@ -8,176 +8,238 @@
  */
 
 /**
+ * Abstract class for storing User Session Id
+ */
+class PuzzleUserSession{
+	public $http_agent;
+	public $remote_ip;
+	public $http_host;
+
+	public function __construct($http_agent, $remote_ip, $http_host){
+		$this->http_agent = $http_agent;
+		$this->remote_ip = $remote_ip;
+		$this->http_host = $http_host;
+	}
+}
+
+/**
  * Handle Session more advanced than generic PHP
  * WARNING: Session will not be saved on CLI environment
  * 
  * This class take these user info for verification:
  * HTTP_USER_AGENT
- * HTTP_REFERER
  * REMOTE_ADDR
  * cookie
  */
 class PuzzleSession implements SessionHandlerInterface{
-	
+
 	/**
-	 * $cnf structure
-	 * [(bool)retain_on_same_pc=false,share_on_subdomain=false]
+	 * [retain_on_same_pc,share_on_subdomain]
+	 * @var array
 	 */
-	private $cnf;
-	
+	private $config;
+
 	/**
-	 * $client structure
-	 * [User Agent, Client IP, Domain which user is accessing]
+	 * @var PuzzleUserSession
 	 */
 	private $client;
-	private $start_time;
-	private $id;
-	private $expire;
-	private $destroyed;
-	private $data;
-	private $new_data;
-	private $cnf_old;
 
-    public function open($savePath = "", $sessionName = ""){
-		$this->destroyed = false;
-		$this->new_data = true;
-		
-		//1. Restore session id from cookie if exists
-        if($_COOKIE["puzzleos"] != "") {
-					
-			//2. Restore all data and check if this session id is match with the real client
-			//Session is constructed using cookie, http_host, and user_agent
-			$data = Database::readAll("sessions","where session_id='?' limit 1", $_COOKIE["puzzleos"])->data[0];
-			if($data["session_id"] != ""){
-				
+	/**
+	 * Expiration duration in seconds
+	 * by default 3600secs.
+	 */
+	private $expire;
+	private $data;
+	private $id;
+	private $in_db;
+
+	private $old_config;
+
+	/**
+	 * @return PuzzleUserSession
+	 */
+	private function getClient(){
+		return new PuzzleUserSession(
+			$_SERVER["HTTP_USER_AGENT"],
+			$_SERVER["REMOTE_ADDR"],
+			explode(":",$_SERVER['HTTP_HOST'])[0]//wrong wrong wrooong
+		);
+	}
+
+	private function createId(){
+		return sha1(serialize([
+			$this->getClient(),
+			microtime(true),
+			$_SERVER["REMOTE_PORT"]
+		]));
+	}
+
+	private function guessRootDomain(){
+		if($_SERVER["HTTP_HOST"] =="localhost" || filter_var($_SERVER["HTTP_HOST"], FILTER_VALIDATE_IP)){
+			return $_SERVER["HTTP_HOST"];
+		}else{
+			$d_array = explode(".",$_SERVER["HTTP_HOST"]);
+			$root_domain = end($d_array);
+			return prev($d_array) . "." . $root_domain;
+		}
+	}
+
+	/**
+	 * Compare user data in database and current environment
+	 */
+	private function verify_user(PuzzleUserSession $from_db, $share_on_subdomain){
+		if($_SERVER["HTTP_USER_AGENT"] == $from_db->http_agent || $_SERVER["REMOTE_ADDR"] == $from_db->remote_ip){
+			return($share_on_subdomain ? str_contains($_SERVER["HTTP_HOST"],$from_db->http_host) : (explode(":",$_SERVER['HTTP_HOST'])[0] == $from_db->http_host));
+		}else{
+			return false;
+		}
+	}
+
+	private function instantiated(){
+		return ($this->client !== null && $this->config !== null && $this->data !== null && $this->id !== null);
+	}
+
+	public function __construct(){
+		$this->expire = 3600;
+
+		if(!__isCLI() && isset($_COOKIE["puzzleos"])){
+			$db = Database::readAll("sessions","where session_id='?' limit 1", $_COOKIE["puzzleos"])->data[0];
+			if(is_array($db)){
 				//Session id exists in database, perform client checking
-				$c = unserialize($data["cnf"]);
-				$i = unserialize($data["client"]);
-				
-				if($i[2]=="localhost" || filter_var($i, FILTER_VALIDATE_IP)){
-					$root_domain = $i[2];
-				}else{
-					$d_array = explode(".",$i[2]);
-					$root_domain = end($d_array);
-					$root_domain = prev($d_array) . "." . $root_domain;
-				}
-				
-				if($_SERVER["HTTP_USER_AGENT"] == $i[0] || $i[1] == $_SERVER["REMOTE_ADDR"]){
-					if(($c[1] && (strpos($_SERVER["HTTP_HOST"],$root_domain) === false)) || (!$c[1] && explode(":",$_SERVER['HTTP_HOST'])[0] != $i[2])){
-						//Failed to verify user
-					}else{
-						//User verified
-						$this->data = $data["content"];
-						$this->cnf = $c;
-						$this->cnf_old = $c;
-						$this->client = $i;
-						$this->expire = (int) $data["expire"] - $data["start"];
-						session_id($_COOKIE["puzzleos"]);
-						$this->id = $_COOKIE["puzzleos"];
-						//Set the session_id()
-						session_id($this->id);
-						$this->new_data = false;
-						return true;
-					}
+				$this->in_db = true;
+				$this->client = unserialize($db["client"]);
+				$this->config = unserialize($db["cnf"]);
+				$this->old_config = $this->config;
+				$this->data = $db["content"];
+				$this->id = $db["session_id"];
+
+				//If user not verified, or session expired, don't restore session
+				if($this->verify_user($this->client,$this->config["share_on_subdomain"])){
+					if(time() <= $db["expire"]) return;
 				}
 			}
 		}
-		
-		$this->client = [$_SERVER["HTTP_USER_AGENT"],$_SERVER["REMOTE_ADDR"],explode(":",$_SERVER['HTTP_HOST'])[0]];
-		$this->id = md5(json_encode([$this->client,time()]));
-		$this->cnf = [0,false];
-		
-		/**
-		 * Session will be expired in 1 hour if user do not open the browser again
-		 * App can change this variable through service
-		 */
-		$this->expire = 60 * 60;
-		$this->data = "";
-		
-		//Set the session_id()
-		session_id($this->id);
-		return true;
-    }
 
-    public function close(){
+		$this->destroy();
+	}
+
+    public function open($savePath = "", $sessionName = ""){
+		if(!$this->instantiated()){
+			$this->id = $this->createId();
+			$this->data = "";
+			$this->config = ["retain_on_same_pc" => false, "share_on_subdomain" => false];
+			$this->client = $this->getClient();
+		}
+		session_id($this->id);
 		return true;
 	}
 
+    public function close(){
+        return true;
+    }
+
     public function read($id){
-		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
+		if(!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
 		return $this->data;
     }
 
     public function write($id, $data){
-		if(__isCLI()) return true; //Donot write session to the database on CLI.
-        if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
-		
-		/* Only rewrite data when it's needed to */
-		if($this->new_data){
+		if(__isCLI()) return true;
+		if(!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
+
+		if(!$this->in_db){
+			$this->in_db = true;
+			$this->data = $data;
 			try{
-				Database::newRow("sessions", $this->id, $data, serialize($this->client), serialize($this->cnf), time(), (int)time() + $this->expire, $_SESSION['account']['id']);
+				if($this->config["share_on_subdomain"]) $this->client->http_host = $this->guessRootDomain();
+
+				$di = new DatabaseRowInput;
+				$di->setField("session_id",$this->id);
+				$di->setField("content",$data);
+				$di->setField("client",serialize($this->client));
+				$di->setField("cnf",serialize($this->config));
+				$di->setField("start",time());
+				$di->setField("expire",time() + $this->expire);
+				$di->setField("user",$_SESSION['account']['id']);
+				return Database::newRowAdvanced("sessions",$di) ? true : false;
 			}catch(DatabaseError $e){
-				//For unknown reason, browser sent two or more request at the same time, which cause multiple session with same key to be created.
-				//To overcome this problem, we will load that keys instead of creating new one
-				$_COOKIE["puzzleos"] = $this->id;
-				return self::open("","");
-			}			
-			$this->new_data = false;
-		}else if(md5($this->data) != md5($data) || $this->cnf != $this->cnf_old){
-			$di = new DatabaseRowInput;
-			$di->setField("content",$data);
-			$di->setField("cnf",serialize($this->cnf));
-			$di->setField("client",serialize($this->client));
-			$di->setField("user",$_SESSION['account']['id']);
-			Database::updateRowAdvanced("sessions",$di,"session_id",$this->id);
-			$this->cnf_old = $this->cnf;
+				$this->in_db = false;
+			}
+		}else{
+			try{
+				if(md5($this->data) != md5($data) || $this->config != $this->old_config){
+					$this->data = $data;
+					$di = new DatabaseRowInput;
+					$di->setField("content",$data);
+					$di->setField("cnf",serialize($this->config));
+					$di->setField("expire",time() + $this->expire);
+					$di->setField("user",$_SESSION['account']['id']);
+					return Database::updateRowAdvanced("sessions",$di,"session_id",$this->id) ? true : false;
+				}
+			}catch(DatabaseError $e){}
 		}
-		return true;
+
+		return false;
     }
 	
-	public function write_cookie(){
-		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
-		
-		/**
-		 * If HTTP host is localhost or IP address, then put NULL in setcookie()
-		 * else, put ".domain.com"
-		 */
-		if($this->client[2]=="localhost" || filter_var($this->client[2], FILTER_VALIDATE_IP)){
-			$root_domain = NULL;
-		}else{
-			$d_array = explode(".",$this->client[2]);
-			$root_domain = end($d_array);
-			$root_domain = "." . prev($d_array) . "." . $root_domain;
-		}
-		
-		setcookie("puzzleos", $this->id, ($this->cnf[0] ? time() + $this->expire : NULL), "/", ($this->cnf[1] ? $root_domain : NULL));
+	public function writeCookie(){
+		if(!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
+		setcookie(
+			"puzzleos",
+			$this->id, 
+			($this->config["retain_on_same_pc"] ? time() + $this->expire : 0), 
+			"/", 
+			($this->config["share_on_subdomain"] ? ".".$this->guessRootDomain() : NULL)
+		);
 	}
 
-    public function destroy($id){
-        //Remove session from database
-		Database::deleteRow("sessions","session_id",$id);
-		$this->destroyed = true;
+    public function destroy($id=""){
+		if($this->instantiated()) Database::deleteRow("sessions","session_id",$this->id);
+        $this->client=null;
+		$this->config=null;
+		$this->data = null;
+		$this->id = null;
+		$this->in_db = false;
 		return true;
     }
 
     public function gc($maxlifetime){
-		Database::exec("delete from `sessions` where expire<=?",(int)time());
-    }
+        return Database::exec("delete from `sessions` where expire<=?", time()) ? true : false;
+	}
 	
+	public function __get($k){
+		if(!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
+		switch($k){
+			case "session_id":
+				return $this->id;
+			default:
+				throw new PuzzleError("Invalid input $k");
+		}
+	}
+
 	public function __set($k,$v){
 		switch($k){
-		case "share_on_subdomain":
-			$this->cnf[1] = (bool) $v;
-			break;
-		case "retain_on_same_pc":
-			$this->cnf[0] = (bool) $v;
-			break;
-		case "expire":
-			$this->expire = (int) $v;
-			break;
-		default:
-			throw new PuzzleError("Invalid input $k");
+			case "share_on_subdomain":
+				$this->config["share_on_subdomain"] = $v?true:false;
+				break;
+			case "retain_on_same_pc":
+				$this->config["retain_on_same_pc"] = $v?true:false;
+				break;
+			case "expire":
+				$this->expire = $v;
+				break;
+			default:
+				throw new PuzzleError("Invalid input $k");
 		}
+	}
+
+	/**
+	 * End all active session in PuzzleOS based on specific user id,
+	 * except current user
+	 * @return bool
+	 */
+	public function endUser($id){
+		return Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'",$id,$this->id) ? true : false;
 	}
 	
 	/**
@@ -185,34 +247,17 @@ class PuzzleSession implements SessionHandlerInterface{
 	 * End all active session in PuzzleOS
 	 */
 	public function endAll(){
-		Database::exec("delete from `sessions`");
-		$this->destroyed = true;
+		$this->destroy();
+		return Database::exec("delete from `sessions`") ? true : false;
 	}
-	
-	/**
-	 * End all active session in PuzzleOS based on specific user id,
-	 * except current user
-	 */
-	public function endUser($id){
-		if($id == NULL) return false;
-		Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'",$id,$this->id);
-	}
-	
-	public function __get($k){
-		if($this->destroyed) throw new PuzzleError("Cannot read or write from destroyed session");
-		switch($k){
-		case "session_id":
-			return $this->id;
-		default:
-			throw new PuzzleError("Invalid input $k");
-		}
+
+	public static function start(){
+		POSGlobal::$session = new PuzzleSession;
+		session_set_save_handler(POSGlobal::$session);
+		ini_set('session.use_cookies', 0);
+		session_start();
 	}
 }
 
-/* Starting session session */
-POSGlobal::$session = new PuzzleSession;
-session_set_save_handler(POSGlobal::$session);
-ini_set('session.use_cookies', 0); 
-session_start();
-
+PuzzleSession::start();
 ?>

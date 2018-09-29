@@ -55,7 +55,7 @@ Database::newStructure("app_security",$a);
 
 /* Table `sessions` */
 $a = new DatabaseTableBuilder;
-$a->addColumn("session_id","CHAR(32)")->setAsPrimaryKey();
+$a->addColumn("session_id","CHAR(40)")->setAsPrimaryKey();
 $a->addColumn("content","TEXT");
 $a->addColumn("client","TEXT");
 $a->addColumn("cnf","TEXT");

@@ -164,7 +164,7 @@ function is_json($string){
 function redirect($app = ""){
 	$app = ltrim($app,"/");
 	$app = preg_replace("/\s+/","",$app);
-	POSGlobal::$session->write_cookie();
+	POSGlobal::$session->writeCookie();
 	if(headers_sent()){
 		die("<script>window.location='".__SITEURL."/$app';</script>");
 	}else{
@@ -306,6 +306,14 @@ function __requiredSystem($version){
  */
 function __isCLI(){
 	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
+}
+
+/**
+ * Get a new CronTrigger instances
+ * @return CronTrigger
+ */
+function _CT(){
+	return new CronTrigger();
 }
 
 /**

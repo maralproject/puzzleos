@@ -27,6 +27,7 @@ class CronTrigger{
     private $interval=0;
 
 	public function __construct(){
+        CronJob::$time = time();
 		return $this;
 	}
 
@@ -141,6 +142,7 @@ class CronTrigger{
 class CronJob {
 	public static $time;
     private static $list=[];
+
     private static function init(){
 		$caller = debug_backtrace()[1]["file"];
 		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
@@ -169,7 +171,8 @@ class CronJob {
     }
 
     public static function run(){
-		if(file_exists(__ROOTDIR . "/cron.lock")) throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
+        if(file_exists(__ROOTDIR . "/cron.lock")) 
+            throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
 
 		//Prevent running cron simultaneusly
 		error_reporting(E_ERROR);
@@ -184,7 +187,7 @@ class CronJob {
             $lastExec = Database::read("cron","last_exec","key",$l[0]);
             if($lastExec == "") {
                 if($l[1]->isExecutable($lastExec)){
-					//We'll use try/catch to prevent cron from stuck by one error
+					//We'll use try/catch to prevent cron from shutdown by one error
 					try{
 						$f = $l[2];
 						$f(); //Preventing error on PHP 5.6
@@ -195,7 +198,7 @@ class CronJob {
                 }
             }else{
                 if($l[1]->isExecutable($lastExec)){
-					//We'll use try/catch to prevent cron from stuck by one error
+					//We'll use try/catch to prevent cron from shutdown by one error
 					try{
 						$f = $l[2];
 						$f(); //Preventing error on PHP 5.6
@@ -211,14 +214,4 @@ class CronJob {
 		unlink(__ROOTDIR . "/cron.lock");
     }
 }
-
-/**
- * Get a new CronTrigger instances
- * @return CronTrigger
- */
-function _CT(){
-	return new CronTrigger();
-}
-
-CronJob::$time = time();
 ?>

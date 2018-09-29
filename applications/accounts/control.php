@@ -269,7 +269,7 @@ if(__getURI("app") == $appProp->appname){
 		if(UserData::store("settings",json_encode($o),"json",true)){
 			POSGlobal::$session->endAll();
 			POSGlobal::$session->open();
-			POSGlobal::$session->write_cookie();
+			POSGlobal::$session->writeCookie();
 			Prompt::postGood($language->get("SETTINGS_UPDATED"),true);
 		}else{
 			Prompt::postError($language->get("ACT_ERR"),true);

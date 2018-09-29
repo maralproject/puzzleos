@@ -42,10 +42,10 @@ define("__HTTP_PROTOCOL",(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'of
 //Return http://something.com
 define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]));
 
-//Return applications/dompetdinar/assets/base_1.gif?my=you
+//Return applications/yourapp/assets/base_1.gif?my=you
 define("__HTTP_REQUEST",ltrim(str_replace(__SITEURL,"",str_replace(str_replace("/index.php","",$_SERVER["SCRIPT_NAME"]) , "" , $_SERVER['REQUEST_URI'])),"/"));
 
-//Return applications/dompetdinar/assets/base_1.gif
+//Return applications/yourapp/assets/base_1.gif
 define("__HTTP_URI", explode("?",__HTTP_REQUEST)[0]);
 
 set_time_limit(TIME_LIMIT);
@@ -94,20 +94,7 @@ define("__SITELANG", POSConfigGlobal::$default_language);
 define("__TIMEZONE", POSConfigGlobal::$timezone);
 
 /***********************************
- * Configuring user session
- ***********************************/
-require("session.php");
-
-/***********************************
- * Process incoming Request
- ***********************************/
-POSGlobal::$uri = explode("/",__HTTP_URI);
-POSGlobal::$uri["APP"] = POSGlobal::$uri[0];
-if(POSGlobal::$uri["APP"] == "") POSGlobal::$uri["APP"] = POSConfigMultidomain::$default_application;
-POSGlobal::$uri["ACTION"] = (isset(POSGlobal::$uri[1]) ? POSGlobal::$uri[1] : "");
-
-/***********************************
- * Registering SPL Autoload
+ * Registering Autoloader
  * This is bundled Library that 
  * shipped with PuzzleOS.
  * 
@@ -142,8 +129,20 @@ spl_autoload_register(function($c){
 	case "PuzzleCLI":
 		require("$r/cli.php");
 		break;
+	case "CronJob":
+	case "CronTrigger":
+		require("$r/cron.php");
+		break;
 	}
 });
+
+/***********************************
+ * Process incoming Request
+ ***********************************/
+POSGlobal::$uri = explode("/",__HTTP_URI);
+POSGlobal::$uri["APP"] = POSGlobal::$uri[0];
+if(POSGlobal::$uri["APP"] == "") POSGlobal::$uri["APP"] = POSConfigMultidomain::$default_application;
+POSGlobal::$uri["ACTION"] = (isset(POSGlobal::$uri[1]) ? POSGlobal::$uri[1] : "");
 
 /***********************************
  * Removing installation directory
@@ -154,15 +153,18 @@ if(file_exists(__ROOTDIR."/".__PUBLICDIR."/install")){
 }
 
 /***********************************
- * Loading another features
+ * Feature that must be loaded
+ * without autoloader
  ***********************************/
+require("session.php");
 require("time.php");
 require("appFramework.php");
-require("cron.php");
 require("services.php");
 
-/* Must be loaded after services */
-POSGlobal::$session->write_cookie();
+/***********************************
+ * Writing session to cookie
+ ***********************************/
+POSGlobal::$session->writeCookie();
 
 /***********************************
  * Process private file if requested
