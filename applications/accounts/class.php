@@ -303,6 +303,8 @@ class Accounts{
 		$_SESSION['account']['lang'] = Database::read("app_users_list","lang","id",$userID);
 		$_SESSION['account']['name'] = Database::read("app_users_list","name","id",$userID);
 		$_SESSION['account']['group'] = Database::read("app_users_list","group","id",$userID);
+		
+		foreach(self::$aflfl as $alf) $alf();
 		return true;
 	}
 
@@ -334,7 +336,6 @@ class Accounts{
 		$auth_pass = self::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
 		if($auth_user && $auth_pass){
 			self::addSession($userid);
-			foreach(self::$aflfl as $alf) $alf();
 			return true;
 		}
 		return false;
