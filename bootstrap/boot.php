@@ -78,6 +78,9 @@ require("helper.php");
 preparedir(__ROOTDIR . "/storage");
 preparedir(__ROOTDIR . "/storage/dbcache");
 preparedir(__ROOTDIR . "/storage/data");
+preparedir(__ROOTDIR . "/storage/cache");
+preparedir(__ROOTDIR . "/storage/cache/applications");
+preparedir(__ROOTDIR . "/storage/cache/bootstrap");
 preparedir(__ROOTDIR . "/".__PUBLICDIR."/assets");
 preparedir(__ROOTDIR . "/".__PUBLICDIR."/res");
 preparedir(__ROOTDIR . "/".__PUBLICDIR."/cache",function(){
@@ -128,6 +131,9 @@ spl_autoload_register(function($c){
 		break;
 	case "PuzzleCLI":
 		require("$r/cli.php");
+		break;
+	case "Cache":
+		require("$r/cache.php");
 		break;
 	case "CronJob":
 	case "CronTrigger":

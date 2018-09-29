@@ -242,6 +242,7 @@ class AppManager{
 		$directory = IO::physical_path("/applications/$directory");
 		if(!IO::exists("$directory/manifest.ini")) throw new PuzzleError("Application not found!");
 		$manifest = parse_ini_file("$directory/manifest.ini");
+		if($manifest["rootname"] == "") throw new PuzzleError("Application manifest not initiated correctly!");
 		return $manifest["rootname"];
 	}
 }

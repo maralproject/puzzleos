@@ -14,7 +14,8 @@
 class UserData{
 	private static $cache;
 	
-	private static function init(){
+	private static function init($key){
+		if(str_contains($key,".")) throw new PuzzleError("Key cannot contains '.'");
 		$caller = debug_backtrace()[1]["file"];
 		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
 		$filename = explode("/",$filenameStr);
@@ -42,7 +43,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function move_uploaded($key,$inputname,$secure = false){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$fileext = strtolower(end(explode(".",$_FILES[$inputname]['name'])));
 		if(!$secure) $filename = "/".__PUBLICDIR."/assets/$appname/$key.$fileext";
@@ -67,7 +68,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function move($key,$path_to_file,$secure = false){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		if(!IO::exists($path_to_file)) return false;
 		if(is_dir(IO::physical_path($path_to_file))) return false;
@@ -100,7 +101,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function copy($key,$path_to_file,$secure = false){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		if(!IO::exists($path_to_file)) return false;
 		if(is_dir(IO::physical_path($path_to_file))) return false;
@@ -131,7 +132,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function store($key,$content,$file_ext,$secure = false){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		if(!$secure)
 			$filename = "/".__PUBLICDIR."/assets/$appname/" . $key . "." . $file_ext;
@@ -154,7 +155,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function exists($key){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		return($filename != "" && IO::exists($filename));
@@ -169,7 +170,7 @@ class UserData{
 	 * @return string
 	 */
 	public static function getPath($key){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
 		$filename = $d["physical_path"];
@@ -185,7 +186,7 @@ class UserData{
 	 * @return string
 	 */
 	public static function getURL($key, $with_cache_control = false){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$d = Database::readAll("userdata","WHERE `app`='?' AND `identifier`='?'",$appname,$key)->data[0];
 		$filename = $d["physical_path"];
@@ -205,7 +206,7 @@ class UserData{
 	 * @return contents
 	 */
 	public static function read($key){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if(!isset(self::$cache[$appname.$key])){
@@ -224,7 +225,7 @@ class UserData{
 	 * @return contents
 	 */
 	public static function getMIME($key){		
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;
 		$mime = Database::readArg("userdata","mime_type","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		return($mime);
@@ -237,7 +238,7 @@ class UserData{
 	 * @return bool
 	 */
 	public static function remove($key){
-		$appname = self::init();
+		$appname = self::init($key);
 		if($appname == "") return false;		
 		$filename = Database::readArg("userdata","physical_path","WHERE `app`='?' AND `identifier`='?'",$appname,$key);
 		if(!unlink(IO::physical_path($filename))) return false;

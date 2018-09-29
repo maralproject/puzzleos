@@ -51,12 +51,7 @@ class PuzzleCLI{
 		$arg = [];
 		while(1){
 			if($p === FALSE) break;
-			if(substr($p,0,2) == "--"){
-				$arg[$p] = next($a);
-			}else{
-				$arg[$p] = true;
-			}
-			
+			$arg[$p] = (substr($p,0,2) == "--") ? next($a) : true;
 			$p = next($a);
 			if($p === FALSE) break;
 		}
@@ -92,6 +87,7 @@ class PuzzleCLI{
 				if($arg["flush"]){
 					IO::remove_r("/public/cache");
 					IO::remove_r("/public/res");
+					IO::remove_r("/storage/cache");
 				}
 				else throw new PuzzleError("Invalid action");
 			}else

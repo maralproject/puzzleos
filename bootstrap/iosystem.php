@@ -119,7 +119,7 @@ class IO{
 					if (is_dir($dir."/".$object))
 						IO::remove_r($dir."/".$object);
 					else
-					if(!unlink($dir."/".$object)) return false;
+						if(!unlink($dir."/".$object)) return false;
 				} 
 			}
 			if(!rmdir($dir)) return false; 
