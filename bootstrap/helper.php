@@ -276,6 +276,19 @@ function str_contains($haystack, $needle){
 }
 
 /**
+ * Check if strings contains some charlist
+ * @param string $haystack
+ * @param string $chrlist
+ * @return bool
+ */
+function str_haschar($haystack, ...$chrlist){
+	foreach($chrlist as $c){
+		if(str_contains($haystack,$c)) return true;
+	}
+	return false;
+}
+
+/**
  * Get HTTP URI based on index
  * @param string $index e.g. "app", "action", or index
  * @return string

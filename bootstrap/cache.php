@@ -13,7 +13,7 @@
  */
 class Cache{
     private static function init($key){
-        if(str_contains($key,".")) throw new PuzzleError("Key cannot contains '.'");
+        if(str_haschar($key,'/',"\\",'.','*')) throw new PuzzleError("Key invalid!");
         $path = explode("/",ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2)[1]["file"])),"/"));
         switch($path[0]){
         case 'applications':
@@ -35,13 +35,15 @@ class Cache{
         return file_put_contents("$p/$key",serialize($object)) !== false ? true : false;
     }
 
-    public static function get($key,$default=false) {
+    public static function get($key,$default=null) {
         $p = self::init($key);
         if(file_exists("$p/$key")){
             return unserialize(file_get_contents("$p/$key"));
         }else{
             if(is_callable($default)){
-                return $default($key);
+                return $default($key,function($result)use($p,$key){
+                    return file_put_contents("$p/$key",serialize($result)) !== false ? $result : false;
+                });
             }else{
                 return $default;
             }
