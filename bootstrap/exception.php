@@ -66,10 +66,13 @@ class PuzzleError extends Exception{
 			}
 			@media(min-width:650px){
 				#wrap{
-					margin:auto;margin-top:5vh;padding:15px!important;width:100%;max-width:600px;							
-					-webkit-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					-moz-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					box-shadow: 0px 0px 8px 0px #e0e0e0;
+					margin: auto;
+					margin-top: 5vh;
+					padding: 15px 25px!important;
+					width: 100%;
+					max-width: 600px;
+					box-shadow: 1px 1px 4px 0px #9E9E9E;
+					border-radius: 15px;
 				}
 			}
 		</style>
@@ -119,10 +122,13 @@ class IOError extends PuzzleError{
 			}
 			@media(min-width:650px){
 				#wrap{
-					margin:auto;margin-top:5vh;padding:15px!important;width:100%;max-width:600px;							
-					-webkit-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					-moz-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					box-shadow: 0px 0px 8px 0px #e0e0e0;
+					margin: auto;
+					margin-top: 5vh;
+					padding: 15px 25px!important;
+					width: 100%;
+					max-width: 600px;
+					box-shadow: 1px 1px 4px 0px #9E9E9E;
+					border-radius: 15px;
 				}
 			}
 		</style>
@@ -171,10 +177,13 @@ class DatabaseError extends PuzzleError{
 			}
 			@media(min-width:650px){
 				#wrap{
-					margin:auto;margin-top:5vh;padding:15px!important;width:100%;max-width:600px;							
-					-webkit-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					-moz-box-shadow: 0px 0px 8px 0px #e0e0e0;
-					box-shadow: 0px 0px 8px 0px #e0e0e0;
+					margin: auto;
+					margin-top: 5vh;
+					padding: 15px 25px!important;
+					width: 100%;
+					max-width: 600px;
+					box-shadow: 1px 1px 4px 0px #9E9E9E;
+					border-radius: 15px;
 				}
 			}
 		</style>
