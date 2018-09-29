@@ -13,7 +13,7 @@
  */
 class Cache{
     private static function init($key){
-        if(str_haschar($key,'/',"\\",'.','*')) throw new PuzzleError("Key invalid!");
+        if(str_haschar($key,'/',"\\",'..','*')) throw new PuzzleError("Key invalid!");
         $path = explode("/",ltrim(str_replace(__ROOTDIR,"",btfslash(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,2)[1]["file"])),"/"));
         switch($path[0]){
         case 'applications':

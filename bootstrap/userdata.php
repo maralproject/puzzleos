@@ -15,7 +15,7 @@ class UserData{
 	private static $cache;
 	
 	private static function init($key){
-		if(str_haschar($key,'/',"\\",'.','*')) throw new PuzzleError("Key invalid!");
+		if(str_haschar($key,'/',"\\",'..','*')) throw new PuzzleError("Key invalid!");
 		$caller = debug_backtrace()[1]["file"];
 		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
 		$filename = explode("/",$filenameStr);
