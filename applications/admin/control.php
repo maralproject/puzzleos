@@ -7,7 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
  
-if(__getURI("app") == "admin"){
+if($appProp->isMainApp){
 	new Application("phpmailer");
 	$l = new Language;
 	if(__getURI("action") == "changeTemplate"){

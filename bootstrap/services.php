@@ -7,31 +7,20 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-foreach(AppManager::listAll() as $data){
-	if(!empty($data["services"])){
+foreach (AppManager::listAll() as $data) {
+	if (!empty($data["services"])) {
+
+		$app = new Application();
+		$app->prepare($data["rootname"]);
 		AppManager::migrateTable($data["rootname"]);
-		foreach($data["services"] as $service){
-			if($service == "") continue;
-			
-			// Preparing information 
-			$app = new Application();
-			$app->prepare($data["rootname"]);
-			
-			$appProp = (object)[
-				"title"		=> $app->title,
-				"desc"		=> $app->desc,
-				"appname"	=> $app->appname,
-				"path"		=> $app->path,
-				"rootdir"	=> $app->rootdir,
-				"uri"		=> $app->uri,
-				"url"		=> $app->uri
-			];
-			
-			$_f = function() use($service,$appProp){
-				return include($appProp->path."/".$service);
-			};
-			
-			if(!$_f()) throw new PuzzleError("Cannot start '".$data['name']."' services!", "Please recheck the existence of ".$data["dir"]."/".$service);
+
+		foreach ($data["services"] as $service) {
+			if ($service == "") continue;
+
+			if (!$app->loadContext($service)) {
+				abort(500, "Internal Server Error", false);
+				throw new PuzzleError("Cannot start '" . $data['name'] . "' services!", "Please recheck the existence of " . $data["dir"] . "/" . $service);
+			}
 		}
 	}
 }

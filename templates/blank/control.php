@@ -11,6 +11,13 @@
 			body{
 				padding:0px 20px;
 			}
+			.form-control:focus{
+				box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 0px 2px rgba(102,175,233,0.6);
+				webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 0px 2px rgba(102,175,233,0.6);
+			}
+			.form-control, .input-group{
+				border-radius:7px;
+			}
 		</style>
 	</head>
 	<body>

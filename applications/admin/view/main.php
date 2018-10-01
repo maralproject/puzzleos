@@ -33,7 +33,7 @@ $l=new Language; $l->app="admin";
 	</div>	
 	<div id="confirmation_bar">
 		<?php if(POSConfigGlobal::$use_multidomain):?>
-		<button onclick="$('#conf_f').submit()" type="button" class="btn btn-success"><?php echo $l->get("SAVE_ON") . "<span style=\"display:block;font-size:8pt\">" . POSGlobal::$domain_zone . "</span>"?></button>
+		<button onclick="$('#conf_f').submit()" type="button" class="btn btn-success"><?php echo $l->get("SAVE_ON") . "<span style=\"display:block;font-size:8pt\">" . POSConfigMultidomain::zone() . "</span>"?></button>
 		<?php else:?>
 		<input onclick="$('#conf_f').submit()" type="button" class="btn btn-success" value="<?php $l->dump("SAVE")?>">
 		<?php endif;?>

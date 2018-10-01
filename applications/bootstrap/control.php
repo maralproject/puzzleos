@@ -7,5 +7,5 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(__getURI("app") == $appProp->appname) return false;
+if($appProp->isMainApp) return false;
 ?>

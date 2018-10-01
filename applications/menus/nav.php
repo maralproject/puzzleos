@@ -6,8 +6,7 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
- 
-//$loc = MENU_DEFAULT_POSITION_LEFT;
+
 switch($location){
 	case "bottom":
 		$loc = MENU_DEFAULT_POSITION_BOTTOM;
@@ -22,20 +21,10 @@ switch($location){
 	default:
 		$loc = MENU_DEFAULT_POSITION_LEFT;
 }
-ob_start();
-$buf = "";
-$data = Database::readAll("app_menus_main", "WHERE `location`='?'", $loc);
-for($i=0;$i < $data->num;$i++){
-	if(!Accounts::authAccessAdvanced($data->data[$i]["minUser"])) continue;
-	$activePg = false;
-	if(__HTTP_URI == ""){
-		$activePg = (strpos("/".ltrim($data->data[$i]["link"],"/"), "/".AppManager::$MainApp->appname) !== false);		
-	}else{
-		$activePg = (strpos( "/".__HTTP_URI, "/".ltrim($data->data[$i]["link"],"/")) !== false);
-	}
-	$buf .= '<a href="'.__SITEURL.'/'.ltrim($data->data[$i]["link"],"/").'"><li '.($activePg?'class="active"':'').'><i class="fa fa-'.$data->data[$i]["fa"].'"></i><span>'.$data->data[$i]["name"].'</span></li></a>';
+
+foreach(Database::readAll("app_menus_main", "WHERE `location`='?'", $loc)->data as $d){
+	if(!Accounts::authAccessAdvanced($d["minUser"])) continue;
+	$activePg = __HTTP_URI == "" ? str_contains("/".ltrim($d["link"],"/"), "/".AppManager::getMainApp()->appname) : str_contains("/".__HTTP_URI,  "/".ltrim($d["link"],"/"));
+	echo '<a href="'.__SITEURL.'/'.ltrim($d["link"],"/").'"><li '.($activePg?'class="active"':'').'><i class="fa fa-'.$d["fa"].'"></i><span>'.$d["name"].'</span></li></a>';
 }
-echo $buf;
-if($buf == "") 
-	ob_clean();
 ?>
