@@ -7,6 +7,6 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
  
-if(__getURI("app") == "search_box") return false;
+if($appProp->isMainApp) return false;
 
 ?>

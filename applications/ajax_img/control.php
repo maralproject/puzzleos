@@ -7,7 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(__getURI("app") == "upload_img_ajax"){
+if($appProp->isMainApp){
 	if(__getURI("action") == "upload"){
 		if(!isset($_SESSION["ImageUploader"])) $_SESSION["ImageUploader"] = [];
 		return include("upload.php");

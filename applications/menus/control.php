@@ -13,7 +13,7 @@ define("MENU_DEFAULT_POSITION_RIGHT", 2);
 define("MENU_DEFAULT_POSITION_BOTTOM", 3);
 
 //Do nothing here
-if(__getURI("app") == "menus"){
+if($appProp->isMainApp){
 	if(__getURI("action") == "new"){
 		if($_POST["trueData"] == "yes"){
 			$r = rand(0,999);
@@ -48,6 +48,6 @@ if(__getURI("app") == "menus"){
 		Database::exec("UPDATE `app_menus_main` SET `location`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 		die($_POST["name"]);	
 	}else
-		redirect("");
+		return false;
 }
 ?>

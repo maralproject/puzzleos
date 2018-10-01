@@ -6,7 +6,7 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
- 
+
 return [
     'aa-DJ' => 'Afar (Djibouti)',
     'aa-ER' => 'Afar (Eritrea)',

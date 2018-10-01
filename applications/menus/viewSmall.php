@@ -8,26 +8,20 @@
  */
  
 $location = $arguments[0];
-
 if($location == "") throw new PuzzleError("Location cannot be empty!");
 
-$menus = [];
 foreach(AppManager::listAll() as $app){
 	/* Donot show menu from restricted app */
 	if(in_array($app["rootname"],POSConfigMultidomain::$restricted_app) || !Accounts::authAccess($app["level"])) continue;
 	foreach($app["menus"] as $menu){
-		$exp = explode(">",$menu);
-		$file = trim($exp[0]);
-		$location_config = trim($exp[1]);
+		$file = trim(strtok($menu,">"));
+		$location_config = trim(strtok(""));
 		if($location_config == $location){
 			//Include this menu
 			try{
-				new Application($app["rootname"]);
+				(new Application($app["rootname"]))->loadContext($file);
 			}catch(AppStartError $e){
 				continue;
-			}
-			if(!include($app["dir"] . "/$file")){
-				throw new PuzzleError("Cannot load menu for ". $app["title"]);
 			}
 		}
 	}

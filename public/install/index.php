@@ -99,10 +99,9 @@ if($_POST["finale"] == "yes"){
 				margin-top:5vh;
 			}
 			.tab{				
-				padding:20px;
-				-webkit-box-shadow: 0px 0px 8px 0px #e0e0e0;
-				-moz-box-shadow: 0px 0px 8px 0px #e0e0e0;
-				box-shadow: 0px 0px 8px 0px #e0e0e0;
+				padding:15px 30px;
+				box-shadow: 1px 1px 4px 0px #9E9E9E;
+				border-radius:15px;
 			}
 			#welcome .title{
 				font-size:48pt!important;
@@ -122,6 +121,13 @@ if($_POST["finale"] == "yes"){
 		}
 		label{
 			font-weight:normal!important;
+		}
+		.form-control:focus{
+			box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 0px 2px rgba(102,175,233,0.6);
+			webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 0px 2px rgba(102,175,233,0.6);
+		}
+		.form-control, .input-group{
+			border-radius:7px;
 		}
 		</style>
 		<script>
@@ -222,7 +228,7 @@ if($_POST["finale"] == "yes"){
 				<p>
 					Thanks for choosing PuzzleOS!
 				</p>
-				<button next-tab="step1" type="button" style="margin-top:20vh;" class="tabSwitch btn btn-primary btn-big">Begin Installation</button>
+				<button next-tab="step1" type="button" style="margin-top:20vh;margin-bottom:15px" class="tabSwitch btn btn-primary btn-big">Begin Installation</button>
 			</div>
 			<form id="install_frm" method="post">
 			<div id="step1" class="tab">
@@ -230,7 +236,7 @@ if($_POST["finale"] == "yes"){
 				<div class="row">
 					<label class="col-lg-3 control-label">Sitename</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" placeholder="Lorem Ipsum" name="sitename" required>
+						<input type="text" class="form-control" autocomplete="off" name="sitename" required>
 					</div>
 				</div><br>
 				<div class="row">
@@ -307,31 +313,31 @@ if($_POST["finale"] == "yes"){
 					<label class="col-xs-12 control-label">PHP requirements checklist</label>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">ZipArchive</label>
+					<label class="col-xs-9 control-label">ZipArchive (zip)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (class_exists("ZipArchive") ? "Yes" : "No") ?>						
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">MySQLi engine</label>
+					<label class="col-xs-9 control-label">MySQLi (mysqli)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("mysqli_connect") ? "Yes" : "No") ?>						
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">MIME Parser</label>
+					<label class="col-xs-9 control-label">MIME (mime_content_type)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("mime_content_type") ? "Yes" : "No") ?>						
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">Locale Processor</label>
+					<label class="col-xs-9 control-label">Locale (intl)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("locale_accept_from_http") ? "Yes" : "No") ?>						
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">Parse INI file</label>
+					<label class="col-xs-9 control-label">INI Parser (parse_ini_file)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("parse_ini_file") ? "Yes" : "No") ?>						
 					</div>
@@ -343,7 +349,7 @@ if($_POST["finale"] == "yes"){
 					</div>
 				</div><br>
 				<div class="row">
-					<label class="col-xs-9 control-label">PHP GD</label>
+					<label class="col-xs-9 control-label">PHP GD (gd)</label>
 					<div class="col-xs-3 row phpcheck" style="margin:0px;">
 						<?php echo (function_exists("imagecreatefrompng") ? "Yes" : "No") ?>						
 					</div>

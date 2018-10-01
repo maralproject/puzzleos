@@ -8,7 +8,7 @@
  */
 
 /* This file also handle image upload from TinyMCE */
-if($appProp->appname == AppManager::$MainApp->appname){
+if($appProp->isMainApp){
 	switch(__getURI(1)){
 	case "uploadImage":
 		$hash = substr(md5_file($_FILES["file"]["tmp_name"]),0,5);

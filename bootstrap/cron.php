@@ -7,46 +7,44 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-define("T_DAY", 86400);
-define("T_HOUR", 3600);
-define("T_MINUTE", 60);
-define("TODAY", strtotime(date("Y/m/d",time())));
-
 /**
  * Add a trigger for CronJob event
  * If a CronJob event is already executed at one of the specified CronTrigger,
  * the job will NOT be executed
  */
-class CronTrigger{
-    private $exec=1;
-    private $hour=-1;
-    private $day=-1;
-    private $date=-1;
-    private $month=-1;
-    private $year=-1;
-    private $interval=0;
+class CronTrigger
+{
+    private $exec = 1;
+    private $hour = -1;
+    private $day = -1;
+    private $date = -1;
+    private $month = -1;
+    private $year = -1;
+    private $interval = 0;
 
-	public function __construct(){
+    public function __construct()
+    {
         CronJob::$time = time();
-		return $this;
-	}
+        return $this;
+    }
 
-    public function getExec(){
+    public function getExec()
+    {
         return $this->exec;
     }
 
-    public function isExecutable($lastExec) {
-        if ($lastExec=="") return $this->exec;
-		if (CronJob::$time-(int)$lastExec-$this->interval>=0) {
-            $this->exec*=1;
-        }
-        else $this->exec*=0;
-        $hour_executable=($this->hour>-1) ? (floor(CronJob::$time/3600) > floor($lastExec/3600)) : 1;
-        $day_executable=($this->day>-1) ? (floor(CronJob::$time/86400) > floor($lastExec/86400)) : 1;
-        $date_executable=($this->date>-1) ? (floor(CronJob::$time/86400) > floor($lastExec/86400)) : 1;
-        $month_executable=($this->month>-1) ? (idate("Y", CronJob::$time)*100+idate("m", CronJob::$time)) > (idate("Y",$lastExec)*100+idate("m", $lastExec)) : 1;
-        $year_executable=($this->year>-1) ? (idate("Y", CronJob::$time)) > (idate("Y",$lastExec)) : 1;
-        $trigger_executable=($hour_executable && $day_executable && $date_executable && $month_executable && $year_executable) && $this->exec==1;
+    public function isExecutable($lastExec)
+    {
+        if ($lastExec == "") return $this->exec;
+        if (CronJob::$time - (int)$lastExec - $this->interval >= 0) {
+            $this->exec *= 1;
+        } else $this->exec *= 0;
+        $hour_executable = ($this->hour > -1) ? (floor(CronJob::$time / 3600) > floor($lastExec / 3600)) : 1;
+        $day_executable = ($this->day > -1) ? (floor(CronJob::$time / 86400) > floor($lastExec / 86400)) : 1;
+        $date_executable = ($this->date > -1) ? (floor(CronJob::$time / 86400) > floor($lastExec / 86400)) : 1;
+        $month_executable = ($this->month > -1) ? (idate("Y", CronJob::$time) * 100 + idate("m", CronJob::$time)) > (idate("Y", $lastExec) * 100 + idate("m", $lastExec)) : 1;
+        $year_executable = ($this->year > -1) ? (idate("Y", CronJob::$time)) > (idate("Y", $lastExec)) : 1;
+        $trigger_executable = ($hour_executable && $day_executable && $date_executable && $month_executable && $year_executable) && $this->exec == 1;
         return ($trigger_executable);
     }
 
@@ -56,10 +54,11 @@ class CronTrigger{
      * @param integer $seconds
      * @return CronTrigger
      */
-    public function interval($seconds) {
-        if ($this->hour!=-1 || $this->day!=-1 || $this->date!=-1 || $this->month!=-1 || $this->year!=-1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
-        if ($seconds<15*T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
-        $this->interval=$seconds;
+    public function interval($seconds)
+    {
+        if ($this->hour != -1 || $this->day != -1 || $this->date != -1 || $this->month != -1 || $this->year != -1) throw new PuzzleError("Can't add interval <b>and</b> specified time at once");
+        if ($seconds < 15 * T_MINUTE) throw new PuzzleError("Interval should be at least 15 minutes");
+        $this->interval = $seconds;
         return $this;
     }
 
@@ -68,12 +67,12 @@ class CronTrigger{
      * @param integer $hour
      * @return CronTrigger
      */
-    public function hour($hour) {
-        if (idate("H", CronJob::$time)==$hour) {
-        $this->exec*=1;
-        $this->hour=$hour;
-        }
-        else $this->exec*=0;
+    public function hour($hour)
+    {
+        if (idate("H", CronJob::$time) == $hour) {
+            $this->exec *= 1;
+            $this->hour = $hour;
+        } else $this->exec *= 0;
         return $this;
     }
 
@@ -83,13 +82,13 @@ class CronTrigger{
      * @param day number $day
      * @return CronTrigger
      */
-    public function day($day) {
-        $today=idate("w", CronJob::$time);
-        if ($day==$today) {
-            $this->exec*=1;
-            $this->day=$day;
-        }
-        else $this->exec*=0;
+    public function day($day)
+    {
+        $today = idate("w", CronJob::$time);
+        if ($day == $today) {
+            $this->exec *= 1;
+            $this->day = $day;
+        } else $this->exec *= 0;
         return $this;
     }
 
@@ -98,13 +97,13 @@ class CronTrigger{
      * @param integer $date
      * @return CronTrigger
      */
-    public function date($date) {
-        $currentDate=idate("d", CronJob::$time);
-        if ($date==$currentDate) {
-            $this->exec*=1;
-            $this->date=$date;
-        }
-        else $this->exec*=0;
+    public function date($date)
+    {
+        $currentDate = idate("d", CronJob::$time);
+        if ($date == $currentDate) {
+            $this->exec *= 1;
+            $this->date = $date;
+        } else $this->exec *= 0;
         return $this;
     }
 
@@ -113,13 +112,13 @@ class CronTrigger{
      * @param integer $month
      * @return CronTrigger
      */
-    public function month($month) {
-        $currentMonth=idate("m", CronJob::$time);
-        if ($month==$currentMonth) {
-            $this->exec*=1;
-            $this->month=$month;
-        }
-        else $this->exec*=0;
+    public function month($month)
+    {
+        $currentMonth = idate("m", CronJob::$time);
+        if ($month == $currentMonth) {
+            $this->exec *= 1;
+            $this->month = $month;
+        } else $this->exec *= 0;
         return $this;
     }
 
@@ -128,90 +127,94 @@ class CronTrigger{
      * @param integer $year
      * @return CronTrigger
      */
-    public function year($year) {
-        $currentYear=idate("Y", CronJob::$time);
-        if ($year==$currentYear) {
-            $this->exec*=1;
-            $this->year=$year;
-        }
-        else $this->exec*=0;
+    public function year($year)
+    {
+        $currentYear = idate("Y", CronJob::$time);
+        if ($year == $currentYear) {
+            $this->exec *= 1;
+            $this->year = $year;
+        } else $this->exec *= 0;
         return $this;
     }
 }
 
-class CronJob {
-	public static $time;
-    private static $list=[];
+class CronJob
+{
+    public static $time;
+    private static $list = [];
 
-    private static function init(){
-		$caller = debug_backtrace()[1]["file"];
-		$filenameStr = str_replace(__ROOTDIR,"",btfslash($caller));
-		$filename = explode("/",$filenameStr);
-        if($filename[1] != "applications") throw new PuzzleError("CronJob must be called from applications");
-		$appDir = $filename[2];
-		$appname = AppManager::getNameFromDirectory($appDir);
-		return($appname);
-	}
+    private static function init()
+    {
+        $caller = debug_backtrace()[1]["file"];
+        $filenameStr = str_replace(__ROOTDIR, "", btfslash($caller));
+        $filename = explode("/", $filenameStr);
+        if ($filename[1] != "applications") throw new PuzzleError("CronJob must be called from applications");
+        $appDir = $filename[2];
+        $appname = AppManager::getNameFromDirectory($appDir);
+        return ($appname);
+    }
 
     /* Register cron job
-	 * @param string $key
+     * @param string $key
      * @param CronTrigger ...$trigger
      * @param function $F
-	 */
-    public static function register($key, $F, ...$trigger){
-        if (strlen($key)>20) throw new PuzzleError("Key length must be less than 20 characters");
-        if(!is_callable($F)) throw new PuzzleError("Incorrect parameter");
-        $appname=self::init();
-        if($appname == "") throw new PuzzleError("An error occured");
+     */
+    public static function register($key, $F, ...$trigger)
+    {
+        if (strlen($key) > 20) throw new PuzzleError("Key length must be less than 20 characters");
+        if (!is_callable($F)) throw new PuzzleError("Incorrect parameter");
+        $appname = self::init();
+        if ($appname == "") throw new PuzzleError("An error occured");
 
-        foreach($trigger as $ct) {
-            if(!is_a($ct,"CronTrigger")) throw new PuzzleError("Trigger should be generated from CronTrigger");
-            self::$list[] = ["{$key}_{$appname}",$ct,&$F];
+        foreach ($trigger as $ct) {
+            if (!is_a($ct, "CronTrigger")) throw new PuzzleError("Trigger should be generated from CronTrigger");
+            self::$list[] = ["{$key}_{$appname}", $ct, &$F];
         }
     }
 
-    public static function run(){
-        if(file_exists(__ROOTDIR . "/cron.lock")) 
+    public static function run()
+    {
+        if (file_exists(__ROOTDIR . "/cron.lock"))
             throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
 
 		//Prevent running cron simultaneusly
-		error_reporting(E_ERROR);
-		file_put_contents(__ROOTDIR . "/cron.lock",1);
-		ini_set('max_execution_time',0); //Disable PHP timeout
+        error_reporting(E_ERROR);
+        file_put_contents(__ROOTDIR . "/cron.lock", 1);
+        ini_set('max_execution_time', 0); //Disable PHP timeout
 
-		register_shutdown_function(function(){
-			@unlink(__ROOTDIR . "/cron.lock");
-		});
+        register_shutdown_function(function () {
+            @unlink(__ROOTDIR . "/cron.lock");
+        });
 
-        foreach(self::$list as $l){
-            $lastExec = Database::read("cron","last_exec","key",$l[0]);
-            if($lastExec == "") {
-                if($l[1]->isExecutable($lastExec)){
+        foreach (self::$list as $l) {
+            $lastExec = Database::read("cron", "last_exec", "key", $l[0]);
+            if ($lastExec == "") {
+                if ($l[1]->isExecutable($lastExec)) {
 					//We'll use try/catch to prevent cron from shutdown by one error
-					try{
-						$f = $l[2];
-						$f(); //Preventing error on PHP 5.6
-						Database::newRow("cron", $l[0], CronJob::$time);
-					}catch(Exception $e){
-						echo("ERROR: " . $e->getMessage() . "\n");
-					}
+                    try {
+                        $f = $l[2];
+                        $f(); //Preventing error on PHP 5.6
+                        Database::newRow("cron", $l[0], CronJob::$time);
+                    } catch (Exception $e) {
+                        echo ("ERROR: " . $e->getMessage() . "\n");
+                    }
                 }
-            }else{
-                if($l[1]->isExecutable($lastExec)){
+            } else {
+                if ($l[1]->isExecutable($lastExec)) {
 					//We'll use try/catch to prevent cron from shutdown by one error
-					try{
-						$f = $l[2];
-						$f(); //Preventing error on PHP 5.6
-						$update=new DatabaseRowInput;
-						$update->setField("last_exec", CronJob::$time);
-						Database::updateRowAdvanced("cron", $update, "key", $l[0]);
-					}catch(Exception $e){
-						echo("ERROR: " . $e->getMessage() . "\n");
-					}
+                    try {
+                        $f = $l[2];
+                        $f(); //Preventing error on PHP 5.6
+                        $update = new DatabaseRowInput;
+                        $update->setField("last_exec", CronJob::$time);
+                        Database::updateRowAdvanced("cron", $update, "key", $l[0]);
+                    } catch (Exception $e) {
+                        echo ("ERROR: " . $e->getMessage() . "\n");
+                    }
                 }
             }
         }
-		unlink(__ROOTDIR . "/cron.lock");
+        unlink(__ROOTDIR . "/cron.lock");
     }
 }
 ?>

@@ -7,7 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(__getURI("app") == $appProp->appname) redirect("");
+if($appProp->isMainApp) return false;
 
 require(my_dir("/class/PHPMailerAutoload.php"));
  
