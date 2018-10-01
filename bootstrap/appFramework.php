@@ -399,7 +399,8 @@ class Application
 		AppManager::migrateTable($name);
 
 		if (!__isCLI()) {
-			if (!self::$MainAppStarted) {
+			//Main app cannot start as worker.
+			if (!self::$MainAppStarted && !isset($GLOBALS["_WORKER"])) {
 				self::$MainAppStarted = true;
 				/**
 				 * In multidomain mode, there is a feature called App resctriction,
