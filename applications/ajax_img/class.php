@@ -27,7 +27,7 @@ class ImageUploader{
 		include(my_dir("view/input.php"));
 	}
 
-	public static function dumpPreviewTemplate($imgurl=""){
+	public static function dumpPreviewTemplate($imgurl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="){
 		include(my_dir("view/preview.php"));
 	}
 	
