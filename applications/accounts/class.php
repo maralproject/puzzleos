@@ -394,12 +394,16 @@ class Accounts{
 		$level_user = self::getAuthLevel($_SESSION['account']['group']);
 		
 		if($level_user == $level_required){
-			if($_SESSION['account']['group'] == $requiredGroup) return true;
-			switch($_SESSION['account']['group']){				
-			case 2:case 3: 
+			switch($requiredGroup){
+			case 1: case 2: case 3: 
 				return true;
 			default: 
-				return false;
+				switch($_SESSION['account']['group']){
+				case 1: case 2: case 3:
+					return true;
+				default:
+					return ($_SESSION['account']['group'] == $requiredGroup);
+				}
 			}
 		}else{
 			return ($level_user < $level_required);
