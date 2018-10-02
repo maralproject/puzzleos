@@ -106,6 +106,7 @@ class AppManager
 					if (strlen($manifest["rootname"]) > 50) continue;
 					switch ($manifest["rootname"]) {
 						//Filter pre-used rootname
+						case "assets":
 						case "security":
 							continue;
 						default:
@@ -424,7 +425,8 @@ class Application
 					$this->forbidden = !Accounts::authAccessAdvanced($this->group);
 				}
 
-				$this->isMainApp = true;
+				//In current started because browser need private assets.
+				$this->isMainApp = basename(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,3)[2]["file"]) != "boot.php";
 			} else {
 				$this->forbidden = !Accounts::authAccess($this->level);
 				$this->isMainApp = false;

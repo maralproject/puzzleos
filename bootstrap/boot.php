@@ -179,7 +179,7 @@ PuzzleSession::writeCookie();
  * from browser. Public file handled
  * by Webserver directly
  ***********************************/
-if (__getURI(0) == "assets") {
+if (__getURI(0) == "assets" && !__isCLI()) {
 	$f = "/" . str_replace("assets/", "storage/data/", __HTTP_URI);
 	$d = Database::readAll("userdata", "where `physical_path`='?'", $f)->data[0];
 	$appProp = $d["app"];
