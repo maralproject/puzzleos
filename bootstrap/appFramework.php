@@ -431,8 +431,9 @@ class Application
 			}
 		} else {
 			//On CLI, user always authenticated as USER_AUTH_SU
+			//And if App is run under Worker, it means this app is not the Main App
 			$this->forbidden = 0;
-			$this->isMainApp = !defined(__POSWORKER);
+			$this->isMainApp = !Worker::inEnv();
 		}
 
 		if ($this->appfound) {

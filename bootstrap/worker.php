@@ -21,38 +21,42 @@ class Worker
 
 	private $_secret;
 	private static $_cipher = "AES-256-CBC";
+	private static $onWorker = false;
 
 	/**
 	 * @var SuperClosure\Serializer
 	 */
 	private $_serialize;
 
+	/**
+	 * Get if current environment is in Worker Mode
+	 * @return bool
+	 */
+	public static function inEnv()
+	{
+		return self::$onWorker;
+	}
+
 	private static function __do($job, $key)
 	{
-		if (!file_exists(__WORKERDIR . "/$job.job"))
-			throw new WorkerError("Job not found!");
-
+		if (!file_exists(__WORKERDIR . "/$job.job")) throw new WorkerError("Job not found!");
 		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
 			self::$_cipher,
 			$key,
 			OPENSSL_RAW_DATA
 		));
-
 		if ($execute === false && error_get_last()["type"] == E_NOTICE) throw new WorkerError("Job cannot be parsed!");
 
 		@unlink(__WORKERDIR . "/$job.job");
-
+		self::$onWorker = true;
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
-
 		Accounts::addSession($execute["env"]["userid"]);
-
 		$GLOBALS["_WORKER"] = [
 			"id" => explode(".", $job)[1],
 			"app" => $execute["env"]["app"],
 			"appdir" => $execute["env"]["appdir"]
 		];
-
 		include("vendor/superclosure/autoload.php");
 		$function = (new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer()))->unserialize($execute["func"]);
 
