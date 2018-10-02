@@ -399,8 +399,7 @@ class Application
 		AppManager::migrateTable($name);
 
 		if (!__isCLI()) {
-			//Main app cannot start as worker.
-			if (!self::$MainAppStarted && !isset($GLOBALS["_WORKER"])) {
+			if (!self::$MainAppStarted) {
 				self::$MainAppStarted = true;
 				/**
 				 * In multidomain mode, there is a feature called App resctriction,
@@ -433,7 +432,7 @@ class Application
 		} else {
 			//On CLI, user always authenticated as USER_AUTH_SU
 			$this->forbidden = 0;
-			$this->isMainApp = true;
+			$this->isMainApp = !defined(__POSWORKER);
 		}
 
 		if ($this->appfound) {
