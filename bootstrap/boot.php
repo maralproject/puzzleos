@@ -27,7 +27,7 @@ error_reporting(0);
  * Define the global variables
  ***********************************/
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "2.0.6");
+define("__POS_VERSION", "2.0.7");
 
 //Return /path/to/qualified/root/directory
 define("__ROOTDIR", str_replace("\\", "/", dirname(__DIR__)));
