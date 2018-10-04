@@ -273,18 +273,20 @@ class PuzzleSession implements SessionHandlerInterface
 
 	public function __set($k, $v)
 	{
-		switch ($k) {
-			case "share_on_subdomain":
-				$this->config["share_on_subdomain"] = $v ? true : false;
-				break;
-			case "retain_on_same_pc":
-				$this->config["retain_on_same_pc"] = $v ? true : false;
-				break;
-			case "expire":
-				$this->expire = $v;
-				break;
-			default:
-				throw new PuzzleError("Invalid input $k");
+		if(!$this->in_db){
+			switch ($k) {
+				case "share_on_subdomain":
+					$this->config["share_on_subdomain"] = $v ? true : false;
+					break;
+				case "retain_on_same_pc":
+					$this->config["retain_on_same_pc"] = $v ? true : false;
+					break;
+				case "expire":
+					$this->expire = $v;
+					break;
+				default:
+					throw new PuzzleError("Invalid input $k");
+			}
 		}
 	}
 

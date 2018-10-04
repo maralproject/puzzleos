@@ -268,7 +268,7 @@ if($appProp->isMainApp){
 
 		if(UserData::store("settings",json_encode($o),"json",true)){
 			PuzzleSession::endAll();
-			PuzzleSession::open();
+			PuzzleSession::get()->open();
 			PuzzleSession::writeCookie();
 			Prompt::postGood($language->get("SETTINGS_UPDATED"),true);
 		}else{

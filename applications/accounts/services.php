@@ -59,7 +59,7 @@ if(isset($_SESSION['account']['change_pass'])){
 	}
 }
 if(isset($_SESSION['account']['change_pass']['linkClicked']))
-	if($_SESSION['account']['change_pass']['linkClicked'] == 1 && AppManager::getMainApp()->appname != "users") redirect("users");
+	if($_SESSION['account']['change_pass']['linkClicked'] == 1 && __getURI("app") != "users") redirect("users");
 	
 //Add some notice if users haven't change their password
 if($_SESSION['account']['change_pass']['linkClicked'] === 1 && __getURI(1) != "changepassword"){
