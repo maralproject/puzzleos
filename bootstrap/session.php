@@ -202,13 +202,14 @@ class PuzzleSession implements SessionHandlerInterface
 	private function writeCookie()
 	{
 		if (!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
-		setcookie(
+		if(!defined("__COOKIE_OUT")) setcookie(
 			"puzzleos",
 			$this->id,
 			($this->config["retain_on_same_pc"] ? time() + $this->expire : 0),
 			"/",
 			($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null)
 		);
+		define("__COOKIE_OUT",1);
 	}
 
 	public function destroy($id = "")
@@ -273,20 +274,18 @@ class PuzzleSession implements SessionHandlerInterface
 
 	public function __set($k, $v)
 	{
-		if(!$this->in_db){
-			switch ($k) {
-				case "share_on_subdomain":
-					$this->config["share_on_subdomain"] = $v ? true : false;
-					break;
-				case "retain_on_same_pc":
-					$this->config["retain_on_same_pc"] = $v ? true : false;
-					break;
-				case "expire":
-					$this->expire = $v;
-					break;
-				default:
-					throw new PuzzleError("Invalid input $k");
-			}
+		switch ($k) {
+			case "share_on_subdomain":
+				$this->config["share_on_subdomain"] = $v ? true : false;
+				break;
+			case "retain_on_same_pc":
+				$this->config["retain_on_same_pc"] = $v ? true : false;
+				break;
+			case "expire":
+				$this->expire = $v;
+				break;
+			default:
+				throw new PuzzleError("Invalid input $k");
 		}
 	}
 

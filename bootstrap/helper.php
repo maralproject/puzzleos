@@ -42,6 +42,7 @@ function require_once_ext($__path, $vars = null)
  */
 function abort(int $code, string $text = "", $exit = true)
 {
+	PuzzleSession::writeCookie();
 	header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
 	if ($exit) exit;
 }
