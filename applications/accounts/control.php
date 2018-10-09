@@ -47,7 +47,7 @@ if($appProp->isMainApp){
 		if($_POST["phone"] != ""){
 			if(Database::read("app_users_list","phone","phone",$_POST["phone"]) != ""){
 				$GLOBALS["nhpsd"] = true;
-				Prompt::postError("No. Telpon sudah dipakai");
+				Prompt::postError($language->get("PHONE_INV_USED"));
 				return true;
 			}
 		}

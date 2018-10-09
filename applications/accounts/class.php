@@ -8,6 +8,8 @@
  *
  */
 
+use Automattic\Phone\Mobile_Validator;
+
 define("USER_AUTH_SU", 0);
 define("USER_AUTH_EMPLOYEE", 1);
 define("USER_AUTH_REGISTERED", 2);
@@ -16,42 +18,46 @@ define("USER_AUTH_PUBLIC", 3);
 /**
  * Use this class to manage User, and authenticate user permission
  */
-class Accounts{
-	
-	private static $cache=[];
+class Accounts
+{
 
-	public static $customET_CE = NULL;
-	public static $customET_RP = NULL;
-	public static $customET_AC = NULL;
+	private static $cache = [];
 
-	public static $customM_F = NULL;
-	public static $customM_M = NULL;
+	public static $customET_CE = null;
+	public static $customET_RP = null;
+	public static $customET_AC = null;
+
+	public static $customM_F = null;
+	public static $customM_M = null;
 	public static $customM_EN = false;
 	public static $customM_UE = true;
 	public static $customM_UP = false;
-	
+
 	public static $aflfl = [];
-	
-	public static function purgeCache(){
+
+	public static function purgeCache()
+	{
 		self::$cache = [];
 	}
-	
+
 	/**
 	 * Register function to be executed after the user login attempt success
 	 * @param Object $f
 	 */
-	public static function register_post_login_function($f){
-		if(!is_callable($f)) throw new PuzzleError("Invalid function input");
+	public static function register_post_login_function($f)
+	{
+		if (!is_callable($f)) throw new PuzzleError("Invalid function input");
 		self::$aflfl[] = $f;
 	}
-	
+
 	/**
 	 * Get Session data.
 	 * a.k.a. from $_SESSION["account"]
 	 * 
 	 * @return array
 	 */
-	public static function getSession(){
+	public static function getSession()
+	{
 		return $_SESSION['account'];
 	}
 
@@ -59,30 +65,34 @@ class Accounts{
 	 * Count the number of registered user
 	 * @return integer
 	 */
-	public static function count(){
+	public static function count()
+	{
 		return mysqli_num_rows(Database::exec("SELECT `id` from app_users_list"));
 	}
 
 	/**
-	 * Re-format phone number according to E164 format, in Indonesia Country
+	 * Re-format phone number according to E164 format.
+	 * If country code not specified, it will asssume in Indonesia (+62)
+	 * by default.
+	 * 
+	 * If country code, or phone number formatting from another country
+	 * detected, we will use that country.
+	 * e.g. (817) 569-8900 from USA
 	 * 
 	 * @param string $phone
-	 * @return string It will return empty if phone number cannot be parsed.
+	 * @param bool $getCountry 
+	 * @return array If phone number is parsed, and $getCountry is true
+	 * @return string If phone number is parsed
+	 * @return null If parsing is failed
 	 */
-	public static function getE164($phone){
-		if(!defined("LIBPHONENUM_H")){
-			require("vendor/libphonenumber/vendor/autoload.php");
-			define("LIBPHONENUM_H",1);
+	public static function getE164($phone, $getCountry = false)
+	{
+		$a = new Mobile_Validator;
+		$r = $a->normalize($phone);
+		if (empty($r)) {
+			$r = $a->normalize($phone, "ID");
 		}
-		
-		$phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
-		try{
-			//TODO: Change this things ASAP
-			$proto = $phoneUtil->parse($phone, "ID");
-			return $phoneUtil->format($proto, \libphonenumber\PhoneNumberFormat::E164);
-		}catch(\libphonenumber\NumberParseException $e){
-			return "";
-		}
+		return $getCountry ? $r : $r[0];
 	}
 
 	/**
@@ -94,8 +104,9 @@ class Accounts{
 	 * @param bool $email_or_phone TRUE for email, FALSE for phone
 	 * @param string $custom_message
 	 */
-	public static function changeAccountActivationHandler($F, $email_or_phone = false, $custom_message = NULL){
-		if(!is_callable($F)) throw new PuzzleError("Invalid parameter");
+	public static function changeAccountActivationHandler($F, $email_or_phone = false, $custom_message = null)
+	{
+		if (!is_callable($F)) throw new PuzzleError("Invalid parameter");
 		self::$customM_F = &$F;
 		self::$customM_EN = true;
 		self::$customM_UE = $email_or_phone;
@@ -109,7 +120,8 @@ class Accounts{
 	 * 
 	 * @param string $html
 	 */
-	public static function setEmailTemplate_ConfirmEmail($html){
+	public static function setEmailTemplate_ConfirmEmail($html)
+	{
 		self::$customET_CE = $html;
 	}
 
@@ -120,7 +132,8 @@ class Accounts{
 	 * 
 	 * @param string $html
 	 */
-	public static function setEmailTemplate_ResetPassword($html){
+	public static function setEmailTemplate_ResetPassword($html)
+	{
 		self::$customET_RP = $html;
 	}
 
@@ -131,7 +144,8 @@ class Accounts{
 	 * 
 	 * @param string $html
 	 */
-	public static function setEmailTemplate_ActivateAccount($html){
+	public static function setEmailTemplate_ActivateAccount($html)
+	{
 		self::$customET_AC = $html;
 	}
 
@@ -140,10 +154,11 @@ class Accounts{
 	 * 
 	 * @return array
 	 */
-	public static function getSettings(){
-		if(!isset(self::$cache["settings"]))
-			self::$cache["settings"] = json_decode(UserData::read("settings"),true);
-		return(self::$cache["settings"]);
+	public static function getSettings()
+	{
+		if (!isset(self::$cache["settings"]))
+			self::$cache["settings"] = json_decode(UserData::read("settings"), true);
+		return (self::$cache["settings"]);
 	}
 
 	/**
@@ -151,14 +166,15 @@ class Accounts{
 	 * 
 	 * @return bool
 	 */
-	public static function verifyRecapctha(){
+	public static function verifyRecapctha()
+	{
 		$result = file_get_contents(
-			'https://www.google.com/recaptcha/api/siteverify', 
-			false, 
+			'https://www.google.com/recaptcha/api/siteverify',
+			false,
 			stream_context_create([
 				'http' => [
-					'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-					'method'  => 'POST',
+					'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+					'method' => 'POST',
 					'content' => http_build_query([
 						'secret' => self::getSettings()["f_recaptcha_secret"],
 						'response' => $_POST["g-recaptcha-response"],
@@ -167,8 +183,8 @@ class Accounts{
 				]
 			])
 		);
-		if ($result === FALSE) throw new PuzzleError("Cannot contact Google for Recaptcha");
-		return(json_decode($result)->success);
+		if ($result === false) throw new PuzzleError("Cannot contact Google for Recaptcha");
+		return (json_decode($result)->success);
 	}
 
 	/**
@@ -178,8 +194,9 @@ class Accounts{
 	 * @param string $password
 	 * @return string
 	 */
-	public static function hashPassword($password){
-		return(password_hash($password, PASSWORD_BCRYPT));
+	public static function hashPassword($password)
+	{
+		return (password_hash($password, PASSWORD_BCRYPT));
 	}
 
 	/**
@@ -190,8 +207,9 @@ class Accounts{
 	 * @param string $hash
 	 * @return bool
 	 */
-	public static function verifyHashPass($password,$hash){
-		return(password_verify($password,$hash));
+	public static function verifyHashPass($password, $hash)
+	{
+		return (password_verify($password, $hash));
 	}
 
 	/**
@@ -200,11 +218,12 @@ class Accounts{
 	 * @param integer $auth
 	 * @return string
 	 */
-	public static function translateAuth($auth){
-		if($auth == 0) return("Superuser");
-		if($auth == 1) return("Employees");
-		if($auth == 2) return("Regitered");
-		if($auth == 3) return("Public");
+	public static function translateAuth($auth)
+	{
+		if ($auth == 0) return ("Superuser");
+		if ($auth == 1) return ("Employees");
+		if ($auth == 2) return ("Regitered");
+		if ($auth == 3) return ("Public");
 	}
 
 	/**
@@ -213,17 +232,18 @@ class Accounts{
 	 * @param integer $level Selected authentication type, use "USER_AUTH_*" constant!
 	 * @return integer
 	 */
-	public static function getRootGroupId($level){
-		switch($level){
-		case USER_AUTH_SU:
-		case USER_AUTH_EMPLOYEE:
-		case USER_AUTH_REGISTERED:
-		case USER_AUTH_PUBLIC:
-			break;
-		default:
-			throw new PuzzleError("Invalid Level!");
+	public static function getRootGroupId($level)
+	{
+		switch ($level) {
+			case USER_AUTH_SU:
+			case USER_AUTH_EMPLOYEE:
+			case USER_AUTH_REGISTERED:
+			case USER_AUTH_PUBLIC:
+				break;
+			default:
+				throw new PuzzleError("Invalid Level!");
 		}
-		return Database::read("app_users_grouplist","id","level",$level);
+		return Database::read("app_users_grouplist", "id", "level", $level);
 	}
 
 	/**
@@ -232,8 +252,9 @@ class Accounts{
 	 * @param integer $group_id Selected authentication type
 	 * @return integer
 	 */
-	public static function getGroupName($group_id){
-		return(Database::read("app_users_grouplist","name","id",$group_id));
+	public static function getGroupName($group_id)
+	{
+		return (Database::read("app_users_grouplist", "name", "id", $group_id));
 	}
 
 	/**
@@ -242,8 +263,9 @@ class Accounts{
 	 * @param integer $group_id Selected authentication type
 	 * @return integer
 	 */
-	public static function getAuthLevel($group_id){
-		return(Database::read("app_users_grouplist","level","id",$group_id));
+	public static function getAuthLevel($group_id)
+	{
+		return (Database::read("app_users_grouplist", "level", "id", $group_id));
 	}
 
 	/**
@@ -253,29 +275,35 @@ class Accounts{
 	 * @return array If success
 	 * @return NULL If user doesn't exists
 	 */
-	public static function getDetails($userID){
-		if(Database::read("app_users_list","id","id",$userID) != $userID) return NULL;
-		$s['email'] = Database::read("app_users_list","email","id",$userID);
-		$s['phone'] = Database::read("app_users_list","phone","id",$userID);
-		$s['lang'] = Database::read("app_users_list","lang","id",$userID);
-		$s['name'] = Database::read("app_users_list","name","id",$userID);
-		$s['group'] = Database::read("app_users_list","group","id",$userID);
+	public static function getDetails($userID)
+	{
+		if (Database::read("app_users_list", "id", "id", $userID) != $userID) return null;
+		$s['email'] = Database::read("app_users_list", "email", "id", $userID);
+		$s['phone'] = Database::read("app_users_list", "phone", "id", $userID);
+		$s['lang'] = Database::read("app_users_list", "lang", "id", $userID);
+		$s['name'] = Database::read("app_users_list", "name", "id", $userID);
+		$s['group'] = Database::read("app_users_list", "group", "id", $userID);
 		return $s;
 	}
-	
+
 	/**
 	 * Find user based on email, phone, or name
 	 * 
 	 * @param string $email_phone_name 
 	 * @return array
 	 */
-	public static function findUser($email_phone_name, $limit = NULL){
-		if(strlen($email_phone_name) < 3) return [];
+	public static function findUser($email_phone_name, $limit = null)
+	{
+		if (strlen($email_phone_name) < 3) return [];
 		$p = self::getE164($email_phone_name);
-		if($p == "") $p = "NULL";
-		return(Database::toArray(Database::exec(
-			"SELECT `id`,`name`,`group`,`email`,`registered_time` from `app_users_list` where name like '%?%' or email like '%?%' or phone like '%?%'".($limit!==NULL?" LIMIT ?":""),
-		$email_phone_name,$email_phone_name,$p,$limit))->data);
+		if ($p == "") $p = "NULL";
+		return (Database::toArray(Database::exec(
+			"SELECT `id`,`name`,`group`,`email`,`registered_time` from `app_users_list` where name like '%?%' or email like '%?%' or phone like '%?%'" . ($limit !== null ? " LIMIT ?" : ""),
+			$email_phone_name,
+			$email_phone_name,
+			$p,
+			$limit
+		))->data);
 	}
 
 	/**
@@ -284,8 +312,9 @@ class Accounts{
 	 * @param string $userID User ID
 	 * @return bool
 	 */
-	public static function isUserExists($userID){
-		return(Database::read("app_users_list","id","id",$userID) == $userID);
+	public static function isUserExists($userID)
+	{
+		return (Database::read("app_users_list", "id", "id", $userID) == $userID);
 	}
 
 	/**
@@ -294,17 +323,18 @@ class Accounts{
 	 * @param string $userID User ID
 	 * @return bool
 	 */
-	public static function addSession($userID){
-		if(Database::read("app_users_list","enabled","id",$userID) != 1) return false;
+	public static function addSession($userID)
+	{
+		if (Database::read("app_users_list", "enabled", "id", $userID) != 1) return false;
 		$_SESSION['account']['loggedIn'] = 1;
 		$_SESSION['account']['id'] = $userID;
-		$_SESSION['account']['email'] = Database::read("app_users_list","email","id",$userID);
-		$_SESSION['account']['phone'] = Database::read("app_users_list","phone","id",$userID);
-		$_SESSION['account']['lang'] = Database::read("app_users_list","lang","id",$userID);
-		$_SESSION['account']['name'] = Database::read("app_users_list","name","id",$userID);
-		$_SESSION['account']['group'] = Database::read("app_users_list","group","id",$userID);
-		
-		foreach(self::$aflfl as $alf) $alf();
+		$_SESSION['account']['email'] = Database::read("app_users_list", "email", "id", $userID);
+		$_SESSION['account']['phone'] = Database::read("app_users_list", "phone", "id", $userID);
+		$_SESSION['account']['lang'] = Database::read("app_users_list", "lang", "id", $userID);
+		$_SESSION['account']['name'] = Database::read("app_users_list", "name", "id", $userID);
+		$_SESSION['account']['group'] = Database::read("app_users_list", "group", "id", $userID);
+
+		foreach (self::$aflfl as $alf) $alf();
 		return true;
 	}
 
@@ -315,26 +345,27 @@ class Accounts{
 	 * @param string $pass
 	 * @return bool
 	 */
-	public static function authUserId($username,$pass){
-		if(self::$customM_UE && !self::$customM_UP){
-			if(filter_var($username,FILTER_VALIDATE_EMAIL)){
-				$userid = Database::read("app_users_list","id","email",strtolower($username));
-			}else{
-				$userid = Database::read("app_users_list","id","username",strtolower($username));
+	public static function authUserId($username, $pass)
+	{
+		if (self::$customM_UE && !self::$customM_UP) {
+			if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+				$userid = Database::read("app_users_list", "id", "email", strtolower($username));
+			} else {
+				$userid = Database::read("app_users_list", "id", "username", strtolower($username));
 			}
-		}elseif(!self::$customM_UE && self::$customM_UP){
-			$userid = Database::read("app_users_list","id","username",strtolower($username));
-			if($userid == ""){
+		} elseif (!self::$customM_UE && self::$customM_UP) {
+			$userid = Database::read("app_users_list", "id", "username", strtolower($username));
+			if ($userid == "") {
 				$phone = self::getE164(strtolower($username));
-				if($phone != "") $userid = Database::read("app_users_list","id","phone",self::getE164(strtolower($username)));
+				if ($phone != "") $userid = Database::read("app_users_list", "id", "phone", self::getE164(strtolower($username)));
 			}
-		}else{
-			$userid = Database::read("app_users_list","id","username",strtolower($username));
+		} else {
+			$userid = Database::read("app_users_list", "id", "username", strtolower($username));
 		}
-		if($userid == "" || Database::read("app_users_list","enabled","id",$userid) != 1) return false;
+		if ($userid == "" || Database::read("app_users_list", "enabled", "id", $userid) != 1) return false;
 		$auth_user = $userid != "" ? 1 : 0;
-		$auth_pass = self::verifyHashPass($pass,Database::read("app_users_list","password","id",$userid));
-		if($auth_user && $auth_pass){
+		$auth_pass = self::verifyHashPass($pass, Database::read("app_users_list", "password", "id", $userid));
+		if ($auth_user && $auth_pass) {
 			self::addSession($userid);
 			return true;
 		}
@@ -346,14 +377,16 @@ class Accounts{
 	 * @param string $username Username will be converted to lowercase
 	 * @return integer
 	 */
-	public static function findUserID($username){
-		return(Database::read("app_users_list","id","username",strtolower($username)));
+	public static function findUserID($username)
+	{
+		return (Database::read("app_users_list", "id", "username", strtolower($username)));
 	}
 
 	/**
 	 * Remove login session
 	 */
-	public static function rmSession(){
+	public static function rmSession()
+	{
 		$_SESSION['account']['loggedIn'] = 0;
 		$_SESSION['account']['id'] = -1;
 		$_SESSION['account']['email'] = "";
@@ -368,14 +401,15 @@ class Accounts{
 	 * @param string $required_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
 	 * @return bool
 	 */
-	public static function authAccess($required_level){
+	public static function authAccess($required_level)
+	{
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(__isCLI() && defined("__POSCLI")) return true;
+		if (__isCLI() && defined("__POSCLI")) return true;
 
-		if($_SESSION['account']['loggedIn'] == 0){
-			return($required_level >= USER_AUTH_PUBLIC);
-		}else{
-			return(self::getAuthLevel($_SESSION['account']["group"]) <= $required_level);
+		if ($_SESSION['account']['loggedIn'] == 0) {
+			return ($required_level >= USER_AUTH_PUBLIC);
+		} else {
+			return (self::getAuthLevel($_SESSION['account']["group"]) <= $required_level);
 		}
 	}
 
@@ -384,40 +418,46 @@ class Accounts{
 	 * @param string $requiredGroup User group ID
 	 * @return bool
 	 */
-	public static function authAccessAdvanced($requiredGroup){
+	public static function authAccessAdvanced($requiredGroup)
+	{
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if(__isCLI() && defined("__POSCLI")) return true;
+		if (__isCLI() && defined("__POSCLI")) return true;
 
 		$result = false;
-		
+
 		$level_required = self::getAuthLevel($requiredGroup);
 		$level_user = self::getAuthLevel($_SESSION['account']['group']);
-		
-		if($level_user == $level_required){
-			switch($requiredGroup){
-			case 1: case 2: case 3: 
-				return true;
-			default: 
-				switch($_SESSION['account']['group']){
-				case 1: case 2: case 3:
+
+		if ($level_user == $level_required) {
+			switch ($requiredGroup) {
+				case 1:
+				case 2:
+				case 3:
 					return true;
 				default:
-					return ($_SESSION['account']['group'] == $requiredGroup);
-				}
+					switch ($_SESSION['account']['group']) {
+						case 1:
+						case 2:
+						case 3:
+							return true;
+						default:
+							return ($_SESSION['account']['group'] == $requiredGroup);
+					}
 			}
-		}else{
+		} else {
 			return ($level_user < $level_required);
 		}
 	}
 
-    /**
+	/**
 	 * Get logged-in user id
 	 * @return string
 	 */
-     public static function getUserId() {
-         return $_SESSION["account"]["id"];
-     }
+	public static function getUserId()
+	{
+		return $_SESSION["account"]["id"];
+	}
 }
 
-if(Accounts::getSettings()["f_reg_activate"] == "on" ) Accounts::$customM_UE = true;
+if (Accounts::getSettings()["f_reg_activate"] == "on") Accounts::$customM_UE = true;
 ?>

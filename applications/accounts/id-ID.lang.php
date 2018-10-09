@@ -10,7 +10,7 @@
 
 return array(
 	"UOM"				=>	"Username atau email",
-	"UOP"				=>	"Username atau No. Telpon",
+	"UOP"				=>	"Username atau No. Telepon",
 	"APP_ON_GROUP"		=>	"Mohon merubah aplikasi yang tertaut pada kelompok ini ke kelompok lainnya",
 	"SEL_GROUP"			=>	"Pilih kelompok pengguna",
 	"GNAME_NO_BLANK"	=>	"Nama kelompok harus diisi",
@@ -39,7 +39,7 @@ return array(
 	"VER_PASS"			=>	"Verifikasi Kata sandi",
 	"NAME"			     =>	"Nama Lengkap",
 	"EMAIL"				=>	"Email",
-	"PHONE"				=>	"No. Telpon",
+	"PHONE"				=>	"No. Telepon",
 	"SAVE_SET"			=>	"Simpan",
 	"DCYP"				=>	"Periksa kembali kata sandi Anda",
 	"PASS_CHANGED"		=>	"Kata sandi dirubah",

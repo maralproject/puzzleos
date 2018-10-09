@@ -127,7 +127,7 @@ return array(
 	"SETTINGS_UPDATED"	=>	"Settings has been updated",
 	"ACT_ERR"			=>	"Action failed",
 	"EMAIL_INV_USED"	=>	"Email is already used",
-	"PHONE_INV_USED"	=>	"Phone number is already used",
+	"PHONE_INV_USED"	=>	"Phone number already used",
 	"VER_ERR"			=> 	"We are unable to verify your account",
 	"PHONE_SUCCEED"		=>	"Phone number has been confirmed",
 	"ACC_INV_NOTFOUND"	=>	"We are unable to find your account",
