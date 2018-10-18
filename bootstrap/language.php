@@ -14,15 +14,9 @@ class LangManager
 {
 	/** 
 	 * Define if language is forced
-	 * @var bool
+	 * @var integer
 	 */
-	public static $forced = false;
-
-	/** 
-	 * Define if language is forced
-	 * @var string
-	 */
-	public static $forcedLang = "";
+	private static $forced = false;
 
 	/**
 	 * Get Language Form in HTML
@@ -84,40 +78,49 @@ class LangManager
 	 * Force to change displayed language
 	 * @param string $langCode Language code
 	 */
-	public static function force($langCode)
+	public static function force($language_code)
 	{
-		self::$forced = true;
-		self::$forcedLang = $langCode;
+		$locale = require "locale.php";
+		if (!isset($locale[$language_code])) return false;
+		self::$forced = $language_code;
+		return true;
+	}
+
+	public static function isForced()
+	{
+		return self::$forced;
 	}
 
 	/**
 	 * Force to change displayed language
 	 * @return string
 	 */
-	public static function getDisplayedNow()
+	public static function getDisplayedNow($fallback = "en-US")
 	{
-		$langs = "en_US";
-		if ($_SESSION['account']['loggedIn'] == 0) {
-			$langs = POSConfigGlobal::$default_language;
+		if (self::$forced !== false) {
+			return self::$forced;
 		} else {
-			$langs = $_SESSION['account']['lang'];
-			if ($langs == "def") $langs = POSConfigGlobal::$default_language;
-		}
-		if ($langs == "loc") {
-			$httpaccept = locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-			$locale = require(__ROOTDIR . "/bootstrap/locale.php");
-			foreach ($locale as $k => $l) {
-				if (preg_match("/" . $httpaccept . "/", $k)) {
-					$langs = $k;
-					break;
-				}
+			if ($_SESSION['account']['loggedIn'] == 0) {
+				$langs = POSConfigGlobal::$default_language;
+			} else {
+				$langs = $_SESSION['account']['lang'];
+				if ($langs == "def") $langs = POSConfigGlobal::$default_language;
 			}
-			unset($locale);
+
+			if ($langs == "loc") { //Previous value usr
+				$httpaccept = str_replace("_", "-", locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']));
+				$locale = require "locale.php";
+				foreach ($locale as $k => $l) {
+					if (preg_match("/" . $httpaccept . "/", $k)) {
+						$langs = $k;
+						break;
+					}
+				}
+				if ($langs == "") $langs = $fallback;
+			}
+
+			return $langs;
 		}
-		if (self::$forced) {
-			$langs = self::$forcedLang;
-		}
-		return ($langs);
 	}
 }
 
@@ -126,7 +129,6 @@ class LangManager
  */
 class Language
 {
-
 	private $set = [];
 
 	public function __set($v, $l)
@@ -150,29 +152,13 @@ class Language
 			throw new PuzzleError("Language can only be loaded from Application");
 		}
 
-		$langs = "en_US";
+		//Define Fallback language, in case language not defined in application
 		$fallback = "en_US";
-		if ($_SESSION['account']['loggedIn'] == 0) {
-			$langs = POSConfigGlobal::$default_language;
+
+		if (LangManager::isForced() !== false) {
+			$langs = LangManager::isForced();
 		} else {
-			$langs = $_SESSION['account']['lang'];
-			if ($langs == "def") $langs = POSConfigGlobal::$default_language;
-		}
-
-		if ($langs == "loc") { //Previous value usr
-			$httpaccept = str_replace("_", "-", locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']));
-			$locale = require(__ROOTDIR . "/bootstrap/locale.php");
-			foreach ($locale as $k => $l) {
-				if (preg_match("/" . $httpaccept . "/", $k)) {
-					$langs = $k;
-					break;
-				}
-			}
-			unset($locale);
-		}
-
-		if (LangManager::$forced) {
-			$langs = LangManager::$forcedLang;
+			$langs = LangManager::getDisplayedNow();
 		}
 
 		if (file_exists(__ROOTDIR . "/applications/$dir/$langs.lang.php")) {
