@@ -85,4 +85,4 @@
 
 }());
 </script>
-<?php echo Minifier::getJSFile();?>
+<?php echo Minifier::getJSFile()?>
