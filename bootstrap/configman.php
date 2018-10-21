@@ -316,6 +316,14 @@ class POSConfigMultidomain
 		require_ext(__ROOTDIR . '/configs/root.sys.php');
 
 		require("database.php");
+		
+		/***********************************
+		 * Rebuild system table structure
+		 ***********************************/
+		if (file_get_contents(__ROOTDIR . "/storage/dbcache/systables") != md5(file_get_contents("systables.php", true))) {
+			require("systables.php");
+			file_put_contents(__ROOTDIR . "/storage/dbcache/systables", md5(file_get_contents("systables.php", true)));
+		}
 
 		if (!__isCLI()) {
 			self::$zone = str_replace("www.", "", explode(":", $_SERVER["HTTP_HOST"])[0]);

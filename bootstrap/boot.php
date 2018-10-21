@@ -98,14 +98,6 @@ define("__SITELANG", POSConfigGlobal::$default_language);
 define("__TIMEZONE", POSConfigGlobal::$timezone);
 
 /***********************************
- * Rebuild system table structure
- ***********************************/
-if (file_get_contents(__ROOTDIR . "/storage/dbcache/systables") != md5(file_get_contents("systables.php", true))) {
-	require("systables.php");
-	file_put_contents(__ROOTDIR . "/storage/dbcache/systables", md5(file_get_contents("systables.php", true)));
-}
-
-/***********************************
  * Registering Autoloader
  * This is bundled Library that 
  * shipped with PuzzleOS.
