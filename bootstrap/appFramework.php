@@ -397,7 +397,7 @@ class Application
 	public function run($name = "")
 	{
 		$this->prepare($name);
-		AppManager::migrateTable($name);
+		AppManager::migrateTable($this->appname);
 
 		if (!__isCLI()) {
 			if (!self::$MainAppStarted) {
