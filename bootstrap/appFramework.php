@@ -293,9 +293,11 @@ class Application
 	private $http_code = 404;
 
 	private $isMainApp = false;
+	private $called_by_me = false;
 
 	public function __construct($appname = "")
 	{
+		$this->called_by_me = is_callbyme();
 		if ($appname != "") $this->run($appname);
 		return $this;
 	}
@@ -400,7 +402,7 @@ class Application
 		AppManager::migrateTable($this->appname);
 
 		if (!__isCLI()) {
-			if (!self::$MainAppStarted) {
+			if (!self::$MainAppStarted && $this->called_by_me) {
 				self::$MainAppStarted = true;
 				/**
 				 * In multidomain mode, there is a feature called App resctriction,
