@@ -56,7 +56,7 @@ class Cache
 
     public static function exists($key)
     {
-        $p = self::init();
+        $p = self::init($key);
         return (file_exists("$p/$key"));
     }
 
