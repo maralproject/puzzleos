@@ -257,12 +257,6 @@ class Application
 	private $datadir;
 
 	/**
-	 * URL path. http://localhost/puzzleos/$yourApp
-	 * URL path. http://localhost/$yourApp
-	 */
-	private $uri;
-
-	/**
 	 * Physical directory. /www/cms/$appdir or C:/htdocs/cms/$appdir
 	 */
 	private $path;
@@ -315,9 +309,6 @@ class Application
 				return ($this->path);
 			case "rootdir":
 				return ($this->rootdir);
-			case "uri":
-			case "url":
-				return ($this->uri);
 			case "isForbidden":
 				return ($this->forbidden == 1);
 			case "isMainApp":
@@ -346,8 +337,6 @@ class Application
 			"appname" => $this->appname,
 			"path" => $this->path,
 			"rootdir" => $this->rootdir,
-			"uri" => $this->uri,
-			"url" => $this->uri,
 			"bundle" => &$this->bundle,
 			"isMainApp" => $this->isMainApp,
 			"http_code" => &$this->http_code
@@ -382,7 +371,6 @@ class Application
 				$this->title = $meta["title"];
 				$this->desc = $meta["desc"];
 				$this->path = IO::physical_path("/applications/" . $dir);
-				$this->uri = __SITEURL . "/applications/" . $dir;
 				$this->rootdir = "/applications/" . $dir;
 				$this->datadir = "/user_data/" . $this->appname;
 			}
