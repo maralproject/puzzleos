@@ -136,4 +136,3 @@ class PageControl{
 		echo $this->getNavigationHTML($redir);
 	}
 }
-?>

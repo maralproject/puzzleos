@@ -252,4 +252,3 @@ return [
     'yo-NG' => 'Yoruba (Nigeria)',
     'zu-ZA' => 'Zulu (South Africa)'
 ];
-?>

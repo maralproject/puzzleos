@@ -9,7 +9,7 @@
 
 /* This file also handle image upload from TinyMCE */
 if($appProp->isMainApp){
-	switch(__getURI(1)){
+	switch(request(1)){
 	case "uploadImage":
 		$hash = substr(md5_file($_FILES["file"]["tmp_name"]),0,5);
 		UserData::move_uploaded($_FILES["file"]["name"] . ".$hash","file");
@@ -59,4 +59,4 @@ $.ajax({
 	}
 });
 </script>
-<?php Template::appendBody(Minifier::outJSMin(),true); ?>
+<?php Template::appendBody(Minifier::outJSMin(),true);

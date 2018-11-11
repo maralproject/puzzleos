@@ -20,7 +20,6 @@ define("USER_AUTH_PUBLIC", 3);
  */
 class Accounts
 {
-
 	private static $cache = [];
 
 	public static $customET_CE = null;
@@ -67,7 +66,7 @@ class Accounts
 	 */
 	public static function count()
 	{
-		return mysqli_num_rows(Database::exec("SELECT `id` from app_users_list"));
+		return Database::execute("SELECT count(`id`) from app_users_list")->fetch_row()[0];
 	}
 
 	/**
@@ -151,7 +150,6 @@ class Accounts
 
 	/**
 	 * Get settings
-	 * 
 	 * @return array
 	 */
 	public static function getSettings()
@@ -163,7 +161,6 @@ class Accounts
 
 	/**
 	 * Verify Re-Captcha after login
-	 * 
 	 * @return bool
 	 */
 	public static function verifyRecapctha()
@@ -188,9 +185,7 @@ class Accounts
 	}
 
 	/**
-	 * Hash password
-	 * This function use default php password_hash()
-	 * 
+	 * Hash password using default php password_hash(BCRYPT)
 	 * @param string $password
 	 * @return string
 	 */
@@ -214,16 +209,23 @@ class Accounts
 
 	/**
 	 * Get authentication type in string
-	 * 
 	 * @param integer $auth
 	 * @return string
 	 */
 	public static function translateAuth($auth)
 	{
-		if ($auth == 0) return ("Superuser");
-		if ($auth == 1) return ("Employees");
-		if ($auth == 2) return ("Regitered");
-		if ($auth == 3) return ("Public");
+		switch ($auth) {
+			case 0:
+				return ("Superuser");
+			case 1:
+				return ("Employees");
+			case 2:
+				return ("Regitered");
+			case 3:
+				return ("Public");
+			default:
+				throw new PuzzleError("Authentication level is invalid");
+		}
 	}
 
 	/**
@@ -297,7 +299,7 @@ class Accounts
 		if (strlen($email_phone_name) < 3) return [];
 		$p = self::getE164($email_phone_name);
 		if ($p == "") $p = "NULL";
-		return (Database::toArray(Database::exec(
+		return (Database::toArray(Database::execute(
 			"SELECT `id`,`name`,`group`,`email`,`registered_time` from `app_users_list` where name like '%?%' or email like '%?%' or phone like '%?%'" . ($limit !== null ? " LIMIT ?" : ""),
 			$email_phone_name,
 			$email_phone_name,
@@ -339,13 +341,13 @@ class Accounts
 	}
 
 	/**
-	 * Authenticate a user
+	 * Authenticate a user. If success, add the user session.
 	 * 
-	 * @param string $username Username will be converted to lowercase
-	 * @param string $pass
+	 * @param string $username
+	 * @param string $password
 	 * @return bool
 	 */
-	public static function authUserId($username, $pass)
+	public static function authUserId($username, $password)
 	{
 		if (self::$customM_UE && !self::$customM_UP) {
 			if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
@@ -364,7 +366,7 @@ class Accounts
 		}
 		if ($userid == "" || Database::read("app_users_list", "enabled", "id", $userid) != 1) return false;
 		$auth_user = $userid != "" ? 1 : 0;
-		$auth_pass = self::verifyHashPass($pass, Database::read("app_users_list", "password", "id", $userid));
+		$auth_pass = self::verifyHashPass($password, Database::read("app_users_list", "password", "id", $userid));
 		if ($auth_user && $auth_pass) {
 			self::addSession($userid);
 			return true;
@@ -398,13 +400,13 @@ class Accounts
 
 	/**
 	 * Compare user authentication with authentication level
-	 * @param string $required_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
+	 * @param integer $required_level USER_AUTH_SU, USER_AUTH_EMPLOYEE, USER_AUTH_REGISTERED, USER_AUTH_PUBLIC
 	 * @return bool
 	 */
 	public static function authAccess($required_level)
 	{
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if (__isCLI() && defined("__POSCLI")) return true;
+		if (is_cli() && defined("__POSCLI")) return true;
 
 		if ($_SESSION['account']['loggedIn'] == 0) {
 			return ($required_level >= USER_AUTH_PUBLIC);
@@ -415,21 +417,21 @@ class Accounts
 
 	/**
 	 * Compare user authentication with group
-	 * @param string $requiredGroup User group ID
+	 * @param integer $required_group_id
 	 * @return bool
 	 */
-	public static function authAccessAdvanced($requiredGroup)
+	public static function authAccessAdvanced($required_group_id)
 	{
 		//On CLI, user always authenticated as USER_AUTH_SU
-		if (__isCLI() && defined("__POSCLI")) return true;
+		if (is_cli() && defined("__POSCLI")) return true;
 
 		$result = false;
 
-		$level_required = self::getAuthLevel($requiredGroup);
+		$level_required = self::getAuthLevel($required_group_id);
 		$level_user = self::getAuthLevel($_SESSION['account']['group']);
 
 		if ($level_user == $level_required) {
-			switch ($requiredGroup) {
+			switch ($required_group_id) {
 				case 1:
 				case 2:
 				case 3:
@@ -441,7 +443,7 @@ class Accounts
 						case 3:
 							return true;
 						default:
-							return ($_SESSION['account']['group'] == $requiredGroup);
+							return ($_SESSION['account']['group'] == $required_group_id);
 					}
 			}
 		} else {
@@ -450,8 +452,8 @@ class Accounts
 	}
 
 	/**
-	 * Get logged-in user id
-	 * @return string
+	 * Get user id currently logged in
+	 * @return integer
 	 */
 	public static function getUserId()
 	{
@@ -460,4 +462,3 @@ class Accounts
 }
 
 if (Accounts::getSettings()["f_reg_activate"] == "on") Accounts::$customM_UE = true;
-?>

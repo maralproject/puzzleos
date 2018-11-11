@@ -49,4 +49,3 @@ spl_autoload_register(function ($c) {
             break;
     }
 });
-?>

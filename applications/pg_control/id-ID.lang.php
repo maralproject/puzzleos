@@ -11,4 +11,3 @@ return array(
 	"NEXT"		=> "Brktnya",
 	"PREV"		=> "Sblmnya"
 );
-?>

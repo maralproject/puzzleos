@@ -69,12 +69,7 @@ if($arg1 == "getdropChoiceInput"){
 	}
 	$name = $arg2[0];
 	$selected = $arg2[1];
-	//ob_start();
 	include("dropdown.php");
-	//$search = array('/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s');
-	//$replace = array('>','<','\\1');
-	//$buffer = preg_replace($search, $replace, ob_get_clean());
-	//return $buffer;
 }else if($arg1 == "JSNewInput"){
 	/* This views is used to load fontawesome scripts and js on another part of HTML */
 	if(!$GLOBALS["fa_view_called"]){
@@ -163,10 +158,5 @@ if($arg1 == "getdropChoiceInput"){
 		}
 		</script><?php echo Minifier::outJSMin();?>
 		<?php
-		//$search = array('/\>[^\S ]+/s','/[^\S ]+\</s','/(\s)+/s');
-		//$replace = array('>','<','\\1');
-		//$buffer = preg_replace($search, $replace, ob_get_clean());
-		//echo $buffer;
 	}
 }
-?>

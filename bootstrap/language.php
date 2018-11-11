@@ -8,7 +8,7 @@
  */
 
 /**
- * Language Manager
+ * Language Manager for Administration
  */
 class LangManager
 {
@@ -191,4 +191,3 @@ class Language
 		echo ($this->get($code));
 	}
 }
-?>

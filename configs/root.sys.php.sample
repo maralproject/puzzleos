@@ -47,4 +47,3 @@ POSConfigGlobal::$sitename = "%SITENAME%";
 POSConfigGlobal::$timezone = "%TIMEZONE%";
 POSConfigGlobal::$copyright = "%COPYRIGHT%";
 POSConfigGlobal::$meta_description = "%META_DESC%";
-?>

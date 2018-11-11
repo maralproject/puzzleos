@@ -16,4 +16,3 @@ return array(
 	"ERROR_UPLOAD"		=>	"Terjadi kesalahan saat mengunggah gambar",
 	"ERROR_UNKNOWN"		=>	"Telah terjadi kesalahan",
 );
-?>

@@ -8,8 +8,7 @@
  */
 
 /**
- * Insert data to database
- * Call this class from Database::newRowAdvanced();
+ * Interface for creating Database Row values.
  */
 class DatabaseRowInput
 {
@@ -28,7 +27,12 @@ class DatabaseRowInput
 	 */
 	public function setField($column_name, $value)
 	{
-		if ($column_name == "") throw new DatabaseError("Column name cannot be empty");
+		$this->rowStructure[$column_name] = $value;
+		return $this;
+	}
+
+	public function __set($column_name, $value)
+	{
 		$this->rowStructure[$column_name] = $value;
 		return $this;
 	}
@@ -57,7 +61,7 @@ class DatabaseRowInput
 }
 
 /**
- * Build database and table structure
+ * Interface for defining Database table structure.
  */
 class DatabaseTableBuilder
 {
@@ -101,26 +105,12 @@ class DatabaseTableBuilder
 	/** 
 	 * Create structure along with initial record
 	 * If the table already have some record, than this data will not be inserted
-	 * @param mixed ...$structure
+	 * @param array $structure
 	 * @return DatabaseTableBuilder
 	 */
-	public function newInitialRow(...$structure)
+	public function insertFresh(array $structure)
 	{
-		$this->rowStructure["simple"][] = $structure;
-		return $this;
-	}
-
-	/** 
-	 * Create structure along with initial record
-	 * If the table already have some record, than this data will not be inserted
-	 * @param DatabaseRowInput $structure
-	 * @return DatabaseTableBuilder
-	 */
-	public function newInitialRowAdvanced($structure)
-	{
-		if (!is_a($structure, "DatabaseRowInput")) throw new DatabaseError("Please use DatabaseRowInput as a structure!");
-		$this->rowStructure["advance"][] = clone $structure;
-		$structure->clearStructure();
+		$this->rowStructure = $structure;
 		return $this;
 	}
 
@@ -262,27 +252,19 @@ class Database
 	public static function connect()
 	{
 		if (!is_callbyme()) throw new DatabaseError("Database violation!");
-		self::$link = mysqli_connect(
-			POSConfigDB::$host,
-			POSConfigDB::$username,
-			POSConfigDB::$password,
-			POSConfigDB::$database_name
-		);
-		if (!self::$link) {
-			throw new DatabaseError(
-				mysqli_connect_error(),
-				"Fyi, PuzzleOS only support MySQL server for now. Please re-configure database information in config.php"
-			);
+
+		self::$link = @new mysqli(POSConfigDB::$host, POSConfigDB::$username, POSConfigDB::$password, POSConfigDB::$database_name);
+		if (self::$link->connect_error) {
+			throw new DatabaseError(self::$link->connect_error, "PuzzleOS only supports MySQL or MariaDB");
 		}
 	}
 
 	private static function dumpError()
 	{
-		throw new DatabaseError('DB -> Could not get data: ' . mysqli_error(self::$link));
+		throw new DatabaseError('MySQL Error: ' . self::$link->error);
 	}
 
 	/**
-	 * Perform MySQL queries
 	 * @return mysqli_result
 	 */
 	private static function query($query, ...$param)
@@ -322,16 +304,16 @@ class Database
 		if ($r = self::$link->query($escaped)) {
 			return $r;
 		} else {
-			if (mysqli_errno(self::$link) == "2014") {
+			if (self::$link->errno == "2014") {
 				/* Perform a reconnect */
 				self::$link->close();
-				self::connect();
 				self::flushCache();
+				self::connect();
 				if (!($r = self::$link->query($escaped))) {
-					throw new DatabaseError('Could not execute(' . mysqli_errno(self::$link) . '): ' . mysqli_error(self::$link), $escaped);
+					throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped);
 				}
 			} else
-				throw new DatabaseError('Could not execute(' . mysqli_errno(self::$link) . '): ' . mysqli_error(self::$link), $escaped);
+				throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped);
 		}
 	}
 
@@ -339,7 +321,7 @@ class Database
 	{
 		if ($find == "") return false;
 		$filename = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3)[2]["file"];
-		if (__isCLI() && isset($GLOBALS["_WORKER"])) {
+		if (is_cli() && isset($GLOBALS["_WORKER"])) {
 			$appname = $GLOBALS["_WORKER"]["appdir"];
 
 			if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini"))
@@ -395,189 +377,191 @@ class Database
 	public static function flushCache()
 	{
 		self::$cache = [];
-		if (defined("DB_DEBUG")) {
-			file_put_contents(__ROOTDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
-		}
+		if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
 	}
 
 	/**
 	 * Get max value from column in table
 	 * @param string $table Table Name
 	 * @param string $column Column Name
-	 * @param string $arg Custom parameter
+	 * @param string $statement Custom parameter
 	 * @param string $param Custom parameter
 	 * @return string
 	 */
-	public static function max($table, $column, $arg = "", ...$param)
+	public static function max($table, $column, $statement = "", ...$param)
 	{
 		self::x_verify($table);
 		if (!isset(self::$cache["max"][$table . $column])) {
-			if ($r = self::query("SELECT MAX(`?`) FROM `?` $arg", $column, $table, ...$param)) {
-				while ($row = $r->fetch_array(MYSQLI_ASSOC)) {
-					self::$cache["max"][$table . $column] = $row;
-					return ($row["MAX(`" . $column . "`)"]);
-				}
+			if ($r = self::query("SELECT MAX(`?`) FROM `?` $statement", $column, $table, ...$param)) {
+				self::$cache["max"][$table . $column] = [$r->fetch_row()[0]];
+				$r->free();
 			} else {
 				self::dumpError();
 			}
-		} else {
-			return (self::$cache["max"][$table . $column]["MAX(`" . $column . "`)"]);
 		}
+
+		return self::$cache["max"][$table . $column][0];
+	}
+
+	/**
+	 * Read a single row.
+	 * @param string $table Table Name
+	 * @param string $find_column Column need to be matched
+	 * @param string $find_value Value inside $find_column need to be matched
+	 * @return string
+	 */
+	public static function getRow($table, $find_column, $find_value)
+	{
+		self::x_verify($table);
+		if (!isset(self::$cache["getRow"][$table . $find_column . $find_value])) {
+			if ($r = self::query("SELECT * FROM `?` WHERE `?`='?' LIMIT 1", $table, $find_column, $find_value)) {
+				self::$cache["getRow"][$table . $find_column . $find_value] = [$r->fetch_assoc()];
+				$r->free();
+			} else {
+				self::dumpError();
+			}
+		}
+		return self::$cache["getRow"][$table . $find_column . $find_value][0];
+	}
+
+	/**
+	 * Read a single row.
+	 * @param string $table Table Name
+	 * @param string $statement Custom statement
+	 * @param string $param Parameterized value
+	 * @return string
+	 */
+	public static function getRowByStatement($table, $statement, ...$param)
+	{
+		self::x_verify($table);
+		$c = $table . $statement . serialize($param);
+		if (!isset(self::$cache["getRowByStatement"][$c])) {
+			if ($r = self::query("SELECT * FROM `?` $statement LIMIT 1", $table, ...$param)) {
+				self::$cache["getRowByStatement"][$c] = [$r->fetch_assoc()];
+				$r->free();
+			} else {
+				self::dumpError();
+			}
+		}
+		return self::$cache["getRowByStatement"][$c][0];
 	}
 
 	/**
 	 * Read a single column.
 	 * @param string $table Table Name
 	 * @param string $column Column Name
-	 * @param string $findByCol Column need to be matched
-	 * @param string $findByVal Value inside $findByCol need to be matched
+	 * @param string $find_column Column need to be matched
+	 * @param string $find_value Value inside $find_column need to be matched
 	 * @return string
 	 */
-	public static function read($table, $column, $findByCol, $findByVal)
+	public static function read($table, $column, $find_column, $find_value)
 	{
 		self::x_verify($table);
-		if (!isset(self::$cache["read"][$table . $findByCol . $findByVal])) {
-			if ($retval = self::query("SELECT * FROM `?` WHERE `?`='?' LIMIT 1;", $table, $findByCol, $findByVal)) {
-				while ($row = $retval->fetch_array(MYSQLI_ASSOC)) {
-					self::$cache["read"][$table . $findByCol . $findByVal] = $row;
-					return ($row[$column]);
-				}
-			} else {
-				self::dumpError();
-			}
-		} else {
-			return (self::$cache["read"][$table . $findByCol . $findByVal][$column]);
-		}
+		return self::getRow($table, $find_column, $find_value)[$column];
 	}
 
 	/**
 	 * Read a single column with custom argument.
 	 * @param string $table Table Name
 	 * @param string $column Column Name
-	 * @param string $arg Additional custom parameter
+	 * @param string $statement Custom statement
 	 * @param string $param Additional custom parameter
 	 * @return string
 	 */
-	public static function readArg($table, $column, $arg = "", ...$param)
+	public static function readByStatement($table, $column, $statement, ...$param)
 	{
 		self::x_verify($table);
-		$c_param = serialize($param);
-		if (!isset(self::$cache["readArg"][$table . $arg . $c_param])) {
-			if ($retval = self::query("SELECT * FROM `?` " . $arg . ";", $table, ...$param)) {
-				while ($row = mysqli_fetch_array($retval, MYSQLI_ASSOC)) {
-					self::$cache["readArg"][$table . $arg . $c_param] = $row;
-					return (self::$cache["readArg"][$table . $arg . $c_param][$column]);
-				}
-				self::$cache["readArg"][$table . $arg . $c_param] = [];
-			} else {
-				self::dumpError();
-			}
-		} else {
-			return (self::$cache["readArg"][$table . $arg . $c_param][$column]);
-		}
+		return self::getRowByStatement($table, $statement, ...$param)[$column];
 	}
 
 	/**
-	 * Write a new record
-	 * NOTE: AUTO_INCRECEMENT column will be ignored
-	 * 
-	 * @param string $table
-	 * @param mixed ...$array
-	 * @return mysqli_result
-	 */
-	public static function newRow($table, ...$array)
-	{
-		self::x_verify($table);
-		if (count($array) < 1) throw new DatabaseError('$array expecting array');
-
-		$fList = "";
-		$cList = "";
-		$columns = self::toArray(self::query("show columns from `?`;", $table))->data;
-		reset($array);
-
-		foreach ($columns as $k) {
-			//Skip auto_increment column
-			if (str_contains($k["Extra"], "auto_increment")) continue;
-			if (current($array) === false) {
-				if ($k["Default"] != null) break;
-				throw new DatabaseError("Not enough parameter");
-			} else {
-				$cList .= '`' . $k["Field"] . '`,';
-				$fList .= current($array) === null ? "NULL," : "'" . self::escape(current($array)) . "',";
-				next($array);
-			}
-		}
-
-		return (self::query("INSERT INTO `$table` (" . rtrim($cList, ",") . ") VALUES (" . rtrim($fList, ",") . ");"));
-	}
-
-	/**
-	 * Write a new record by specifiying column name
+	 * Write new record
 	 * @param string $table Table Name
-	 * @param DatabaseRowInput $row_input
+	 * @param array $row_input
 	 * @return mysqli_result
 	 */
-	public static function newRowAdvanced($table, DatabaseRowInput $row_input)
+	public static function insert($table, array $row_input)
 	{
 		self::x_verify($table);
-		$structure = $row_input->getStructure();
-		$col_list = "";
-		$value_list = "";
-		foreach ($structure as $column => $value) {
-			if ($column == "") continue;
-			$col_list .= "`$column`, ";
-			$value_list .= ($value === null) ? "NULL," : "'" . self::escape($value) . "', ";
+		if(count($row_input) < 1) return true;
+
+		$data = (object)["columns" => [], "values" => []];
+		foreach ($row_input as $d) {
+			if (!$d instanceof DatabaseRowInput) throw new DatabaseError('$row_input should be a DatabaseRowInput');
+			$next_values = [];
+			foreach ($d->getStructure() as $column=>$value) {
+				if (!isset($data->columns[$column])) $data->columns[$column] = count($data->columns);
+				$next_values[$data->columns[$column]] = $value;
+			}
+			$data->values[] = $next_values;
 		}
-		$row_input->clearStructure();
-		return (self::query("INSERT INTO `" . $table . "` (" . rtrim($col_list, ", ") . ") VALUES (" . rtrim($value_list, ", ") . ");"));
+
+		$query = "INSERT INTO `$table` (";
+		foreachx($data->columns, function ($index, $last, $column, $i) use (&$query) {
+			$query .= "`$column`";
+			if (!$last) $query .= ",";
+		});
+		$query .= ") VALUES ";
+		foreachx($data->values, function ($i, $last, $k, $values) use (&$query) {
+			$query .= "(";
+			foreachx($values, function ($i, $last2, $k, $value) use (&$query) {
+				$value = Database::escape($value);
+				$query .= "'$value'";
+				if (!$last2) $query .= ",";
+			});
+			$query .= ")";
+			if (!$last) $query .= ",";
+		});
+
+		return self::query($query);
 	}
 
 	/**
 	 * Update database row using DatabaseRowInput
 	 * @param string $table
 	 * @param DatabaseRowInput $row_input
-	 * @param string $findByCol
-	 * @param string $findByVal
+	 * @param string $find_column
+	 * @param string $find_value
 	 * @return bool
 	 */
-	public static function updateRowAdvanced($table, DatabaseRowInput $row_input, $findByCol, $findByVal)
+	public static function update($table, DatabaseRowInput $row_input, $find_column, $find_value)
 	{
 		self::x_verify($table);
-		$findByCol = self::escape($findByCol);
-		$findByVal = self::escape($findByVal);
-		$structure = $row_input->getStructure();
-		$data = "";
-		foreach ($structure as $column => $value) {
-			if ($column == "") continue;
-			$data .= ($value === null) ? "`$column`=NULL," : "`$column`='" . self::escape($value) . "',";
-		}
-		return (self::query("UPDATE `$table` SET " . rtrim($data, ",") . " WHERE `$findByCol`='$findByVal'"));
+		$s = $row_input->getStructure();
+		$query = "UPDATE `$table` SET ";
+		foreachx($s, function ($i, $l, $column, $value) use (&$query) {
+			$value = Database::escape($value);
+			$query .= "`$column`='$value'";
+			if (!$l) $query .= ",";
+		});
+		$query .= " WHERE `$find_column`='?'";
+		return self::query($query, $find_value);
 	}
 
 	/**
 	 * Delete a record
 	 * @param string $table Table Name
-	 * @param string $findByCol Column need to be matched
-	 * @param string $findByVal Value inside $findByCol need to be matched
+	 * @param string $find_column Column need to be matched
+	 * @param string $find_value Value inside $find_column need to be matched
 	 * @return bool
 	 */
-	public static function deleteRow($table, $findByCol, $findByVal)
+	public static function delete($table, $find_column, $find_value)
 	{
 		self::x_verify($table);
-		return (self::query("DELETE FROM `?` WHERE `?`='?';", $table, $findByCol, $findByVal));
+		return self::query("DELETE FROM `?` WHERE `?`='?';", $table, $find_column, $find_value);
 	}
 
 	/**
 	 * Delete a record with custom argument
 	 * @param string $table Table Name
-	 * @param string $arg Table Name
+	 * @param string $statement Custom statement
 	 * @param array ...$param
 	 * @return bool
 	 */
-	public static function deleteRowArg($table, $arg, ...$param)
+	public static function deleteByStatement($table, $statement, ...$param)
 	{
 		self::x_verify($table);
-		return (self::query("DELETE FROM `?` " . $arg . ";", $table, ...$param));
+		return self::query("DELETE FROM `?` $statement", $table, ...$param);
 	}
 
 	/**
@@ -593,18 +577,18 @@ class Database
 	}
 
 	/**
-	 * Execute a single query.
+	 * Execute raw query.
 	 * @param string $query For better security, use '?' as a mark for each parameter.
 	 * @param mixed ...$param Will replace the '?' as parameterized queries
 	 * @return mysqli_result
 	 */
-	public static function exec($query, ...$param)
+	public static function execute($query, ...$param)
 	{
 		self::x_verify($query);
-		if (!isset(self::$cache["exec"][$query . serialize($param)])) {
-			self::$cache["exec"][$query . serialize($param)] = self::query($query, ...$param);
+		if (!isset(self::$cache["execute"][$query . serialize($param)])) {
+			self::$cache["execute"][$query . serialize($param)] = [self::query($query, ...$param)];
 		}
-		return self::$cache["exec"][$query . serialize($param)];
+		return self::$cache["execute"][$query . serialize($param)][0];
 	}
 
 	/**
@@ -613,7 +597,7 @@ class Database
 	 */
 	public static function escape($str)
 	{
-		return (self::$link->real_escape_string($str));
+		return self::$link->real_escape_string($str);
 	}
 
 	/**
@@ -627,69 +611,58 @@ class Database
 		self::x_verify($table);
 		if (!isset(self::$cache["tables"])) {
 			$q = self::query("SHOW TABLES");
-			while ($r = mysqli_fetch_array($q)) {
-				self::$cache["tables"][$r[0]] = 1;
-			}
+			while ($r = $q->fetch_row()) self::$cache["tables"][$r[0]] = 1;
 		}
-		return (isset(self::$cache["tables"][$table]));
+		return isset(self::$cache["tables"][$table]);
 	}
 
 	/**
 	 * Read all record in a table
 	 * @param string $table Table name
-	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
+	 * @param string $statement Additional queries syntax. e.g. "SORT ASC BY `id`"
 	 * @param array $param
-	 * @return object
+	 * @return array
 	 */
-	public static function readAll($table, $options = "", ...$param)
+	public static function readAll($table, $statement = "", ...$param)
 	{
-		if ($table == "") throw new DatabaseError("Please fill the table name!");
 		self::x_verify($table);
-		if (!isset(self::$cache["readAll"][$table . $options . serialize($param)])) {
-			$array = self::toArray(self::query("SELECT * FROM `$table` $options;", ...$param));
-			self::$cache["readAll"][$table . $options . serialize($param)] = $array;
-			return ($array);
-		} else {
-			return (self::$cache["readAll"][$table . $options . serialize($param)]);
+		$c = serialize($param);
+		if (!isset(self::$cache["readAll"][$table . $statement . $c])) {
+			$array = self::toArray(self::query("SELECT * FROM `$table` $statement", ...$param));
+			self::$cache["readAll"][$table . $statement . $c] = [$array];
 		}
+		return self::$cache["readAll"][$table . $statement . $c][0];
 	}
 
 	/**
 	 * Read all record in a table, and process it with custom iterator
 	 * @param string $table Table name
 	 * @param callable $iterator
-	 * @param string $options Additional queries syntax. e.g. "SORT ASC BY `id`"
+	 * @param string $statement Additional queries syntax. e.g. "SORT ASC BY `id`"
 	 * @param array $param
 	 * @return array
 	 */
-	public static function readAllCustom($table, $iterator, $options = "", ...$param)
+	public static function readAllCustom($table, $iterator, $statement = "", ...$param)
 	{
-		if ($table == "") throw new DatabaseError("Please fill the table name!");
 		if (!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
 		self::x_verify($table);
-		if (!isset(self::$cache["readAllCustom"][$table . $options . serialize($param) . spl_object_hash($iterator)])) {
-			$array = self::toCustom(self::query("SELECT * FROM `$table` $options;", ...$param), $iterator);
-			self::$cache["readAllCustom"][$table . $options . serialize($param)] = $array;
-			return ($array);
-		} else {
-			return (self::$cache["readAllCustom"][$table . $options . serialize($param) . spl_object_hash($iterator)]);
+		$c = $table . $statement . serialize($param) . spl_object_hash($iterator);
+		if (!isset(self::$cache["readAllCustom"][$c])) {
+			$array = self::toCustom(self::query("SELECT * FROM `$table` $statement", ...$param), $iterator);
+			self::$cache["readAllCustom"][$c] = [$array];
 		}
+		return self::$cache["readAllCustom"][$c][0];
 	}
 
 	/**
 	 * Fetch all mysql result and convert it into array
 	 * @param mysqli_result $result 
-	 * @return object
+	 * @return array
 	 */
 	public static function toArray(mysqli_result $result)
 	{
-		$array = ["data" => [], "num" => 0];
 		if (!$result) self::dumpError();
-		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-			$array["data"][] = $row;
-			$array["num"]++;
-		}
-		return ((object)$array);
+		return $result->fetch_all(MYSQLI_ASSOC);
 	}
 
 	/**
@@ -701,19 +674,16 @@ class Database
 	public static function toCustom(mysqli_result $result, $iterator)
 	{
 		if (!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
-		$array = ["data" => [], "num" => 0];
 		if (!$result) self::dumpError();
-		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-			$array["data"][] = $iterator($row);
-			$array["num"]++;
-		}
-		return ((object)$array);
+		$array = [];
+		while ($row = $result->fetch_assoc()) $array[] = $iterator($row);
+		return $array;
 	}
 
 	/**
-	 * Do a transaction in Database Engine.
+	 * Do a transaction in MySQL.
 	 * If some of the function throws an error,
-	 * we will Rollback the database action.
+	 * we will rollback the database action.
 	 * 
 	 * @param callable $handler
 	 * @return mixed
@@ -848,14 +818,7 @@ class Database
 			if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
 			if (mysqli_query(self::$link, $query)) {
-				if ($insertData) {
-					foreach ($initialData["simple"] as $row) {
-						self::newRow($table, ...$row);
-					}
-					foreach ($initialData["advance"] as $row) {
-						self::newRowAdvanced($table, $row);
-					}
-				}
+				if ($insertData) self::insert($table, $initialData);
 				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
 				set_time_limit(TIME_LIMIT);
 				return true;
@@ -1029,6 +992,4 @@ class Database
 	}
 }
 
-/* Opening connection to database */
 Database::connect();
-?>

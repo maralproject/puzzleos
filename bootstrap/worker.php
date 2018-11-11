@@ -240,5 +240,3 @@ class Worker
 		return $result;
 	}
 }
-
-?>

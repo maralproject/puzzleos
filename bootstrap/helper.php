@@ -7,6 +7,22 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
+/**
+ * Foreach extended
+ */
+function foreachx(array $array, $callback)
+{
+	$index = 0;
+	$len = count($array) - 1;
+	foreach($array as $k=>$v){
+		$callback($index, $index >= $len, $k, $v); 
+		$index++;
+	}
+}
+
+/**
+ * Include PHP file outside the scope.
+ */
 function include_ext($__path, $vars = null)
 {
 	$vars != null ? extract($vars) : null;
@@ -14,6 +30,9 @@ function include_ext($__path, $vars = null)
 	return include $__path;
 }
 
+/**
+ * Include PHP file once outside the scope.
+ */
 function include_once_ext($__path, $vars = null)
 {
 	$vars != null ? extract($vars) : null;
@@ -21,6 +40,9 @@ function include_once_ext($__path, $vars = null)
 	return include_once $__path;
 }
 
+/**
+ * Require PHP file outside the scope.
+ */
 function require_ext($__path, $vars = null)
 {
 	$vars != null ? extract($vars) : null;
@@ -28,6 +50,9 @@ function require_ext($__path, $vars = null)
 	return require $__path;
 }
 
+/**
+ * Require PHP file once outside the scope.
+ */
 function require_once_ext($__path, $vars = null)
 {
 	$vars != null ? extract($vars) : null;
@@ -36,9 +61,11 @@ function require_once_ext($__path, $vars = null)
 }
 
 /**
- * Shutdown PuzzleOS and send HTTP code to user
+ * Shutdown PuzzleOS and send HTTP code to the Client.
+ * 
  * @param integer $code
  * @param string $text
+ * @param boolean $exit
  */
 function abort(int $code, string $text = "", $exit = true)
 {
@@ -48,7 +75,8 @@ function abort(int $code, string $text = "", $exit = true)
 }
 
 /**
- * Check if stack caller is from the file itself
+ * Check if stack caller is from the file itself.
+ * 
  * @return bool
  */
 function is_callbyme()
@@ -59,6 +87,7 @@ function is_callbyme()
 
 /**
  * Return the absolute internal path from apps or templates.
+ * 
  * @param string $path 
  * @return string
  */
@@ -152,13 +181,14 @@ function obtarr($d)
 }
 
 /**
- * Replace first occurrence pattern in string
- * @param string $str_pattern Find
- * @param string $str_replacement Replace
- * @param string $string Source
+ * Replace first occurrence pattern in string.
+ * 
+ * @param string $find Find
+ * @param string $replace Replace
+ * @param string $haystack Source
  * @return string
  */
-function str_replace_first($str_pattern, $str_replacement, $string)
+function str_replace_first($find, $replace, $haystack)
 {
 	if (strpos($string, $str_pattern) !== false) {
 		$occurrence = strpos($string, $str_pattern);
@@ -168,7 +198,8 @@ function str_replace_first($str_pattern, $str_replacement, $string)
 }
 
 /**
- * Validate a json string
+ * Validate a JSON string.
+ * 
  * @param string $string
  * @return bool
  */
@@ -179,8 +210,9 @@ function is_json($string)
 }
 
 /**
- * Redirect to another page
- * Better work if loaded in the app controller
+ * Redirect to another page.
+ * Better work if loaded in the app controller.
+ * 
  * @param string $app e.g. "users/login"
  */
 function redirect($app = "")
@@ -197,11 +229,12 @@ function redirect($app = "")
 }
 
 /**
- * Get the real bytes from PHP size format
+ * Get the bytes from PHP size format (e.g. 128M)
+ * 
  * @param integer $php_size
  * @return int
  */
-function get_bytes($php_size)
+function get_php_bytes($php_size)
 {
 	$php_size = trim($php_size);
 	$last = strtolower($php_size[strlen($php_size) - 1]);
@@ -217,20 +250,22 @@ function get_bytes($php_size)
 }
 
 /**
- * Get maximum file size allowed by PHP to be uploaded
+ * Get maximum file size allowed by PHP to be uploaded.
  * Use this information to prevent something wrong in your app
  * when user upload a very large data.
+ * 
  * @return integer
  */
 function php_max_upload_size()
 {
-	$max_upload = get_bytes(ini_get('post_max_size'));
-	$max_upload2 = get_bytes(ini_get('upload_max_filesize'));
+	$max_upload = get_php_bytes(ini_get('post_max_size'));
+	$max_upload2 = get_php_bytes(ini_get('upload_max_filesize'));
 	return (int)(($max_upload < $max_upload2 && $max_upload != 0) ? $max_upload : $max_upload2);
 }
 
 /**
- * Generate random string based on character list
+ * Generate random string based on character list.
+ * 
  * @param integer $length 
  * @param string $chr 
  * @return string
@@ -246,7 +281,8 @@ function rand_str($length, $chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHI
 }
 
 /**
- * Convert all backward slash to forward slash
+ * Convert all backward slash to forward slash.
+ * 
  * @param string $str 
  * @return string
  */
@@ -257,6 +293,7 @@ function btfslash($str)
 
 /**
  * Check if directory exist or not. If not exists create it.
+ * 
  * @param string $dir 
  * @param callable $post_prep_func 
  * @return string 
@@ -270,7 +307,8 @@ function preparedir($dir, $post_prep_func = null)
 }
 
 /**
- * Check if string is startsWith
+ * Check if string is startsWith.
+ * 
  * @param string $haystack 
  * @param string $needle 
  * @return string 
@@ -282,7 +320,8 @@ function starts_with($haystack, $needle)
 }
 
 /**
- * Check if string is endsWith
+ * Check if string is endsWith.
+ * 
  * @param string $haystack 
  * @param string $needle 
  * @return string 
@@ -295,7 +334,8 @@ function ends_with($haystack, $needle)
 }
 
 /**
- * Check if string contains
+ * Check if string contains.
+ * 
  * @param string $haystack 
  * @param string $needle 
  * @return bool
@@ -306,7 +346,8 @@ function str_contains($haystack, $needle)
 }
 
 /**
- * Check if strings contains some charlist
+ * Check if strings contains some charlist.
+ * 
  * @param string $haystack
  * @param array $chrlist
  * @return bool
@@ -320,13 +361,14 @@ function str_haschar($haystack, ...$chrlist)
 }
 
 /**
- * Get HTTP URI based on index
+ * Get HTTP Request index.
+ * 
  * @param string $index e.g. "app", "action", or index
  * @return string
  */
-function __getURI($index)
+function request($index)
 {
-	if (__isCLI()) return null; //No URI on CLI
+	if (is_cli()) return null; //No URI on CLI
 
 	$a = explode("/", __HTTP_URI);
 	$a[0] = $a["app"] = ($a[0] == "" ? POSConfigMultidomain::$default_application : $a[0]);
@@ -341,27 +383,39 @@ function __getURI($index)
 }
 
 /**
- * Match required version with system version
- * Return TRUE if system requirement fulfilled
+ * Check if version of current PuzzleOS meets the required version.
+ * 
  * @param string $version Required function
  * @return bool
  */
-function __requiredSystem($version)
+function need_version($version)
 {
-	return (version_compare(__POS_VERSION, $version, ">="));
+	return (version_compare(__POS_VERSION, $version) >= 0);
 }
 
 /**
- * Get if current environment is in CLI or not
+ * Check CLI environment.
+ * 
  * @return bool
  */
-function __isCLI()
+function is_cli()
 {
 	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
 }
 
 /**
- * Get a new CronTrigger instances
+ * Check if current environment is Windows.
+ * 
+ * @return bool
+ */
+function is_win()
+{
+	return (str_contains(PHP_OS, "WIN"));
+}
+
+/**
+ * Get a new CronTrigger instances.
+ * 
  * @return CronTrigger
  */
 function _CT()
@@ -371,7 +425,7 @@ function _CT()
 
 /**
  * A custom class like stdObject,
- * the differences is, you can fill it with a bunch of fucntion
+ * the differences is, you can fill it with a bunch of fucntion.
  */
 class PObject
 {
@@ -391,4 +445,3 @@ class PObject
 		return call_user_func_array($callable, $arguments);
 	}
 }
-?>

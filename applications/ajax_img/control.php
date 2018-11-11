@@ -8,12 +8,10 @@
  */
 
 if($appProp->isMainApp){
-	if(__getURI("action") == "upload"){
+	if(request("action") == "upload"){
 		if(!isset($_SESSION["ImageUploader"])) $_SESSION["ImageUploader"] = [];
 		return include("upload.php");
 	}else{
 		return false;
 	}
 }
-
-?>

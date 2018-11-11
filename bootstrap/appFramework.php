@@ -1,5 +1,4 @@
 <?php
-use Dompdf\FrameDecorator\Page;
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,7 +8,7 @@ use Dompdf\FrameDecorator\Page;
  */
 
 /**
- * Manage applications
+ * Application Manager for Administration
  */
 class AppManager
 {
@@ -35,7 +34,7 @@ class AppManager
 		if (self::$MainApp instanceof Application)
 			throw new PuzzleError("Main application can be only started once!");
 
-		$defaultApp = __getURI("app") == "" ? POSConfigMultidomain::$default_application : __getURI("app");
+		$defaultApp = request("app") == "" ? POSConfigMultidomain::$default_application : request("app");
 		if ($defaultApp == "") {
 			throw new PuzzleError("No any application to run!", "Please set one default application!");
 		} else {
@@ -86,14 +85,14 @@ class AppManager
 		
 		/* Caching database operation */
 		try {
-			$agroup = Database::readAll("app_users_grouplist")->data;
+			$agroup = Database::readAll("app_users_grouplist");
 		} catch (PuzzleError $e) {
 			/* Rebuild grouplist */
 			Database::newStructure("app_users_grouplist", require_ext(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
 			$agroup = Database::readAll("app_users_grouplist");
 		}
 
-		$appsec = Database::readAll("app_security")->data;
+		$appsec = Database::readAll("app_security");
 
 		$a = [];
 		foreach (IO::list_directory("/applications") as $dir) {
@@ -194,9 +193,9 @@ class AppManager
 		$new_level = Database::read("app_users_grouplist", "level", "id", $newgroup);
 		if ($new_level <= $allowed_level) {
 			if (Database::read("app_security", "rootname", "rootname", $appname) != "")
-				return (Database::exec("UPDATE `app_security` SET `group`='?' WHERE `rootname`='?';", $newgroup, $appname));
+				return (Database::execute("UPDATE `app_security` SET `group`='?' WHERE `rootname`='?';", $newgroup, $appname));
 			else
-				return (Database::exec("INSERT INTO `app_security` (`rootname`, `group`, `system`) VALUES ('?', '?', 0);", $appname, $newgroup));
+				return (Database::execute("INSERT INTO `app_security` (`rootname`, `group`, `system`) VALUES ('?', '?', 0);", $appname, $newgroup));
 		} else {
 			throw new PuzzleError("Cannot set the owner of the app lower than allowed!");
 		}
@@ -233,11 +232,11 @@ class AppManager
 }
 
 /**
- * Application instance
+ * Application Instances
  */
 class Application
 {
-	public static $MainAppStarted = false;
+	private static $MainAppStarted = false;
 
 	private $appfound = false;
 	private $forbidden = 1;
@@ -389,7 +388,7 @@ class Application
 		$this->prepare($name);
 		AppManager::migrateTable($this->appname);
 
-		if (!__isCLI()) {
+		if (!is_cli()) {
 			if (!self::$MainAppStarted && $this->called_by_me) {
 				self::$MainAppStarted = true;
 				/**
@@ -416,7 +415,7 @@ class Application
 				}
 
 				//In current started because browser need private assets.
-				$this->isMainApp = basename(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT,3)[2]["file"]) != "boot.php";
+				$this->isMainApp = basename(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3)[2]["file"]) != "boot.php";
 			} else {
 				$this->forbidden = !Accounts::authAccess($this->level);
 				$this->isMainApp = false;
@@ -501,4 +500,3 @@ class Application
 		}
 	}
 }
-?>

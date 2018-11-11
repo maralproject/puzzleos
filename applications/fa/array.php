@@ -685,4 +685,3 @@ $font_awesome_icons = array(
 		'fa-youtube-play' => '\f16a',
 		'fa-youtube-square' => '\f166',
 );
-?>

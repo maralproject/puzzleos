@@ -28,5 +28,4 @@ return[
 	"List-Post",
 	"List-Owner",
 	"List-Archive"
-]
-?>
+];

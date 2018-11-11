@@ -16,4 +16,3 @@ return array(
 	"ERROR_UPLOAD"		=>	"Error was occured when uploading image",
 	"ERROR_UNKNOWN"		=>	"Unknown error was occured",
 );
-?>

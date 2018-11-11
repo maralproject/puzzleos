@@ -10,10 +10,10 @@
 if($appProp->isMainApp){
 	new Application("phpmailer");
 	$l = new Language;
-	if(__getURI("action") == "changeTemplate"){
-		Template::setDefaultByName(__getURI(2));
+	if(request("action") == "changeTemplate"){
+		Template::setDefaultByName(request(2));
 		redirect("admin#templates");
-	}else if(__getURI("action") == "saveConfig"){
+	}else if(request("action") == "saveConfig"){
 		if($_POST["trueForm"] == "1"){
 			POSConfigDB::$username = str_replace("'","\"",$_POST["dbuser"]);
 			POSConfigDB::$password = str_replace("'","\"",$_POST["dbpass"]);
@@ -49,15 +49,15 @@ if($appProp->isMainApp){
 			die();
 		}
 		redirect("admin");
-	}else if(__getURI("action") == "setDef"){
-		AppManager::setDefaultByName(__getURI(2));
-		die(__getURI(2));
-	}else if(__getURI("action") == "chownApp"){
+	}else if(request("action") == "setDef"){
+		AppManager::setDefaultByName(request(2));
+		die(request(2));
+	}else if(request("action") == "chownApp"){
 		if(AppManager::chownApp($_POST["appid"],$_POST["own"]) === true){
 			die("SUCC");
 		}else
 			die();
-	}else if(__getURI("action") == "restrictApp"){
+	}else if(request("action") == "restrictApp"){
 		if($_POST["appid"] == "") redirect("admin");
 		POSConfigMultidomain::$restricted_app[] = $_POST["appid"];
 		try{
@@ -66,7 +66,7 @@ if($appProp->isMainApp){
 			die($e->getMessage());
 		}
 		die("Y");
-	}else if(__getURI("action") == "unrestrictApp"){
+	}else if(request("action") == "unrestrictApp"){
 		if($_POST["appid"] == "") redirect("admin");
 		POSConfigMultidomain::$restricted_app = array_diff(POSConfigMultidomain::$restricted_app,[$_POST["appid"]]);
 		try{
@@ -75,7 +75,7 @@ if($appProp->isMainApp){
 			die($e->getMessage());
 		}
 		die("Y");
-	}else if(__getURI("action") == "addDomain"){
+	}else if(request("action") == "addDomain"){
 		if($_POST["trueForm"] == 1){
 			try{
 				if(POSConfigMultidomain::addDomain($_POST["domain"]) == true) die("yes");			
@@ -86,7 +86,7 @@ if($appProp->isMainApp){
 			redirect("admin");
 		}
 		die();
-	}else if(__getURI("action") == "rmDomain"){
+	}else if(request("action") == "rmDomain"){
 		if($_POST["trueForm"] == 1){
 			try{
 				if(POSConfigMultidomain::removeDomain($_POST["domain"]) == true) die("yes");			
@@ -97,7 +97,7 @@ if($appProp->isMainApp){
 			redirect("admin");
 		}
 		die();
-	}else if(__getURI("action") == "testEmailSend"){
+	}else if(request("action") == "testEmailSend"){
 		$test = new Mailer();
 		$test->addRecipient = $_POST["des"];
 		$test->subject = "Test email from PuzzleOS";
@@ -110,4 +110,3 @@ if($appProp->isMainApp){
 		die();
 	}
 }
-?>

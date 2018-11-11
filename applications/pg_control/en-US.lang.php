@@ -11,4 +11,3 @@ return array(
 	"NEXT"		=> "Next",
 	"PREV"		=> "Previous"
 );
-?>

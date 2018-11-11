@@ -11,10 +11,10 @@
 $l=new Language;$l->app="users";
 
 $dataLvl  = [];
-$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0")->data;
-$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
-$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
-$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3")->data;
+$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0");
+$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1");
+$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2");
+$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3");
 
 $a = new Application;
 $b = $a->run("search_box"); if(!$b) throw new PuzzleError("Cannot load Application `SearchBox`");
@@ -23,7 +23,7 @@ $se->setSubmitable(false);
 $se->setInputName("ugl_search");
 $se->setCustomHint($l->get("FIND_USER"));
 $usersList = [];
-foreach(Database::readAll("app_users_list")->data as $ugl){
+foreach(Database::readAll("app_users_list") as $ugl){
 	$usersList[0] = $ugl["name"];
 	$usersList[1] = $ugl["email"];
 	$usersList[2] = $ugl["username"];
@@ -100,7 +100,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 	foreach($dataLvl[0] as $d){
 		echo('<div gid="'.$d["id"].'" class="h_child">
 			<div class="tag">'.$d["name"].''.($d["system"]==0?'<div class="close">&times;</div>':' <i class="fa fa-lock"></i>').'</div>');
-		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"])->data as $ul){
+		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"]) as $ul){
 			echo('<div uid="'.$ul["id"].'" class="user_card material_card ripple '.$se->getDomClass($ul["id"]).'">'.$ul["name"].'</div>');
 		}
 		echo('</div>');
@@ -113,7 +113,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 	foreach($dataLvl[1] as $d){
 		echo('<div gid="'.$d["id"].'" class="h_child">
 			<div class="tag">'.$d["name"].''.($d["system"]==0?'<div class="close">&times;</div>':' <i class="fa fa-lock"></i>').'</div>');
-		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"])->data as $ul){
+		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"]) as $ul){
 			echo('<div uid="'.$ul["id"].'" class="user_card material_card ripple '.$se->getDomClass($ul["id"]).'">'.$ul["name"].'</div>');
 		}
 		echo('</div>');
@@ -126,7 +126,7 @@ foreach(Database::readAll("app_users_list")->data as $ugl){
 	foreach($dataLvl[2] as $d){
 		echo('<div gid="'.$d["id"].'" class="h_child">
 			<div class="tag">'.$d["name"].''.($d["system"]==0?'<div class="close">&times;</div>':' <i class="fa fa-lock"></i>').'</div>');
-		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"])->data as $ul){
+		foreach(Database::readAll("app_users_list","WHERE `group`=".$d["id"]) as $ul){
 			echo('<div uid="'.$ul["id"].'" class="user_card material_card ripple '.$se->getDomClass($ul["id"]).'">'.$ul["name"].'</div>');
 		}
 		echo('</div>');

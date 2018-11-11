@@ -194,7 +194,11 @@ class CronJob
                     try {
                         $f = $l[2];
                         $f(); //Preventing error on PHP 5.6
-                        Database::newRow("cron", $l[0], CronJob::$time);
+                        Database::insert("cron",[
+                            (new DatabaseRowInput)
+                            ->setField("key",$l[0])
+                            ->setField("last_exec",self::$time)
+                        ]);
                     } catch (Exception $e) {
                         echo ("ERROR: " . $e->getMessage() . "\n");
                     }
@@ -207,7 +211,7 @@ class CronJob
                         $f(); //Preventing error on PHP 5.6
                         $update = new DatabaseRowInput;
                         $update->setField("last_exec", CronJob::$time);
-                        Database::updateRowAdvanced("cron", $update, "key", $l[0]);
+                        Database::update("cron", $update, "key", $l[0]);
                     } catch (Exception $e) {
                         echo ("ERROR: " . $e->getMessage() . "\n");
                     }
@@ -217,4 +221,3 @@ class CronJob
         unlink(__ROOTDIR . "/cron.lock");
     }
 }
-?>

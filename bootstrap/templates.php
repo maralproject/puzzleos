@@ -150,4 +150,3 @@ class Template
 		return POSConfigMultidomain::commit();
 	}
 }
-?>

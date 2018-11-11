@@ -11,4 +11,3 @@ spl_autoload_register(function($c){
 	if($c == "PageControl") 
 		require_once(my_dir("class.php"));
 });
-?>

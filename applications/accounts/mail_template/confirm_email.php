@@ -7,8 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(Accounts::$customET_CE === NULL):
-?>
+if(Accounts::$customET_CE === NULL):?>
 <p>Hi <?php echo $_SESSION['account']['name']?>!</p>
 <?php if(!$new_account):?>
 <p><?php $language->dump("e10")?> <?php echo $_POST['email']?></p>
@@ -25,4 +24,3 @@ echo str_replace(
 	Accounts::$customET_CE
 );
 endif;
-?>

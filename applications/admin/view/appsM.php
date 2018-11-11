@@ -21,8 +21,7 @@ foreach($appList as $a){
 	$s->putData($list,$a["name"]);
 }
 
-ob_start();
-?>
+ob_start();?>
 <style>
 .truncate {
 	overflow: hidden;

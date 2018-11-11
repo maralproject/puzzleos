@@ -24,4 +24,3 @@ foreach (AppManager::listAll() as $data) {
 		}
 	}
 }
-?>

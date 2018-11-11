@@ -51,14 +51,22 @@ class UserData
 		$fileext = strtolower(end(explode(".", $_FILES[$inputname]['name'])));
 		if (!$secure) $filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$fileext";
 		else $filename = "/storage/data/$appname/$key.$fileext";
-		$oldfile = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			//If old file is present, it'll be overwritten
 			unlink(IO::physical_path($oldfile));
-			Database::deleteRowArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		Database::newRow("userdata", $appname, $key, $filename, IO::get_mime($filename), time(), $secure ? 1 : 0);
+		Database::insert("userdata",[
+			(new DatabaseRowInput)
+			->setField("app",$appname)
+			->setField("identifier",$key)
+			->setField("physical_path",$filename)
+			->setField("mime_type",IO::get_mime($filename))
+			->setField("ver",time())
+			->setField("secure", $secure ? 1 : 0)
+		]);
 		return true;
 	}
 
@@ -85,14 +93,22 @@ class UserData
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 
-		$oldfile = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteRowArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 
 		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		Database::newRow("userdata", $appname, $key, $filename, IO::get_mime($filename), time(), $secure ? 1 : 0);
+		Database::insert("userdata",[
+			(new DatabaseRowInput)
+			->setField("app",$appname)
+			->setField("identifier",$key)
+			->setField("physical_path",$filename)
+			->setField("mime_type",IO::get_mime($filename))
+			->setField("ver",time())
+			->setField("secure", $secure ? 1 : 0)
+		]);
 		return true;
 	}
 
@@ -117,13 +133,21 @@ class UserData
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
 
-		$oldfile = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteRowArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		Database::newRow("userdata", $appname, $key, $filename, IO::get_mime($filename), time(), $secure ? 1 : 0);
+		Database::insert("userdata",[
+			(new DatabaseRowInput)
+			->setField("app",$appname)
+			->setField("identifier",$key)
+			->setField("physical_path",$filename)
+			->setField("mime_type",IO::get_mime($filename))
+			->setField("ver",time())
+			->setField("secure", $secure ? 1 : 0)
+		]);
 		return true;
 	}
 
@@ -144,14 +168,22 @@ class UserData
 			$filename = "/" . __PUBLICDIR . "/assets/$appname/" . $key . "." . $file_ext;
 		else
 			$filename = "/storage/data/$appname/" . $key . "." . $file_ext;
-		$oldfile = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteRowArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		IO::write($filename, $content);
 		unset(self::$cache[$appname . $key]);
-		return Database::newRow("userdata", $appname, $key, $filename, IO::get_mime($filename), time(), $secure ? 1 : 0);
+		return Database::insert("userdata",[
+			(new DatabaseRowInput)
+			->setField("app",$appname)
+			->setField("identifier",$key)
+			->setField("physical_path",$filename)
+			->setField("mime_type",IO::get_mime($filename))
+			->setField("ver",time())
+			->setField("secure", $secure ? 1 : 0)
+		]);
 	}
 
 	/**
@@ -164,7 +196,7 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$filename = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		return ($filename != "" && IO::exists($filename));
 	}
 
@@ -180,7 +212,7 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$d = Database::readAll("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key)->data[0];
+		$d = Database::getRowByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		$filename = $d["physical_path"];
 		if ($filename != "") return (__ROOTDIR . $filename);
 	}
@@ -197,7 +229,7 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$d = Database::readAll("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key)->data[0];
+		$d = Database::getRowByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		$filename = $d["physical_path"];
 		if ($with_cache_control && $filename != "") {
 			$filename .= "?v=" . $d["ver"];
@@ -218,7 +250,7 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$filename = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if (!isset(self::$cache[$appname . $key])) {
 			$ctn = file_get_contents(IO::physical_path($filename));
 			self::$cache[$appname . $key] = $ctn;
@@ -238,7 +270,7 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$mime = Database::readArg("userdata", "mime_type", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$mime = Database::readByStatement("userdata", "mime_type", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		return ($mime);
 	}
 
@@ -252,10 +284,9 @@ class UserData
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
-		$filename = Database::readArg("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if (!unlink(IO::physical_path($filename))) return false;
 		unset(self::$cache[$appname . $key]);
-		return Database::deleteRowArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		return Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 	}
 }
-?>

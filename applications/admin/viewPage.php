@@ -7,8 +7,8 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(__getURI("action") == "manage"){
-	$app = __getURI(2);
+if(request("action") == "manage"){
+	$app = request(2);
 	if($app == "") redirect("admin#apps");
 	$GLOBALS["app"]["managing"] = new Application;
 	if($GLOBALS["app"]["managing"]->run($app)){
@@ -20,4 +20,3 @@ if(__getURI("action") == "manage"){
 	}
 }else
 	include("view/main.php");
-?>

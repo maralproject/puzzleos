@@ -7,14 +7,16 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
+defined("IO_STREAM_BUFFER") or define("IO_STREAM_BUFFER", 102400);
+
 /**
- * This class only features for IO easiness
- * You can also use the default php file operation (fopen, fread, fseek...)
+ * This class only features IO easiness like remove_r(), and copy_r().
+ * You can also use the default php IO operation (fopen, fread, fseek...).
  */
 class IO
 {
 	/**
-	 * Output a file to browser then exit()
+	 * Stream file to browser then exit.
 	 * @param string $filename Just use /path/to-path/file
 	 */
 	public static function streamFile($filename, $force_download = false, $custom_filename = null)
@@ -33,7 +35,7 @@ class IO
 		$v = new FileStream($filename);
 		$v->start();
 
-		exit();
+		exit;
 	}
 
 	/**
@@ -352,5 +354,3 @@ class FileStream
 		$this->end();
 	}
 }
-
-?>

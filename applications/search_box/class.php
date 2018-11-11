@@ -140,4 +140,3 @@ class SearchBox{
 		include("search_box_html.php");
 	}
 }
-?>

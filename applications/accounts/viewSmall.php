@@ -20,10 +20,10 @@ $func = [
 		}
 		if(!defined("__UGLB_OUT")){
 			$dataLvl  = [];
-			$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0")->data;
-			$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1")->data;
-			$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2")->data;
-			$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3")->data;
+			$dataLvl[0] = Database::readAll("app_users_grouplist","WHERE `level`=0");
+			$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1");
+			$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2");
+			$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3");
 			$l = new Language;$l->app="users";
 			ob_start();
 			?>
@@ -121,4 +121,3 @@ $func = [
 call_user_func_array($func[$arguments[0]],$arguments[1]);
 
 return true;
-?>

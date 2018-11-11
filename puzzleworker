@@ -5,9 +5,7 @@
  *
  * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2017 MARAL INDUSTRIES
- * 
- * @software     Release: 2.0.2
+ * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
 define("__POSEXEC", 1);
@@ -17,5 +15,3 @@ require("bootstrap/boot.php");
 
 /* Run the Worker */
 Worker::__do($argv);
-
-?>

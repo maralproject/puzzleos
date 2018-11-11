@@ -8,48 +8,21 @@
  */
 
 (function () {
-define("DISABLE_MINIFY", 1);
-define("TIME_LIMIT", 30);
-define("ENV_WIN", (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'));
-define("IO_STREAM_BUFFER", 102400);
-//define("DB_DEBUG",1);
+require "oem.php";
+require "defines.php";
+require "helper.php";
+require "exception.php";
 
-/***********************************
- * Initial Checking
- ***********************************/
-if (!version_compare(PHP_VERSION, "7.0.0", ">=")) die("PuzzleOS need PHP7 in order to work!");
-if (PHP_SAPI == "cli")
-	if (!defined("__POSCLI") && !defined("__POSWORKER")) die("Please use \"sudo -u www-data php puzzleos\"\n");
+if (!version_compare(PHP_VERSION, "7.0.0") < 0){
+	die("ERROR:\tPlease upgrade your PHP version at least to 7.0.0");
+}
+
+if (PHP_SAPI == "cli" && (!defined("__POSCLI") && !defined("__POSWORKER"))){
+	die("ERROR:\tCLI Execution Aborted.");
+}
+	
 error_reporting(0);
-
-/***********************************
- * Define the global variables
- ***********************************/
-defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "2.0.10");
-
-//Return /path/to/qualified/root/directory
-define("__ROOTDIR", str_replace("\\", "/", dirname(__DIR__)));
-
-defined("__PUBLICDIR") or define("__PUBLICDIR", "public");
-
-//Return something.com
-define("__HTTP_HOST", $_SERVER["HTTP_HOST"]);
-
-//Return "https://" or "http://"
-define("__HTTP_PROTOCOL", (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
-
-//Return http://something.com
-define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/index.php", "", $_SERVER["SCRIPT_NAME"]));
-
-//Return applications/yourapp/assets/base_1.gif?my=you
-define("__HTTP_REQUEST", ltrim(str_replace(__SITEURL, "", str_replace(str_replace("/index.php", "", $_SERVER["SCRIPT_NAME"]), "", $_SERVER['REQUEST_URI'])), "/"));
-
-//Return applications/yourapp/assets/base_1.gif
-define("__HTTP_URI", explode("?", __HTTP_REQUEST)[0]);
-
 set_time_limit(TIME_LIMIT);
-require("exception.php");
 
 /***********************************
  * Maintenance Mode Handler
@@ -59,19 +32,11 @@ require("exception.php");
  * in the root directory
  ***********************************/
 if (file_exists(__ROOTDIR . "/site.offline")) {
-	header($_SERVER["SERVER_PROTOCOL"] . ' 503 Service Temporarily Unavailable');
-	header('Status: 503 Service Temporarily Unavailable');
+	abort(503,"Under Maintenance",false);
 	header('Retry-After: 300');
-
 	include(__ROOTDIR . "/templates/system/503.php");
 	exit;
 }
-
-/***********************************
- * Load helper functions
- ***********************************/
-require("defines.php");
-require("helper.php");
 
 /***********************************
  * Prepare all directories
@@ -91,27 +56,19 @@ preparedir(__ROOTDIR . "/" . __PUBLICDIR . "/cache", function () {
 /***********************************
  * Get the configuration files
  ***********************************/
-require('configman.php');
-error_reporting(POSConfigGlobal::$error_code);
-define("__SITENAME", POSConfigGlobal::$sitename);
-define("__SITELANG", POSConfigGlobal::$default_language);
-define("__TIMEZONE", POSConfigGlobal::$timezone);
+require "configman.php";
 
 /***********************************
  * Registering Autoloader
- * This is bundled Library that 
- * shipped with PuzzleOS.
- * 
- * This will speed up loading time
  ***********************************/
-require("autoload.php");
+require "autoload.php";
 
 /***********************************
  * Removing installation directory
  ***********************************/
 if (file_exists(__ROOTDIR . "/" . __PUBLICDIR . "/install")) {
-	$r = IO::remove_r("/" . __PUBLICDIR . "/install");
-	if (!$r) throw new PuzzleError("Please remove /" . __PUBLICDIR . "/install directory manually for security purpose");
+	if (!IO::remove_r("/" . __PUBLICDIR . "/install")) 
+		throw new PuzzleError("Please remove /" . __PUBLICDIR . "/install directory manually for security purpose");
 }
 
 /***********************************
@@ -133,27 +90,23 @@ PuzzleSession::writeCookie();
  * from browser. Public file handled
  * by Webserver directly
  ***********************************/
-if (__getURI(0) == "assets" && !__isCLI()) {
+if (request(0) == "assets" && !is_cli()) {
 	$f = "/" . str_replace("assets/", "storage/data/", __HTTP_URI);
-	$d = Database::readAll("userdata", "where `physical_path`='?'", $f)->data[0];
+	$d = Database::getRowByStatement("userdata", "where `physical_path`='?'", $f);
 	$appProp = $d["app"];
 	if ($appProp != "") {
 		try {
 			$appProp = new Application($appProp);
 			if (!$appProp->isForbidden) {
 				if (file_exists($appProp->path . "/authorize.userdata.php")) {
-				//Isolating superglobal vars from auth file
-					$fa = function ($file_key, $file_mime) use ($appProp) {
+					if ((function ($file_key, $file_mime) use ($appProp) {
 						return include($appProp->path . "/authorize.userdata.php");
-					};
-					if ($fa($d["identifier"], $d["mime_type"])) IO::streamFile($f);
+					})($d["identifier"], $d["mime_type"])) IO::streamFile($f);
 				} else {
 					IO::streamFile($f);
 				}
 			}
-		} catch (AppStartError $e) {
-		}
+		} catch (AppStartError $e) {}
 	}
 }
 })();
-?>

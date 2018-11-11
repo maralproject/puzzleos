@@ -17,5 +17,3 @@ AppManager::startApp();
 
 /* This will load the UI for the client */
 Template::loadTemplate();
-
-?>

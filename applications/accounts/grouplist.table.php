@@ -17,10 +17,11 @@ $table->addColumn("name", "TEXT");
 $table->addColumn("level", "INT");
 $table->addColumn("system", "INT(1)")->defaultValue("0");
 
-$table->newInitialRow("Superuser",0,1);
-$table->newInitialRow("Employee",1,1);
-$table->newInitialRow("Registered",2,1);
-$table->newInitialRow("Public",3,1);
+$table->insertFresh([
+    (new DatabaseRowInput)->setField("name","Superuser")->setField("level",0)->setField("system",1),
+    (new DatabaseRowInput)->setField("name","Employee")->setField("level",1)->setField("system",1),
+    (new DatabaseRowInput)->setField("name","Registered")->setField("level",2)->setField("system",1),
+    (new DatabaseRowInput)->setField("name","Public")->setField("level",3)->setField("system",1)
+]);
 
 return $table;
-?>

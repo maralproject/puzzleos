@@ -87,5 +87,4 @@ return array(
 	"MZ"						=> "Kelola zona",
 	"ROD"						=> "Hapus domain",
 	"CRD"						=> "Zona domain tidak boleh kurang dari satu",
-)
-?>
+);

@@ -7,8 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-$l = new Language;
-?>
+$l = new Language;?>
 <div class="row">
 	<div class="col-md-6">	
 		<legend style="margin-bottom:0;"><?php $l->dump("ERROR_REPORTING")?></legend>

@@ -16,4 +16,3 @@ $table->addColumn("expires","INT");
 $table->createIndex("expires",["expires"]);
 
 return $table;
-?>

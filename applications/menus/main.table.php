@@ -15,9 +15,9 @@ $b->addColumn("fa");
 $b->addColumn("minUser","INT");
 $b->addColumn("location","INT(1)");
 
-$b->newInitialRow("Administrator","/admin","wrench",1,0);
-$b->newInitialRow("Modify Menu","/admin/manage/menus","link",1,0);
+$b->insertFresh([
+    (new DatabaseRowInput)->setField("name","Administrator")->setField("link","/admin")->setField("fa","wrench")->setField("minUser",1)->setField("location",0),
+    (new DatabaseRowInput)->setField("name","Modify Menu")->setField("link","/admin/manage/menus")->setField("fa","link")->setField("minUser",1)->setField("location",0),
+]);
 
 return $b;
-
-?>

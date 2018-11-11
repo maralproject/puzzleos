@@ -138,4 +138,3 @@ if (isset($_SESSION["__POSPROMPT"])) {
 	Prompt::$prompt .= $_SESSION["__POSPROMPT"];
 	unset($_SESSION["__POSPROMPT"]);
 }
-?>

@@ -87,5 +87,4 @@ return array(
 	"MZ"						=> "Manage Domain",
 	"ROD"						=> "Remove domain",
 	"CRD"						=> "Domain cannot be less than one",
-)
-?>
+);

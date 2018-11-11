@@ -117,4 +117,3 @@ class Mailer extends PHPMailer{
 		}else return true;
 	}
 }
-?>

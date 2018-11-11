@@ -7,8 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
  
-$l = new Language;
-?>
+$l = new Language;?>
 <?php if($this->submitable):?><form method="GET" style="margin-bottom:0px;"><?php endif;?>
 <div class="input-group" style="max-width:<?php echo $this->customWidth;?>;<?php if(!$withIcon):?>width:100%;<?php endif;?>">
   <?php if($withIcon):?><span class="input-group-addon"><i class="fa fa-search"></i></span><?php endif;?>

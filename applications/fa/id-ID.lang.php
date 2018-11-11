@@ -10,4 +10,3 @@
 return array(
 	"SEARCH_ICON"			=> "Cari ikon..."
 );
-?>

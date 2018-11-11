@@ -26,5 +26,3 @@ foreach(AppManager::listAll() as $app){
 		}
 	}
 }
-
-?>

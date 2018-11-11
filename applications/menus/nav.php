@@ -22,9 +22,8 @@ switch($location){
 		$loc = MENU_DEFAULT_POSITION_LEFT;
 }
 
-foreach(Database::readAll("app_menus_main", "WHERE `location`='?'", $loc)->data as $d){
+foreach(Database::readAll("app_menus_main", "WHERE `location`='?'", $loc) as $d){
 	if(!Accounts::authAccessAdvanced($d["minUser"])) continue;
 	$activePg = __HTTP_URI == "" ? str_contains("/".ltrim($d["link"],"/"), "/".AppManager::getMainApp()->appname) : str_contains("/".__HTTP_URI,  "/".ltrim($d["link"],"/"));
 	echo '<a href="'.__SITEURL.'/'.ltrim($d["link"],"/").'"><li '.($activePg?'class="active"':'').'><i class="fa fa-'.$d["fa"].'"></i><span>'.$d["name"].'</span></li></a>';
 }
-?>

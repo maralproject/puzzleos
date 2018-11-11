@@ -67,7 +67,7 @@ $upload = new Application;$upload->run("upload_img_ajax");
 		<td style="width:100px;"><span><?php $l->dump("POS")?></span></td>
 		<td style="width:70px;"><?php $l->dump("DELETE")?></td>
 	</tr>
-	<?php foreach(Database::readAll("app_menus_main")->data as $d) : ?>
+	<?php foreach(Database::readAll("app_menus_main") as $d) : ?>
 	<tr name="<?php echo $d["id"]?>">
 		<td style="text-align:center;width:70px;"><?php $fontawesome->loadview("getdropChoiceInput",array("fa_".$d["id"],$d["fa"]))?></td>
 		<td><input class="qtyin info2 name" type="text" name="name_<?php echo $d["id"]?>" value="<?php echo $d["name"]?>" title="<?php $l->dump("click_here")?>" placeholder="<?php $l->dump("name")?>"></td>

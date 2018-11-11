@@ -13,13 +13,13 @@ if($appProp->isMainApp){
 	$language = new Language;
 	
 	if(!$_SESSION['account']['loggedIn']){
-		if(__getURI("action") == "changepassword"){
+		if(request("action") == "changepassword"){
 			Template::setSubTitle($language->get("c_pass"));
-		}else if(__getURI("action") == "forgot"){
+		}else if(request("action") == "forgot"){
 			Template::setSubTitle($language->get("nh"));
-		}else if(__getURI("action") == "verify" && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
+		}else if(request("action") == "verify" && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
 			Template::setSubTitle($language->get("VER_CODE"));
-		}else if(__getURI("action") == "signup"){
+		}else if(request("action") == "signup"){
 			Template::setSubTitle($language->get("signup"));
 		}else{
 			Template::setSubTitle($language->get("login"));
@@ -27,7 +27,7 @@ if($appProp->isMainApp){
 	}
 
 	if(!isset($_POST["trueLogin"])) $_POST["trueLogin"] = 0;
-	if(__getURI("action") == "signup" && !$_SESSION['account']['loggedIn'] && $_POST["trueLogin"] == "1" && Accounts::getSettings()["f_en_registration"] == "on"){
+	if(request("action") == "signup" && !$_SESSION['account']['loggedIn'] && $_POST["trueLogin"] == "1" && Accounts::getSettings()["f_en_registration"] == "on"){
 		/**
 		 * Signup action
 		 * URI	: /users/signup
@@ -88,17 +88,18 @@ if($appProp->isMainApp){
 			}
 
 			$group_reg = Accounts::getSettings()["f_reg_group"] == "" ? Accounts::getRootGroupId(USER_AUTH_REGISTERED) : Accounts::getSettings()["f_reg_group"];
-			Database::newRow("app_users_list",
-				$group_reg,
-				$_POST["fullname"],
-				($require_activation?$_POST["email"]:""),
-				($_POST["phone"]),
-				"def",
-				Accounts::hashPassword($_POST["password"]),
-				$_POST["user"],
-				($require_activation?"0":1),
-				(time() + 600)
-			);
+			Database::insert("app_users_list",[
+				(new DatabaseRowInput)
+				->setField("group",$group_reg)
+				->setField("name",$_POST["fullname"])
+				->setField("email",$require_activation?$_POST["email"]:"")
+				->setField("phone",$_POST["phone"])
+				->setField("lang","def")
+				->setField("password",Accounts::hashPassword($_POST["password"]))
+				->setField("username",$_POST['user'])
+				->setField("enabled",$require_activation?"0":1)
+				->setField("registered_time",time()+600)
+			]);
 			$f_id = Database::max("app_users_list","id");
 			
 			if($require_activation){
@@ -112,7 +113,12 @@ if($appProp->isMainApp){
 				$act_code['confirm_activation']['timeout'] = time();
 
 				if(!Accounts::$customM_EN){
-					Database::newRow("app_users_activate",$act_code['confirm_activation']['key'],json_encode($act_code),time());
+					Database::insert("app_users_activate",[
+						(new DatabaseRowInput)
+						->setField("id",$act_code['confirm_activation']['key'])
+						->setField("content",json_encode($act_code))
+						->setField("expires",time())
+					]);
 					$link = __SITEURL ."/users/activate/".$act_code['confirm_activation']['key'];
 					
 					$path = $appProp->path;
@@ -140,7 +146,7 @@ if($appProp->isMainApp){
 					$aclbr = $aclb($customM_UE ? $_POST['email'] : $_POST["phone"],$act_code['confirm_activation']['key']);
 					if($aclbr === false){
 						Prompt::postError($language->get("VER_ERR_SEND"),true);
-						Database::deleteRow("app_users_list","id",$f_id); //Cancelling account creation
+						Database::delete("app_users_list","id",$f_id); //Cancelling account creation
 						unset($_SESSION["account"]["confirm_activation"]);
 						redirect("users/login?redir=" . $_POST["redir"]);
 					}else{
@@ -158,7 +164,12 @@ if($appProp->isMainApp){
 					$act_code['confirm_email']['timeout'] = time();
 					$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 
-					Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
+					Database::insert("app_users_activate",[
+						(new DatabaseRowInput)
+						->setField("id",$act_code['confirm_email']['key'])
+						->setField("content",json_encode($act_code))
+						->setField("expires",time()+ 10 * T_MINUTE)
+					]);
 					
 					$path = $appProp->path;
 					$email = $_POST['email'];
@@ -183,7 +194,7 @@ if($appProp->isMainApp){
 			}
 		}
 
-	}elseif(__getURI("action") == "activate" && !$_SESSION['account']['loggedIn']){
+	}elseif(request("action") == "activate" && !$_SESSION['account']['loggedIn']){
 		/**
 		 * Activate account
 		 * URI	: /users/activate/$rand
@@ -191,17 +202,17 @@ if($appProp->isMainApp){
 		 */
 
 		$cv = $_POST["verification_confirm"] == "1" ? true : false;
-		$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+		$token = ($cv?$_POST["code_input_usr"]:request(2));
 		$token_e = $cv ? ($_SESSION["account"]["confirm_activation"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
 
 		if($token_e){
 			if(!$cv) $act_code = json_decode(Database::read("app_users_activate","content","id",$token),true);
 			else $act_code["confirm_activation"] = $_SESSION["account"]["confirm_activation"];
 
-			Database::exec("UPDATE `app_users_list` SET enabled=1 WHERE `id`='?'",$act_code['confirm_activation']['id']);
+			Database::execute("UPDATE `app_users_list` SET enabled=1 WHERE `id`='?'",$act_code['confirm_activation']['id']);
 
 			if(!$cv){
-				Database::deleteRow("app_users_activate","id",$token);
+				Database::delete("app_users_activate","id",$token);
 				Prompt::postGood($language->get("E_CH2"),true);
 				redirect("users/login");
 			}else{
@@ -218,7 +229,7 @@ if($appProp->isMainApp){
 				redirect("users/verify?redir=" . $_POST["redir"]);
 			}
 		}
-	}elseif(__getURI("action") == "login" && $_POST["trueLogin"] == "1"){
+	}elseif(request("action") == "login" && $_POST["trueLogin"] == "1"){
 		/**
 		 * Login Action
 		 * URI	: /users/login
@@ -254,7 +265,7 @@ if($appProp->isMainApp){
 			$GLOBALS["ULFailed"] = true;
 			Prompt::postError($language->get("dcyc"));
 		}
-	}elseif(__getURI("action") == "update" && Accounts::authAccess(USER_AUTH_SU)){
+	}elseif(request("action") == "update" && Accounts::authAccess(USER_AUTH_SU)){
 		/**
 		 * Update configuration action
 		 * URI	: /users/update
@@ -275,7 +286,7 @@ if($appProp->isMainApp){
 			Prompt::postError($language->get("ACT_ERR"),true);
 		}
 		redirect("admin/manage/users");
-	}elseif(__getURI("action") == "logout"){
+	}elseif(request("action") == "logout"){
 		/**
 		 * Logout Action
 		 * URI	: /users/logout
@@ -287,7 +298,7 @@ if($appProp->isMainApp){
 		}
 		Accounts::rmSession();
 		redirect();
-	}else if(__getURI("action") == "ajax"){
+	}else if(request("action") == "ajax"){
 		/**
 		 * Ajax Action
 		 * URI	: /users/ajax
@@ -295,7 +306,7 @@ if($appProp->isMainApp){
 		 */
 		
 		if(Accounts::authAccess(USER_AUTH_SU)) require( $appProp->path . "/ajax.php");
-	}elseif(__getURI("action") == "profile" && isset($_POST["tf"]) && $_POST["ineedtochangesettings"] == "pass" && $_SESSION['account']['loggedIn']){
+	}elseif(request("action") == "profile" && isset($_POST["tf"]) && $_POST["ineedtochangesettings"] == "pass" && $_SESSION['account']['loggedIn']){
 		/**
 		 * Change user account settings
 		 * URI	: /users/profile
@@ -370,7 +381,13 @@ if($appProp->isMainApp){
 							$act_code['confirm_email']['id'] = $_SESSION['account']['id'];
 							$act_code['confirm_email']['key'] = rand_str(128);
 							$act_code['confirm_email']['timeout'] = time();
-							Database::newRow("app_users_activate",$act_code['confirm_email']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
+							
+							Database::insert("app_users_activate",[
+								(new DatabaseRowInput)
+								->setField("id",$act_code['confirm_email']['key'])
+								->setField("content",json_encode($act_code))
+								->setField("expires",time()+ 10 * T_MINUTE)
+							]);
 							$link = __SITEURL ."/users/verifyemail/".$act_code['confirm_email']['key'];
 								
 							$path = $appProp->path;
@@ -391,7 +408,7 @@ if($appProp->isMainApp){
 							
 							Prompt::postGood($language->get("ECHS").$_POST['email'],true);
 						}else if($_POST["email"] == ""){
-							Database::exec("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", "", $_SESSION['account']['id']);
+							Database::execute("UPDATE `app_users_list` SET `email`='?' WHERE `id`='?';", "", $_SESSION['account']['id']);
 							$_SESSION['account']['email'] = "";
 						}
 					}
@@ -399,7 +416,7 @@ if($appProp->isMainApp){
 					Prompt::postGood($language->get("CH_SAVED"),true);
 					$_SESSION['account']['name'] = $_POST['name'];
 					$_SESSION['account']['lang'] = $_POST['lang'];
-					Database::updateRowAdvanced("app_users_list",$d,"id",$_SESSION['account']['id']);
+					Database::update("app_users_list",$d,"id",$_SESSION['account']['id']);
 					if(Accounts::$customM_EN){
 						if($cf_s === false){
 							Prompt::postError($language->get("VER_ERR"),true);
@@ -415,7 +432,7 @@ if($appProp->isMainApp){
 		}
 
 		redirect("users/profile");
-	}elseif(__getURI("action") == "verifyemail" && $_SESSION['account']['loggedIn']){
+	}elseif(request("action") == "verifyemail" && $_SESSION['account']['loggedIn']){
 		/**
 		 * Verify email address
 		 * URI	: /users/verifyemail/$rand
@@ -423,12 +440,12 @@ if($appProp->isMainApp){
 		 */
 
 		$cv = $_POST["ver_emailaddr"] == "1" ? true : false;
-		$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+		$token = ($cv?$_POST["code_input_usr"]:request(2));
 		$token_e = $cv ? ($_SESSION["account"]["confirm_email"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
 
 		if($token_e){
 			if(!$cv)
-				$act_code = json_decode(Database::read("app_users_activate","content","id",__getURI(2)),true);
+				$act_code = json_decode(Database::read("app_users_activate","content","id",request(2)),true);
 			else{
 				$act_code["confirm_email"] = $_SESSION["account"]["confirm_email"];
 			}
@@ -444,9 +461,9 @@ if($appProp->isMainApp){
 				Prompt::postGood($language->get("PHONE_SUCCEED"),true);
 			}
 
-			Database::updateRowAdvanced("app_users_list",$dbr,"id",$act_code['confirm_email']['id']);
+			Database::update("app_users_list",$dbr,"id",$act_code['confirm_email']['id']);
 			unset($act_code['confirm_email'], $_SESSION["account"]["confirm_email"]);
-			Database::deleteRow("app_users_activate","id",__getURI(2));
+			Database::delete("app_users_activate","id",request(2));
 		}else{
 			$_SESSION["account"]["confirm_email"]["wrong"] = true;
 			Prompt::postError($language->get("VER_CODE_INV"),true);
@@ -454,7 +471,7 @@ if($appProp->isMainApp){
 		}
 
 		redirect("users");
-	}elseif(__getURI("action") == "forgot" && isset($_POST["realforgotpaswd"]) && $_POST["datafromforgotout"] == "1"){
+	}elseif(request("action") == "forgot" && isset($_POST["realforgotpaswd"]) && $_POST["datafromforgotout"] == "1"){
 		/**
 		 * Forgot password
 		 * URI	: /users/forgot
@@ -485,7 +502,12 @@ if($appProp->isMainApp){
 				if(!Accounts::$customM_EN){
 					if($contact_info != ""){
 						//If not set, by default we're sending code from email
-						Database::newRow("app_users_activate",$act_code['change_pass']['key'],json_encode($act_code),time()+ 10 * T_MINUTE);
+						Database::insert("app_users_activate",[
+							(new DatabaseRowInput)
+							->setField("id",$act_code['change_pass']['key'])
+							->setField("content",json_encode($act_code))
+							->setField("expires",time()+ 10 * T_MINUTE)
+						]);
 						$link = __SITEURL . "/users/changepassword/".$act_code['change_pass']['key'];
 						
 						$path = $appProp->path;
@@ -531,7 +553,7 @@ if($appProp->isMainApp){
 				}
 			}
 		}
-	}elseif(__getURI("action") == "changepassword" && isset($_POST["realcpass"]) && $_POST["datafromresetpassafterverify"] == "ok"){
+	}elseif(request("action") == "changepassword" && isset($_POST["realcpass"]) && $_POST["datafromresetpassafterverify"] == "ok"){
 		/**
 		 * Change password from forgot password and from inside
 		 * URI	: /users/changepassword
@@ -557,7 +579,7 @@ if($appProp->isMainApp){
 						Prompt::postError($language->get("pnm"));
 					}else{
 						$uidcp = ($changePass_LC == 1) ? $_SESSION['account']['change_pass']['id'] : $_SESSION["account"]["id"];
-						Database::exec("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';", Accounts::hashPassword($_POST['passnew']),$uidcp);
+						Database::execute("UPDATE `app_users_list` SET `password`='?' WHERE `id`='?';", Accounts::hashPassword($_POST['passnew']),$uidcp);
 						PuzzleSession::endUser($uidcp); //Logging out any user worldwide
 						if($changePass_LC == 1){
 							unset($_SESSION['account']['change_pass']);
@@ -572,7 +594,7 @@ if($appProp->isMainApp){
 		}else{
 			redirect("users");
 		}
-	}elseif(__getURI("action") == "changepassword"){
+	}elseif(request("action") == "changepassword"){
 		/**
 		 * Respond Forgot password
 		 * URI	: /users/changepassword/$rand
@@ -582,14 +604,14 @@ if($appProp->isMainApp){
 		if(!$_SESSION['account']['loggedIn'] && isset($_SESSION["account"]["change_pass"])){
 
 			$cv = $_POST["ch_pass_confirm"] == 1 ? true : false;
-			$token = ($cv?$_POST["code_input_usr"]:__getURI(2));
+			$token = ($cv?$_POST["code_input_usr"]:request(2));
 			$token_e = $cv ? ($_SESSION["account"]["change_pass"]["key"] == $token) : (Database::read("app_users_activate","id","id",$token) != "");
 
 			if($token_e){
 				if(!$cv){
-					$act_code = json_decode(Database::read("app_users_activate","content","id",__getURI(2)),true);
+					$act_code = json_decode(Database::read("app_users_activate","content","id",request(2)),true);
 					$_SESSION['account']['change_pass'] = $act_code["change_pass"]; //Restoring data to current session
-					Database::deleteRow("app_users_activate","id",__getURI(2));
+					Database::delete("app_users_activate","id",request(2));
 				}
 				$_SESSION['account']['change_pass']['linkClicked'] = 1;
 				redirect("users/changepassword");
@@ -603,4 +625,3 @@ if($appProp->isMainApp){
 		}
 	}
 }
-?>

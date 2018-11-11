@@ -21,10 +21,10 @@ $table->addColumn("username","VARCHAR(50)");
 $table->addColumn("enabled","INT(1)")->defaultValue(1);
 $table->addColumn("registered_time","INT")->defaultValue(0);
 
+$table->createIndex("username",["username"],"UNIQUE");
 $table->createIndex("email",["email"]);
 $table->createIndex("phone",["phone"]);
 $table->createIndex("registered_time",["registered_time"]);
 $table->createIndex("group",["group"]);
 
 return $table;
-?>

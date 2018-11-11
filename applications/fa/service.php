@@ -10,5 +10,3 @@
 $dir = IO::publish($appProp->path."/lib");
 
 Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/font-awesome.min.css"/>');
-
-?>

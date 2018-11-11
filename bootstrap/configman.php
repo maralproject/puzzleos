@@ -316,7 +316,7 @@ class POSConfigMultidomain
 		require_ext(__ROOTDIR . '/configs/root.sys.php');
 
 		require("database.php");
-		
+
 		/***********************************
 		 * Rebuild system table structure
 		 ***********************************/
@@ -325,7 +325,7 @@ class POSConfigMultidomain
 			file_put_contents(__ROOTDIR . "/storage/dbcache/systables", md5(file_get_contents("systables.php", true)));
 		}
 
-		if (!__isCLI()) {
+		if (!is_cli()) {
 			self::$zone = str_replace("www.", "", explode(":", $_SERVER["HTTP_HOST"])[0]);
 			self::$zone = (POSConfigGlobal::$use_multidomain ? self::$zone : "{root}");
 		} else {
@@ -338,11 +338,10 @@ class POSConfigMultidomain
 				try {
 					throw new PuzzleError("PuzzleOS accessed from unregistered domain at " . __HTTP_HOST);
 				} catch (PuzzleError $e) {
+					abort(404, "Not Found", false);
+					include(__ROOTDIR . "/templates/system/404.php");
+					exit;
 				}
-
-				abort(404, "Not Found", false);
-				include(__ROOTDIR . "/templates/system/404.php");
-				exit;
 			} else {
 				require_ext(__ROOTDIR . "/configs/" . POSConfigMultidomain::zone() . ".config.php");
 			}
@@ -352,6 +351,11 @@ class POSConfigMultidomain
 		}
 		POSConfigMultidomain::$default_application = Database::read("multidomain_config", "default_app", "host", POSConfigMultidomain::zone());
 		POSConfigMultidomain::$default_template = Database::read("multidomain_config", "default_template", "host", POSConfigMultidomain::zone());
+
+		error_reporting(POSConfigGlobal::$error_code);
+		define("__SITENAME", POSConfigGlobal::$sitename);
+		define("__SITELANG", POSConfigGlobal::$default_language);
+		define("__TIMEZONE", POSConfigGlobal::$timezone);
 	}
 
 	public static function x_chzone($zone)
@@ -388,7 +392,13 @@ class POSConfigMultidomain
 
 		//Create new domain_config in database
 		if (Database::read("multidomain_config", "host", "host", $domain_zone) == "") {
-			if (!Database::newRow("multidomain_config", $domain_zone, self::$default_application, self::$default_template, json_encode(self::$restricted_app))) return false;
+			if(!Database::insert("multidomain_config",[
+				(new DatabaseRowInput)
+				->setField("host",$domain_zone)
+				->setField("default_app",self::$default_application)
+				->setField("default_template",self::$default_template)
+				->setField("restricted_app",json_encode(self::$restricted_app))
+			])) return false;
 		}
 
 		if (!file_exists(__ROOTDIR . "/configs/$domain_zone.config.php")) {
@@ -423,7 +433,7 @@ class POSConfigMultidomain
 			throw new PuzzleError("Cannot find registered domain");
 		}
 
-		Database::deleteRow("multidomain_config", "host", $domain_zone);
+		Database::delete("multidomain_config", "host", $domain_zone);
 		unlink(__ROOTDIR . "/configs/$domain_zone.config.php");
 
 		return true;
@@ -444,7 +454,7 @@ class POSConfigMultidomain
 			if (!$app["system"]) continue;
 			if (in_array($app["rootname"], self::$restricted_app)) throw new PuzzleError("System app cannot be restricted!");
 		}
-		return Database::exec("UPDATE `multidomain_config` SET `default_app`='?', `default_template`='?', `restricted_app`='?' WHERE `host`='?'", self::$default_application, self::$default_template, json_encode(self::$restricted_app), POSConfigMultidomain::zone());
+		return Database::execute("UPDATE `multidomain_config` SET `default_app`='?', `default_template`='?', `restricted_app`='?' WHERE `host`='?'", self::$default_application, self::$default_template, json_encode(self::$restricted_app), POSConfigMultidomain::zone());
 	}
 
 	/**
@@ -473,4 +483,3 @@ if (file_exists(__ROOTDIR . "/configs")) {
 }
 
 POSConfigMultidomain::x_init();
-?>

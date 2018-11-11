@@ -11,5 +11,3 @@ $_bs_public = IO::publish($appProp->path . "/lib");
 
 /* Load bootstrap-3.3.7 */
 require("bootstrap-3.3.7.php");
-
-?>

@@ -8,7 +8,7 @@
  */
 
 /**
- * Abstract class for storing User Session Id
+ * Abstract class for storing User Session
  */
 class PuzzleUserSession
 {
@@ -114,8 +114,8 @@ class PuzzleSession implements SessionHandlerInterface
 		define("__SESSION_STARTED", 1);
 		$this->expire = 3600;
 
-		if (!__isCLI() && isset($_COOKIE["puzzleos"])) {
-			$db = Database::readAll("sessions", "where session_id='?' limit 1", $_COOKIE["puzzleos"])->data[0];
+		if (!is_cli() && isset($_COOKIE["puzzleos"])) {
+			$db = Database::getRowByStatement("sessions", "where session_id='?'", $_COOKIE["puzzleos"]);
 			if (is_array($db)) {
 				//Session id exists in database, perform client checking
 				$this->in_db = true;
@@ -160,7 +160,7 @@ class PuzzleSession implements SessionHandlerInterface
 
 	public function write($id, $data)
 	{
-		if (__isCLI()) return true;
+		if (is_cli()) return true;
 		if (!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
 
 		if (!$this->in_db) {
@@ -177,7 +177,7 @@ class PuzzleSession implements SessionHandlerInterface
 				$di->setField("start", time());
 				$di->setField("expire", time() + $this->expire);
 				$di->setField("user", $_SESSION['account']['id']);
-				return Database::newRowAdvanced("sessions", $di) ? true : false;
+				return Database::insert("sessions",[$di]) ? true : false;
 			} catch (DatabaseError $e) {
 				$this->in_db = false;
 			}
@@ -190,7 +190,7 @@ class PuzzleSession implements SessionHandlerInterface
 					$di->setField("cnf", serialize($this->config));
 					$di->setField("expire", time() + $this->expire);
 					$di->setField("user", $_SESSION['account']['id']);
-					return Database::updateRowAdvanced("sessions", $di, "session_id", $this->id) ? true : false;
+					return Database::update("sessions", $di, "session_id", $this->id) ? true : false;
 				}
 			} catch (DatabaseError $e) {
 			}
@@ -202,19 +202,21 @@ class PuzzleSession implements SessionHandlerInterface
 	private function writeCookie()
 	{
 		if (!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
-		if(!defined("__COOKIE_OUT")) setcookie(
-			"puzzleos",
-			$this->id,
-			($this->config["retain_on_same_pc"] ? time() + $this->expire : 0),
-			"/",
-			($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null)
-		);
-		define("__COOKIE_OUT",1);
+		if (!defined("__COOKIE_OUT")) {
+			setcookie(
+				"puzzleos",
+				$this->id,
+				($this->config["retain_on_same_pc"] ? time() + $this->expire : 0),
+				"/",
+				($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null)
+			);
+			define("__COOKIE_OUT", 1);
+		}
 	}
 
 	public function destroy($id = "")
 	{
-		if ($this->instantiated()) Database::deleteRow("sessions", "session_id", $this->id);
+		if ($this->instantiated()) Database::delete("sessions", "session_id", $this->id);
 		$this->client = null;
 		$this->config = null;
 		$this->data = null;
@@ -225,7 +227,7 @@ class PuzzleSession implements SessionHandlerInterface
 
 	public function gc($maxlifetime)
 	{
-		return Database::exec("delete from `sessions` where expire<=?", time()) ? true : false;
+		return Database::execute("delete from `sessions` where expire<=?", time()) ? true : false;
 	}
 
 	/**
@@ -235,7 +237,7 @@ class PuzzleSession implements SessionHandlerInterface
 	 */
 	private function endUser($id)
 	{
-		return Database::exec("delete from `sessions` where `user`='?' and `session_id`!='?'", $id, $this->id) ? true : false;
+		return Database::execute("delete from `sessions` where `user`='?' and `session_id`!='?'", $id, $this->id) ? true : false;
 	}
 
 	/**
@@ -245,7 +247,7 @@ class PuzzleSession implements SessionHandlerInterface
 	private function endAll()
 	{
 		$this->destroy();
-		return Database::exec("delete from `sessions`") ? true : false;
+		return Database::execute("delete from `sessions`") ? true : false;
 	}
 
 	public static function start()
@@ -302,4 +304,3 @@ class PuzzleSession implements SessionHandlerInterface
 }
 
 PuzzleSession::start();
-?>

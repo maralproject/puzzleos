@@ -49,4 +49,3 @@ class ImageUploader{
 		return(UserData::getURL($_SESSION["ImageUploader"][$key],true));
 	}
 }
-?>

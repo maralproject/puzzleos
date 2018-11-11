@@ -7,6 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 ?>
+
 <script>
 	var user_config_changed = 0;
 	function reloadGroup(){if(user_config_changed == 1){location.reload();}else{$('#groups').show();}}

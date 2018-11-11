@@ -7,6 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 ?>
+
 <?php ob_start()?>
 <style>
 .tmpl .col {

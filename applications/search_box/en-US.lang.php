@@ -11,4 +11,3 @@ return array(
 	"FIND"		=> "Search",
 	"SFOAP"		=> "Press Enter to search more"
 );
-?>

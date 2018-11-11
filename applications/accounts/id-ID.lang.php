@@ -134,5 +134,3 @@ return array(
 	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi",
 	"OMS"				=>	"Selangkah lagi",
 );
-
-?>

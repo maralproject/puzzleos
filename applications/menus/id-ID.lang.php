@@ -29,4 +29,3 @@ return array(
 	"CLICK_HERE"				=>	"Klik di sini untuk merubah",
 	"CHOOSE_WHO"				=>	"Pilih siapa yang dapat melihat menu ini",
 );
-?>

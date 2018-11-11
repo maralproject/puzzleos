@@ -7,12 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-if(Accounts::authAccess(USER_AUTH_REGISTERED)):
-
-/**
- * This file is part of menus
- */
-?>
+if(Accounts::authAccess(USER_AUTH_REGISTERED)):?>
 <?php $language = new Language; $language->app = "users";?>
 <div class="btn-group" style="max-width:inherit;">
  <button type="button" class="dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="max-width:inherit;border-radius:0px;z-index:1000;background-color:white;border:none;-webkit-box-shadow:0px 0px 12px 0px rgba(0,0,0,0.40);-moz-box-shadow: 0px 0px 12px 0px rgba(0,0,0,0.40);box-shadow:0px 0px 12px 0px rgba(0,0,0,0.40);padding:10px 15px;border-bottom-left-radius:5px;border-bottom-right-radius:5px;margin-left:10px;">
@@ -26,4 +21,5 @@ if(Accounts::authAccess(USER_AUTH_REGISTERED)):
   </ul>
 </div>
 
-<?php endif;?>
+<?php
+endif;

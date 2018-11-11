@@ -27,4 +27,3 @@ return array(
 	"CLICK_HERE"				=>	"Click here to edit",
 	"CHOOSE_WHO"				=>	"Choose who can see this menu",
 );
-?>

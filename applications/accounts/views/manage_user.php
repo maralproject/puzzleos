@@ -136,7 +136,7 @@ $(document).on("click",".new_user",function(e){
 	<th><?php $l->dump("DELETE");?></th>
 </tr>
 <?php
-	foreach(Database::readAll("app_users_list")->data as $u){
+	foreach(Database::readAll("app_users_list") as $u){
 		$itself = ($_SESSION['account']['id'] == $u["id"]?true:false);
 		echo('
 		<tr name="'.$u["id"].'">

@@ -7,7 +7,9 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-/* This file responsible for handling system table structure */
+/**
+ * This file responsible for creating system table structure
+ */
 
 /* Table `userdata` */
 $a = new DatabaseTableBuilder;
@@ -30,7 +32,13 @@ $a->addColumn("default_app", "VARCHAR(50)");
 $a->addColumn("default_template", "VARCHAR(50)");
 $a->addColumn("restricted_app");
 
-$a->newInitialRow("{root}", "admin", "blank", "[]");
+$a->insertFresh([
+    (new DatabaseRowInput)
+    ->setField("host","{root}")
+    ->setField("default_app","admin")
+    ->setField("default_template","blank")
+    ->setField("restricted_app","[]")
+]);
 
 Database::newStructure("multidomain_config", $a);
 
@@ -40,16 +48,18 @@ $a->addColumn("rootname", "VARCHAR(50)")->setAsPrimaryKey();
 $a->addColumn("group", "INT")->allowNull(true);
 $a->addColumn("system", "INT")->defaultValue("0");
 
-$a->newInitialRow("admin", null, 1);
-$a->newInitialRow("bootstrap", null, 1);
-$a->newInitialRow("fontawesome", null, 1);
-$a->newInitialRow("menus", null, 1);
-$a->newInitialRow("page_control", null, 1);
-$a->newInitialRow("phpmailer", null, 1);
-$a->newInitialRow("search_box", null, 1);
-$a->newInitialRow("tinymce", null, 1);
-$a->newInitialRow("upload_img_ajax", null, 1);
-$a->newInitialRow("users", null, 1);
+$a->insertFresh([
+    (new DatabaseRowInput)->setField("rootname","admin")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","bootstrap")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","fontawesome")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","menus")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","page_control")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","phpmailer")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","search_box")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","tinymce")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","upload_img_ajax")->setField("system",1),
+    (new DatabaseRowInput)->setField("rootname","users")->setField("system",1)
+]);
 
 Database::newStructure("app_security", $a);
 
@@ -74,7 +84,3 @@ $a->addColumn("key", "VARCHAR(50)")->setAsPrimaryKey();
 $a->addColumn("last_exec", "INT");
 
 Database::newStructure("cron", $a);
-
-unset($a);
-
-?>

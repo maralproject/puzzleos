@@ -10,24 +10,23 @@
 $language = new Language;
 
 if(!$_SESSION['account']['loggedIn']){
-	if((__getURI("action") == "changepassword") && $_SESSION['account']['change_pass']['linkClicked'] === 1){
+	if((request("action") == "changepassword") && $_SESSION['account']['change_pass']['linkClicked'] === 1){
 		require("views/change_reset_password.php");
-	}elseif((__getURI("action") == "forgot")){
+	}elseif((request("action") == "forgot")){
 		require("views/reset_password_form.php");
-	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
+	}elseif((request("action") == "verify") && (isset($_SESSION["account"]["confirm_activation"]) || isset($_SESSION["account"]["change_pass"]))){
 		require("views/code_verification.php");
-	}elseif(__getURI("action") == "signup" && Accounts::getSettings()["f_en_registration"] == "on"){
+	}elseif(request("action") == "signup" && Accounts::getSettings()["f_en_registration"] == "on"){
 		require("views/signup.php");
 	}else{
 		require("views/main_login.php");
 	}
 }else{
-	if(__getURI("action") == "changepassword") {
+	if(request("action") == "changepassword") {
 		require("views/change_password.php");
-	}elseif((__getURI("action") == "verify") && (isset($_SESSION["account"]["confirm_email"]))){
+	}elseif((request("action") == "verify") && (isset($_SESSION["account"]["confirm_email"]))){
 		require("views/code_verification.php");
 	}else{
 		require("views/change_info.php");
 	}
 }
-?>

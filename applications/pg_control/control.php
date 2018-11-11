@@ -8,5 +8,3 @@
  */
 
 if($appProp->isMainApp) return false;
- 
-?>

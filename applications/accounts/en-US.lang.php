@@ -134,5 +134,3 @@ return array(
 	"VER_ERR_SEND"		=>	"Failed to send verification code",
 	"OMS"				=>	"One more step",
 );
-
-?>

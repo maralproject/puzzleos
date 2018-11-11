@@ -7,8 +7,7 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-$l=new Language; $l->app="admin";
-?>
+$l=new Language;?>
 <div style="max-width:1170px;margin:5px auto;">
 	<ul class="nav nav-tabs" style="font-size:15pt;display:inline-block;">
 	  <li class="active"><a data-toggle="tab" href="#conf"><i class="fa fa-cogs"></i></a></li>

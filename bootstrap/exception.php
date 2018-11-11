@@ -18,14 +18,10 @@
  */
 stream_wrapper_unregister("php");
 
-//error_reporting(E_ALL);											//Debug
-//error_reporting(E_ERROR | E_PARSE | E_COMPILE_ERROR | E_NOTICE);	//Normal + Notice Report
-error_reporting(E_ERROR | E_PARSE | E_COMPILE_ERROR);				//Normal
-//error_reporting(0);												//None
+error_reporting(E_ERROR | E_PARSE | E_COMPILE_ERROR);
 
 /**
- * Throw an error, write to error.log, and display it to user
- * If you want to bypass this exception, use try/catch
+ * Throw an error, write it to error.log, and display it to user
  */
 class PuzzleError extends Exception
 {
@@ -56,13 +52,12 @@ class PuzzleError extends Exception
 	{
 		//Clear all buffer
 		while (ob_get_level()) ob_get_clean();
-		if (!__isCLI()) {
+		if (!is_cli()) {
 			self::printPage($this->message, $this->suggestion);
 		} else {
 			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
 		}
 		return "";
-		exit;
 	}
 }
 
@@ -77,20 +72,19 @@ class IOError extends PuzzleError
 	{
 		//Clear all buffer
 		while (ob_get_level()) ob_get_clean();
-		if (!__isCLI()) {
+		if (!is_cli()) {
 			parent::printPage("We cannot locate file");
 		} else {
 			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
 		}
 		return "";
-		exit;
 	}
 }
 
 /**
- * For security aim, Database error donot output it's error to public.
- * Instead, it will show a database error message, while logging the
- * real error and stack trace in error.log file
+ * For security purpose, database error do not output it's error to public.
+ * Instead, it will show a database error message, and log
+ * the real error and stack trace in error.log file.
  */
 class DatabaseError extends PuzzleError
 {
@@ -98,13 +92,12 @@ class DatabaseError extends PuzzleError
 	{
 		//Clear all buffer
 		while (ob_get_level()) ob_get_clean();
-		if (!__isCLI()) {
+		if (!is_cli()) {
 			parent::printPage("Something error on database execution.");
 		} else {
 			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
 		}
 		return "";
-		exit;
 	}
 }
 
@@ -113,10 +106,8 @@ class WorkerError extends PuzzleError{}
 
 register_shutdown_function(function () {
 	$e = error_get_last();
-	if (in_array($e['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE])) {
+	if (in_array($e['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
 		abort(500, "Internal Server Error", false);
 		throw new PuzzleError("{$e['message']} on {$e['file']}({$e['line']})", null, $e['code']);
 	}
 });
-
-?>
