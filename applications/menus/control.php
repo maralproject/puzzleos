@@ -33,19 +33,19 @@ if($appProp->isMainApp){
 			Database::delete("app_menus_main","id",$_POST["name"]) or die();
 			die($_POST["name"]);
 		case "changeIcon":
-			Database::executeute("UPDATE `app_menus_main` SET `fa`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
+			Database::execute("UPDATE `app_menus_main` SET `fa`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 			die($_POST["name"]);
 		case "changeName":
-			Database::executeute("UPDATE `app_menus_main` SET `name`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
+			Database::execute("UPDATE `app_menus_main` SET `name`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 			die($_POST["name"]);			
 		case "changeLink":
-			Database::executeute("UPDATE `app_menus_main` SET `link`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
+			Database::execute("UPDATE `app_menus_main` SET `link`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 			die($_POST["name"]);			
 		case "changeAuth":
-			Database::executeute("UPDATE `app_menus_main` SET `minUser`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
+			Database::execute("UPDATE `app_menus_main` SET `minUser`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 			die($_POST["name"]);	
 		case "changePos":
-			Database::executeute("UPDATE `app_menus_main` SET `location`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
+			Database::execute("UPDATE `app_menus_main` SET `location`='?' WHERE `id`='?';",$_POST["val"],$_POST["name"]) or die();			
 			die($_POST["name"]);	
 		default:
 			return false;

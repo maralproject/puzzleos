@@ -26,7 +26,7 @@
 		<div style="font-size:30pt;font-weight:bold;">Oops...</div>
 		<ul>
 			<li><?php echo nl2br($msg) ?></li>
-			<?php if ($suggestion != "") : ?><hr><li style="margin-top:30px;"><?php echo $suggestion ?></li><?php endif; ?>
+			<?php if ($suggestion != "") : ?><li><?php echo $suggestion ?></li><?php endif; ?>
 		</ul>
 		<br>
 		<br>

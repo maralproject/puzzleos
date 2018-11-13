@@ -18,9 +18,9 @@ class UserData
 	private static function init($key)
 	{
 		if (str_haschar($key, '/', "\\", '..', '*')) throw new PuzzleError("Key invalid!");
-		$caller = debug_backtrace()[1]["file"];
-		$filenameStr = str_replace(__ROOTDIR, "", btfslash($caller));
-		$filename = explode("/", $filenameStr);
+		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+		$caller = $stack[str_contains($stack[2]["function"],"call_user_func") ? 2 : 1]["file"];
+		$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($caller)));
 		switch ($filename[1]) {
 			case "applications":
 				break;
@@ -55,7 +55,7 @@ class UserData
 		if ($oldfile != "") {
 			//If old file is present, it'll be overwritten
 			unlink(IO::physical_path($oldfile));
-			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
 		Database::insert("userdata",[
@@ -96,7 +96,7 @@ class UserData
 		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 
 		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
@@ -136,7 +136,7 @@ class UserData
 		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
 		Database::insert("userdata",[
@@ -171,7 +171,7 @@ class UserData
 		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if ($oldfile != "") {
 			unlink(IO::physical_path($oldfile));
-			Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		IO::write($filename, $content);
 		unset(self::$cache[$appname . $key]);
@@ -244,7 +244,7 @@ class UserData
 	 * Read file instantly, using file_get_contents()
 	 * 
 	 * @param string $key
-	 * @return contents
+	 * @return mixed
 	 */
 	public static function read($key)
 	{
@@ -264,7 +264,7 @@ class UserData
 	 * Read save MIME type
 	 * 
 	 * @param string $key
-	 * @return contents
+	 * @return mixed
 	 */
 	public static function getMIME($key)
 	{
@@ -287,6 +287,6 @@ class UserData
 		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		if (!unlink(IO::physical_path($filename))) return false;
 		unset(self::$cache[$appname . $key]);
-		return Database::deleteArg("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		return Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 	}
 }

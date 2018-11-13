@@ -134,7 +134,7 @@ class DatabaseTableBuilder
 		if (strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		$this->selectedColumn = $name;
 		//Structure = [Type", PRIMARY, AllowNULL, Default]
-		$this->arrayStructure[$this->selectedColumn] = [$type, false, false, null];
+		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, false, null];
 		return $this;
 	}
 
@@ -171,7 +171,9 @@ class DatabaseTableBuilder
 	public function removePrimaryKey()
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][1] = false;
+		foreach ($this->arrayStructure as $key => $data) {
+			$this->arrayStructure[$key][1] = false;
+		}
 		return $this;
 	}
 
@@ -196,7 +198,18 @@ class DatabaseTableBuilder
 	public function defaultValue($str)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][3] = (string)$str;
+		$this->arrayStructure[$this->selectedColumn][3] = $str == "" ? null : $str;
+		return $this;
+	}
+
+	/**
+	 * Set this column as auto increment value
+	 * @return DatabaseTableBuilder
+	 */
+	public function auto_increment()
+	{
+		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		$this->arrayStructure[$this->selectedColumn][3] = "AUTO_INCREMENT";
 		return $this;
 	}
 
@@ -208,7 +221,7 @@ class DatabaseTableBuilder
 	public function setType($type)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][0] = $type;
+		$this->arrayStructure[$this->selectedColumn][0] = strtoupper($type);
 		return $this;
 	}
 
@@ -320,16 +333,13 @@ class Database
 	private static function x_verify($find)
 	{
 		if ($find == "") return false;
-		$filename = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3)[2]["file"];
+		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
+		$filename = $stack[str_contains($stack[3]["function"], "call_user_func") ? 3 : 2]["file"];
 		if (is_cli() && isset($GLOBALS["_WORKER"])) {
 			$appname = $GLOBALS["_WORKER"]["appdir"];
-
-			if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini"))
-				throw new DatabaseError("Application do not have manifest!");
-
+			if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
 			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 			$appname = $manifest["rootname"];
-
 			if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
 		} else {
 			$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($filename)));
@@ -483,13 +493,13 @@ class Database
 	public static function insert($table, array $row_input)
 	{
 		self::x_verify($table);
-		if(count($row_input) < 1) return true;
+		if (count($row_input) < 1) return true;
 
 		$data = (object)["columns" => [], "values" => []];
 		foreach ($row_input as $d) {
 			if (!$d instanceof DatabaseRowInput) throw new DatabaseError('$row_input should be a DatabaseRowInput');
 			$next_values = [];
-			foreach ($d->getStructure() as $column=>$value) {
+			foreach ($d->getStructure() as $column => $value) {
 				if (!isset($data->columns[$column])) $data->columns[$column] = count($data->columns);
 				$next_values[$data->columns[$column]] = $value;
 			}
@@ -539,6 +549,14 @@ class Database
 	}
 
 	/**
+	 * Returns the auto generated id used in the latest query
+	 */
+	public static function lastId()
+	{
+		return self::$link->insert_id;
+	}
+
+	/**
 	 * Delete a record
 	 * @param string $table Table Name
 	 * @param string $find_column Column need to be matched
@@ -585,10 +603,7 @@ class Database
 	public static function execute($query, ...$param)
 	{
 		self::x_verify($query);
-		if (!isset(self::$cache["execute"][$query . serialize($param)])) {
-			self::$cache["execute"][$query . serialize($param)] = [self::query($query, ...$param)];
-		}
-		return self::$cache["execute"][$query . serialize($param)][0];
+		return self::query($query, ...$param);
 	}
 
 	/**
@@ -773,7 +788,7 @@ class Database
 				$q = self::isTableExist($table);
 				/* Drop table if necessary */
 				if ($needToDrop && $q) {
-					self::query("DROP TABLE `?`;", $table);
+					self::query("DROP TABLE `?`", $table);
 					$insertData = true;
 					$q = false;
 				}
@@ -789,26 +804,24 @@ class Database
 
 		if (!$q) {
 			//Create Table
-			$query = "CREATE TABLE `" . $table . "` ( ";
+			$query = "CREATE TABLE `$table` (";
 			
 			//Appending table structure
 			foreach ($structure as $k => $d) {
 				if ($d[1]) $pkey = $k;
-				$ds = (($d[3] === null) ? "" : "DEFAULT '" . $d[3] . "'");
-				$ds = ($d[3] === "AUTO_INCREMENT" ? "AUTO_INCREMENT" : $ds);
-
-				$query .= "`" . $k . "` " . strtoupper($d[0]) . " " . ($d[2] === true ? "NULL" : "NOT NULL") . " " . $ds . ",";
+				if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+				$query .= "`$k` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3],";
 			}
 			
 			//Appending Primary key
-			if ($pkey != "") $query .= "PRIMARY KEY (`" . $pkey . "`),";
+			if ($pkey != "") $query .= "PRIMARY KEY (`$pkey`),";
 			
 			//Appending all index
 			foreach ($indexes as $i) {
 				$c = "";
 				foreach ($i[1] as $ci) $c .= "`$ci`,";
 				$c = rtrim($c, ",");
-				$query .= "{$i[2]} INDEX `{$i[0]}` ($c),";
+				$query .= "$i[2] INDEX `$i[0]` ($c),";
 			}
 			
 			//Using InnoDB engine is better than MyISAM
@@ -817,177 +830,92 @@ class Database
 
 			if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
-			if (mysqli_query(self::$link, $query)) {
+			if (self::$link->query($query)) {
 				if ($insertData) self::insert($table, $initialData);
 				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
 				set_time_limit(TIME_LIMIT);
 				return true;
 			} else {
-				throw new DatabaseError(mysqli_error(self::$link), $query);
+				throw new DatabaseError(self::$link->error, $query);
 			}
 		} else {
-			//Update Tables
-			$query = "";
-			$a = [];
-			$cpkey = "";
-			
-			//Fetching table data, and remove auto_increment column
-			$q = mysqli_query(self::$link, "show columns from `$table`");
-			while ($d = mysqli_fetch_array($q)) {
-				$fd = ($d["Extra"] == "auto_increment" ? "AUTO_INCREMENT" : $d["Default"]);
-				$a[$d["Field"]] = array(strtoupper($d["Type"]), ($d["Null"] == "YES" ? true : false), 1, $fd, false);
-				if ($d["Key"] == "PRI") $cpkey = $d["Field"];
-				if ($fd == "AUTO_INCREMENT") {
-					$query .= "ALTER TABLE `" . $table . "` CHANGE COLUMN `" . $d["Field"] . "` `" . $d["Field"] . "` " . strtoupper($d["Type"]) . " " . ($d["Null"] === true ? "NULL" : "NOT NULL") . " ;\n";
-					$a[$d["Field"]][4] = true;
-				}
+			//Getting current table structure
+			$current_structure = new DatabaseTableBuilder;
+			$old_primary = null;
+			$new_primary = null;
+			foreach (self::toArray(self::query("show columns from `$table`")) as $column_def) {
+				$current_structure->addColumn($column_def["Field"], $column_def["Type"])->allowNull($column_def["Null"] == "YES");
+				if ($column_def["Extra"] == "auto_increment") $current_structure->defaultValue("AUTO_INCREMENT");
+				else $current_structure->defaultValue($column_def["Default"]);
 			}
-			$pkey = "";
-			
-			//DROP Column
-			foreach ($a as $k => $b) {
-				if (!isset($structure[$k])) {
-					if ($cpkey == $k) $cpkey = "";
-					$query .= "ALTER TABLE `" . $table . "` DROP COLUMN `" . $k . "`;\n";
-				}
-			}
-			
-			//ALTER Table
-			foreach ($structure as $k => $d) {
-				if ($d[1]) $pkey = $k;
-				if ($a[$k][2] != 1) {
-					//Add new column
-					$ds = (($d[3] === null) ? "" : "DEFAULT '" . $d[3] . "'");
-					$ds = ($d[3] === "AUTO_INCREMENT" ? "AUTO_INCREMENT" : $ds);
-					if ($d[3] === "AUTO_INCREMENT") {
-						//In this part, we don't care much about null value, since auto_increment always not_null.
-						//Auto increment value, will be automatially be the primary key
-						if ($cpkey != "") {
-							$query .= "ALTER TABLE `" . $table . "` DROP PRIMARY KEY;\n";
-							$cpkey = "";
-						}
-						$pkey = "";
-						$query .= "ALTER TABLE `" . $table . "` ADD COLUMN `" . $k . "` " . strtoupper($d[0]) . " NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY(`$k`);\n";
-					} else {
-						$query .= "ALTER TABLE `" . $table . "` ADD COLUMN `" . $k . "` " . strtoupper($d[0]) . " " . ($d[2] === true ? "NULL" : "NOT NULL") . " $ds;\n";
-					}
-					unset($query1);
+			$current_index = [];
+			foreach (self::toArray(self::query("show index from `$table`")) as $index_def) {
+				if ($index_def["Key_name"] == "PRIMARY") {
+					$current_structure->selectColumn($index_def["Column_name"])->setAsPrimaryKey();
+					$old_primary = $index_def["Column_name"];
 				} else {
-					//Change old column
-					$st = preg_match("/" . strtoupper($d[0]) . "/", $a[$k][0]);
-					$an = $d[2] == $a[$k][1];
-					$def = $a[$k][3] == strtoupper($d[3]);
-					if (!$st || !$an || !$def || $a[$k][4]) {
-						$ds = (($d[3] !== "0" && empty($d[3])) ? "" : "DEFAULT '" . $d[3] . "'");
-						$ds = ($d[3] === "AUTO_INCREMENT" ? "AUTO_INCREMENT" : $ds);
-
-						if ($d[3] === "AUTO_INCREMENT") {
-							//In this part, we don't care much about null value, since auto_increment always not_null.
-							//Auto increment value, will be automatially be the primary key
-							if ($cpkey != "") {
-								if ($cpkey != $k) $query .= "ALTER TABLE `" . $table . "` DROP PRIMARY KEY, ADD PRIMARY KEY(`$k`);\n";
-								$cpkey = "";
-							} else {
-								$query .= "ALTER TABLE `" . $table . "` ADD PRIMARY KEY(`$k`);\n";
-							}
-							$pkey = "";
-							$query .= "ALTER TABLE `" . $table . "` CHANGE COLUMN `" . $k . "` `" . $k . "` " . strtoupper($d[0]) . " NOT NULL AUTO_INCREMENT;\n";
-						} else {
-							$query .= "ALTER TABLE `" . $table . "` CHANGE COLUMN `" . $k . "` `" . $k . "` " . strtoupper($d[0]) . " " . ($d[2] === true ? "NULL" : "NOT NULL") . " $ds;\n";
-						}
-
-					}
+					$current_index[$index_def["Key_name"]] = 1;
 				}
 			}
+			//Structure = [Type, PRIMARY, AllowNULL, Default]
+			$current_structure = $current_structure->x_getStructure();
 
-			/**
-			 * Change Primary Key
-			 * Correct order
-			 * Add primary key first then add AI
-			 * When removing primary key, make sure that table is not AI anymore
-			 */
-			if ($cpkey != $pkey) {
-				//Check if db have primary key
-				$needtodropkey = ($cpkey != "");
-				if ($needtodropkey) {
-					if ($pkey != "") $addpk = ", ADD PRIMARY KEY (`" . $pkey . "`)";
-					$pri_ai_col = mysqli_fetch_array(mysqli_query(self::$link, "show columns from `$table` where `Extra` = 'auto_increment' AND `Key`='PRI';"));
-					if (count($pri_ai_col) < 1)
-						$query .= "ALTER TABLE `" . $table . "` DROP PRIMARY KEY$addpk;\n";
-					else {
-						//Addition is disabling the AUTO_INCREMENT before DROP PRIMARY Key.
-						$addition = "ALTER TABLE `$table` CHANGE COLUMN `" . $pri_ai_col["Field"] . "` `" . $pri_ai_col["Field"] . "` " . $pri_ai_col["Type"] . " " . ($pri_ai_col["Null"] = "NO" ? "NOT NULL" : "NULL") . ";\n";
-						$query .= $addition . "ALTER TABLE `" . $table . "` DROP PRIMARY KEY$addpk;\n";
+			$query = "ALTER TABLE `$table` ";
+			$pre_e = null;
+			foreach ($structure as $column => $d) {
+				//Cek ada atau tidak
+				if (isset($current_structure[$column])) {
+					//Lihat perubahan
+					if ($current_structure[$column] != $structure[$column]) {
+						//CHANGE COLUMN
+						if ($d[1]) $new_primary = $column;
+						if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+						$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
+						$query .= "CHANGE COLUMN `$column` `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
 					}
 				} else {
-					if ($pkey != "") $query .= "ALTER TABLE `" . $table . "` ADD PRIMARY KEY (`" . $pkey . "`);";
+					//ADD COLUMN
+					if ($d[1]) $new_primary = $column;
+					if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+					$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
+					$query .= "ADD COLUMN `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
 				}
-			}
-			
-			//First Alter Execution
-			if ($query != "") {
-				if (defined("DB_DEBUG")) {
-					file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
-				}
-				if (!mysqli_multi_query(self::$link, $query)) throw new DatabaseError(mysqli_error(self::$link), $query);
-				do {
-					if ($result = mysqli_store_result(self::$link)) {
-						mysqli_free_result($result);
-					}
-				} while (mysqli_next_result(self::$link));
+				$pre_e = $column;
 			}
 
-			//Reorder column position
-			$query = "";
-			$request = mysqli_query(self::$link, "show columns from `$table`");
-			$tableContent = [];
-			while ($r = mysqli_fetch_array($request)) {
-				$tableContent[$r["Field"]] = $r;
+			//DROP COLUMN
+			foreach ($current_structure as $column => $d) {
+				if (!isset($structure[$column])) $query .= "DROP COLUMN `$column`,";
 			}
-			$firstCol = true;
-			$prevCol;
-			foreach ($structure as $k => $d) {
-				$i = $tableContent[$k];
-				$type = $i["Type"];
-				$nullon = ($i["Null"] == "YES" ? "NULL" : "NOT NULL");
-				$def = ($i["Default"] != "" ? "DEFAULT '" . $i["Default"] . "'" : $i["Extra"]);
-				$pos = ($firstCol ? "FIRST" : "AFTER `$prevCol`");
-				$query .= "ALTER TABLE `$table` CHANGE COLUMN `$k` `$k` $type $nullon $def $pos;\n";
-				$firstCol = false;
-				$prevCol = $k;
+
+			//Primary key
+			if ($old_primary != null) $query .= "DROP PRIMARY KEY,";
+			if ($new_primary != null) {
+				$query .= "ADD PRIMARY KEY (`$new_primary`),";
 			}
-			
-			//Deleting all Index
-			$q = mysqli_query(self::$link, "show index from `$table`");
-			$dik = [];
-			while ($d = mysqli_fetch_array($q)) {
-				if ($d["Key_name"] == "PRIMARY") continue;
-				if (in_array($d["Key_name"], $dik)) continue;
-				$dik[] = $d["Key_name"];
-				$query .= "ALTER TABLE `$table` DROP INDEX `{$d["Key_name"]}`;\n";
+
+			//DROP INDEX
+			foreach ($current_index as $index => $d) {
+				$query .= "DROP INDEX `$index`,";
 			}
-			
-			//Re add defined index
+
+			//ADD INDEX
 			foreach ($indexes as $i) {
 				$c = "";
 				foreach ($i[1] as $ci) $c .= "`$ci`,";
 				$c = rtrim($c, ",");
-				$query .= "ALTER TABLE `$table` ADD {$i[2]} INDEX `{$i[0]}` ($c);\n";
+				$query .= "ADD $i[2] INDEX `$i[0]` ($c),";
 			}
 
 			if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
-			
-			//Second Round Execution
-			if (!mysqli_multi_query(self::$link, $query)) throw new DatabaseError(mysqli_error(self::$link), $query);
-			do {
-				if ($result = mysqli_store_result(self::$link)) {
-					mysqli_free_result($result);
-				}
-			} while (mysqli_next_result(self::$link));
 
-			if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
-			set_time_limit(TIME_LIMIT);
-			return true;
+			if (self::$link->query(rtrim($query, ","))) {
+				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
+				set_time_limit(TIME_LIMIT);
+				return true;
+			} else {
+				throw new DatabaseError(self::$link->error, $query);
+			}
 		}
 	}
 }
