@@ -7,6 +7,9 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
+use SuperClosure\Serializer;
+use SuperClosure\Analyzer\TokenAnalyzer;
+
 /**
  * Create separated process to do long-run task
  */
@@ -58,7 +61,7 @@ class Worker
 			"appdir" => $execute["env"]["appdir"]
 		];
 		include("vendor/superclosure/autoload.php");
-		$function = (new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer()))->unserialize($execute["func"]);
+		$function = (new Serializer(new TokenAnalyzer()))->unserialize($execute["func"]);
 
 		try {
 			ob_start();
@@ -104,7 +107,7 @@ class Worker
 		}
 
 		preparedir(__ROOTDIR . "/storage/worker");
-		$this->_serialize = new SuperClosure\Serializer(new SuperClosure\Analyzer\TokenAnalyzer());
+		$this->_serialize = new Serializer(new TokenAnalyzer());
 		$this->_workernum = floor($number);
 		$this->_app = AppManager::getNameFromDirectory($caller[2]);
 		$this->_appdir = $caller[2];

@@ -8,79 +8,68 @@
  */
 
 /**
- * This file responsible for creating system table structure
+ * This file responsible for creating system table schema
  */
 
 /* Table `userdata` */
-$a = new DatabaseTableBuilder;
-$a->addColumn("app", "VARCHAR(50)");
-$a->addColumn("identifier", "VARCHAR(500)");
-$a->addColumn("physical_path", "VARCHAR(500)");
-$a->addColumn("mime_type", "VARCHAR(100)");
-$a->addColumn("ver", "INT");
-$a->addColumn("secure", "TINYINT(1)");
+Database::newStructure("userdata", (new DatabaseTableBuilder)
+    ->addColumn("app", "VARCHAR(50)")
+    ->addColumn("identifier", "VARCHAR(500)")
+    ->addColumn("physical_path", "VARCHAR(500)")
+    ->addColumn("mime_type", "VARCHAR(100)")
+    ->addColumn("ver", "INT")
+    ->addColumn("secure", "TINYINT(1)")
 
-$a->createIndex("main", ["app", "identifier"]);
-$a->createIndex("path", ["physical_path"]);
-
-Database::newStructure("userdata", $a);
+    ->createIndex("main", ["app", "identifier"])
+    ->createIndex("path", ["physical_path"]));
 
 /* Table `multidomain_config` */
-$a = new DatabaseTableBuilder;
-$a->addColumn("host", "VARCHAR(50)")->setAsPrimaryKey();
-$a->addColumn("default_app", "VARCHAR(50)");
-$a->addColumn("default_template", "VARCHAR(50)");
-$a->addColumn("restricted_app");
+Database::newStructure("multidomain_config", (new DatabaseTableBuilder)
+    ->addColumn("host", "VARCHAR(50)")->setAsPrimaryKey()
+    ->addColumn("default_app", "VARCHAR(50)")
+    ->addColumn("default_template", "VARCHAR(50)")
+    ->addColumn("restricted_app")
 
-$a->insertFresh([
-    (new DatabaseRowInput)
-    ->setField("host","{root}")
-    ->setField("default_app","admin")
-    ->setField("default_template","blank")
-    ->setField("restricted_app","[]")
-]);
-
-Database::newStructure("multidomain_config", $a);
+    ->insertFresh([
+        (new DatabaseRowInput)
+            ->setField("host", "{root}")
+            ->setField("default_app", "admin")
+            ->setField("default_template", "blank")
+            ->setField("restricted_app", "[]")
+    ]));
 
 /* Table `app_security` */
-$a = new DatabaseTableBuilder;
-$a->addColumn("rootname", "VARCHAR(50)")->setAsPrimaryKey();
-$a->addColumn("group", "INT")->allowNull(true);
-$a->addColumn("system", "INT")->defaultValue("0");
+Database::newStructure("app_security", (new DatabaseTableBuilder)
+    ->addColumn("rootname", "VARCHAR(50)")->setAsPrimaryKey()
+    ->addColumn("group", "INT")->allowNull(true)
+    ->addColumn("system", "INT")->defaultValue("0")
 
-$a->insertFresh([
-    (new DatabaseRowInput)->setField("rootname","admin")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","bootstrap")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","fontawesome")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","menus")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","page_control")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","phpmailer")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","search_box")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","tinymce")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","upload_img_ajax")->setField("system",1),
-    (new DatabaseRowInput)->setField("rootname","users")->setField("system",1)
-]);
-
-Database::newStructure("app_security", $a);
+    ->insertFresh([
+        (new DatabaseRowInput)->setField("rootname", "admin")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "bootstrap")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "fontawesome")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "menus")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "page_control")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "phpmailer")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "search_box")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "tinymce")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "upload_img_ajax")->setField("system", 1),
+        (new DatabaseRowInput)->setField("rootname", "users")->setField("system", 1)
+    ]));
 
 /* Table `sessions` */
-$a = new DatabaseTableBuilder;
-$a->addColumn("session_id", "CHAR(40)")->setAsPrimaryKey();
-$a->addColumn("content", "TEXT");
-$a->addColumn("client", "TEXT");
-$a->addColumn("cnf", "TEXT");
-$a->addColumn("start", "INT");
-$a->addColumn("expire", "INT");
-$a->addColumn("user", "INT")->allowNull(true);
-
-$a->createIndex("ses", ["user", "session_id"]);
-$a->createIndex("expire", ["expire"]);
-
-Database::newStructure("sessions", $a);
+Database::newStructure("sessions", (new DatabaseTableBuilder)
+    ->addColumn("session_id", "CHAR(40)")->setAsPrimaryKey()
+    ->addColumn("content", "TEXT")
+    ->addColumn("client", "TEXT")
+    ->addColumn("cnf", "TEXT")
+    ->addColumn("start", "INT")
+    ->addColumn("expire", "INT")
+    ->addColumn("user", "INT")->allowNull(true)
+    ->createIndex("ses", ["user", "session_id"])
+    ->createIndex("expire", ["expire"]));
 
 /* Table `cron` */
-$a = new DatabaseTableBuilder;
-$a->addColumn("key", "VARCHAR(50)")->setAsPrimaryKey();
-$a->addColumn("last_exec", "INT");
-
-Database::newStructure("cron", $a);
+Database::newStructure("cron", (new DatabaseTableBuilder)
+    ->addColumn("key", "VARCHAR(50)")->setAsPrimaryKey()
+    ->addColumn("last_exec", "INT"));
