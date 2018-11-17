@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -13,11 +14,13 @@
  */
 class Cache
 {
+    private static $ram_cache = [];
+
     private static function init($key)
     {
         if (str_haschar($key, '/', "\\", '..', '*')) throw new PuzzleError("Key invalid!");
         $stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
-        $path = explode("/", str_replace(__ROOTDIR, "", btfslash($stack[str_contains($stack[2]["function"],"call_user_func") ? 2 : 1]["file"])));
+        $path = explode("/", str_replace(__ROOTDIR, "", btfslash($stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"])));
         switch ($path[1]) {
             case 'applications':
                 $appname = AppManager::getNameFromDirectory($path[2]);
@@ -30,6 +33,21 @@ class Cache
                 break;
             default:
                 throw new PuzzleError("Cache can be only used for Applications only!");
+        }
+    }
+
+    private static function x_get($p, $key, $default)
+    {
+        if (file_exists("$p/$key")) {
+            return unserialize(file_get_contents("$p/$key"));
+        } else {
+            if (is_callable($default)) {
+                return $default($key, function ($result) use ($p, $key) {
+                    return file_put_contents("$p/$key", serialize($result)) !== false ? $result : false;
+                });
+            } else {
+                return $default;
+            }
         }
     }
 
@@ -54,16 +72,10 @@ class Cache
     public static function get($key, $default = null)
     {
         $p = self::init($key);
-        if (file_exists("$p/$key")) {
-            return unserialize(file_get_contents("$p/$key"));
+        if (isset(self::$ram_cache["$p/$key"])) {
+            return self::$ram_cache["$p/$key"];
         } else {
-            if (is_callable($default)) {
-                return $default($key, function ($result) use ($p, $key) {
-                    return file_put_contents("$p/$key", serialize($result)) !== false ? $result : false;
-                });
-            } else {
-                return $default;
-            }
+            return self::$ram_cache["$p/$key"] = self::x_get($p, $key, $default);
         }
     }
 
@@ -88,6 +100,7 @@ class Cache
         $p = self::init($key);
         if (file_exists("$p/$key")) {
             $r = unserialize(file_get_contents("$p/$key"));
+            unset(self::$ram_cache["$p/$key"]);
             unlink("$p/$key");
             return $r;
         }

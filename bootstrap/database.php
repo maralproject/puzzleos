@@ -195,10 +195,10 @@ class DatabaseTableBuilder
 	 * @param mixed $str
 	 * @return DatabaseTableBuilder
 	 */
-	public function defaultValue($str)
+	public function defaultValue($str = null)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][3] = $str == "" ? null : $str;
+		$this->arrayStructure[$this->selectedColumn][3] = $str;
 		return $this;
 	}
 
@@ -809,7 +809,7 @@ class Database
 			//Appending table structure
 			foreach ($structure as $k => $d) {
 				if ($d[1]) $pkey = $k;
-				if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+				if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
 				$query .= "`$k` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3],";
 			}
 			
@@ -869,14 +869,14 @@ class Database
 					if ($current_structure[$column] != $structure[$column]) {
 						//CHANGE COLUMN
 						if ($d[1]) $new_primary = $column;
-						if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+						if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
 						$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
 						$query .= "CHANGE COLUMN `$column` `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
 					}
 				} else {
 					//ADD COLUMN
 					if ($d[1]) $new_primary = $column;
-					if ($d[3] != null && $d[3] != "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
+					if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
 					$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
 					$query .= "ADD COLUMN `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
 				}
