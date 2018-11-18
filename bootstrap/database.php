@@ -27,12 +27,12 @@ class DatabaseRowInput
 	 */
 	public function setField($column_name, $value)
 	{
-		$this->rowStructure[$column_name] = $value;
-		return $this;
-	}
-
-	public function __set($column_name, $value)
-	{
+		/**
+		 * PHP use different number separator for different locale internally.
+		 * MySQL only accept '.' as separator. As we detect the value 
+		 * is numeric, we automatically perform conversion.
+		 */
+		if (is_numeric($value)) $value = str_replace(',', '.', $value);
 		$this->rowStructure[$column_name] = $value;
 		return $this;
 	}
@@ -182,7 +182,7 @@ class DatabaseTableBuilder
 	 * @param bool $bool
 	 * @return DatabaseTableBuilder
 	 */
-	public function allowNull($bool)
+	public function allowNull($bool = true)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][2] = $bool;
@@ -703,9 +703,8 @@ class Database
 	 * @param callable $handler
 	 * @return mixed
 	 */
-	public static function transaction($handler)
+	public static function transaction(callable $handler)
 	{
-		if (!is_callable($handler)) throw new DatabaseError('$handler should be callable!');
 		self::$link->begin_transaction();
 		try {
 			$r = $handler();

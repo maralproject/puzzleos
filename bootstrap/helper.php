@@ -14,8 +14,8 @@ function foreachx(array $array, $callback)
 {
 	$index = 0;
 	$len = count($array) - 1;
-	foreach($array as $k=>$v){
-		$callback($index, $index >= $len, $k, $v); 
+	foreach ($array as $k => $v) {
+		$callback($index, $index >= $len, $k, $v);
 		$index++;
 	}
 }
@@ -61,7 +61,7 @@ function require_once_ext($__path, $vars = null)
 }
 
 /**
- * Shutdown PuzzleOS and send HTTP code to the Client.
+ * Shutdown PuzzleOS and send HTTP code to the client.
  * 
  * @param integer $code
  * @param string $text
@@ -128,7 +128,7 @@ function php_bin()
 	}
 	
 	// PHP_BINARY return the current sapi executable
-	if (PHP_BINARY && \in_array(\PHP_SAPI, array('cli', 'cli-server', 'phpdbg'), true)) {
+	if (PHP_BINARY && in_array(PHP_SAPI, array('cli', 'cli-server', 'phpdbg'), true)) {
 		return PHP_BINARY;
 	}
 
@@ -143,7 +143,7 @@ function php_bin()
 			return $php;
 		}
 	}
-	if (@is_executable($php = PHP_BINDIR . ('\\' === \DIRECTORY_SEPARATOR ? '\\php.exe' : '/php'))) {
+	if (@is_executable($php = PHP_BINDIR . ('\\' === DIRECTORY_SEPARATOR ? '\\php.exe' : '/php'))) {
 		return $php;
 	}
 	
@@ -178,6 +178,17 @@ function obtarr($d)
 	} else {
 		return $d;
 	}
+}
+
+/**
+ * Quick shortcut for htmlentitites()
+ * 
+ * @param string $html
+ * @return string
+ */
+function h($html)
+{
+	return htmlentities($html);
 }
 
 /**
