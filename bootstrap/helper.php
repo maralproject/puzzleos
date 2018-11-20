@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -181,14 +182,14 @@ function obtarr($d)
 }
 
 /**
- * Quick shortcut for htmlentitites()
+ * Quick shortcut for echo htmlentitites()
  * 
  * @param string $html
  * @return string
  */
 function h($html)
 {
-	return htmlentities($html);
+	echo htmlentities($html);
 }
 
 /**
