@@ -177,7 +177,7 @@ class PuzzleSession implements SessionHandlerInterface
 				$di->setField("start", time());
 				$di->setField("expire", time() + $this->expire);
 				$di->setField("user", $_SESSION['account']['id']);
-				return Database::insert("sessions",[$di]) ? true : false;
+				return Database::insert("sessions", [$di]) ? true : false;
 			} catch (DatabaseError $e) {
 				$this->in_db = false;
 			}
@@ -201,6 +201,7 @@ class PuzzleSession implements SessionHandlerInterface
 
 	private function writeCookie()
 	{
+		if (is_cli()) return false;
 		if (!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
 		if (!defined("__COOKIE_OUT")) {
 			setcookie(
@@ -211,6 +212,7 @@ class PuzzleSession implements SessionHandlerInterface
 				($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null)
 			);
 			define("__COOKIE_OUT", 1);
+			return true;
 		}
 	}
 

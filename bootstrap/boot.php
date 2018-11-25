@@ -8,6 +8,8 @@
  */
 
 (function () {
+error_reporting(0);
+
 require "oem.php";
 require "defines.php";
 require "helper.php";
@@ -20,8 +22,7 @@ if (!version_compare(PHP_VERSION, "7.0.0") < 0){
 if (PHP_SAPI == "cli" && (!defined("__POSCLI") && !defined("__POSWORKER"))){
 	die("ERROR:\tCLI Execution Aborted.");
 }
-	
-error_reporting(0);
+
 set_time_limit(TIME_LIMIT);
 
 /***********************************
@@ -109,4 +110,9 @@ if (request(0) == "assets" && !is_cli()) {
 		} catch (AppStartError $e) {}
 	}
 }
+
+/***********************************
+ * Setting error reporting
+ ***********************************/
+error_reporting(POSConfigGlobal::$error_code);
 })();

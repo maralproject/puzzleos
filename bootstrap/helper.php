@@ -223,20 +223,33 @@ function is_json($string)
 
 /**
  * Redirect to another page.
- * Better work if loaded in the app controller.
+ * Better work if loaded before HTML output is starting.
+ * Use "http://" or "https://" to redirect outside this site.
  * 
  * @param string $app e.g. "users/login"
+ * @param int $http_code HTTP redirection code 3xx
  */
-function redirect($app = "")
+function redirect($url = "", $http_code = 302)
 {
-	$app = ltrim($app, "/");
+	//Removing trailing slashes in leftside
+	$app = ltrim($url, "/");
+
+	//Removing all whitespace
 	$app = preg_replace("/\s+/", "", $app);
+
+    //Checking if URL requested is local or not
+	if (!starts_with($app, "http://") && !starts_with($app, "https://")) {
+		$app = "/$app";
+	}
+
+	//Writing out cookie before leaving
 	PuzzleSession::writeCookie();
+
 	if (headers_sent()) {
-		die("<script>window.location='/$app';</script>");
+		die("<script>window.location='$app';</script>");
 	} else {
-		header("Location: /$app");
-		abort(302, "Found");
+		header("Location: $app");
+		abort($http_code);
 	}
 }
 

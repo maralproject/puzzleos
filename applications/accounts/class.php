@@ -29,7 +29,7 @@ class Accounts
 	public static $customM_F = null;
 	public static $customM_M = null;
 	public static $customM_EN = false;
-	public static $customM_UE = true;
+	public static $customM_UE = false;
 	public static $customM_UP = false;
 
 	public static $aflfl = [];
