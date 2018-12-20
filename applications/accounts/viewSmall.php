@@ -111,7 +111,7 @@ $func = [
 		define("__UGLB_OUT");
 		?>
 		<input type="hidden" class="usergroup-input" name="<?php echo $input_name?>" id="<?php echo $input_name?>" value="<?php echo $group?>">
-		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" type="button" class="uglb_trig btn btn-default btn-xs dropdown-toggle">
+		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" type="button" class="uglb_trig btn btn-secondary btn-xs dropdown-toggle">
 			<span id="UGLB_<?php echo $input_name?>"><?php echo Accounts::getGroupName($group)?></span> <span class="caret"></span>
 		</button>
 		<?php

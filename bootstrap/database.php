@@ -681,7 +681,10 @@ class Database
 	}
 
 	/**
-	 * Fetch all mysql result and convert it into custom object
+	 * Fetch all mysql result and convert it into custom object.
+	 * Return true to skip object, or return array to put array inside container.
+	 * Return false to quit
+	 * 
 	 * @param mysqli_result $result 
 	 * @param Closure $iterator 
 	 * @return object
@@ -691,7 +694,11 @@ class Database
 		if (!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
 		if (!$result) self::dumpError();
 		$array = [];
-		while ($row = $result->fetch_assoc()) $array[] = $iterator($row);
+		while ($row = $result->fetch_assoc()) {
+			if (($r = $iterator($row)) === true) continue;
+			elseif ($r === false) break;
+			else $array[] = $iterator($row);
+		}
 		return $array;
 	}
 

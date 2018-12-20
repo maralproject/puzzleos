@@ -6,12 +6,32 @@
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
-
 ?>
-<meta name="description" content="<?php echo POSConfigGlobal::$meta_description;?>"/>
+<meta name="description" content="<?php h(POSConfigGlobal::$meta_description)?>"/>
 <meta name="generator" content="PuzzleOS"/>
-<?php ob_start();?>
-<style type="text/css">
+
+<?php ob_start()?>
+<style>
+.alert-danger {
+    color: #fff;
+    background-color: var(--red);
+}
+.alert-success {
+    color: #fff;
+    background-color: var(--green);
+}
+.alert-info {
+    color: #fff;
+    background-color: var(--info);
+}
+.alert-primary {
+    color: #fff;
+    background-color: var(--primary);
+}
+.alert-warning {
+    color: #000;
+    background-color: var(--warning);
+}
 @media(max-width:786px){
 	.modal-footer button,#confirmation_bar button, #confirmation_bar input[type=button], #confirmation_bar input[type=submit]{		
 		padding:10px;
@@ -41,9 +61,9 @@
     -webkit-line-clamp: 1;
 }
 .ripple {
-  position: relative;
-  overflow: hidden;
-  transform: translate3d(0, 0, 0);
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
 }
 .ripple:after {
 	content: "";
@@ -75,21 +95,21 @@
 	transition: 0s;
 }
 .material_card {
-  background: #fff;
-  border-radius: 2px;
-  cursor:pointer;
-  display: inline-block;
-  margin: 1rem;
-  position: relative;
-  box-shadow: 0 0 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    background: #fff;
+    border-radius: 2px;
+    cursor:pointer;
+    display: inline-block;
+    margin: 1rem;
+    position: relative;
+    box-shadow: 0 0 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 .btn-link:hover{
 	text-decoration:none!important;
 }
 .material_card:hover {
-  border-bottom: 5px solid #5fbae9;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.22);
+    border-bottom: 5px solid #5fbae9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25), 0 1px 1px rgba(0,0,0,0.22);
 }
 .card_container{
 	padding:5px;
@@ -119,11 +139,11 @@
 .systemMessage_wrap{
 	position: fixed;
 	top:100%;
-    left: 0px;
-    right: 0px;
-    max-width: 600px;
-    margin: auto;
-    z-index: 2000;
+	left: 0px;
+	right: 0px;
+	max-width: 600px;
+	margin: auto;
+	z-index: 2000;
 	backgound-color:white;
 	-webkit-box-shadow: 0px -1px 4px 0.5px rgba(0,0,0,0.14);
 	-moz-box-shadow: 0px -1px 4px 0.5px rgba(0,0,0,0.14);
@@ -133,59 +153,69 @@
 	padding-left:10px;
 	list-style:none;
 	font-size:13pt;
+	margin:0px;
 }
 .systemMessage_wrap .systemMessage{
 	width: inherit;
 	padding: 20px;
+	display:grid;
+	grid-template-columns: auto min-content;
+	align-items: center;
 }
 </style>
-<?php 
-	echo Minifier::outCSSMin();
-	ob_start();
-?>
+<?php echo Minifier::outCSSMin()?>
+
+<?php ob_start()?>
 <script>
-(function() {
-  function e() {
-    1 > $(".systemMessage_wrap .systemMessage").length && hideMessage();
-  }
-  function f(a, b) {
-    setTimeout(function() {
-      $(".systemMessage_wrap").addClass("o");
-      !1 !== b && setTimeout(function() {
-        ("undefined" == typeof a ? $(".systemMessage_wrap .systemMessage") : a).fadeOut(500, function() {
-          $(this).remove();
-          e();
-        });
-      }, 3000);
-    }, 1);
-  }
-  window.showMessage = function(a, b, d, c) {
-    hideMessage();
-    "string" != typeof d && (d = "");
-    "boolean" != typeof c && (c = !0);
-    a = $('<div auto_dismiss="' + (!1 === c ? "no" : "yes") + '" class="systemMessage m_' + d + " alert-" + b + '"><button onclick="hideMessage()" type="button" class="close">\u00d7</button><ul><li>' + a + "</li></ul></div>").appendTo(".systemMessage_wrap");
-    f(a, c);
-  };
-  window.dismissMessage = function(a) {
-    var b = $(".systemMessage_wrap .m_" + a);
-    b.fadeOut(500, function() {
-      b.remove();
-    });
-  };
-  window.hideMessage = function() {
-    $(".systemMessage_wrap").html("").removeClass("o");
-  };
-  $(document).on("change focusout", "input[inputmode='numeric'][lang='en-150']", function(a) {
-    a.stopPropagation();
-    $(this).val(parseFloat($(this).val().replace("+", "").replace("-", "")));
-    "" == $(this).val() && $(this).val(0);
-  }).ready(function() {
-    setTimeout(function() {
-      f();
-    }, 300);
-  }).on("click", "body", function(a) {
-    1 > $(a.toElement).closest(".systemMessage_wrap").length && e();
-  });
-})();
+(function(){
+	window["showMessage"] = function(data,type,key,auto_dismiss){
+		hideMessage();
+		if(typeof key != "string") key = "";
+		if(typeof auto_dismiss != "boolean") auto_dismiss = true;
+		var d=$('<div auto_dismiss="' + (auto_dismiss === false?"no":"yes") + '" class="systemMessage m_' + key + ' alert-'+type+'"><ul><li>' + data + '</li></ul><button onclick="hideMessage()" type="button" class="close">×</button></div>').appendTo(".systemMessage_wrap");
+		slideMessage(d,auto_dismiss);
+	};
+
+	window["dismissMessage"] = function(key){
+		var s = $(".systemMessage_wrap .m_" + key);
+		s.fadeOut(500,function(){
+			s.remove();
+		});
+	};
+
+	window["hideMessage"] = function (){
+		$(".systemMessage_wrap").html("").removeClass("o");
+	};
+	
+	function checkHideMessage(){
+		if($(".systemMessage_wrap .systemMessage").length < 1) hideMessage();
+	}
+	
+	function slideMessage(d,i){
+        if($(".systemMessage_wrap .systemMessage").length > 0){
+            setTimeout(function(){
+                $(".systemMessage_wrap").addClass("o");
+                if(i !== false){
+                    setTimeout(function(){
+                        (typeof d=="undefined"?$(".systemMessage_wrap .systemMessage"):d).fadeOut(500,function(){
+                            $(this).remove();
+                            checkHideMessage();
+                        });
+                    },3000);
+                }
+            },1);
+        }
+	}
+
+	$(document).on("change focusout","input[inputmode='numeric'][lang='en-150']",function(e){
+		e.stopPropagation();
+		$(this).val(parseFloat($(this).val().replace("+","").replace("-","")));
+		if($(this).val() == "") $(this).val(0);
+	}).ready(function(){
+		setTimeout(function(){slideMessage()},300);
+	}).on("click","body",function(e){
+		if($(e.toElement).closest(".systemMessage_wrap").length < 1) checkHideMessage();
+	});
+}());
 </script>
-<?php echo(Minifier::outJSMin())?>
+<?php echo Minifier::outJSMin()?>

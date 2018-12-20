@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -250,6 +249,21 @@ function redirect($url = "", $http_code = 302)
 	} else {
 		header("Location: $app");
 		abort($http_code);
+	}
+}
+
+/**
+ * Send JSON data to client and shutdown PuzzleOS
+ * 
+ * @param mixed $jsonable Any variable that can be used with json_encode
+ */
+function json_out($jsonable)
+{
+	if (headers_sent()) {
+		throw new PuzzleError("Cannot send JSON data, header is already sent");
+	} else {
+		header("Content-Type:application/json");
+		die(json_encode($jsonable));
 	}
 }
 

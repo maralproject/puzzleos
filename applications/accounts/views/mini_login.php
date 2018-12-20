@@ -33,12 +33,16 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	<h3><?php $language->dump("pltya")?></h3>
 	<form action="<?php echo __SITEURL?>/users/login" method="post">
 		<div class="input-group">
-		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-user"></i></span>
-		  <input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php echo $u_label?>">
+			<div class="input-group-prepend">
+				<span class="input-group-text"><i class="fa fa-user"></i></span>
+			</div>
+			<input name="user" autocomplete="username" autocapitalize="none" type="text" class="form-control" placeholder="<?php echo $u_label?>">
 		</div><br>
 		<div class="input-group">
-		  <span class="input-group-addon" id="sizing-addon1"><i class="fa fa-key"></i></span>
-		  <input name="pass" autocomplete="off" type="password" class="form-control" placeholder="<?php $language->dump("password")?>" >
+			<div class="input-group-prepend">
+				<span class="input-group-text"><i class="fa fa-key"></i></span>
+			</div>
+			<input name="pass" autocomplete="off" type="password" class="form-control" placeholder="<?php $language->dump("password")?>" >
 		</div><br>	
 		<input type="hidden" name="redir" value="<?php echo $useless;?>">
 		<input type="hidden" name="trueLogin" value="1">

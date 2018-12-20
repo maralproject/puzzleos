@@ -72,7 +72,7 @@ input.big.wrong{
 			<?php endif?>
 			<input type="hidden" name="thiscamefromverify" value="1">
 			<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
-			<button type="submit" class="btn btn-default"><?php $language->dump("CONTINUE")?></button>
+			<button type="submit" class="btn btn-primary"><?php $language->dump("CONTINUE")?></button>
 		</form>
 	</div>
 </div>

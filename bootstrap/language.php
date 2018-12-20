@@ -33,7 +33,7 @@ class LangManager
 		$val = $val == "" ? "lang" : $val;
 		//Increase the language option for your user here!
 		$r = '<div class="input-group">
-				' . ($use_logo ? '<span class="input-group-addon" id="sizing-addon1"><i class="fa fa-language"></i></span>' : '') . '
+				' . ($use_logo ? '<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-language"></i></span></div>' : '') . '
 				<select name="' . $id . '" id="' . $id . '_selector" class="form-control languageList" data-live-search="true">';
 		if ($location_option) $r .= '<option value="loc"' . ($val == "loc" ? ' selected' : '') . '>Based on location</option>';
 		if (!$without_default) $r .= '<option value="def"' . ($val == "def" ? ' selected' : '') . '>Default</option>';

@@ -174,7 +174,7 @@ foreach(Database::readAll("app_users_list") as $ugl){
 			<option value="2" selected><?php $l->dump("REGISTERED")?></option>
 			</select>
 		</td>
-		<td><button class="btn btn-default" type="submit"><i style="color:inherit;" class="fa fa-check"></i></button></td>
+		<td><button class="btn btn-secondary" type="submit"><i style="color:inherit;" class="fa fa-check"></i></button></td>
 	</tr>
 </table>
 </form>

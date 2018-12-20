@@ -142,11 +142,11 @@ $l = new Language;?>
 <div id="te_form" style="display:none!important;">
 	<?php $l->dump("email_test")?><br>
 	<div class="row" style="margin-top:10px;">
-			<div class="col-xs-12">
+			<div class="col-12">
 				<table style="width:100%;">
 				<tr>
 					<td><input autocomplete="off" class="emailDes" id="emailDes" style="height:38px;width:100%;margin-right:35px;color:black;padding:5px;" onkeypress="if(event.charCode==13)$(this).closest('table').find('button').click();" type="text" placeholder="someone@example.com"/></td>
-					<td><button style="width:100%;height:38px;" class="btn btn-default" onclick="testEmail($(this).closest('div.row').find('input.emailDes').val());" type="button"><i style="color:inherit;" class="fa fa-check"></i></button></td>
+					<td><button style="width:100%;height:38px;" class="btn btn-secondary" onclick="testEmail($(this).closest('div.row').find('input.emailDes').val());" type="button"><i style="color:inherit;" class="fa fa-check"></i></button></td>
 				</tr>
 				</table>
 			</div>

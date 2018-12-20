@@ -96,7 +96,7 @@ small{
 				<?php endif?>
 				
 				<?php if(file_exists($d["dir"]."/panel.admin.php")):?>
-				<a href="<?php echo __SITEURL?>/admin/manage/<?php echo $d["name"]?>"><button type="button" class="btn btn-default btn-xs"><?php echo $l->get("MANAGE")?></button></a>
+				<a href="<?php echo __SITEURL?>/admin/manage/<?php echo $d["name"]?>"><button type="button" class="btn btn-secondary btn-xs"><?php echo $l->get("MANAGE")?></button></a>
 				<?php endif?>
 			</td>
 		</tr>

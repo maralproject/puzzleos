@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -17,6 +18,7 @@ class Prompt
 	 * @var string
 	 */
 	public static $prompt = "";
+	const closeBtn = "<button onclick=\"$(this).parent().remove();\" type=\"button\" class=\"close\">×</button>";
 
 	private static function sendNextPage($message)
 	{
@@ -30,7 +32,7 @@ class Prompt
 	 */
 	public static function postError($message, $postInTheNextPage = false)
 	{
-		$message = '<div auto_dismiss="yes" class="systemMessage alert-danger"><button onclick="$(this).parent().remove();" type="button" class="close">×</button><ul><li>' . $message . '</li></ul></div>';
+		$message = '<div auto_dismiss="yes" class="systemMessage alert-danger"><ul><li>' . $message . '</li></ul>' . self::closeBtn . '</div>';
 		if (!$postInTheNextPage) {
 			self::$prompt .= $message;
 		} else {
@@ -45,7 +47,7 @@ class Prompt
 	 */
 	public static function postGood($message, $postInTheNextPage = false)
 	{
-		$message = '<div auto_dismiss="yes" class="systemMessage alert-success"><button onclick="$(this).parent().remove();" type="button" class="close">×</button><ul><li>' . $message . '</li></ul></div>';
+		$message = '<div auto_dismiss="yes" class="systemMessage alert-success"><ul><li>' . $message . '</li></ul>' . self::closeBtn . '</div>';
 		if (!$postInTheNextPage) {
 			self::$prompt .= $message;
 		} else {
@@ -60,7 +62,7 @@ class Prompt
 	 */
 	public static function postWarn($message, $postInTheNextPage = false)
 	{
-		$message = '<div auto_dismiss="yes" class="systemMessage alert-warning"><button onclick="$(this).parent().remove();" type="button" class="close">×</button><ul><li>' . $message . '</li></ul></div>';
+		$message = '<div auto_dismiss="yes" class="systemMessage alert-warning"><ul><li>' . $message . '</li></ul>' . self::closeBtn . '</div>';
 		if (!$postInTheNextPage) {
 			self::$prompt .= $message;
 		} else {
@@ -75,7 +77,7 @@ class Prompt
 	 */
 	public static function postInfo($message, $postInTheNextPage = false)
 	{
-		$message = '<div auto_dismiss="yes" class="systemMessage alert-info"><button onclick="$(this).parent().remove();" type="button" class="close">×</button><ul><li>' . $message . '</li></ul></div>';
+		$message = '<div auto_dismiss="yes" class="systemMessage alert-info"><ul><li>' . $message . '</li></ul>' . self::closeBtn . '</div>';
 		if (!$postInTheNextPage) {
 			self::$prompt .= $message;
 		} else {

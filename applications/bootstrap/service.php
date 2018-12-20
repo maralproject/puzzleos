@@ -9,5 +9,12 @@
  
 $_bs_public = IO::publish($appProp->path . "/lib");
 
-/* Load bootstrap-3.3.7 */
-require("bootstrap-3.3.7.php");
+/* Load bootstrap-4.0.0 with jquery */
+
+#Load in header
+Template::addHeader('<script type="text/javascript" src="'.$_bs_public.'/jquery-3.3.1.min.js"></script>');
+Template::addHeader('<link rel="stylesheet" href="'.$_bs_public.'/bootstrap-4.0.0/css/bootstrap.min.css"/>');
+Template::addHeader('<script type="text/javascript" src="'.$_bs_public.'/bootstrap-4.0.0/js/popper.min.js"></script>');
+
+#Load in post body
+Template::appendBody('<script type="text/javascript" src="'.$_bs_public.'/bootstrap-4.0.0/js/bootstrap.min.js"></script>');

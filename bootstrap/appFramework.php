@@ -386,7 +386,11 @@ class Application
 	public function run($name = "")
 	{
 		$this->prepare($name);
-		AppManager::migrateTable($this->appname);
+		if ($this->prepared) {
+			AppManager::migrateTable($this->appname);
+		} else {
+			return false;
+		}
 
 		if (!is_cli()) {
 			if (!self::$MainAppStarted && $this->called_by_me) {

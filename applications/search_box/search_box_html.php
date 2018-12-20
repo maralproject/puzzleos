@@ -9,15 +9,19 @@
  
 $l = new Language;?>
 <?php if($this->submitable):?><form method="GET" style="margin-bottom:0px;"><?php endif;?>
-<div class="input-group" style="max-width:<?php echo $this->customWidth;?>;<?php if(!$withIcon):?>width:100%;<?php endif;?>">
-  <?php if($withIcon):?><span class="input-group-addon"><i class="fa fa-search"></i></span><?php endif;?>
-  <?php if($_GET[$this->inputName] != ""):?>
-  <div class="close" style="position: absolute;top: 6px;font-size: 22px;z-index: 999;right: 10px;color:#a0a0a0;background-color:white;">
-	<a href="<?php echo $this->clearURL;?>">&times;</a>
-  </div>
-  <?php endif;?>
-  <span id="<?php echo $this->prefix?>-notice"style="display:none;"><small><?php $l->dump("sfoap");?></small></span>
-  <input data-prefix="<?php echo $this->prefix?>" data-hidefirst="<?php echo $this->hideAll?"yes":"no"?>" data-dynamic="<?php echo $this->dynamic?"yes":"no"?>" autocomplete="off" placeholder="<?php echo($this->customHint?$this->hintText:$l->get("find"))?>" name="<?php echo $this->inputName;?>" type="text" class="form-control searchbox-input" value="<?php echo $_GET[$this->inputName]?>">  
+<div class="<?php if($withIcon) echo "input-group"?>" style="max-width:<?php echo $this->customWidth;?>;">
+    <?php if($withIcon):?>
+    <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fa fa-search"></i></span>
+    </div>
+    <?php endif;?>
+    <?php if($_GET[$this->inputName] != ""):?>
+        <div class="close" style="position: absolute;top: 6px;font-size: 22px;z-index: 999;right: 10px;color:#a0a0a0;background-color:white;">
+            <a href="<?php echo $this->clearURL;?>">&times;</a>
+        </div>
+    <?php endif;?>
+    <span id="<?php echo $this->prefix?>-notice"style="display:none;"><small><?php $l->dump("sfoap");?></small></span>
+    <input data-prefix="<?php echo $this->prefix?>" data-hidefirst="<?php echo $this->hideAll?"yes":"no"?>" data-dynamic="<?php echo $this->dynamic?"yes":"no"?>" autocomplete="off" placeholder="<?php echo($this->customHint?$this->hintText:$l->get("find"))?>" name="<?php echo $this->inputName;?>" type="text" class="form-control searchbox-input" value="<?php echo $_GET[$this->inputName]?>">  
 </div>
 <?php if($this->submitable):?></form><?php endif;?>
 <?php ob_start();?>

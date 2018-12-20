@@ -11,7 +11,7 @@ $l=new Language; $l->app="fontawesome";
 ?>
 <input type="hidden" name="<?php echo $name?>" id="<?php echo $name?>" class="fa-input-hidden" value="<?php echo $selected?>">
 <div style="position:relative;">
-<button class="btn btn-default" onclick="$('.fa-explorer').not('#selector_<?php echo $name?>').hide();$('#selector_<?php echo $name?>').toggle();">
+<button class="btn btn-secondary" onclick="$('.fa-explorer').not('#selector_<?php echo $name?>').hide();$('#selector_<?php echo $name?>').toggle();">
 <i class="fa fa-<?php echo $selected?>" id="preview_<?php echo $name?>"></i> 
 <span class="caret"></span>
 </button>

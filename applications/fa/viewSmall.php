@@ -24,7 +24,7 @@ if($arg1 == "getdropChoiceInput"){
 		var defaultFaList = "<?php
 			foreach($font_awesome_icons as $k=>$d){
 			$f = str_replace("fa-","",$k);
-			echo('<div id=\'fa_fill_'.$k.'\' class=\'col-xs-2 fa-icon click_available pick_fa\' fV=\''.$f.'\' key=\''.$k.'\'><i class=\'fa '.$k.'\'></i></div>');
+			echo('<div id=\'fa_fill_'.$k.'\' class=\'col-2 fa-icon click_available pick_fa\' fV=\''.$f.'\' key=\''.$k.'\'><i class=\'fa '.$k.'\'></i></div>');
 			}
 		?>";
 		function _fa_configureIconInput(name,choice){
@@ -85,7 +85,7 @@ if($arg1 == "getdropChoiceInput"){
 		var defaultFaList = "<?php
 			foreach($font_awesome_icons as $k=>$d){
 			$f = str_replace("fa-","",$k);
-			echo('<div id=\'fa_fill_'.$k.'\' class=\'col-xs-2 fa-icon click_available pick_fa\' fV=\''.$f.'\' key=\''.$k.'\'><i class=\'fa '.$k.'\'></i></div>');
+			echo('<div id=\'fa_fill_'.$k.'\' class=\'col-2 fa-icon click_available pick_fa\' fV=\''.$f.'\' key=\''.$k.'\'><i class=\'fa '.$k.'\'></i></div>');
 			}
 		?>";
 		function _fa_configureIconInput(name,choice){
@@ -141,7 +141,7 @@ if($arg1 == "getdropChoiceInput"){
 		function getNewIconInput(inputName){
 			var html = '<input type="hidden" name="%INPUTNAME%" id="%INPUTNAME%" class="fa-input-hidden" value="tags">\
 			<div style="position:relative;">\
-				<button class="btn btn-default" onclick="$(\'.fa-explorer\').not(\'#selector_%INPUTNAME%\').hide();$(\'#selector_%INPUTNAME%\').toggle();">\
+				<button class="btn btn-secondary" onclick="$(\'.fa-explorer\').not(\'#selector_%INPUTNAME%\').hide();$(\'#selector_%INPUTNAME%\').toggle();">\
 					<i class="fa fa-tags" id="preview_%INPUTNAME%"></i> <span class="caret"></span>\
 				</button>\
 				<div id="selector_%INPUTNAME%" class="fa-explorer">\
