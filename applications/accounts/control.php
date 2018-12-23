@@ -625,6 +625,6 @@ if($appProp->isMainApp){
 			}
 		}
 		
-		redirect("users");
+		if(request(2)) redirect("users");
 	}
 }
