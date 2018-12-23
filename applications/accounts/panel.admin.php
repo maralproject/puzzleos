@@ -14,12 +14,13 @@
 	function reloadUsers(){if(user_config_changed == 1){location.reload();}else{$('#userlist').show();}}
 </script>
 
-<div class="container">
+<div class="container" style="margin-top:5px;">
 	<ul class="nav nav-tabs" style="font-size:15pt;">
-		<li onclick="$('.tab').hide();reloadUsers();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS active"><a data-toggle="tab" href="#userlist"><i class="fa fa-list-ul"></i></a></li>
-		<li onclick="$('.tab').hide();reloadGroup();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS"><a data-toggle="tab" href="#groups"><i class="fa fa-users"></i></a></li>
-		<li onclick="$('.tab').hide();$('#setting').show();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="tabS"><a data-toggle="tab" href="#setting"><i class="fa fa-wrench"></i></a></li>
+		<li onclick="$('.tab').hide();reloadUsers();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link active" data-toggle="tab" href="#userlist"><i class="fa fa-list-ul"></i></a></li>
+		<li onclick="$('.tab').hide();reloadGroup();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link" data-toggle="tab" href="#groups"><i class="fa fa-users"></i></a></li>
+		<li onclick="$('.tab').hide();$('#setting').show();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link" data-toggle="tab" href="#setting"><i class="fa fa-wrench"></i></a></li>
 	</ul>
+	<br>
 	<div id="userlist" class="tab">
 		<?php include("views/manage_user.php")?>
 	</div>

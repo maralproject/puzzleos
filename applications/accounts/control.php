@@ -526,6 +526,7 @@ if($appProp->isMainApp){
 							return $send->sendHTML();
 						})->run(["standalone"=>true]);
 						
+						$_SESSION["account"]["change_pass"] = $act_code["change_pass"];
 						Prompt::postGood($language->get("PRLHS"),true);
 						redirect("users/forgot");
 					}else{
@@ -623,5 +624,7 @@ if($appProp->isMainApp){
 				}
 			}
 		}
+		
+		redirect("users");
 	}
 }

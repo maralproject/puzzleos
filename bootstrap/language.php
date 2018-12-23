@@ -142,7 +142,11 @@ class Language
 	public function __construct($app = "")
 	{
 		//If app is empty, get the referer and get the app
-		$uri = explode("/", str_replace(__ROOTDIR . "/", "", btfslash(debug_backtrace()[0]["file"])));
+		if (is_cli() && isset($GLOBALS["_WORKER"])) {
+			$uri = ["applications", $GLOBALS["_WORKER"]["appdir"]];
+		} else {
+			$uri = explode("/", str_replace(__ROOTDIR . "/", "", btfslash(debug_backtrace()[0]["file"])));
+		}
 		if ($uri[0] == "applications" && $app == "") {
 			$dir = $uri[1];
 		} elseif ($app != "") {
@@ -153,7 +157,7 @@ class Language
 		}
 
 		//Define Fallback language, in case language not defined in application
-		$fallback = "en_US";
+		$fallback = "en-US";
 
 		if (LangManager::isForced() !== false) {
 			$langs = LangManager::isForced();

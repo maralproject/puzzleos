@@ -13,15 +13,23 @@ $fontawesome->loadView("JSNewInput");
 $l = new Language;
 $upload = new Application;$upload->run("upload_img_ajax");
 ?>
-<div class="container">
+<div class="container" style="margin-top:5px">
 <div id="menu">
 <h4><?php $l->dump("CUSTOM_NAV_MENU")?></h4>
 <h6 id="info" ><?php $l->dump("CUSTOM_NAV_MENU_INFO")?></h6>
-<div style="margin-bottom:15px;margin-left:5px;">
-<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_LEFT?>" tps="<?php echo MENU_DEFAULT_POSITION_LEFT?>" checked><?php $l->dump("pos_left")?></label>
-<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_TOP?>" tps="<?php echo MENU_DEFAULT_POSITION_TOP?>" checked><?php $l->dump("pos_top")?></label>
-<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_RIGHT?>" tps="<?php echo MENU_DEFAULT_POSITION_RIGHT?>" checked><?php $l->dump("pos_right")?></label>
-<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_BOTTOM?>" tps="<?php echo MENU_DEFAULT_POSITION_BOTTOM?>" checked><?php $l->dump("pos_bottom")?></label>
+<div style="margin-bottom:15px;">
+<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_LEFT?>" tps="<?php echo MENU_DEFAULT_POSITION_LEFT?>" checked>
+	<?php $l->dump("pos_left")?>
+</label><br>
+<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_TOP?>" tps="<?php echo MENU_DEFAULT_POSITION_TOP?>" checked>
+	<?php $l->dump("pos_top")?>
+</label><br>
+<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_RIGHT?>" tps="<?php echo MENU_DEFAULT_POSITION_RIGHT?>" checked>
+	<?php $l->dump("pos_right")?>
+</label><br>
+<label class="checkbox-inline"><input type="checkbox" id="filter_<?php echo MENU_DEFAULT_POSITION_BOTTOM?>" tps="<?php echo MENU_DEFAULT_POSITION_BOTTOM?>" checked>
+	<?php $l->dump("pos_bottom")?>
+</label><br>
 </div>
 <?php ob_start()?>
 <style>

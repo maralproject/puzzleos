@@ -330,6 +330,7 @@ class POSConfigMultidomain
 			self::$zone = (POSConfigGlobal::$use_multidomain ? self::$zone : "{root}");
 		} else {
 			self::$zone = '{root}';
+			POSConfigGlobal::$use_multidomain = false;
 		}
 
 		if (POSConfigGlobal::$use_multidomain) {

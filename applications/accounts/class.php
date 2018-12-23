@@ -305,7 +305,7 @@ class Accounts
 			$email_phone_name,
 			$p,
 			$limit
-		))->data);
+		)));
 	}
 
 	/**

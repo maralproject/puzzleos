@@ -32,20 +32,22 @@ class PuzzleError extends Exception
 		include __ROOTDIR . "/templates/system/500.php";
 	}
 
-	public function __construct($message, $suggestion = "", $code = -1, Exception $previous = null)
+	public function __construct($message, $suggestion = "", $code = -1, Exception $previous = null, bool $log = true)
 	{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
 
-		$f = fopen(__ROOTDIR . "/error.log", "a+");
-		fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
-		fwrite($f, "Message: " . $this->message . "\r\n");
-		fwrite($f, "Suggestion: " . $this->suggestion . "\r\n");
-		fwrite($f, "Caller: " . $this->getFile() . "(" . $this->getLine() . ")\r\n");
-		fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
-		fwrite($f, str_replace("#", "\r\n#", $this->getTraceAsString()));
-		fwrite($f, "\r\n=========\r\n");
-		fclose($f);
+		if ($log) {
+			$f = fopen(__ROOTDIR . "/error.log", "a+");
+			fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
+			fwrite($f, "Message: " . $this->message . "\r\n");
+			fwrite($f, "Suggestion: " . $this->suggestion . "\r\n");
+			fwrite($f, "Caller: " . $this->getFile() . "(" . $this->getLine() . ")\r\n");
+			fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
+			fwrite($f, str_replace("#", "\r\n#", $this->getTraceAsString()));
+			fwrite($f, "\r\n=========\r\n");
+			fclose($f);
+		}
 	}
 
 	public function __toString()
@@ -101,8 +103,12 @@ class DatabaseError extends PuzzleError
 	}
 }
 
-class AppStartError extends PuzzleError{}
-class WorkerError extends PuzzleError{}
+class AppStartError extends PuzzleError
+{
+}
+class WorkerError extends PuzzleError
+{
+}
 
 register_shutdown_function(function () {
 	$e = error_get_last();

@@ -54,7 +54,7 @@ small{
 		if($d["default"]==APP_CANNOT_DEFAULT) $dTitle = $l->get("NOT_AVAILABLE");
 		$theresrv = "";
 		foreach(AppManager::listAll()[$d["name"]]["services"] as $q){
-			$theresrv = '<span class="label label-primary" style="font-size:6pt;">Services</span>';
+			$theresrv = '<span class="badge badge-primary" style="font-size:6pt;">Services</span>';
 			break;
 		}
 		$appR = in_array($d["name"],POSConfigMultidomain::$restricted_app);
@@ -86,17 +86,17 @@ small{
 		<tr>
 			<td colspan="2" style="text-align:right;height:35px;">
 				<?php if(!$d["system"] && POSConfigGlobal::$use_multidomain):?>
-				<button stat="<?php echo($appR?1:0)?>" style="<?php echo($dDis?"display:none":"")?>" appid="<?php echo $d["name"]?>" type="button" class="restrict btn btn-xs btn-<?php echo($appR?"primary":"danger")?>">
+				<button stat="<?php echo($appR?1:0)?>" style="<?php echo($dDis?"display:none":"")?>" appid="<?php echo $d["name"]?>" type="button" class="restrict btn btn-sm btn-<?php echo($appR?"primary":"danger")?>">
 					<?php echo($appR?$l->get("TURN_ON"):$l->get("TURN_OFF"))?>
 				</button>
 				<?php endif?>
 				
 				<?php if($d["default"]!=3):?>
-				<button appid="<?php echo $d["name"]?>" type="button" id="sdb-<?php echo $d["name"]?>" style="<?php echo($appR?"display:none":"")?>" class="sdb btn btn-xs <?php echo($dDis?"disabled":"")?> <?php echo($d["default"]==3?"btn-danger":"btn-success")?>"><?php echo $dTitle?></button>
+				<button appid="<?php echo $d["name"]?>" type="button" id="sdb-<?php echo $d["name"]?>" style="<?php echo($appR?"display:none":"")?>" class="sdb btn btn-sm <?php echo($dDis?"disabled":"")?> <?php echo($d["default"]==3?"btn-danger":"btn-success")?>"><?php echo $dTitle?></button>
 				<?php endif?>
 				
 				<?php if(file_exists($d["dir"]."/panel.admin.php")):?>
-				<a href="<?php echo __SITEURL?>/admin/manage/<?php echo $d["name"]?>"><button type="button" class="btn btn-secondary btn-xs"><?php echo $l->get("MANAGE")?></button></a>
+				<a href="<?php echo __SITEURL?>/admin/manage/<?php echo $d["name"]?>"><button type="button" class="btn btn-secondary btn-sm"><?php echo $l->get("MANAGE")?></button></a>
 				<?php endif?>
 			</td>
 		</tr>

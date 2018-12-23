@@ -42,7 +42,7 @@
 	border:1px solid #606060;
 }
 
-.tmpl .selected_t h5{	
+.tmpl .selected_t h6{	
 	color:white!important;
 }
 </style><?php echo Minifier::getCSSFile()?>
@@ -56,7 +56,8 @@
 			echo('
 			<div style="margin:0px;" class="col col-md-4 '.($d["active"] == 1?"selected_t":"").'" '.($d["active"] == 1?"":$link).'>
 				<div style="background-image:url(\''.$preview.'\');background-repeat:no-repeat;background-size:contain;width:100%;height:180px;background-position:center;"></div>
-				<h5>'.$d["title"].'</h5>
+				<br>
+				<h6>'.$d["title"].'</h6>
 			</div>
 			');
 		}

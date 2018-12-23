@@ -19,7 +19,7 @@ class ImageUploader{
 	 * @param string $bootstrap_style
 	 * @param string $preview_selector
 	 */
-	public static function dumpForm($key, $label, $bootstrap_style = "default", $preview_selector = ""){
+	public static function dumpForm($key, $label, $bootstrap_style = "secondary", $preview_selector = ""){
 		if(isset($_SESSION["ImageUploader"][$key])){
 			UserData::remove($_SESSION["ImageUploader"][$key]);
 			unset($_SESSION["ImageUploader"][$key]);

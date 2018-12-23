@@ -50,7 +50,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 		</div><br>
 		<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
 		<input type="hidden" name="trueLogin" value="1">
-		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-info"><?php $language->dump("login")?></button>
+		<button <?php if($en_recaptcha):?>data-sitekey="<?php echo Accounts::getSettings()["f_recaptcha_site"]?>" data-callback="onposlogin"<?php endif?> title="<?php $language->dump("login")?>" type="submit" class="g-recaptcha btn btn-primary"><?php $language->dump("login")?></button>
 	</form><br>
 
 	<div class="helpform" style="text-align:center;">
@@ -67,8 +67,8 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
+				<h5 class="modal-title"><?php $language->dump("oms")?>,</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title"><?php $language->dump("oms")?>,</h4>
             </div>
             <div class="modal-body" style="text-align:center;max-width:400px;margin:auto;line-height:30px;">
 				<i class="fa fa-envelope-o fa-3x"></i><br><br>

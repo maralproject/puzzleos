@@ -9,12 +9,12 @@
 
 $l=new Language;?>
 <div style="max-width:1170px;margin:5px auto;">
-	<ul class="nav nav-tabs" style="font-size:15pt;display:inline-block;">
-	  <li class="active"><a data-toggle="tab" href="#conf"><i class="fa fa-cogs"></i></a></li>
-	  <li><a data-toggle="tab" href="#templates"><i class="fa fa-paint-brush"></i></a></li>
-	  <li><a data-toggle="tab" href="#apps"><i class="fa fa-th-large"></i></a></li>
+	<ul class="nav nav-tabs" style="font-size:15pt;">
+		<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#conf"><i class="fa fa-cogs"></i></a></li>
+		<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#templates"><i class="fa fa-paint-brush"></i></a></li>
+		<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#apps"><i class="fa fa-th-large"></i></a></li>
 	</ul>
-	<div style="clear:both;height:10px;"></div>
+	<div style="clear:both;height:25px;"></div>
 	<div class="tab-content" style="padding-bottom:15vh;">
 		<div id="apps" class="tab-pane">
 			<?php include("appsM.php");?>
@@ -38,3 +38,9 @@ $l=new Language;?>
 		<?php endif;?>
 	</div>
 </div>
+
+<script>
+$(function () {
+	$("[data-toggle=tooltip]").tooltip();
+});
+</script>

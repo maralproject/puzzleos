@@ -54,6 +54,17 @@ class Worker
 		@unlink(__WORKERDIR . "/$job.job");
 		self::$onWorker = true;
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
+
+		$cc = new ReflectionClass("POSConfigGlobal");
+		foreach($execute["env"]["posconfigglobal"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
+		
+		$cc = new ReflectionClass("POSConfigMailer");
+		foreach($execute["env"]["posconfigmailer"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
+
+		$cc = new ReflectionClass("POSConfigMultidomain");
+		unset($execute["env"]["posconfigmdomain"]["zone"]); //Because this is private prop
+		foreach($execute["env"]["posconfigmdomain"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
+
 		Accounts::addSession($execute["env"]["userid"]);
 		$GLOBALS["_WORKER"] = [
 			"id" => explode(".", $job)[1],
@@ -148,7 +159,10 @@ class Worker
 				"session" => $_SESSION,
 				"userid" => Accounts::getUserId(),
 				"app" => $this->_app,
-				"appdir" => $this->_appdir
+				"appdir" => $this->_appdir,
+				"posconfigglobal" => (new ReflectionClass("POSConfigGlobal"))->getStaticProperties(),
+				"posconfigmailer" => (new ReflectionClass("POSConfigMailer"))->getStaticProperties(),
+				"posconfigmdomain" => (new ReflectionClass("POSConfigMultidomain"))->getStaticProperties()
 			],
 			"func" => $this->_serialize->serialize($this->_task)
 		]);
