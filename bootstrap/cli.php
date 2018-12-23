@@ -44,7 +44,6 @@ class PuzzleCLI
 	public static function run($a)
 	{
 		if (!is_cli()) return false;
-		error_reporting(0);
 		ini_set('max_execution_time', 0); //Disable PHP timeout
 		if (!ends_with($a[0], "puzzleos")) throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
 		

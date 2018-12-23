@@ -110,9 +110,4 @@ if (request(0) == "assets" && !is_cli()) {
 		} catch (AppStartError $e) {}
 	}
 }
-
-/***********************************
- * Setting error reporting
- ***********************************/
-error_reporting(POSConfigGlobal::$error_code);
 })();

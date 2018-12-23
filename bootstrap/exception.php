@@ -18,8 +18,6 @@
  */
 stream_wrapper_unregister("php");
 
-error_reporting(E_ERROR | E_PARSE | E_COMPILE_ERROR);
-
 /**
  * Throw an error, write it to error.log, and display it to user
  */
@@ -103,16 +101,12 @@ class DatabaseError extends PuzzleError
 	}
 }
 
-class AppStartError extends PuzzleError
-{
-}
-class WorkerError extends PuzzleError
-{
-}
+class AppStartError extends PuzzleError{}
+class WorkerError extends PuzzleError{}
 
 register_shutdown_function(function () {
 	$e = error_get_last();
-	if (in_array($e['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE])) {
+	if ($e['type'] & (POSConfigGlobal::$error_code | E_ERROR | E_PARSE | E_COMPILE_ERROR)) {
 		abort(500, "Internal Server Error", false);
 		throw new PuzzleError("{$e['message']} on {$e['file']}({$e['line']})", null, $e['code']);
 	}

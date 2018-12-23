@@ -353,7 +353,6 @@ class POSConfigMultidomain
 		POSConfigMultidomain::$default_application = Database::read("multidomain_config", "default_app", "host", POSConfigMultidomain::zone());
 		POSConfigMultidomain::$default_template = Database::read("multidomain_config", "default_template", "host", POSConfigMultidomain::zone());
 
-		error_reporting(POSConfigGlobal::$error_code);
 		define("__SITENAME", POSConfigGlobal::$sitename);
 		define("__SITELANG", POSConfigGlobal::$default_language);
 		define("__TIMEZONE", POSConfigGlobal::$timezone);
