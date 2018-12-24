@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -98,11 +97,9 @@ class Cache
     public static function pull($key)
     {
         $p = self::init($key);
-        if (file_exists("$p/$key")) {
-            $r = unserialize(file_get_contents("$p/$key"));
-            unset(self::$ram_cache["$p/$key"]);
-            unlink("$p/$key");
-            return $r;
-        }
+        $r = unserialize(@file_get_contents("$p/$key"));
+        unset(self::$ram_cache["$p/$key"]);
+        @unlink("$p/$key");
+        return $r;
     }
 }
