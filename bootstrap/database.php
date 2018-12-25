@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -515,8 +516,12 @@ class Database
 		foreachx($data->values, function ($i, $last, $k, $values) use (&$query) {
 			$query .= "(";
 			foreachx($values, function ($i, $last2, $k, $value) use (&$query) {
-				$value = Database::escape($value);
-				$query .= "'$value'";
+				if ($value === null) {
+					$query .= "NULL";
+				} else {
+					$value = Database::escape($value);
+					$query .= "'$value'";
+				}
 				if (!$last2) $query .= ",";
 			});
 			$query .= ")";
