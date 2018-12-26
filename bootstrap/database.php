@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -547,6 +546,7 @@ class Database
 		$s = $row_input->getStructure();
 		$query = "UPDATE `$table` SET ";
 		foreachx($s, function ($i, $l, $column, $value) use (&$query) {
+			$query .= "`$column`=";
 			if ($value === null) {
 				$query .= "NULL";
 			} elseif ($value === 0) {
