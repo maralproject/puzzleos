@@ -518,6 +518,8 @@ class Database
 			foreachx($values, function ($i, $last2, $k, $value) use (&$query) {
 				if ($value === null) {
 					$query .= "NULL";
+				} elseif ($value === 0) {
+					$query .= "0";
 				} else {
 					$value = Database::escape($value);
 					$query .= "'$value'";
@@ -545,8 +547,14 @@ class Database
 		$s = $row_input->getStructure();
 		$query = "UPDATE `$table` SET ";
 		foreachx($s, function ($i, $l, $column, $value) use (&$query) {
-			$value = Database::escape($value);
-			$query .= "`$column`='$value'";
+			if ($value === null) {
+				$query .= "NULL";
+			} elseif ($value === 0) {
+				$query .= "0";
+			} else {
+				$value = Database::escape($value);
+				$query .= "'$value'";
+			}
 			if (!$l) $query .= ",";
 		});
 		$query .= " WHERE `$find_column`='?'";
