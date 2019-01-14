@@ -472,7 +472,7 @@ if (file_exists(__ROOTDIR . "/configs")) {
 		if (file_exists(__ROOTDIR . "/" . __PUBLICDIR . "/install")) {
 			http_response_code(302);
 			header($_SERVER["SERVER_PROTOCOL"] . " 302 Found", true, 302);
-			header("Location: /install");
+			header("Location: ./install");
 			exit;
 		} else {
 			throw new PuzzleError("No configuration file!", "Please build configuration file under /configs directory");
