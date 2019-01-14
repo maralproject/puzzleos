@@ -112,7 +112,7 @@ $(document).on("click",".new_user",function(e){
 				<td><span><?php echo Accounts::getGroupName(Accounts::getRootGroupId(USER_AUTH_REGISTERED));?></span></td>\
 				<td><input class="qtyin mail" type="text" name="mail_%INPUTID%" value="" placeholder="<?php $l->dump("CLICK_TOE");?>"></td>\
 				<td><input class="qtyin phone" type="text" name="phone_%INPUTID%" value="" placeholder="<?php $l->dump("CLICK_TOE");?>"></td>\
-				<td style="width:200px;"><?php echo str_replace("\r\n","",LangManager::getForm("lang_%INPUTID%","def",false,false,false))?></td>\
+				<td style="width:200px;"><?php echo str_replace("\n","",LangManager::getForm("lang_%INPUTID%","def",false,false,false))?></td>\
 				<td><input class="qtyin pwd" autocomplete="new-password" type="password" name="pwd_%INPUTID%" placeholder="Empty"></td>\
 				<td><input class="qtyin uname" type="text" name="uname_%INPUTID%" value="" placeholder="<?php $l->dump("CLICK_TOE");?>"></td>\
 				<td style="text-align:center;font-size:14pt;font-weight:bold;"  class="click_available delUser"><i class="fa fa-trash-o"></i></td>\
