@@ -16,7 +16,6 @@ foreach (AppManager::listAll() as $data) {
 
 		foreach ($data["services"] as $service) {
 			if ($service == "") continue;
-
 			if (!$app->loadContext($service)) {
 				abort(500, "Internal Server Error", false);
 				throw new PuzzleError("Cannot start '" . $data['name'] . "' services!", "Please recheck the existence of " . $data["dir"] . "/" . $service);

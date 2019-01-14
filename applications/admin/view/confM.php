@@ -12,7 +12,7 @@ $l = new Language;?>
 <style>
 .input-group label{
 	margin:0;
-	margin-left:15px;
+	margin-left:5px;
 }
 .nav.ios{
 	box-shadow: 0 0 0 1px var(--primary);
@@ -157,7 +157,7 @@ $l = new Language;?>
 						<input type="radio" value="tls" name="smtp_enc" id="radio1" <?php if(POSConfigMailer::$smtp_encryption == "tls") echo "checked";?>> <label for="radio1">TLS</label>
 					</span>
 				</div>
-				<div class="input-group-prepend">
+				<div class="input-group-append">
 					<span class="input-group-text">
 						<input type="radio" value="ssl" name="smtp_enc" id="radio2" <?php if(POSConfigMailer::$smtp_encryption == "ssl") echo "checked";?>> <label for="radio2">SSL</label>
 					</span>
@@ -193,7 +193,7 @@ $l = new Language;?>
 				<input type="text" class="form-control" name="smtp_port" type="number" pattern="[0-9]*" inputmode="numeric" onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="<?php $l->dump("port")?>" value="<?php echo POSConfigMailer::$smtp_port?>">
 			</div>
 		</div>
-	</div>
+	</div
 </div>
 
 <div id="te_form" style="display:none!important;">

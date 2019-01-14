@@ -38,6 +38,9 @@
 		font-size:12px;
 	}
 }
+#confirmation_bar:empty{
+	display:none;
+}
 #confirmation_bar{
 	background-color:#fbfbfb;
 	position:fixed;
