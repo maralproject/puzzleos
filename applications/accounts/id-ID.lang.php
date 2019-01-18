@@ -133,4 +133,5 @@ return array(
 	"ACC_INV_NOTFOUND"	=>	"Kami tidak bisa menemukan akun Anda",
 	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi",
 	"OMS"				=>	"Selangkah lagi",
+	"AUTPL"				=>	"Perbolehkan pengguna untuk merubah bahasa",
 );

@@ -8,7 +8,7 @@
  *
  */
 
-if ($appProp->isMainApp) {
+if ($appProp->isMainApp && !is_cli()) {
 
 	$language = new Language;
 
@@ -334,7 +334,8 @@ if ($appProp->isMainApp) {
 				} else {
 					$d = new DatabaseRowInput;
 					$d->setField("name", $_POST["name"]);
-					$d->setField("lang", $_POST["lang"]);
+					if (Accounts::getSettings()["f_profile_language"] == "on")
+						$d->setField("lang", $_POST["lang"]);
 					$cf_s = -1;
 
 					if (Accounts::$customM_EN) {

@@ -1,5 +1,8 @@
-<?php $s = Accounts::getSettings()?>
-<?php $language = new Language;?>
+<?php 
+	$s = Accounts::getSettings();
+	$language = new Language;
+?>
+
 <style>
 .s_field{
 	max-width:800px;
@@ -48,7 +51,8 @@
 <div class="row s_field">
 	<div class="col-md-12">
 		<label><input type="checkbox" name="f_reg_required1" <?php if($s["f_reg_required1"] == "on") echo "checked"?>> <?php $language->dump("EMAIL_REQ")?></label><br>
-		<label><input type="checkbox" name="f_reg_required2" <?php if($s["f_reg_required2"] == "on") echo "checked"?>> <?php $language->dump("PHONE_REQ")?></label>
+		<label><input type="checkbox" name="f_reg_required2" <?php if($s["f_reg_required2"] == "on") echo "checked"?>> <?php $language->dump("PHONE_REQ")?></label><br>
+		<label><input type="checkbox" name="f_profile_language" <?php if($s["f_profile_language"] == "on") echo "checked"?>> <?php $language->dump("AUTPL")?></label>
 	</div>
 </div>
 

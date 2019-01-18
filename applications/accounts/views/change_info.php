@@ -37,7 +37,9 @@ $s = Accounts::getSettings();
 		<input name="phone" pattern="^[0-9\+]{8,15}$" <?php if(Accounts::$customM_UP||$s["f_reg_required2"]=="on") echo "required"?> type="text" class="form-control" placeholder="<?php $language->dump("phone")?>"  value="<?php echo $_SESSION['account']['phone']?>">
 	</div><br>
 	<?php endif?>
-	<?php LangManager::dumpForm("lang",$_SESSION['account']['lang'],false,false,true)?><br>		
+	<?php if(Accounts::getSettings()["f_profile_language"] == "on"):?>
+		<?php LangManager::dumpForm("lang",$_SESSION['account']['lang'],false,false,true)?><br>
+	<?php endif?>
 	<input type="hidden" name="tf" value="1">
 	<button type="submit" class="btn btn-primary"><?php $language->dump("save_set")?></button>
 </form>		

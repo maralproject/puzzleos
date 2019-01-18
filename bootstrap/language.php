@@ -183,7 +183,7 @@ class Language
 	 */
 	public function get($code)
 	{
-		return ($this->set[strtoupper($code)]);
+		return ($this->set[strtoupper($code)] ?? $code);
 	}
 
 	/**
