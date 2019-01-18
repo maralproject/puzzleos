@@ -279,12 +279,13 @@ class Accounts
 	 */
 	public static function getDetails($userID)
 	{
-		if (Database::read("app_users_list", "id", "id", $userID) != $userID) return null;
-		$s['email'] = Database::read("app_users_list", "email", "id", $userID);
-		$s['phone'] = Database::read("app_users_list", "phone", "id", $userID);
-		$s['lang'] = Database::read("app_users_list", "lang", "id", $userID);
-		$s['name'] = Database::read("app_users_list", "name", "id", $userID);
-		$s['group'] = Database::read("app_users_list", "group", "id", $userID);
+		$profile = Database::getRow("app_users_list", "id", $userID);
+		if($profile == null) return null;
+		$s['email'] = $profile["email"];
+		$s['phone'] = $profile["phone"];
+		$s['lang'] = $profile["lang"];
+		$s['name'] = $profile["name"];
+		$s['group'] = $profile["group"];
 		return $s;
 	}
 
