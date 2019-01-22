@@ -418,7 +418,7 @@ function request($index)
 	} else {
 		$key = strtolower($index);
 	}
-	return (isset($a[$key]) ? $a[$key] : null);
+	return (isset($a[$key]) ? urldecode($a[$key]) : null);
 }
 
 /**

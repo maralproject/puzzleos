@@ -45,12 +45,12 @@ define("__SITEURL", __HTTP_PROTOCOL . $_SERVER['HTTP_HOST'] . str_replace("/inde
 /**
  * Return applications/yourapp/assets/base_1.gif?my=you
  */
-define("__HTTP_REQUEST", ltrim(str_replace(__SITEURL, "", str_replace(str_replace("/index.php", "", $_SERVER["SCRIPT_NAME"]), "", $_SERVER['REQUEST_URI'])), "/"));
+define("__HTTP_REQUEST", urldecode(ltrim(str_replace(__SITEURL, "", str_replace(str_replace("/index.php", "", $_SERVER["SCRIPT_NAME"]), "", $_SERVER['REQUEST_URI'])), "/")));
 
 /**
  * Return applications/yourapp/assets/base_1.gif
  */
-define("__HTTP_URI", explode("?", __HTTP_REQUEST)[0]);
+define("__HTTP_URI", urldecode(explode("?", __HTTP_REQUEST)[0]));
 
 define("APP_DEFAULT", 1);
 define("APP_NOT_DEFAULT", 0);
