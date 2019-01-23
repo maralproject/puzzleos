@@ -334,7 +334,7 @@ class Database
 	{
 		if ($find == "") return false;
 		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
-		$filename = $stack[str_contains($stack[3]["function"], "call_user_func") ? 3 : 2]["file"];
+		$filename = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
 		if (is_cli() && isset($GLOBALS["_WORKER"])) {
 			$appname = $GLOBALS["_WORKER"]["appdir"];
 			if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini")) throw new DatabaseError("Application do not have manifest!");
@@ -352,17 +352,17 @@ class Database
 						case "systables.php":
 							return (true);
 						case "cron.php":
-							if ((preg_match('/`cron`/', $find))) return (true);
+							if ((preg_match('/cron/', $find))) return (true);
 							break;
 						case "session.php":
-							if ((preg_match('/`sessions`/', $find))) return (true);
+							if ((preg_match('/sessions/', $find))) return (true);
 							break;
 						case "configman.php":
-							if ((preg_match('/`multidomain_config`/', $find))) return (true);
+							if ((preg_match('/multidomain_config/', $find))) return (true);
 							break;
 						case "userdata.php":
 						case "boot.php":
-							if ((preg_match('/`userdata`/', $find))) return (true);
+							if ((preg_match('/userdata/', $find))) return (true);
 							break;
 					}
 					break;
@@ -378,7 +378,8 @@ class Database
 					if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
 			}
 		}
-		return (false);
+		
+		throw new DatabaseError("Database table violation.");
 	}
 
 	/**
