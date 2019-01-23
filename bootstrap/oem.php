@@ -34,6 +34,11 @@ define("TIME_LIMIT", 30);
 define("IO_STREAM_BUFFER", 102400);
 
 /**
+ * Enable this define to set Deny on X-Frame-Options
+ */
+define("X_FRAME_OPTIONS_DENY", 1);
+
+/**
  * Enable this define if you want to see SQL query being performed 
  * on db.log.
  */

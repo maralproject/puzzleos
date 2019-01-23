@@ -40,7 +40,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa fa-user"></i></span>
 			</div>
-			<input maxlength="50" required name="user" autocomplete="username" autocapitalize="none" value="<?php echo $_POST["user"]?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control <?php if($GLOBALS["ULFailed"]) echo "is-invalid"?>" placeholder="<?php echo $u_label?>" >
+			<input maxlength="50" required name="user" autocomplete="username" autocapitalize="none" value="<?php h($_POST["user"])?>" <?php if($_POST["user"] == ""):?>autofocus<?php endif;?> type="text" class="form-control <?php if($GLOBALS["ULFailed"]) echo "is-invalid"?>" placeholder="<?php echo $u_label?>" >
 		</div><br>
 		<div class="input-group">
 			<div class="input-group-prepend">

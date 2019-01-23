@@ -23,6 +23,10 @@ if (PHP_SAPI == "cli" && (!defined("__POSCLI") && !defined("__POSWORKER"))){
 	die("ERROR:\tCLI Execution Aborted.");
 }
 
+if (defined("X_FRAME_OPTIONS_DENY")){
+	header("X-Frame-Options: deny");
+}
+
 set_time_limit(TIME_LIMIT);
 
 /***********************************
@@ -92,7 +96,7 @@ PuzzleSession::writeCookie();
  * by Webserver directly
  ***********************************/
 if (request(0) == "assets" && !is_cli()) {
-	$f = "/" . str_replace("assets/", "storage/data/", __HTTP_URI);
+	$f = urldecode("/" . str_replace("assets/", "storage/data/", __HTTP_URI));
 	$d = Database::getRowByStatement("userdata", "where `physical_path`='?'", $f);
 	$appProp = $d["app"];
 	if ($appProp != "") {
