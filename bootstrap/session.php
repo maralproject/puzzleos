@@ -209,7 +209,9 @@ class PuzzleSession implements SessionHandlerInterface
 				$this->id,
 				($this->config["retain_on_same_pc"] ? time() + $this->expire : 0),
 				"/",
-				($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null)
+				($this->config["share_on_subdomain"] ? "." . $this->guessRootDomain() : null),
+				__HTTP_SECURE,
+				true
 			);
 			define("__COOKIE_OUT", 1);
 			return true;

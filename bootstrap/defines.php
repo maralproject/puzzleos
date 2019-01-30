@@ -14,7 +14,7 @@
  ***********************************/
 
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.0.0");
+define("__POS_VERSION", "3.0.1");
 
 /**
  * Return /path/to/qualified/root/directory
@@ -33,9 +33,14 @@ defined("__PUBLICDIR") or define("__PUBLICDIR", "public");
 define("__HTTP_HOST", $_SERVER["HTTP_HOST"]);
 
 /**
+ * Return TRUE on secure connection
+ */
+define("__HTTP_SECURE", (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443));
+
+/**
  * Return "https://" or "http://"
  */
-define("__HTTP_PROTOCOL", (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://");
+define("__HTTP_PROTOCOL", __HTTP_SECURE ? "https://" : "http://");
 
 /**
  * Return http://something.com
