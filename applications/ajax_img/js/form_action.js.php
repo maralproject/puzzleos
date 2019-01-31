@@ -58,8 +58,9 @@
 			success: function(d){
 				clearTimeout(timer);
 				d = JSON.parse(d);
+				var objecturlfile = URL.createObjectURL(file);
 				if(d.success){
-					preview.find("div").css("background-image","url("+URL.createObjectURL(file)+")");
+					preview.find("div").css("background-image","url("+objecturlfile+")");
 				}else{
 					preview.find("div").css("background-image",oldprev);
 					showMessage(d.reason,"danger");
@@ -68,7 +69,7 @@
 				$f.find(".upload_progress").hide();
 				$f.find(".upload_progress .progress-bar").css("width","0%").attr("aria-valuenow","0");
 				$f[0].reset();
-				preview.change();
+				preview.trigger("change",[objecturlfile]);
 			}
 		});
 	};

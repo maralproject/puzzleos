@@ -182,13 +182,18 @@ function obtarr($d)
 
 /**
  * Quick shortcut for echo htmlentitites()
- * 
- * @param string $html
- * @return string
  */
 function h($html)
 {
 	echo htmlentities($html);
+}
+
+/**
+ * Quick shortcut for echo json_encode()
+ */
+function j($json_data)
+{
+	echo json_encode($json_data);
 }
 
 /**
