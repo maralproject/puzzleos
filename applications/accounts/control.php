@@ -58,7 +58,7 @@ if ($appProp->isMainApp && !is_cli()) {
 			Prompt::postError($language->get("NAME_INV_50"));
 		} elseif ($_POST['user'] == "") {
 			Prompt::postError($language->get("USERNAME_INV_EMPTY"));
-		} elseif (preg_match("/^[0-9a-z_]*+$/", $_POST["user"]) === false || strlen($_POST['username']) > 25) {
+		} elseif (preg_match("/^[0-9a-z_]*+$/", $_POST["user"]) === false || strlen($_POST['user']) > 25) {
 			Prompt::postError($language->get("USERNAME_INV_CHAR"));
 		} elseif (Database::read("app_users_list", "username", "username", $_POST["user"]) != "") {
 			$GLOBALS["unmsd"] = true;
