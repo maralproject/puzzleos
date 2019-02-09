@@ -41,7 +41,7 @@ class Accounts
 
 	/**
 	 * Register function to be executed after the user login attempt success
-	 * @param Object $f
+	 * @param Callable $f
 	 */
 	public static function register_post_login_function($f)
 	{
@@ -312,10 +312,10 @@ class Accounts
 	/**
 	 * Check if user exists or not
 	 * 
-	 * @param string $userID User ID
+	 * @param int $userID User ID
 	 * @return bool
 	 */
-	public static function isUserExists($userID)
+	public static function isUserExists(int $userID)
 	{
 		return (Database::read("app_users_list", "id", "id", $userID) == $userID);
 	}
@@ -323,10 +323,10 @@ class Accounts
 	/**
 	 * Add login session
 	 * 
-	 * @param string $userID User ID
+	 * @param int $userID User ID
 	 * @return bool
 	 */
-	public static function addSession($userID)
+	public static function addSession(int $userID)
 	{
 		if (Database::read("app_users_list", "enabled", "id", $userID) != 1) return false;
 		$_SESSION['account']['loggedIn'] = 1;
