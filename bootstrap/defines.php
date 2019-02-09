@@ -14,7 +14,7 @@
  ***********************************/
 
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.0.1");
+define("__POS_VERSION", "3.0.2");
 
 /**
  * Return /path/to/qualified/root/directory
