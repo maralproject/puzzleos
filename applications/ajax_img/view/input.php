@@ -47,7 +47,7 @@ $l = new Language;
 	<span class="btn btn-<?php echo $bootstrap_style?> btn-file upload_box">
 		<i class="fa fa-upload"></i> 
 		<?php echo $label?> 
-		<input name="file" key="<?php echo $key?>" preview="<?php echo $preview_selector?>" type="file">
+		<input name="file" key="<?php echo $key?>" preview="<?php echo $preview_selector?>" type="file" accept="image/*">
 	</span>
 	<div class="upload_progress" style="max-width:300px;display:none;">
 		<div class="progress" style="height:10px;">
