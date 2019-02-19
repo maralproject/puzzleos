@@ -40,7 +40,7 @@ input.big.wrong{
 </style>
 <?php echo Minifier::outCSSMin()?>
 
-<div class="f_center">
+<div class="f_center container">
 	<div>
 		<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
 		<form action="<?php echo __SITEURL?>/users/activate" method="POST">

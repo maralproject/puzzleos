@@ -268,6 +268,7 @@ class Database
 
 		self::$link = @new mysqli(POSConfigDB::$host, POSConfigDB::$username, POSConfigDB::$password, POSConfigDB::$database_name);
 		if (self::$link->connect_error) {
+			abort(503, "Internal Server Error", false);
 			throw new DatabaseError(self::$link->connect_error, "PuzzleOS only supports MySQL or MariaDB");
 		}
 	}
@@ -378,7 +379,7 @@ class Database
 					if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
 			}
 		}
-		
+
 		throw new DatabaseError("Database table violation.");
 	}
 

@@ -29,7 +29,7 @@ set_time_limit(TIME_LIMIT);
  * Setting up the security stuff
  ***********************************/
 header("X-XSS-Protection: 1; mode=block");
-if (defined("X_FRAME_OPTIONS_DENY")) header("X-Frame-Options: deny");
+if (defined("X_FRAME_OPTIONS_DENY")) header("X-Frame-Options: sameorigin");
 
 /***********************************
  * Maintenance Mode Handler
