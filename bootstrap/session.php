@@ -35,6 +35,8 @@ class PuzzleUserSession
  */
 class PuzzleSession implements SessionHandlerInterface
 {
+	private const sess_name = "_pos";
+
 	private static $sess;
 
 	/**
@@ -114,8 +116,8 @@ class PuzzleSession implements SessionHandlerInterface
 		define("__SESSION_STARTED", 1);
 		$this->expire = 3600;
 
-		if (!is_cli() && isset($_COOKIE["puzzleos"])) {
-			$db = Database::getRowByStatement("sessions", "where session_id='?'", $_COOKIE["puzzleos"]);
+		if (!is_cli() && isset($_COOKIE[self::sess_name])) {
+			$db = Database::getRowByStatement("sessions", "where session_id='?'", $_COOKIE[self::sess_name]);
 			if (is_array($db)) {
 				//Session id exists in database, perform client checking
 				$this->in_db = true;
@@ -205,7 +207,7 @@ class PuzzleSession implements SessionHandlerInterface
 		if (!$this->instantiated()) throw new PuzzleError("Cannot read or write from destroyed session");
 		if (!defined("__COOKIE_OUT")) {
 			setcookie(
-				"puzzleos",
+				self::sess_name,
 				$this->id,
 				($this->config["retain_on_same_pc"] ? time() + $this->expire : 0),
 				"/",
