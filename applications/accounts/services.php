@@ -78,5 +78,5 @@ if (is_cli()) {
 	CronJob::register("rm_acc", function () {
 		Database::execute("delete from `app_users_list` where enabled=0 and registered_time<'?'", time());
 		Database::execute("delete from `app_users_activate` where expires<'?'", time());
-	}, _CT()->interval(15 * T_MINUTE));
+	}, _CT()->interval(T_MINUTE));
 }
