@@ -7,11 +7,11 @@
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
-$language = new Language; $language->app = "users";
+$language = new Language;
 ?>
 <div style="display:table;width:100%;height:100%;max-width:480px;margin: auto;">
     <div id="loginCtn" style="display:table-cell;vertical-align:middle;padding:20px;">
-        <div style="font-size:24pt;font-weight:300;margin-bottom:15px;"><?php $language->dump("c_pass")?></div>
+        <div style="font-size:20pt;font-weight:500;margin-bottom:15px;"><?php $language->dump("c_pass")?></div>
         <form action="<?php echo __SITEURL?>/users/changepassword" method="post" style="text-align:center;">
             <input type="hidden" name="datafromresetpassafterverify" value="ok"><br>
             <div class="input-group">

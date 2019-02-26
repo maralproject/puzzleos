@@ -31,7 +31,7 @@ return array(
 	"ECEH"				=>	"Masukkan alamat email Anda",
 	"RMP"				=>	"Lanjutkan",
 	"LIA"				=>	"Masuk sebagai",
-	"C_PASS"			=>	"Ganti kata sandi",
+	"C_PASS"			=>	"Ubah kata sandi",
 	"A_SET"				=>	"Profil",
 	"LOGOUT"			=>	"Keluar",
 	"OLD_PASS"			=>	"Kata sandi lama",

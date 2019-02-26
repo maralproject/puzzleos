@@ -1,15 +1,5 @@
-<?php
-/**
- * PuzzleOS
- * Build your own web-based application
- * 
- * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
- */
-?>
 <meta name="description" content="<?php h(POSConfigGlobal::$meta_description)?>"/>
 <meta name="generator" content="PuzzleOS"/>
-
 <?php ob_start()?>
 <style>
 .alert-danger {
@@ -166,9 +156,7 @@
 	align-items: center;
 }
 </style>
-<?php echo Minifier::outCSSMin()?>
-
-<?php ob_start()?>
+<?php echo Minifier::outCSSMin(); ob_start()?>
 <script>
 (function(){
 	window["showMessage"] = function(data,type,key,auto_dismiss){
@@ -210,11 +198,7 @@
         }
 	}
 
-	$(document).on("change focusout","input[inputmode='numeric'][lang='en-150']",function(e){
-		e.stopPropagation();
-		$(this).val(parseFloat($(this).val().replace("+","").replace("-","")));
-		if($(this).val() == "") $(this).val(0);
-	}).ready(function(){
+	$(document).ready(function(){
 		setTimeout(function(){slideMessage()},300);
 	}).on("click","body",function(e){
 		if($(e.toElement).closest(".systemMessage_wrap").length < 1) checkHideMessage();
