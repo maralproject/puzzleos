@@ -111,6 +111,33 @@ function my_dir($path)
 }
 
 /**
+ * Return the absolute storage path for this app
+ * 
+ * @param string $path 
+ * @param bool $private 
+ * @return string
+ */
+function storage($path, bool $private = true)
+{
+	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
+	$caller = explode("/", $p);
+	$basepath = $private ? "/storage/data/" : "/public/assets/";
+	switch ($caller[0]) {
+		case "applications":
+			break;
+		case "bootstrap":
+			if (starts_with($p, "bootstrap/vendor/superclosure/")) {
+				preparedir($prefixdir = (__ROOTDIR . $basepath . $GLOBALS["_WORKER"]["app"]));
+				return $prefixdir . "/" . ltrim(btfslash($path), "/");
+			}
+		default:
+			return null;
+	}
+	preparedir($prefixdir = (__ROOTDIR . $basepath . AppManager::getNameFromDirectory($caller[1])));
+	return $prefixdir . "/" . ltrim(btfslash($path), "/");
+}
+
+/**
  * Find PHP binary location on server
  * Modified from Symfony Component
  * 
