@@ -24,7 +24,6 @@ class CronTrigger
 
     public function __construct()
     {
-        CronJob::$time = time();
         return $this;
     }
 
@@ -36,14 +35,14 @@ class CronTrigger
     public function isExecutable($lastExec)
     {
         if ($lastExec == "") return $this->exec;
-        if (CronJob::$time - (int)$lastExec - $this->interval >= 0) {
+        if (START_TIME - (int)$lastExec - $this->interval >= 0) {
             $this->exec *= 1;
         } else $this->exec *= 0;
-        $hour_executable = ($this->hour > -1) ? (floor(CronJob::$time / 3600) > floor($lastExec / 3600)) : 1;
-        $day_executable = ($this->day > -1) ? (floor(CronJob::$time / 86400) > floor($lastExec / 86400)) : 1;
-        $date_executable = ($this->date > -1) ? (floor(CronJob::$time / 86400) > floor($lastExec / 86400)) : 1;
-        $month_executable = ($this->month > -1) ? (idate("Y", CronJob::$time) * 100 + idate("m", CronJob::$time)) > (idate("Y", $lastExec) * 100 + idate("m", $lastExec)) : 1;
-        $year_executable = ($this->year > -1) ? (idate("Y", CronJob::$time)) > (idate("Y", $lastExec)) : 1;
+        $hour_executable = ($this->hour > -1) ? (floor(START_TIME / 3600) > floor($lastExec / 3600)) : 1;
+        $day_executable = ($this->day > -1) ? (floor(START_TIME / 86400) > floor($lastExec / 86400)) : 1;
+        $date_executable = ($this->date > -1) ? (floor(START_TIME / 86400) > floor($lastExec / 86400)) : 1;
+        $month_executable = ($this->month > -1) ? (idate("Y", START_TIME) * 100 + idate("m", START_TIME)) > (idate("Y", $lastExec) * 100 + idate("m", $lastExec)) : 1;
+        $year_executable = ($this->year > -1) ? (idate("Y", START_TIME)) > (idate("Y", $lastExec)) : 1;
         $trigger_executable = ($hour_executable && $day_executable && $date_executable && $month_executable && $year_executable) && $this->exec == 1;
         return ($trigger_executable);
     }
@@ -69,7 +68,7 @@ class CronTrigger
      */
     public function hour($hour)
     {
-        if (idate("H", CronJob::$time) == $hour) {
+        if (idate("H", START_TIME) == $hour) {
             $this->exec *= 1;
             $this->hour = $hour;
         } else $this->exec *= 0;
@@ -84,7 +83,7 @@ class CronTrigger
      */
     public function day($day)
     {
-        $today = idate("w", CronJob::$time);
+        $today = idate("w", START_TIME);
         if ($day == $today) {
             $this->exec *= 1;
             $this->day = $day;
@@ -99,7 +98,7 @@ class CronTrigger
      */
     public function date($date)
     {
-        $currentDate = idate("d", CronJob::$time);
+        $currentDate = idate("d", START_TIME);
         if ($date == $currentDate) {
             $this->exec *= 1;
             $this->date = $date;
@@ -114,7 +113,7 @@ class CronTrigger
      */
     public function month($month)
     {
-        $currentMonth = idate("m", CronJob::$time);
+        $currentMonth = idate("m", START_TIME);
         if ($month == $currentMonth) {
             $this->exec *= 1;
             $this->month = $month;
@@ -129,7 +128,7 @@ class CronTrigger
      */
     public function year($year)
     {
-        $currentYear = idate("Y", CronJob::$time);
+        $currentYear = idate("Y", START_TIME);
         if ($year == $currentYear) {
             $this->exec *= 1;
             $this->year = $year;
@@ -140,7 +139,6 @@ class CronTrigger
 
 class CronJob
 {
-    public static $time;
     private static $list = [];
 
     private static function init()
@@ -167,7 +165,7 @@ class CronJob
         if ($appname == "") throw new PuzzleError("An error occured");
 
         foreach ($trigger as $ct) {
-            if (!is_a($ct, "CronTrigger")) throw new PuzzleError("Trigger should be generated from CronTrigger");
+            if (!$ct instanceof CronTrigger) throw new PuzzleError("Trigger should be generated from CronTrigger");
             self::$list[] = ["{$key}_{$appname}", $ct, &$F];
         }
     }
@@ -194,10 +192,10 @@ class CronJob
                     try {
                         $f = $l[2];
                         $f(); //Preventing error on PHP 5.6
-                        Database::insert("cron",[
+                        Database::insert("cron", [
                             (new DatabaseRowInput)
-                            ->setField("key",$l[0])
-                            ->setField("last_exec",self::$time)
+                                ->setField("key", $l[0])
+                                ->setField("last_exec", START_TIME)
                         ]);
                     } catch (Exception $e) {
                         echo ("ERROR: " . $e->getMessage() . "\n");
@@ -210,7 +208,7 @@ class CronJob
                         $f = $l[2];
                         $f(); //Preventing error on PHP 5.6
                         $update = new DatabaseRowInput;
-                        $update->setField("last_exec", CronJob::$time);
+                        $update->setField("last_exec", START_TIME);
                         Database::update("cron", $update, "key", $l[0]);
                     } catch (Exception $e) {
                         echo ("ERROR: " . $e->getMessage() . "\n");

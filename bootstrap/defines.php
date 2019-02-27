@@ -13,6 +13,7 @@
  * needed by PuzzleOS to work.
  ***********************************/
 
+define("START_TIME", time());
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
 define("__POS_VERSION", "3.0.3");
 

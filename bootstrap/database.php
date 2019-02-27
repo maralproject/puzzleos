@@ -765,6 +765,24 @@ class Database
 		return self::$link->rollback();
 	}
 
+	public static function lock($table, $for = "WRITE")
+	{
+		self::x_verify($table);
+		switch ($for) {
+			case 'WRITE':
+			case 'READ':
+				break;
+			default:
+				throw InvalidArgumentException("Only WRITE or READ allowed");
+		}
+		self::query("LOCK TABLES `$table` $for;");
+	}
+
+	public static function unlock()
+	{
+		self::query("UNLOCK TABLES;");
+	}
+
 	/**
 	 * Create or change table structure
 	 * @param string $table Table name

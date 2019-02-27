@@ -56,14 +56,14 @@ class Worker
 		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
 
 		$cc = new ReflectionClass("POSConfigGlobal");
-		foreach($execute["env"]["posconfigglobal"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
-		
+		foreach ($execute["env"]["posconfigglobal"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
+
 		$cc = new ReflectionClass("POSConfigMailer");
-		foreach($execute["env"]["posconfigmailer"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
+		foreach ($execute["env"]["posconfigmailer"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
 
 		$cc = new ReflectionClass("POSConfigMultidomain");
 		unset($execute["env"]["posconfigmdomain"]["zone"]); //Because this is private prop
-		foreach($execute["env"]["posconfigmdomain"] as $vn=>$v) $cc->getProperty($vn)->setValue($v);
+		foreach ($execute["env"]["posconfigmdomain"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
 
 		Accounts::addSession($execute["env"]["userid"]);
 		$GLOBALS["_WORKER"] = [
@@ -76,7 +76,7 @@ class Worker
 
 		try {
 			ob_start();
-			$result = $function($execute["env"]["id"], $execute["env"]["app"], $execute["env"]["appdir"]);
+			$result = $function(explode(".", $job)[1], $execute["env"]["app"], $execute["env"]["appdir"]);
 			@ob_get_clean();
 			@ob_end_clean();
 		} catch (Exception $e) {
