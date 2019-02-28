@@ -10,8 +10,6 @@
 use MatthiasMullie\Minify\JS;
 use MatthiasMullie\Minify\CSS;
 
-require "vendor/minifier/autoload.php";
-
 /**
  * Cache and minify on-demand css, js, or any file instantly
  */

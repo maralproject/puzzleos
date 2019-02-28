@@ -71,7 +71,6 @@ class Worker
 			"app" => $execute["env"]["app"],
 			"appdir" => $execute["env"]["appdir"]
 		];
-		include("vendor/superclosure/autoload.php");
 		$function = (new Serializer(new TokenAnalyzer()))->unserialize($execute["func"]);
 
 		try {

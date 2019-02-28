@@ -10,8 +10,8 @@
 spl_autoload_register(function ($c) {
     $r = __ROOTDIR . "/bootstrap";
     switch ($c) {
-        case "Automattic\Phone\Iso3166":
-        case "Automattic\Phone\Mobile_Validator":
+        case "Automattic\\Phone\\Iso3166":
+        case "Automattic\\Phone\\Mobile_Validator":
             require("$r/vendor/automattic/phone/Mobile_Validator.php");
             break;
         case "FileStream":
@@ -47,5 +47,31 @@ spl_autoload_register(function ($c) {
         case "CronTrigger":
             require("$r/cron.php");
             break;
+        default:
+            if (($tok = strtok($c, "\\")) == "MatthiasMullie") {
+                if (($tok2 = strtok("\\")) == "PathConverter") {
+                    $path = "$r/vendor/minifier/matthiasmullie/path-converter/src/" . btfslash(strtok('')) . ".php";
+                    if (file_exists($path)) require $path;
+                } elseif ($tok2 == "Minify") {
+                    $path = "$r/vendor/minifier/matthiasmullie/minify/src/" . btfslash(strtok('')) . ".php";
+                    if (file_exists($path)) require $path;
+                }
+            } elseif ($tok == "Symfony") {
+                if (($tok2 = strtok("\\")) == "Polyfill") {
+                    if (($tok3 = strtok("\\")) == "Util") {
+                        $path = "$r/vendor/superclosure/symfony/polyfill-util/" . btfslash(strtok('')) . ".php";
+                        if (file_exists($path)) require $path;
+                    } elseif ($tok3 == "Php56") {
+                        $path = "$r/vendor/superclosure/symfony/polyfill-php56/" . btfslash(strtok('')) . ".php";
+                        if (file_exists($path)) require $path;
+                    }
+                }
+            } elseif ($tok == "SuperClosure") {
+                $path = "$r/vendor/superclosure/jeremeamia/SuperClosure/src/" . btfslash(strtok('')) . ".php";
+                if (file_exists($path)) require $path;
+            } elseif ($tok == "PhpParser") {
+                $path = "$r/vendor/superclosure/nikic/php-parser/lib/PhpParser/" . btfslash(strtok('')) . ".php";
+                if (file_exists($path)) require $path;
+            }
     }
 });
