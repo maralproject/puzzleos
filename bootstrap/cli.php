@@ -84,7 +84,7 @@ class PuzzleCLI
 			$sys = explode("sys/", $app)[1];
 			if ($sys == "cron") {
 				if ($arg["run"])
-					CronJob::run();
+					CronJob::run($arg["force"]);
 				else throw new PuzzleError("Invalid action");
 			} elseif ($sys == "cache") {
 				if ($arg["flush"]) {

@@ -40,8 +40,23 @@ class Worker
 		return self::$onWorker;
 	}
 
+	/**
+	 * Clean all 0-bytes result file
+	 */
+	private static function cleanupResult()
+	{
+		foreach (glob(__WORKERDIR . "/*.result") as $file) {
+			if (is_file($file)) {
+				if (filesize($file) == 0) {
+					@unlink($file);
+				}
+			}
+		}
+	}
+
 	private static function __do($job, $key)
 	{
+		self::cleanupResult();
 		if (!file_exists(__WORKERDIR . "/$job.job")) throw new WorkerError("Job not found!");
 		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
@@ -244,12 +259,12 @@ class Worker
 		$result = [];
 		foreach ($this->_processes as $id => $p) {
 			if (!file_exists(__WORKERDIR . "/{$this->_unique}.$id.result")) continue;
-			$result[$id] = openssl_decrypt(
+			$result[$id] = unserialize(openssl_decrypt(
 				@file_get_contents(__WORKERDIR . "/{$this->_unique}.$id.result"),
 				self::$_cipher,
 				$this->_secret,
 				OPENSSL_RAW_DATA
-			);
+			));
 		}
 
 		$this->_processes = [];

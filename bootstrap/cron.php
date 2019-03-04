@@ -170,7 +170,11 @@ class CronJob
         }
     }
 
-    public static function run()
+    /**
+     * Run the cron
+     * @param bool $force Use this to force all cron run even not in their time
+     */
+    public static function run(bool $forced = false)
     {
         if (file_exists(__ROOTDIR . "/cron.lock"))
             throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
@@ -187,7 +191,7 @@ class CronJob
         foreach (self::$list as $l) {
             $lastExec = Database::read("cron", "last_exec", "key", $l[0]);
             if ($lastExec == "") {
-                if ($l[1]->isExecutable($lastExec)) {
+                if ($l[1]->isExecutable($lastExec) || $forced) {
 					//We'll use try/catch to prevent cron from shutdown by one error
                     try {
                         $f = $l[2];
@@ -202,14 +206,17 @@ class CronJob
                     }
                 }
             } else {
-                if ($l[1]->isExecutable($lastExec)) {
+                if ($l[1]->isExecutable($lastExec) || $forced) {
 					//We'll use try/catch to prevent cron from shutdown by one error
                     try {
                         $f = $l[2];
                         $f(); //Preventing error on PHP 5.6
-                        $update = new DatabaseRowInput;
-                        $update->setField("last_exec", START_TIME);
-                        Database::update("cron", $update, "key", $l[0]);
+                        Database::update(
+                            "cron",
+                            (new DatabaseRowInput)->setField("last_exec", START_TIME),
+                            "key",
+                            $l[0]
+                        );
                     } catch (Exception $e) {
                         echo ("ERROR: " . $e->getMessage() . "\n");
                     }

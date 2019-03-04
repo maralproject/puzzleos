@@ -108,6 +108,6 @@ register_shutdown_function(function () {
 	$e = error_get_last();
 	if ($e['type'] & (POSConfigGlobal::$error_code | E_ERROR | E_PARSE | E_COMPILE_ERROR)) {
 		abort(500, "Internal Server Error", false);
-		throw new PuzzleError("{$e['message']} on {$e['file']}({$e['line']})", null, $e['code']);
+		echo new PuzzleError("{$e['message']} on {$e['file']}({$e['line']})", null, $e['code']);
 	}
 });
