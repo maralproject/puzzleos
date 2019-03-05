@@ -68,7 +68,10 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 	</form><br><br>
 
 	<div class="helpform" style="text-align:center;">
-	<?php $language->dump("OWN_ACC_CONFIRM")?> <b><a href="<?php echo __SITEURL?>/users"><?php $language->dump("LOGIN")?></a></b>
+	<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
+	<?php $language->dump("JGAC")?> <b><a href="/users/verify"><?php $language->dump("JGAC2")?></a></b><br>
+	<?php endif?>
+	<?php $language->dump("OWN_ACC_CONFIRM")?> <b><a href="/users"><?php $language->dump("LOGIN")?></a></b>
 	</div>
 </div>
 </div>

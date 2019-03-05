@@ -134,4 +134,6 @@ return array(
 	"VER_ERR_SEND"		=>	"Gagal mengirimkan kode verifikasi",
 	"OMS"				=>	"Selangkah lagi",
 	"AUTPL"				=>	"Perbolehkan pengguna untuk merubah bahasa",
+	"JGAC"				=>	"Saya punya kodenya.",
+	"JGAC2"				=>	"Verifikasi",
 );

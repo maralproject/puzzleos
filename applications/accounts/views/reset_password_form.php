@@ -27,6 +27,9 @@ $language = new Language; $language->app = "users";
 	</form><br><br>
 
 	<div class="helpform" style="text-align:center;">
+	<?php if(isset($_SESSION["account"]["change_pass"])):?>
+	<?php $language->dump("JGAC")?> <b><a href="/users/verify"><?php $language->dump("JGAC2")?></a></b><br>
+	<?php endif?>
 	<?php $language->dump("OWN_ACC_CONFIRM")?> <b><a href="<?php echo __SITEURL?>/users"><?php $language->dump("LOGIN")?></a></b>
 	</div>
 </div>
