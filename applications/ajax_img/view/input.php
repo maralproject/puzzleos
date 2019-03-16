@@ -13,9 +13,9 @@ $l = new Language;
 <?php if(!defined("_IMAGEUPLOADER_")):?>
 	<?php define("_IMAGEUPLOADER_")?>
 	<script>
-		var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
-		var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
-		var L_UPGRADE = "<?php $l->dump("UPGRADE")?>";
+	var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
+	var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
+	var L_UPGRADE = "<?php $l->dump("UPGRADE")?>";
 	</script>
 	<?php require(my_dir("/js/form_action.js.php"))?>
 
@@ -47,7 +47,7 @@ $l = new Language;
 	<span class="btn btn-<?php echo $bootstrap_style?> btn-file upload_box">
 		<i class="fa fa-upload"></i> 
 		<?php echo $label?> 
-		<input name="file" key="<?php echo $key?>" preview="<?php echo $preview_selector?>" type="file" accept="image/*">
+		<input <?php if($shrink):?>shrink="yes"<?php endif?> name="file" key="<?php echo $key?>" preview="<?php echo $preview_selector?>" type="file" accept="image/*">
 	</span>
 	<div class="upload_progress" style="max-width:300px;display:none;">
 		<div class="progress" style="height:10px;">

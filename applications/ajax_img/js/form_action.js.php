@@ -12,6 +12,7 @@
 		var formdata = new FormData();
 		formdata.append("file",file,file.name);
 		formdata.append("key",$j.attr("key"));
+		formdata.append("shrink",$j.attr("shrink") == "yes"?1:0);
 		$.ajax({
 			url:"/upload_img_ajax/upload",
 			contentType: false,

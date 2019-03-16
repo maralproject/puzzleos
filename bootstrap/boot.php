@@ -39,7 +39,7 @@ if (defined("X_FRAME_OPTIONS_DENY")) header("X-Frame-Options: sameorigin");
  * in the root directory
  ***********************************/
 if (file_exists(__ROOTDIR . "/site.offline")) {
-	abort(503,"Under Maintenance",false);
+	abort(503,"Under Maintenance", is_cli());
 	header('Retry-After: 300');
 	include(__ROOTDIR . "/templates/system/503.php");
 	exit;

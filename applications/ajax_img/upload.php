@@ -91,7 +91,7 @@ if(isset($_FILES["file"]) && $_FILES["file"]["error"]== UPLOAD_ERR_OK){
 	$_SESSION["ImageUploader"][$key] = $id;
 	
 	if(UserData::move_uploaded($id,"file")){
-		$img = $compress(UserData::getPath($id));
+		$img = $compress(UserData::getPath($id), $_POST["shrink"] == 1 ? 600 : 1280);
 		UserData::remove($id);
 		UserData::store($id,$img,$filetype);
 		die(json_encode([
