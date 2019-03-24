@@ -48,6 +48,8 @@ input.big.wrong{
 		<form action="<?php echo __SITEURL?>/users/changepassword" method="POST">
 		<?php elseif(isset($_SESSION["account"]["confirm_email"])):?>
 		<form action="<?php echo __SITEURL?>/users/verifyemail" method="POST">
+		<?php elseif(isset($_SESSION["account"]["tfa"])):?>
+		<form action="<?php echo __SITEURL?>/users/twosteps" method="POST">
 		<?php endif?>
 			<span style="font-size:20pt;font-weight:500;"><?php $language->dump("VER_ACC") ?></span><br>
 			<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
@@ -56,12 +58,14 @@ input.big.wrong{
 			<span style="font-size:16pt;font-weight:400;"><?php echo $_SESSION["account"]["change_pass"]["msg"]?></span>
 			<?php elseif(isset($_SESSION["account"]["confirm_email"])):?>
 			<span style="font-size:16pt;font-weight:400;"><?php echo $_SESSION["account"]["confirm_email"]["msg"]?></span>
+			<?php elseif(isset($_SESSION["account"]["tfa"])):?>
+			<span style="font-size:16pt;font-weight:400;"><?php echo $_SESSION["account"]["tfa"]["msg"]?></span>
 			<?php else:?>
 			<span style="font-size:16pt;font-weight:400;"><?php $language->dump("VER_CODE_SENT")?></span>
 			<?php endif?>
 			<div style="height:60px;"></div>
 			<span><?php $language->dump("VER_CODE_INPUT")?></span><br>
-			<input required autocomplete="off" type="text" class="big <?php if($_SESSION["account"]["confirm_email"]["wrong"] || $_SESSION["account"]["confirm_activation"]["wrong"] || $_SESSION["account"]["change_pass"]["wrong"] ) echo "wrong"?>" maxlength="6" name="code_input_usr" autofocus>
+			<input required autocomplete="off" type="text" class="big <?php if($_SESSION["account"]["confirm_email"]["wrong"] || $_SESSION["account"]["confirm_activation"]["wrong"] || $_SESSION["account"]["change_pass"]["wrong"] || $_SESSION["account"]["tfa"]["wrong"] ) echo "wrong"?>" maxlength="6" name="code_input_usr" autofocus>
 			<br><br>
 			<?php if(isset($_SESSION["account"]["confirm_activation"])):?>
 			<input type="hidden" name="verification_confirm" value="1">
@@ -69,6 +73,8 @@ input.big.wrong{
 			<input type="hidden" name="ch_pass_confirm" value="1">
 			<?php elseif(isset($_SESSION["account"]["confirm_email"])):?>
 			<input type="hidden" name="ver_emailaddr" value="1">
+			<?php elseif(isset($_SESSION["account"]["tfa"])):?>
+			<input type="hidden" name="forTwoSteps" value="1">
 			<?php endif?>
 			<input type="hidden" name="thiscamefromverify" value="1">
 			<input type="hidden" name="redir" value="<?php echo ($_GET["redir"]!=""?htmlentities($_GET["redir"]):htmlentities($_POST["redir"]));?>">
@@ -76,3 +82,12 @@ input.big.wrong{
 		</form>
 	</div>
 </div>
+<?php ob_start()?>
+<script>
+(function(){
+	$("input[name=code_input_usr]").on("input",function(){
+		this.value = this.value.replace(/[^0-9]+/g,"");
+	});
+}());
+</script>
+<?php echo Minifier::outJSMin();

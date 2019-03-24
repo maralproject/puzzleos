@@ -229,6 +229,27 @@ if ($appProp->isMainApp && !is_cli()) {
 				redirect("users/verify?redir=" . $_POST["redir"]);
 			}
 		}
+	} elseif (request("action") == "twosteps" && $_POST["thiscamefromverify"] == "1" && isset($_SESSION["account"]["tfa"]) && !$_SESSION['account']['loggedIn']) {
+		/**
+		 * Login Action but after TFA
+		 * URI	: /users/twosteps
+		 * Note	: -
+		 */
+
+		if ($_POST["code_input_usr"] === $_SESSION["account"]["tfa"]["code"]) {
+			$_SESSION["account"]["tfa_cache"] = time() + (2 * T_MINUTE);
+			Accounts::addSession($_SESSION["account"]["tfa"]["signin"]);
+			unset($_SESSION["account"]["tfa"]);
+			if ($_POST['redir'] == "") {
+				redirect();
+			} else {
+				redirect(html_entity_decode($_POST['redir']));
+			}
+		} else {
+			$_SESSION["account"]["tfa"]["wrong"] = true;
+			Prompt::postError($language->get("VER_CODE_INV"), true);
+			redirect("users/verify?redir=" . $_POST["redir"]);
+		}
 	} elseif (request("action") == "login" && $_POST["trueLogin"] == "1") {
 		/**
 		 * Login Action
@@ -238,7 +259,7 @@ if ($appProp->isMainApp && !is_cli()) {
 		if (!isset($_POST['redir'])) $_POST['redir'] = "";
 
 		if ($_SESSION['account']['loggedIn']) {
-			//Don't allow user to login again once loggedin
+			//Don't allow user to login again once logged-in
 			redirect("users");
 		}
 
@@ -251,7 +272,16 @@ if ($appProp->isMainApp && !is_cli()) {
 				}
 			}
 
-			if (Accounts::authUserId($_POST['user'], $_POST['pass'])) {
+			if ($userid = Accounts::authUserId($_POST['user'], $_POST['pass'])) {
+				if (Accounts::getSettings()["f_tfa"] == "on") {
+					if (false === $redirectto = Accounts::challengeTFA($_POST['redir'] ? : "/")) {
+						Prompt::postError($language->get("VER_ERR_SEND"), true);
+						redirect("users/login?redir=" . $_POST["redir"]);
+					} else {
+						redirect($redirectto);
+					}
+				}
+
 				if ($_POST['redir'] == "") {
 					redirect();
 				} else {
@@ -276,6 +306,9 @@ if ($appProp->isMainApp && !is_cli()) {
 		foreach ($_POST as $k => $d) {
 			if (substr($k, 0, 2) == "f_") $o[$k] = $d;
 		}
+
+		#If Two-Factor Auth is turned on, then Activation is a must
+		if ($o["f_tfa"] == "on") $o["f_reg_activate"] = "on";
 
 		if (UserData::store("settings", json_encode($o), "json", true)) {
 			PuzzleSession::endAll();
@@ -427,7 +460,6 @@ if ($appProp->isMainApp && !is_cli()) {
 					}
 				}
 			}
-
 		} else {
 			redirect("users");
 		}

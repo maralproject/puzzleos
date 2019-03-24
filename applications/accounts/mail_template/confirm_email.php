@@ -10,7 +10,7 @@
 if(Accounts::$customET_CE === NULL):?>
 <p>Hi <?php echo $_SESSION['account']['name']?>!</p>
 <?php if(!$new_account):?>
-<p><?php $language->dump("e10")?> <?php echo $_POST['email']?></p>
+<p><?php $language->dump("e10")?> <?php echo $email?></p>
 <?php else:?>
 <p><?php $language->dump("e17")?></p>
 <?php endif?>

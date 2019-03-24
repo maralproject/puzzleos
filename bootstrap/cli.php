@@ -23,7 +23,7 @@ class PuzzleCLI
 
 	/**
 	 * Register a function to be called from CLI
-	 * @param function $F($in,$out)
+	 * @param callable $F ($io, $args)
 	 */
 	public static function register($F)
 	{

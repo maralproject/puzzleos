@@ -136,4 +136,9 @@ return array(
 	"AUTPL"				=>	"Allow user to personalize localization",
 	"JGAC"				=>	"I have a code.",
 	"JGAC2"				=>	"Verify",
+	"TFA_EN"			=>	"Enable Two-Factor Authentication",
+	"TFA_INFO"			=>	"User without a valid email or phone number cannot be signed in.",
+	"VER_CODE"			=>	"Verification Code",
+	"TFA_MAIL1"			=>	"Use this verification code for your Account.",
+	"TFA_INFO2"			=>	"We have sent verification code to"
 );

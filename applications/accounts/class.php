@@ -280,7 +280,7 @@ class Accounts
 	public static function getDetails($userID)
 	{
 		$profile = Database::getRow("app_users_list", "id", $userID);
-		if($profile == null) return null;
+		if ($profile == null) return null;
 		$s['email'] = $profile["email"];
 		$s['phone'] = $profile["phone"];
 		$s['lang'] = $profile["lang"];
@@ -337,8 +337,64 @@ class Accounts
 		$_SESSION['account']['name'] = Database::read("app_users_list", "name", "id", $userID);
 		$_SESSION['account']['group'] = Database::read("app_users_list", "group", "id", $userID);
 
-		foreach (self::$aflfl as $alf) $alf();
-		return true;
+		foreach (self::$aflfl as $alf) {
+			if ($alf() === false) self::rmSession();
+		}
+		return $_SESSION['account']['loggedIn'] === 1;
+	}
+
+	/**
+	 * Ask challenge for TFA to current logged-in user.
+	 * Once this function is called, it will call rmSession()
+	 * @param string $url_callback A callback after the challenge completed
+	 * 
+	 * @return bool FALSE if failed
+	 * @return string URL to redirect the challenge if success
+	 */
+	public static function challengeTFA(string $url_callback = "/")
+	{
+		if ($_SESSION['account']['loggedIn'] === 1) {
+			if ($_SESSION['account']['tfa_cache'] >= time()) return $url_callback;
+			$user = self::getDetails($userid = $_SESSION['account']['id']);
+			$challengeCode = rand_str(6, "0987654321");
+			if (!self::$customM_EN) {
+				if (!filter_var($user["email"], FILTER_VALIDATE_EMAIL)) {
+					return false;
+				} else {
+					$w = new Worker;
+					$path = __DIR__;
+					$w->setTask(function ($id, $app) use ($challengeCode, $user, $path) {
+						new Application("phpmailer");
+						$language = new Language($app);
+						ob_start();
+						include("$path/mail_template/tfa.php");
+						$mailer = new Mailer;
+						$mailer->addRecipient = $user["email"];
+						$mailer->subject = $language->get("VER_CODE");
+						$mailer->body = ob_get_clean();
+						return $mailer->sendHTML();
+					})->run(["standalone" => true]);
+					$email = explode("@", $user["email"]);
+					$_SESSION["account"]["tfa"]["msg"] = $language->get("TFA_INFO2");
+					$_SESSION["account"]["tfa"]["msg"] .= " " . substr($email[0], 0, 2) . "*****@" . $email[1];
+				}
+			} else {
+				$aclb = Accounts::$customM_F;
+				$aclbr = $aclb($customM_UE ? $user['email'] : $user["phone"], $challengeCode);
+				$_SESSION["account"]["tfa"]["msg"] = $aclbr;
+				if ($aclbr === false) {
+					unset($_SESSION["account"]["tfa"]);
+					return false;
+				}
+			}
+
+			$_SESSION["account"]["tfa"]['code'] = $challengeCode;
+			$_SESSION['account']['tfa']['timeout'] = time() + (5 * T_MINUTE);
+			$_SESSION['account']['tfa']['signin'] = $userid;
+			self::rmSession();
+			return ("users/verify?redir=" . $_POST["redir"]);
+		}
+		return false;
 	}
 
 	/**
@@ -346,9 +402,10 @@ class Accounts
 	 * 
 	 * @param string $username
 	 * @param string $password
-	 * @return bool
+	 * @param bool $addSession
+	 * @return mixed
 	 */
-	public static function authUserId($username, $password)
+	public static function authUserId($username, $password, bool $addSession = true)
 	{
 		if (self::$customM_UE && !self::$customM_UP) {
 			if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
@@ -369,8 +426,8 @@ class Accounts
 		$auth_user = $userid != "" ? 1 : 0;
 		$auth_pass = self::verifyHashPass($password, Database::read("app_users_list", "password", "id", $userid));
 		if ($auth_user && $auth_pass) {
-			self::addSession($userid);
-			return true;
+			if ($addSession) self::addSession($userid);
+			return (int)$userid;
 		}
 		return false;
 	}
@@ -397,6 +454,8 @@ class Accounts
 		$_SESSION['account']['name'] = "";
 		$_SESSION['account']['lang'] = "en";
 		$_SESSION['account']['group'] = self::getRootGroupId(USER_AUTH_PUBLIC);
+
+		unset($_SESSION['account']['tfa_cache']);
 	}
 
 	/**

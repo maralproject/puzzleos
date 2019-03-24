@@ -68,6 +68,10 @@
 	<div class="col-md-12">
 		<label><input type="checkbox" name="f_share_session" <?php if($s["f_share_session"] == "on") echo "checked"?>> <?php $language->dump("LOGIN_SESSION_SHARE")?></label>
 	</div>
+	<div class="col-md-12">
+		<label><input type="checkbox" name="f_tfa" <?php if($s["f_tfa"] == "on") echo "checked"?>> <?php $language->dump("TFA_EN")?></label><br>
+		<small><?php $language->dump("TFA_INFO")?></small>
+	</div>
 </div>
 
 <br>

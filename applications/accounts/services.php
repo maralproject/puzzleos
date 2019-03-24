@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -61,6 +62,16 @@ if (isset($_SESSION['account']['confirm_email'])) {
 if (isset($_SESSION['account']['change_pass'])) {
 	if ($_SESSION['account']['change_pass']['timeout'] + 10 * 60 < time()) {
 		unset($_SESSION['account']['change_pass']);
+	}
+}
+if (isset($_SESSION['account']['tfa'])) {
+	if ($_SESSION['account']['tfa']['timeout'] < time() || $_SESSION['account']['loggedIn'] == 1) {
+		unset($_SESSION['account']['tfa']);
+	}
+}
+if (isset($_SESSION['account']['tfa_cache'])) {
+	if ($_SESSION['account']['tfa_cache'] < time()) {
+		unset($_SESSION['account']['tfa_cache']);
 	}
 }
 if (isset($_SESSION['account']['change_pass']['linkClicked']))

@@ -136,4 +136,9 @@ return array(
 	"AUTPL"				=>	"Perbolehkan pengguna untuk merubah bahasa",
 	"JGAC"				=>	"Saya punya kodenya.",
 	"JGAC2"				=>	"Verifikasi",
+	"TFA_EN"			=>	"Hidupkan Two-Factor Authentication",
+	"TFA_INFO"			=>	"Pengguna tanpa email atau nomor handphone yang valid tidak akan bisa masuk.",
+	"VER_CODE"			=>	"Kode Verifikasi",
+	"TFA_MAIL1"			=>	"Gunakan kode verifikasi berikut untuk masuk ke akun Anda.",
+	"TFA_INFO2"			=>	"Kami telah mengirimkan kode verifikasi ke"
 );
