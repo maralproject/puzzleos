@@ -873,6 +873,7 @@ class Database
 				if ($insertData) self::insert($table, $initialData);
 				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
 				set_time_limit(TIME_LIMIT);
+				self::$cache["tables"][$table] = 1;
 				return true;
 			} else {
 				throw new DatabaseError(self::$link->error, $query);
