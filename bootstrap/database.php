@@ -961,3 +961,13 @@ class Database
 }
 
 Database::connect();
+
+function DRI() : DatabaseRowInput
+{
+	return new DatabaseRowInput;
+}
+
+function DTB() : DatabaseTableBuilder
+{
+	return new DatabaseTableBuilder;
+}
