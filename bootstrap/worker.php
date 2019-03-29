@@ -56,7 +56,7 @@ class Worker
 
 	private static function __do($job, $key)
 	{
-		self::cleanupResult();
+		if (is_win()) self::cleanupResult();
 		if (!file_exists(__WORKERDIR . "/$job.job")) throw new WorkerError("Job not found!");
 		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
