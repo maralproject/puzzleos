@@ -497,6 +497,8 @@ class Database
 		self::x_verify($table);
 		if (count($row_input) < 1) return true;
 
+		$args = [""];
+
 		$data = (object)["columns" => [], "values" => []];
 		foreach ($row_input as $d) {
 			if (!$d instanceof DatabaseRowInput) throw new DatabaseError('$row_input should be a DatabaseRowInput');
@@ -514,16 +516,16 @@ class Database
 			if (!$last) $query .= ",";
 		});
 		$query .= ") VALUES ";
-		foreachx($data->values, function ($i, $last, $k, $values) use (&$query) {
+		foreachx($data->values, function ($i, $last, $k, $values) use (&$query, &$args) {
 			$query .= "(";
-			foreachx($values, function ($i, $last2, $k, $value) use (&$query) {
+			foreachx($values, function ($i, $last2, $k, $value) use (&$query, &$args) {
 				if ($value === null) {
 					$query .= "NULL";
 				} elseif ($value === 0) {
 					$query .= "0";
 				} else {
-					$value = Database::escape($value);
-					$query .= "'$value'";
+					$args[] = $value;
+					$query .= "'?'";
 				}
 				if (!$last2) $query .= ",";
 			});
@@ -531,7 +533,8 @@ class Database
 			if (!$last) $query .= ",";
 		});
 
-		return self::query($query);
+		$args[0] = $query;
+		return call_user_func_array([self, "query"], $args);
 	}
 
 	/**
@@ -546,21 +549,27 @@ class Database
 	{
 		self::x_verify($table);
 		$s = $row_input->getStructure();
+
+		$args = [""];
+
 		$query = "UPDATE `$table` SET ";
-		foreachx($s, function ($i, $l, $column, $value) use (&$query) {
+		foreachx($s, function ($i, $l, $column, $value) use (&$query, &$args) {
 			$query .= "`$column`=";
 			if ($value === null) {
 				$query .= "NULL";
 			} elseif ($value === 0) {
 				$query .= "0";
 			} else {
-				$value = Database::escape($value);
-				$query .= "'$value'";
+				$args[] = $value;
+				$query .= "'?'";
 			}
 			if (!$l) $query .= ",";
 		});
 		$query .= " WHERE `$find_column`='?'";
-		return self::query($query, $find_value);
+
+		$args[0] = $query;
+		$args[] = $find_value;
+		return call_user_func_array([self, "query"], $args);
 	}
 
 	/**

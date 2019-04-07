@@ -398,6 +398,18 @@ class Accounts
 	}
 
 	/**
+	 * Check if the password of current logged in user is accepted.
+	 */
+	public static function authPassword($password)
+	{
+		if (self::authAccess(USER_AUTH_REGISTERED)) {
+			$profile = Database::getRow("app_users_list", "id", self::getUserId());
+			return self::verifyHashPass($password, $profile["password"]);
+		}
+		return false;
+	}
+
+	/**
 	 * Authenticate a user. If success, add the user session.
 	 * 
 	 * @param string $username
