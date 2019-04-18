@@ -142,6 +142,7 @@ class Worker
 
 	/**
 	 * Set the task for this Worker
+	 * Parameter ($id, $appname, $appdir)
 	 * @param Object $callable 
 	 * @param \... $args 
 	 * @return Worker
