@@ -308,7 +308,7 @@ class Database
 			default:
 				self::flushCache();
 		}
-		
+
 		//See Database caching performance
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
@@ -327,7 +327,7 @@ class Database
 					throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped);
 				}
 			} else
-				throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped);
+				throw new DatabaseError(self::$link->error, $escaped, self::$link->errno);
 		}
 	}
 
@@ -816,7 +816,7 @@ class Database
 				self::$t_cache[$table] = null;
 			}
 		}
-		
+
 		/* Checking checksum */
 		$old_checksum = self::$t_cache[$table];
 		$current_checksum = hash("crc32b", serialize([$structure, $indexes, $initialData]));
@@ -854,17 +854,17 @@ class Database
 		if (!$q) {
 			//Create Table
 			$query = "CREATE TABLE `$table` (";
-			
+
 			//Appending table structure
 			foreach ($structure as $k => $d) {
 				if ($d[1]) $pkey = $k;
 				if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
 				$query .= "`$k` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3],";
 			}
-			
+
 			//Appending Primary key
 			if ($pkey != "") $query .= "PRIMARY KEY (`$pkey`),";
-			
+
 			//Appending all index
 			foreach ($indexes as $i) {
 				$c = "";
@@ -872,7 +872,7 @@ class Database
 				$c = rtrim($c, ",");
 				$query .= "$i[2] INDEX `$i[0]` ($c),";
 			}
-			
+
 			//Using InnoDB engine is better than MyISAM
 			$query = rtrim($query, ",");
 			$query .= ") COLLATE='utf8_general_ci' ENGINE=InnoDB;";
@@ -972,12 +972,12 @@ class Database
 
 Database::connect();
 
-function DRI() : DatabaseRowInput
+function DRI(): DatabaseRowInput
 {
 	return new DatabaseRowInput;
 }
 
-function DTB() : DatabaseTableBuilder
+function DTB(): DatabaseTableBuilder
 {
 	return new DatabaseTableBuilder;
 }
