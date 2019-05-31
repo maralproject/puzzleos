@@ -490,10 +490,11 @@ class Database
 	/**
 	 * Write new record
 	 * @param string $table Table Name
-	 * @param array $row_input
+	 * @param array $row_input use DRI()
+	 * @param bool $ignore Allow insert to be ignored
 	 * @return mysqli_result
 	 */
-	public static function insert($table, array $row_input)
+	public static function insert($table, array $row_input, bool $ignore = false)
 	{
 		self::x_verify($table);
 		if (count($row_input) < 1) return true;
@@ -511,7 +512,7 @@ class Database
 			$data->values[] = $next_values;
 		}
 
-		$query = "INSERT INTO `$table` (";
+		$query = "INSERT " . ($ignore ? "IGNORE " : "") . "INTO `$table` (";
 		foreachx($data->columns, function ($index, $last, $column, $i) use (&$query) {
 			$query .= "`$column`";
 			if (!$last) $query .= ",";
