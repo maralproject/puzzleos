@@ -11,7 +11,7 @@ $l = new Language;
 ?>
 
 <?php if(!defined("_IMAGEUPLOADER_")):?>
-	<?php define("_IMAGEUPLOADER_")?>
+	<?php define("_IMAGEUPLOADER_",1)?>
 	<script>
 	var L_NO_FILE = "<?php $l->dump("NO_FILE")?>";
 	var L_TOO_BIG = "<?php $l->dump("TOO_BIG")?>";
