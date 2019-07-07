@@ -96,18 +96,22 @@ class Template
 		$tmpl->title = (self::$SubTitle === null ? ($tmpl->app->title) : self::$SubTitle);
 		$tmpl->navigation = new Application("menus");
 
-		/**
-		 * Minifiy the template On-The-Go
-		 * Script taken from
-		 * https://stackoverflow.com/questions/6225351/how-to-minify-php-page-html-output
-		 */
-		if (!defined("DISABLE_MINIFY")) ob_start(function ($b) {
-			return preg_replace(['/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s'], ['>', '<', '\\1'], $b);
+		$buffer = "";
+		ob_start(function ($output) use (&$buffer) {
+			/**
+			 * Minifiy the template On-The-Go
+			 * Script taken from
+			 * https://stackoverflow.com/questions/6225351/how-to-minify-php-page-html-output
+			 */
+			$buffer .= defined("DISABLE_MINIFY") ? $output : preg_replace(['/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s'], ['>', '<', '\\1'], $output);
+			return "";
 		});
 
 		if (!include_ext(self::$dir . "/" . $manifest["controller"], ["tmpl" => $tmpl]))
 			throw new PuzzleError("Cannot load template!", "Please set the default template");
 
+		ob_end_flush();
+		echo $buffer;
 		self::$Loaded = true;
 	}
 

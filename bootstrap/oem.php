@@ -21,7 +21,7 @@ define("__SYSTEM_NAME", "PuzzleOS");
  * Enable this define if you don't want the resulted HTML code 
  * being minified.
  */
-define("DISABLE_MINIFY", 1);
+// define("DISABLE_MINIFY", 1);
                             
 /**
  * Set the default PHP Execution Time Limit.

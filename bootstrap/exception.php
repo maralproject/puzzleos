@@ -30,7 +30,7 @@ class PuzzleError extends Exception
 		include __ROOTDIR . "/templates/system/500.php";
 	}
 
-	public function __construct($message, $suggestion = "",int $code = -1, Exception $previous = null, bool $log = true)
+	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, bool $log = true)
 	{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
@@ -101,8 +101,10 @@ class DatabaseError extends PuzzleError
 	}
 }
 
-class AppStartError extends PuzzleError{}
-class WorkerError extends PuzzleError{}
+class AppStartError extends PuzzleError
+{ }
+class WorkerError extends PuzzleError
+{ }
 
 register_shutdown_function(function () {
 	$e = error_get_last();

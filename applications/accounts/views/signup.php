@@ -32,7 +32,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa fa-user"></i></span>
 			</div>
-			<input maxlength="50" value="<?php h($_POST["fullname"])?>" required name="fullname" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("name")?>" >
+			<input autofocus maxlength="50" value="<?php h($_POST["fullname"])?>" required name="fullname" autocomplete="off" autocapitalize="none"  type="text" class="form-control" placeholder="<?php $language->dump("name")?>" >
 		</div><br>
 		<div class="input-group">
 			<div class="input-group-prepend">
