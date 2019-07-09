@@ -69,6 +69,7 @@ class Template
 		if (self::$Loaded) return;
 		flush();
 
+		$buffer = "";
 		self::$active = POSConfigMultidomain::$default_template;
 		self::$url = IO::publish(__ROOTDIR . "/templates/" . self::$active);
 		self::$dir = __ROOTDIR . "/templates/" . self::$active;
@@ -84,6 +85,10 @@ class Template
 			},
 			"printPrompt" => function () {
 				Prompt::printPrompt();
+			},
+			"flush" => function () use (&$buffer) {
+				ob_get_clean();
+				echo $buffer;
 			}
 		));
 
@@ -96,7 +101,6 @@ class Template
 		$tmpl->title = (self::$SubTitle === null ? ($tmpl->app->title) : self::$SubTitle);
 		$tmpl->navigation = new Application("menus");
 
-		$buffer = "";
 		ob_start(function ($output) use (&$buffer) {
 			/**
 			 * Minifiy the template On-The-Go
