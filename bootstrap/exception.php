@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 MARAL INDUSTRIES
  */
 
 /**
@@ -24,38 +24,58 @@ stream_wrapper_unregister("php");
 class PuzzleError extends Exception
 {
 	private $suggestion;
+	private static $printed = false;
+
+	private static function wLog($message, $suggestion, $file, $line, $trace)
+	{
+		$f = fopen(__ROOTDIR . "/error.log", "a+");
+		fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
+		fwrite($f, "Message: " . $message . "\r\n");
+		fwrite($f, "Suggestion: " . $suggestion . "\r\n");
+		fwrite($f, "Caller: $file($line)\r\n");
+		fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
+		fwrite($f, str_replace("#", "\r\n#", $trace));
+		fwrite($f, "\r\n=========\r\n");
+		fclose($f);
+	}
 
 	public static function printPage($msg = "", $suggestion = "")
 	{
+		if (self::$printed) return;
 		include __ROOTDIR . "/templates/system/500.php";
+		self::$printed = true;
+	}
+
+	public static function handleErrorView(\Throwable $e)
+	{
+		ob_end_flush();
+		while (ob_get_level()) ob_get_clean();
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		self::printPage($e->getMessage());
+		abort(500, "Internal Server Error");
+	}
+
+	public static function handleErrorControl(\Throwable $e)
+	{
+		ob_end_flush();
+		while (ob_get_level()) ob_get_clean();
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		abort(500, "Internal Server Error");
 	}
 
 	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, bool $log = true)
 	{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
-
-		if ($log) {
-			$f = fopen(__ROOTDIR . "/error.log", "a+");
-			fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
-			fwrite($f, "Message: " . $this->message . "\r\n");
-			fwrite($f, "Suggestion: " . $this->suggestion . "\r\n");
-			fwrite($f, "Caller: " . $this->getFile() . "(" . $this->getLine() . ")\r\n");
-			fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
-			fwrite($f, str_replace("#", "\r\n#", $this->getTraceAsString()));
-			fwrite($f, "\r\n=========\r\n");
-			fclose($f);
-		}
 	}
 
 	public function __toString()
 	{
-		//Clear all buffer
-		while (ob_get_level()) ob_get_clean();
-		if (!is_cli()) {
-			self::printPage($this->message, $this->suggestion);
+		if (is_cli()) {
+			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTraceAsString());
+			echo "\n---\n" . parent::__toString() . "\n";
 		} else {
-			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
+			self::handleErrorView($this);
 		}
 		return "";
 	}
@@ -105,11 +125,3 @@ class AppStartError extends PuzzleError
 { }
 class WorkerError extends PuzzleError
 { }
-
-register_shutdown_function(function () {
-	$e = error_get_last();
-	if ($e['type'] & (POSConfigGlobal::$error_code | E_ERROR | E_PARSE | E_COMPILE_ERROR)) {
-		abort(500, "Internal Server Error", false);
-		echo new PuzzleError("{$e['message']} on {$e['file']}({$e['line']})", null, $e['code']);
-	}
-});

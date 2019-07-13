@@ -49,6 +49,8 @@ class AppManager
 			} catch (AppStartError $e) {
 				abort(self::$MainApp->http_code, "Application Not Found", false);
 				Template::setSubTitle("Not found");
+			} catch (\Throwable $e) {
+				PuzzleError::handleErrorControl($e);
 			}
 		}
 	}
@@ -61,7 +63,7 @@ class AppManager
 	{
 		$list_app = AppManager::listAll()[$rootname];
 		if ($list_app["rootname"] != $rootname) throw new AppStartError("Application $rootname not found!", "", 404);
-		
+
 		/* Prepare the database */
 		foreach (glob($list_app["dir"] . "/*.table.php") as $table_abstract) {
 			$t = explode("/", rtrim($table_abstract, "/"));
@@ -82,7 +84,7 @@ class AppManager
 		$fval = function ($a, $f, $v) {
 			foreach ($a as $t) if ($t[$f] == $v) return $t;
 		};
-		
+
 		/* Caching database operation */
 		try {
 			$agroup = Database::readAll("app_users_grouplist");
@@ -104,14 +106,14 @@ class AppManager
 					if (isset($a[$manifest["rootname"]])) throw new PuzzleError("Rootname conflict detected on path: <b>" . __ROOTDIR . "/applications/" . $dir . "</b> and <b>" . $a[$manifest["rootname"]]["dir"] . "</b>");
 					if (strlen($manifest["rootname"]) > 50) continue;
 					switch ($manifest["rootname"]) {
-						//Filter pre-used rootname
+							//Filter pre-used rootname
 						case "assets":
 						case "security":
 							continue;
 						default:
 							break;
 					}
-					
+
 					/* Make sure that rootname always lowercase */
 					$manifest["rootname"] = strtolower($manifest["rootname"]);
 
@@ -330,7 +332,7 @@ class Application
 
 	private function __papp()
 	{
-		return (object)[
+		return (object) [
 			"title" => $this->title,
 			"desc" => $this->desc,
 			"appname" => $this->appname,

@@ -111,8 +111,12 @@ class Template
 			return "";
 		});
 
-		if (!include_ext(self::$dir . "/" . $manifest["controller"], ["tmpl" => $tmpl]))
-			throw new PuzzleError("Cannot load template!", "Please set the default template");
+		try {
+			if (!include_ext(self::$dir . "/" . $manifest["controller"], ["tmpl" => $tmpl]))
+				throw new PuzzleError("Cannot load template!", "Please set the default template");
+		} catch (\Throwable $e) {
+			PuzzleError::handleErrorView($e);
+		}
 
 		ob_end_flush();
 		echo $buffer;
