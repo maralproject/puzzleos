@@ -501,7 +501,7 @@ class Database
 
 		$args = [""];
 
-		$data = (object)["columns" => [], "values" => []];
+		$data = (object) ["columns" => [], "values" => []];
 		foreach ($row_input as $d) {
 			if (!$d instanceof DatabaseRowInput) throw new DatabaseError('$row_input should be a DatabaseRowInput');
 			$next_values = [];
@@ -580,6 +580,14 @@ class Database
 	public static function lastId()
 	{
 		return self::$link->insert_id;
+	}
+
+	/**
+	 * Returns the number of affected rows
+	 */
+	public static function affectedRows()
+	{
+		return self::$link->affected_rows;
 	}
 
 	/**

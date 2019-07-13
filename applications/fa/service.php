@@ -9,4 +9,5 @@
 
 $dir = IO::publish($appProp->path."/lib");
 
-Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/font-awesome.min.css"/>');
+Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/all.min.css"/>');
+Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/v4-shims.min.css"/>');
