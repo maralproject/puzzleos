@@ -55,12 +55,12 @@ class PuzzleError extends Exception
 		abort(500, "Internal Server Error");
 	}
 
-	public static function handleErrorControl(\Throwable $e)
+	public static function handleErrorControl(\Throwable $e, bool $abort = true)
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
 		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
-		abort(500, "Internal Server Error");
+		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
 	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, bool $log = true)

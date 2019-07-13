@@ -93,11 +93,11 @@ class Worker
 			$result = $function(explode(".", $job)[1], $execute["env"]["app"], $execute["env"]["appdir"]);
 			@ob_get_clean();
 			@ob_end_clean();
-		} catch (Exception $e) {
-			$result = false;
+			echo @openssl_encrypt(serialize($result), self::$_cipher, $key, OPENSSL_RAW_DATA);
+		} catch (\Throwable $e) {
+			echo @openssl_encrypt(false, self::$_cipher, $key, OPENSSL_RAW_DATA);
+			PuzzleError::handleErrorControl($e);
 		}
-
-		echo @openssl_encrypt(serialize($result), self::$_cipher, $key, OPENSSL_RAW_DATA);
 		exit;
 	}
 
