@@ -34,6 +34,7 @@ class PuzzleError extends Exception
 		fwrite($f, "Suggestion: " . $suggestion . "\r\n");
 		fwrite($f, "Caller: $file($line)\r\n");
 		fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
+		fwrite($f, "Session: " . session_id() . "\r\n");
 		fwrite($f, str_replace("#", "\r\n#", $trace));
 		fwrite($f, "\r\n=========\r\n");
 		fclose($f);
@@ -42,7 +43,14 @@ class PuzzleError extends Exception
 	public static function printPage($msg = "", $suggestion = "")
 	{
 		if (self::$printed) return;
-		include __ROOTDIR . "/templates/system/500.php";
+
+		$active = POSConfigMultidomain::$default_template;
+		if (file_exists(__ROOTDIR . "/templates/$active/500.php")) {
+			include __ROOTDIR . "/templates/$active/500.php";
+		} else {
+			include __ROOTDIR . "/templates/system/500.php";
+		}
+
 		self::$printed = true;
 	}
 
@@ -63,7 +71,7 @@ class PuzzleError extends Exception
 		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
-	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, bool $log = true)
+	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null)
 	{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
