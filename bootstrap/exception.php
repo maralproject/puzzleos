@@ -71,10 +71,12 @@ class PuzzleError extends Exception
 		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
-	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null)
+	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, string $file = null, int $line = null)
 	{
 		$this->suggestion = $suggestion;
 		parent::__construct($message, $code, $previous);
+		if ($file) $this->file = $file;
+		if ($line) $this->line = $line;
 	}
 
 	public function __toString()
@@ -133,3 +135,11 @@ class AppStartError extends PuzzleError
 { }
 class WorkerError extends PuzzleError
 { }
+
+register_shutdown_function(function () {
+	$e = error_get_last();
+	if ($e['type'] & (E_COMPILE_ERROR | E_CORE_ERROR)) {
+		// Something went wrong with PHP code. Not by catchable errors.
+		PuzzleError::handleErrorView(new PuzzleError($e['message'], "PHP Core/Compile error occured", $e['type'], null, $e['file'], $e['line']));
+	}
+});
