@@ -269,13 +269,13 @@ class Database
 		self::$link = @new mysqli(POSConfigDB::$host, POSConfigDB::$username, POSConfigDB::$password, POSConfigDB::$database_name);
 		if (self::$link->connect_error) {
 			abort(503, "Internal Server Error", false);
-			throw new DatabaseError(self::$link->connect_error, "PuzzleOS only supports MySQL or MariaDB");
+			throw new DatabaseError(self::$link->connect_error, "PuzzleOS only supports MySQL or MariaDB", (int) self::$link->connect_errno);
 		}
 	}
 
 	private static function dumpError()
 	{
-		throw new DatabaseError('MySQL Error: ' . self::$link->error);
+		throw new DatabaseError('MySQL Error', self::$link->error, self::$link->errno);
 	}
 
 	/**
@@ -324,10 +324,10 @@ class Database
 				self::flushCache();
 				self::connect();
 				if (!($r = self::$link->query($escaped))) {
-					throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped);
+					throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped, (int) self::$link->errno);
 				}
 			} else
-				throw new DatabaseError(self::$link->error, $escaped, self::$link->errno);
+				throw new DatabaseError(self::$link->error, $escaped, (int) self::$link->errno);
 		}
 	}
 
