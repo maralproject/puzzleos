@@ -753,7 +753,7 @@ class Database
 			return $r;
 		} catch (Exception $e) {
 			self::$link->rollback();
-			throw new PuzzleError($e->getMessage(), $e->getCode());
+			throw $e;
 		}
 	}
 
