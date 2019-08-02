@@ -39,6 +39,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 				<span class="input-group-text"><i class="fa fa-user"></i></span>
 			</div>
 			<input oninvalid="setCustomValidity('<?php $language->dump("USERNAME_VALIDITY")?>')" onchange="try{setCustomValidity('')}catch(e){}" maxlength="25" value="<?php h($_POST["user"])?>" pattern="^[0-9a-z_]*$" required name="user" autocomplete="off" autocapitalize="none"  type="text" class="form-control<?php if($GLOBALS["unmsd"]) echo " is-invalid"?>" placeholder="<?php $language->dump("username")?>" >
+			<div class="invalid-feedback" style="text-align:left;"><?php $language->dump("SIGNUPERR1")?></div>
 		</div><br>
 		<?php if(Accounts::$customM_UE || Accounts::getSettings()["f_reg_required1"] == "on"):?>
         <div class="input-group">
@@ -46,6 +47,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 				<span class="input-group-text"><i class="fa fa-envelope"></i></span>
 			</div>
 			<input value="<?php h($_POST["email"])?>" required name="email" type="email" autocomplete="off" autocapitalize="none" class="form-control<?php if($GLOBALS["aemsd"]) echo " is-invalid"?>" placeholder="<?php $language->dump("email")?>">
+			<div class="invalid-feedback" style="text-align:left;"><?php $language->dump("SIGNUPERR2")?></div>
 		</div><br>
 		<?php endif?>
 		<?php if(Accounts::$customM_UP || Accounts::getSettings()["f_reg_required2"] == "on"):?>
@@ -54,6 +56,7 @@ $en_recaptcha = Accounts::getSettings()["f_en_recaptcha"] == "on";
 				<span class="input-group-text"><i class="fa fa-phone"></i></span>
 			</div>
 			<input value="<?php h($_POST["phone"])?>" required name="phone" pattern="^[0-9\+]{8,15}$" autocomplete="off" autocapitalize="none" class="form-control<?php if($GLOBALS["nhpsd"]) echo " is-invalid"?>" placeholder="<?php $language->dump("phone")?>">
+			<div class="invalid-feedback" style="text-align:left;"><?php $language->dump("SIGNUPERR3")?></div>
 		</div><br>
 		<?php endif?>
 		<div class="input-group">

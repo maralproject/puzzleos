@@ -140,5 +140,8 @@ return array(
 	"TFA_INFO"			=>	"User without a valid email or phone number cannot be signed in.",
 	"VER_CODE"			=>	"Verification Code",
 	"TFA_MAIL1"			=>	"Use this verification code for your Account.",
-	"TFA_INFO2"			=>	"We have sent verification code to"
+	"TFA_INFO2"			=>	"We have sent verification code to",
+	"SIGNUPERR1"		=>	"Username has already used",
+	"SIGNUPERR2"		=>	"Email has already used",
+	"SIGNUPERR3"		=>	"Phone number has already used",
 );

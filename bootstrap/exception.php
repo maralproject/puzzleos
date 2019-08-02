@@ -138,7 +138,7 @@ class WorkerError extends PuzzleError
 
 register_shutdown_function(function () {
 	$e = error_get_last();
-	if ($e['type'] & (E_COMPILE_ERROR | E_CORE_ERROR)) {
+	if ($e['type'] & (E_COMPILE_ERROR | E_CORE_ERROR | 1)) {
 		// Something went wrong with PHP code. Not by catchable errors.
 		PuzzleError::handleErrorView(new PuzzleError($e['message'], "PHP Core/Compile error occured", $e['type'], null, $e['file'], $e['line']));
 	}

@@ -69,8 +69,16 @@ class Mailer extends PHPMailer{
 			$this->SMTPAuth = POSConfigMailer::$smtp_use_auth;
 			$this->Username = POSConfigMailer::$smtp_username;
 			$this->Password = POSConfigMailer::$smtp_password;
-			if($smtp["Encryption"]!="none")	$this->SMTPSecure = POSConfigMailer::$smtp_encryption;
+			if($this->smtp["Encryption"]!="none")	$this->SMTPSecure = POSConfigMailer::$smtp_encryption;
 			$this->Port = POSConfigMailer::$smtp_port;
+			// Allowing self-signed cert.
+			$this->SMTPOptions = array(
+				'ssl' => array(
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+					'allow_self_signed' => true
+				)
+			);
 		}
 		
 		//DKIM Stuff
