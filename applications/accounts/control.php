@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -92,7 +93,7 @@ if ($appProp->isMainApp && !is_cli()) {
 				(new DatabaseRowInput)
 					->setField("group", $group_reg)
 					->setField("name", $_POST["fullname"])
-					->setField("email", $require_activation ? $_POST["email"] : "")
+					->setField("email", $require_activation ? $_POST["email"] : null)
 					->setField("phone", $_POST["phone"])
 					->setField("lang", "def")
 					->setField("password", Accounts::hashPassword($_POST["password"]))
@@ -136,7 +137,7 @@ if ($appProp->isMainApp && !is_cli()) {
 						$mailer->body = ob_get_clean();
 						return $mailer->sendHTML();
 					})->run(["standalone" => true]);
-					
+
 					/* Redirect to login page */
 					$_SESSION['account']['signup_emailsent'] = $act_code['confirm_activation']['key'];
 					Prompt::postGood($language->get("ECHS") . $email, true);
@@ -189,11 +190,10 @@ if ($appProp->isMainApp && !is_cli()) {
 				}
 
 				/* Authenticate */
-				Accounts::addSession($f_id);
+				Accounts::addSession((int) $f_id);
 				redirect($_POST["redir"]);
 			}
 		}
-
 	} elseif (request("action") == "activate" && !$_SESSION['account']['loggedIn']) {
 		/**
 		 * Activate account
@@ -274,7 +274,7 @@ if ($appProp->isMainApp && !is_cli()) {
 
 			if ($userid = Accounts::authUserId($_POST['user'], $_POST['pass'])) {
 				if (Accounts::getSettings()["f_tfa"] == "on") {
-					if (false === $redirectto = Accounts::challengeTFA($_POST['redir'] ? : "/")) {
+					if (false === $redirectto = Accounts::challengeTFA($_POST['redir'] ?: "/")) {
 						Prompt::postError($language->get("VER_ERR_SEND"), true);
 						redirect("users/login?redir=" . $_POST["redir"]);
 					} else {
@@ -407,7 +407,6 @@ if ($appProp->isMainApp && !is_cli()) {
 							$d->setField("email", $_POST["email"]);
 							$_SESSION['account']['email'] = $_POST['email'];
 						}
-
 					} else {
 						$d->setField("phone", $_POST["phone"]);
 						if ($_POST['email'] != $_SESSION['account']['email'] && $_POST['email'] != "") {
