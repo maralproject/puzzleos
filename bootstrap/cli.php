@@ -43,57 +43,61 @@ class PuzzleCLI
 	 */
 	public static function run($a)
 	{
-		if (!is_cli()) return false;
-		ini_set('max_execution_time', 0); //Disable PHP timeout
-		if (!ends_with($a[0], "puzzleos")) throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
-		
-		/* Generating Argument list */
-		reset($a);
-		next($a);
-		$p = next($a);
-		$arg = [];
-		while (1) {
-			if ($p === false) break;
-			$arg[$p] = (substr($p, 0, 2) == "--") ? next($a) : true;
+		try {
+			if (!is_cli()) return false;
+			ini_set('max_execution_time', 0); //Disable PHP timeout
+			if (!ends_with($a[0], "puzzleos")) throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
+
+			/* Generating Argument list */
+			reset($a);
+			next($a);
 			$p = next($a);
-			if ($p === false) break;
-		}
-		
-		/* Loading app */
-		$app = $a[1];
-		if (strpos($app, "sys/") === false) {
-			$appProp = new Application($a[1]);
-			if ($app == "") exit;
-			if (!isset(self::$list[$app]))
-				throw new PuzzleError("Application doesn't register handler for CLI");
+			$arg = [];
+			while (1) {
+				if ($p === false) break;
+				$arg[$p] = (substr($p, 0, 2) == "--") ? next($a) : true;
+				$p = next($a);
+				if ($p === false) break;
+			}
 
-			$io = new PObject([
-				"in" => function () {
-					return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
-				},
-				"out" => function ($o) {
-					echo trim($o, "\t");
-					flush();
-				}
-			]);
+			/* Loading app */
+			$app = $a[1];
+			if (strpos($app, "sys/") === false) {
+				$appProp = new Application($a[1]);
+				if ($app == "") exit;
+				if (!isset(self::$list[$app]))
+					throw new PuzzleError("Application doesn't register handler for CLI");
 
-			$f = self::$list[$app];
-			$f($io, $arg);
-		} else {
-			/* This is part of the system */
-			$sys = explode("sys/", $app)[1];
-			if ($sys == "cron") {
-				if ($arg["run"])
-					CronJob::run((bool)$arg["force"]);
-				else throw new PuzzleError("Invalid action");
-			} elseif ($sys == "cache") {
-				if ($arg["flush"]) {
-					IO::remove_r("/public/cache");
-					IO::remove_r("/public/res");
-					IO::remove_r("/storage/cache");
-				} else throw new PuzzleError("Invalid action");
-			} else
-				throw new PuzzleError("Invalid parameter");
+				$io = new PObject([
+					"in" => function () {
+						return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
+					},
+					"out" => function ($o) {
+						echo trim($o, "\t");
+						flush();
+					}
+				]);
+
+				$f = self::$list[$app];
+				$f($io, $arg);
+			} else {
+				/* This is part of the system */
+				$sys = explode("sys/", $app)[1];
+				if ($sys == "cron") {
+					if ($arg["run"])
+						CronJob::run((bool) $arg["force"]);
+					else throw new PuzzleError("Invalid action");
+				} elseif ($sys == "cache") {
+					if ($arg["flush"]) {
+						IO::remove_r("/public/cache");
+						IO::remove_r("/public/res");
+						IO::remove_r("/storage/cache");
+					} else throw new PuzzleError("Invalid action");
+				} else
+					throw new PuzzleError("Invalid parameter");
+			}
+		} catch (Throwable $e) {
+			PuzzleError::handleErrorCLI($e);
 		}
 	}
 }

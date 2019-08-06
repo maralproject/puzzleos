@@ -71,6 +71,14 @@ class PuzzleError extends Exception
 		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
+	public static function handleErrorCLI(\Throwable $e)
+	{
+		ob_end_flush();
+		while (ob_get_level()) ob_get_clean();
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		return $e->__toString();
+	}
+
 	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, string $file = null, int $line = null)
 	{
 		$this->suggestion = $suggestion;
