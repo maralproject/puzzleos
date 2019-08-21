@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /**
@@ -34,7 +34,7 @@ Database::newStructure("multidomain_config", (new DatabaseTableBuilder)
         (new DatabaseRowInput)
             ->setField("host", "{root}")
             ->setField("default_app", "admin")
-            ->setField("default_template", "blank")
+            ->setField("default_template", "admin_theme")
             ->setField("restricted_app", "[]")
     ]));
 
@@ -42,7 +42,7 @@ Database::newStructure("multidomain_config", (new DatabaseTableBuilder)
 Database::newStructure("app_security", (new DatabaseTableBuilder)
     ->addColumn("rootname", "VARCHAR(50)")->setAsPrimaryKey()
     ->addColumn("group", "INT")->allowNull(true)
-    ->addColumn("system", "INT")->defaultValue("0")
+    ->addColumn("system", "TINYINT")->defaultValue(0)
 
     ->insertFresh([
         (new DatabaseRowInput)->setField("rootname", "admin")->setField("system", 1),

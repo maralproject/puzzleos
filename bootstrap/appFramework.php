@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /**
@@ -105,8 +105,9 @@ class AppManager
 					if ($manifest["rootname"] == "") continue;
 					if (isset($a[$manifest["rootname"]])) throw new PuzzleError("Rootname conflict detected on path: <b>" . __ROOTDIR . "/applications/" . $dir . "</b> and <b>" . $a[$manifest["rootname"]]["dir"] . "</b>");
 					if (strlen($manifest["rootname"]) > 50) continue;
+					
+					#Filter pre-reserved rootname
 					switch ($manifest["rootname"]) {
-							//Filter pre-used rootname
 						case "assets":
 						case "security":
 							continue;
@@ -412,18 +413,18 @@ class Application
 				}
 
 				//Walaupun grup di database didefinisikan, tapi jika level aplikasi lebih kuat, maka kita ikut level aplikasi untuk autentikasi.
-				$group_level = Accounts::getAuthLevel($this->group);
+				$group_level = PuzzleUserGroup::get($this->group)->level;
 
 				if ($group_level > $this->level) {
-					$this->forbidden = !Accounts::authAccess($this->level);
+					$this->forbidden = !PuzzleUser::isAccess($this->level);
 				} else {
-					$this->forbidden = !Accounts::authAccessAdvanced($this->group);
+					$this->forbidden = !PuzzleUser::isGroupAccess(PuzzleUserGroup::get($this->group));
 				}
 
 				//In current started because browser need private assets.
 				$this->isMainApp = basename(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3)[2]["file"]) != "boot.php";
 			} else {
-				$this->forbidden = !Accounts::authAccess($this->level);
+				$this->forbidden = !PuzzleUser::isAccess($this->level);
 				$this->isMainApp = false;
 			}
 		} else {

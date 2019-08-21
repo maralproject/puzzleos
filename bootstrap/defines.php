@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /***********************************
@@ -15,7 +15,7 @@
 
 define("START_TIME", time());
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.0.8");
+define("__POS_VERSION", "3.1.11");
 
 /**
  * Return /path/to/qualified/root/directory

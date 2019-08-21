@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /**
@@ -145,7 +145,7 @@ class PuzzleSession implements SessionHandlerInterface
 			$this->config = ["retain_on_same_pc" => false, "share_on_subdomain" => false];
 			$this->client = $this->getClient();
 		}
-		session_id($this->id);
+		// session_id($this->id);
 		return true;
 	}
 
@@ -178,7 +178,7 @@ class PuzzleSession implements SessionHandlerInterface
 				$di->setField("cnf", serialize($this->config));
 				$di->setField("start", time());
 				$di->setField("expire", time() + $this->expire);
-				$di->setField("user", $_SESSION['account']['id']);
+				$di->setField("user", PuzzleUser::check() ? PuzzleUser::active()->id : null);
 				return Database::insert("sessions", [$di]) ? true : false;
 			} catch (DatabaseError $e) {
 				$this->in_db = false;
@@ -191,7 +191,7 @@ class PuzzleSession implements SessionHandlerInterface
 					$di->setField("content", $data);
 					$di->setField("cnf", serialize($this->config));
 					$di->setField("expire", time() + $this->expire);
-					$di->setField("user", $_SESSION['account']['id']);
+					$di->setField("user", PuzzleUser::check() ? PuzzleUser::active()->id : null);
 					return Database::update("sessions", $di, "session_id", $this->id) ? true : false;
 				}
 			} catch (DatabaseError $e) {
@@ -261,6 +261,7 @@ class PuzzleSession implements SessionHandlerInterface
 		self::$sess = new PuzzleSession;
 		session_set_save_handler(self::$sess);
 		ini_set('session.use_cookies', 0);
+		session_id(self::$sess->id);
 		session_start();
 	}
 

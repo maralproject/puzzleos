@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 $l = new Language;?>
@@ -243,7 +243,7 @@ $l = new Language;?>
 									<?php endforeach?>
 								</select>
 								<div class="input-group-append">
-									<button class="btn btn-danger" type="button" onclick="$('#mdomain_list').trigger('rmd')"><?php $l->dump("rod")?></button>
+									<button style="padding: 8px 20px;" class="btn btn-danger" type="button" onclick="$('#mdomain_list').trigger('rmd')"><?php $l->dump("rod")?></button>
 								</div>
 							</div>
 						</div>

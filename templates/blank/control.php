@@ -11,10 +11,10 @@
 			<?php 
 				if($tmpl->http_code == 200) $tmpl->app->loadMainView();
 				else if($tmpl->http_code == 403){
-					if(Accounts::authAccess(USER_AUTH_REGISTERED)){
+					if(PuzzleUser::isAccess(USER_AUTH_REGISTERED)){
 						include("404.php");
 					}else
-						redirect("users?redir=/".urlencode(__HTTP_REQUEST));
+						redirect("/users?redir=/".urlencode(__HTTP_REQUEST));
 				}else include("404.php");
 			?>
 		</div>

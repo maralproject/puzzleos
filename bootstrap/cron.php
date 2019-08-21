@@ -1,10 +1,11 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /**
@@ -159,6 +160,8 @@ class CronJob
      */
     public static function register($key, $F, ...$trigger)
     {
+        // Can only be called on CLI
+        if (!is_cli()) return; 
         if (strlen($key) > 20) throw new PuzzleError("Key length must be less than 20 characters");
         if (!is_callable($F)) throw new PuzzleError("Incorrect parameter");
         $appname = self::init();

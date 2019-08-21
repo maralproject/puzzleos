@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 /**
@@ -34,7 +34,7 @@ class LangManager
 		//Increase the language option for your user here!
 		$r = '<div class="input-group">
 				' . ($use_logo ? '<div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-language"></i></span></div>' : '') . '
-				<select name="' . $id . '" id="' . $id . '_selector" class="form-control languageList" data-live-search="true">';
+				<select name="' . $id . '" id="' . $id . '_selector" class="custom-select languageList" data-live-search="true">';
 		if ($location_option) $r .= '<option value="loc"' . ($val == "loc" ? ' selected' : '') . '>Based on location</option>';
 		if (!$without_default) $r .= '<option value="def"' . ($val == "def" ? ' selected' : '') . '>Default</option>';
 		
@@ -100,10 +100,10 @@ class LangManager
 		if (self::$forced !== false) {
 			return self::$forced;
 		} else {
-			if ($_SESSION['account']['loggedIn'] == 0) {
+			if (!PuzzleUser::check()) {
 				$langs = POSConfigGlobal::$default_language;
 			} else {
-				$langs = $_SESSION['account']['lang'];
+				$langs = PuzzleUser::active()->lang;
 				if ($langs == "def") $langs = POSConfigGlobal::$default_language;
 			}
 

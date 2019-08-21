@@ -4,15 +4,27 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 $l=new Language;?>
 <div style="max-width:1170px;margin:5px auto;">
-	<ul class="nav nav-tabs" style="font-size:15pt;">
-		<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#conf"><i class="fa fa-cogs"></i></a></li>
-		<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#templates"><i class="fa fa-paint-brush"></i></a></li>
-		<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#apps"><i class="fa fa-th-large"></i></a></li>
+	<ul class="nav nav-tabs">
+		<li class="nav-item">
+			<a class="nav-link active" data-toggle="tab" href="#conf"><i style="margin-right:5px" class="fa fa-cogs"></i>
+			Settings
+			</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#templates"><i style="margin-right:5px" class="fa fa-paint-brush"></i>
+			Theme
+			</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#apps"><i style="margin-right:5px" class="fa fa-th-large"></i>
+			Applications
+			</a>
+		</li>
 	</ul>
 	<div style="clear:both;height:25px;"></div>
 	<div class="tab-content" style="padding-bottom:15vh;">

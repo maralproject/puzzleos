@@ -4,12 +4,27 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 spl_autoload_register(function ($c) {
     $r = __ROOTDIR . "/bootstrap";
     switch ($c) {
+        case "Accounts":
+        case "PuzzleUser":
+        case "PuzzleUserGroup":
+        case "PuzzleUserConfig":
+        case "PuzzleUserOTP":
+        case "PuzzleUserRecaptcha":
+            require(__ROOTDIR . "/applications/accounts/class/$c.php");
+            break;
+        case "PuzzleUserException\\MissingField":
+        case "PuzzleUserException\\InvalidField":
+        case "PuzzleUserException\\UserNotFound":
+        case "PuzzleUserException\\GroupNotFound":
+        case "PuzzleUserException\\FailedToSendOTP":
+            require(__ROOTDIR . "/applications/accounts/exception/" . end(explode("\\", $c)) . ".php");
+            break;
         case "Automattic\\Phone\\Iso3166":
         case "Automattic\\Phone\\Mobile_Validator":
             require("$r/vendor/automattic/phone/Mobile_Validator.php");

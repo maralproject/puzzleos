@@ -1,33 +1,33 @@
-<?php
-/**
- * PuzzleOS
- * Build your own web-based application
- * 
- * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
- */
-?>
-
-<script>
-	var user_config_changed = 0;
-	function reloadGroup(){if(user_config_changed == 1){location.reload();}else{$('#groups').show();}}
-	function reloadUsers(){if(user_config_changed == 1){location.reload();}else{$('#userlist').show();}}
-</script>
-
-<div class="container" style="margin-top:5px;">
-	<ul class="nav nav-tabs" style="font-size:15pt;">
-		<li onclick="$('.tab').hide();reloadUsers();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link active" data-toggle="tab" href="#userlist"><i class="fa fa-list-ul"></i></a></li>
-		<li onclick="$('.tab').hide();reloadGroup();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link" data-toggle="tab" href="#groups"><i class="fa fa-users"></i></a></li>
-		<li onclick="$('.tab').hide();$('#setting').show();$('.tabS').removeClass('active');$(this).addClass('active');hideMessage();return false;" class="nav-item tabS"><a class="nav-link" data-toggle="tab" href="#setting"><i class="fa fa-wrench"></i></a></li>
+<?php include "initjs.php" ?>
+<h1>User Account</h1><br>
+<div>
+	<ul class="nav nav-tabs">
+		<li class="nav-item">
+			<a class="nav-link active" data-toggle="tab" href="#uusers">
+				<i style="margin-right:5px" class="fa fa-user"></i>Users
+			</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#ugroups">
+				<i style="margin-right:5px" class="fa fa-users"></i>Groups
+			</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#usettings">
+				<i style="margin-right:5px" class="fa fa-wrench"></i>Settings
+			</a>
+		</li>
 	</ul>
-	<br>
-	<div id="userlist" class="tab">
-		<?php include("views/manage_user.php")?>
-	</div>
-	<div id="groups" class="tab" style="display:none;">
-		<?php include("views/manage_group.php")?>
-	</div>
-	<div id="setting" class="tab" style="display:none;">
-		<?php include("views/manage_config.php")?>
+	<div style="clear:both;height:25px;"></div>
+	<div class="tab-content" style="padding-bottom:15vh;">
+		<div id="uusers" class="tab-pane active">
+			<?php include "admin/user.php" ?>
+		</div>
+		<div id="ugroups" class="tab-pane">
+			<?php include "admin/group.php" ?>
+		</div>
+		<div id="usettings" class="tab-pane">
+			<?php include "admin/config.php" ?>
+		</div>
 	</div>
 </div>

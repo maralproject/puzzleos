@@ -3,9 +3,8 @@
  * PuzzleOS
  * Build your own web-based application
  *
- * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 MARAL INDUSTRIES
  */
 
 if(!version_compare(PHP_VERSION,"7.0.0",">=")){
@@ -251,9 +250,9 @@ if($_POST["finale"] == "yes"){
 				</div><br>
 				<script>$("select[name=timezone]").val(jstz.determine().name());</script>			
 				<div class="row">
-					<label class="col-lg-3 control-label">Username</label>
+					<label class="col-lg-3 control-label">E-mail Address</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="text" class="form-control" autocomplete="off" placeholder="admin" name="username" required>
+						<input type="email" class="form-control" autocomplete="off" placeholder="admin" name="username" required>
 					</div>
 				</div><br>
 				<div class="row">

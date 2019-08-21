@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 define("MENU_DEFAULT_POSITION_LEFT", 0);
@@ -24,7 +24,7 @@ if($appProp->isMainApp){
 				->setField("name","")
 				->setField("link","")
 				->setField("fa","tags")
-				->setField("minUser",Accounts::getRootGroupId(USER_AUTH_PUBLIC))
+				->setField("minUser",PuzzleUserGroup::getRootByLevel(USER_AUTH_PUBLIC)->id)
 				->setField("location",MENU_DEFAULT_POSITION_LEFT)
 			]) or die;
 			$id = Database::max("app_menus_main","id");

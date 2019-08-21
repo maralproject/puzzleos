@@ -1,0 +1,100 @@
+/* Black */
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 900;
+  src: url("./HelveticaNeue-Black.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 900;
+  font-style: italic;
+  src: url("./HelveticaNeue-BlackItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 800;
+  src: url("./HelveticaNeue-Heavy.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 800;
+  font-style: italic;
+  src: url("./HelveticaNeue-HeavyItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 700;
+  src: url("./HelveticaNeue-Bold.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 700;
+  font-style: italic;
+  src: url("./HelveticaNeue-BoldItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 600;
+  src: url("./HelveticaNeue-Medium.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 600;
+  font-style: italic;
+  src: url("./HelveticaNeue-MediumItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 500;
+  src: url("./HelveticaNeue-Medium.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 500;
+  font-style: italic;
+  src: url("./HelveticaNeue-MediumItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 400;
+  src: url("./HelveticaNeue-Roman.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 400;
+  font-style: italic;
+  src: url("./HelveticaNeue-Italic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 300;
+  src: url("./HelveticaNeue-Thin.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 300;
+  font-style: italic;
+  src: url("./HelveticaNeue-ThinItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 200;
+  src: url("./HelveticaNeue-Light.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 200;
+  font-style: italic;
+  src: url("./HelveticaNeue-LightItalic.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 100;
+  src: url("./HelveticaNeue-UltraLight.otf");
+}
+@font-face {
+  font-family: "Neue Helvetica";
+  font-weight: 100;
+  font-style: italic;
+  src: url("./HelveticaNeue-UltraLightItal.otf");
+}

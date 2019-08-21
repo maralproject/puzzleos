@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 ?>
 
@@ -27,7 +27,8 @@
 .tmpl .selected_t:before{
 	color:white;
 	content:"\f058";
-	font-family:FontAwesome;
+	font-family:"Font Awesome 5 Free";
+	font-weight: 700;
 	font-size:40pt;
     position: absolute;
 	bottom:10px;
@@ -42,10 +43,14 @@
 	border:1px solid #606060;
 }
 
-.tmpl .selected_t h6{	
+.tmpl div.bb{
+	padding: 15px 0;
+}
+
+.tmpl .selected_t div.bb{	
 	color:white!important;
 }
-</style><?php echo Minifier::getCSSFile()?>
+</style><?php echo Minifier::outCSSMin()?>
 <div class="tmpl row" style="margin-left:5px;margin-right:5px;">
 	<?php
 		foreach(Template::listAll() as $d){
@@ -53,13 +58,10 @@
 			$preview = glob(__ROOTDIR . "/templates/".$d["name"]."/preview.*");
 			if($preview[0]=="") $preview="";
 			else $preview = IO::publish($preview[0]);
-			echo('
-			<div style="margin:0px;" class="col col-md-4 '.($d["active"] == 1?"selected_t":"").'" '.($d["active"] == 1?"":$link).'>
+			echo('<div style="margin:0px;" class="col col-md-4 '.($d["active"] == 1?"selected_t":"").'" '.($d["active"] == 1?"":$link).'>
 				<div style="background-image:url(\''.$preview.'\');background-repeat:no-repeat;background-size:contain;width:100%;height:180px;background-position:center;"></div>
-				<br>
-				<h6>'.$d["title"].'</h6>
-			</div>
-			');
+				<div class="bb ellipsis">'.$d["title"].'</div>
+			</div>');
 		}
 	?>
 </div>

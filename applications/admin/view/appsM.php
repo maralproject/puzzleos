@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 $s_app = new Application; $s_app->run("search_box");
@@ -78,7 +78,7 @@ small{
 				<?php if($d["system"] == "0" && $d["default"]!="3"):?>
 				<?php $acc_app->loadView("group_button",["auth_".$d["name"],$d["group"],$d["level"]])?>
 				<?php else:?>
-				<?php echo Accounts::getGroupName($d["group"])?>
+				<?php echo PuzzleUserGroup::get($d["group"])->name?>
 				<?php endif?>
 				</small>
 			</td>

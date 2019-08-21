@@ -4,7 +4,7 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 $func = [
@@ -24,7 +24,6 @@ $func = [
 			$dataLvl[1] = Database::readAll("app_users_grouplist","WHERE `level`=1");
 			$dataLvl[2] = Database::readAll("app_users_grouplist","WHERE `level`=2");
 			$dataLvl[3] = Database::readAll("app_users_grouplist","WHERE `level`=3");
-			$l = new Language;$l->app="users";
 			ob_start();
 			?>
 			<style>
@@ -35,12 +34,14 @@ $func = [
 				cursor:pointer;
 			}
 			.user_card:before{
-				font-family:FontAwesome;
+				font-family:"Font Awesome 5 Free";
+				font-weight: 700;
 				content:"\f007";
 				margin-right:10px;
 			}
 			.group_card:before{
-				font-family:FontAwesome;
+				font-family:"Font Awesome 5 Free";
+				font-weight: 700;
 				content:"\f0c0"!important;
 				margin-right:10px;
 			}
@@ -56,7 +57,7 @@ $func = [
 			$(document).on("click","button.uglb_trig",function(){
 				var btn = $(this);
 				hideMessage();
-				showMessage($("#groupListSystem").html(),"info","GroupSel",false);
+				showMessage($("#groupListSystem").text(),"info","GroupSel",false);
 				$(".ugsel").attr("inputid",btn.attr("inputid"));
 				switch(btn.attr("level")){
 					case "0":
@@ -71,13 +72,13 @@ $func = [
 				$(".ugsel[inputid=" + btn.attr("inputid") + "] .group_card").on("click",function(){
 					hideMessage();
 					$("#" + $(this).parent().attr("inputid")).val($(this).attr("uid")).trigger("change");
-					$("#UGLB_" + $(this).parent().attr("inputid")).html($(this).html());
+					$("#UGLB_" + $(this).parent().attr("inputid")).text($(this).text());
 				});
 			});
 			</script>
 			<?php $t2 = Minifier::outJSMin(); ob_start(); echo $t1; echo $t2;?>
 			<div id="groupListSystem" style="display:none!important;">
-				<?php $l->dump("SEL_GROUP")?>:
+				<div>Select User Group</div>
 				<div inputid="" class="ugsel" style="max-height:250px;overflow:auto;">
 				<?php
 				foreach($dataLvl[0] as $d){
@@ -108,12 +109,39 @@ $func = [
 			<?php Template::appendBody(ob_get_clean());
 			unset($dataLvl);
 		}
-		define("__UGLB_OUT");
+		define("__UGLB_OUT",1);
 		?>
 		<input type="hidden" class="usergroup-input" name="<?php echo $input_name?>" id="<?php echo $input_name?>" value="<?php echo $group?>">
 		<button level="<?php echo $level_option?>" inputid="<?php echo $input_name?>" type="button" class="uglb_trig btn btn-secondary btn-sm dropdown-toggle" style="border-radius:50px;">
-			<span id="UGLB_<?php echo $input_name?>"><?php echo Accounts::getGroupName($group)?></span> <span class="caret"></span>
+			<span id="UGLB_<?php echo $input_name?>"><?php h(PuzzleUserGroup::get($group)->name)?></span> <span class="caret"></span>
 		</button>
+		<?php
+	},
+	"group_dropdown" => function($value = null, $class = null){
+		$g = PuzzleUserGroup::getList();
+		?>
+		<select class="custom-select <?php h($class)?>">
+			<optgroup label="Superuser">
+				<?php foreach($g[USER_AUTH_SU] as $r):?>
+				<option value="<?php h($r->id)?>" <?php if($value && $value == $r->id) echo 'selected'?>><?php h($r->name)?></option>
+				<?php endforeach?>
+			</optgroup>
+			<optgroup label="Employee">
+				<?php foreach($g[USER_AUTH_EMPLOYEE] as $r):?>
+				<option value="<?php h($r->id)?>" <?php if($value && $value == $r->id) echo 'selected'?>><?php h($r->name)?></option>
+				<?php endforeach?>
+			</optgroup>
+			<optgroup label="Registered">
+				<?php foreach($g[USER_AUTH_REGISTERED] as $r):?>
+				<option value="<?php h($r->id)?>" <?php if($value && $value == $r->id) echo 'selected'?>><?php h($r->name)?></option>
+				<?php endforeach?>
+			</optgroup>
+			<optgroup label="Public">
+				<?php foreach($g[USER_AUTH_PUBLIC] as $r):?>
+				<option value="<?php h($r->id)?>" <?php if($value && $value == $r->id) echo 'selected'?>><?php h($r->name)?></option>
+				<?php endforeach?>
+			</optgroup>
+		</select>
 		<?php
 	}
 ];

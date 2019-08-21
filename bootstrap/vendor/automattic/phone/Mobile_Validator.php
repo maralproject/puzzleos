@@ -6,7 +6,10 @@ require_once(__DIR__ . '/Iso3166.php');
 
 class Mobile_Validator
 {
-	private function get_iso3166_entry($country_name)
+	private function __construct()
+	{ }
+
+	private static function get_iso3166_entry($country_name)
 	{
 		switch (strlen($country_name)) {
 			case 0:
@@ -44,14 +47,16 @@ class Mobile_Validator
 		return array();
 	}
 
-	private function get_iso3166_by_phone($phone_number)
+	private static function get_iso3166_by_phone($phone_number)
 	{
 		foreach (Iso3166::get_data() as $iso3166_entry) {
 			foreach ($iso3166_entry["phone_number_lengths"] as $number_length) {
 				$country_code = $iso3166_entry["country_code"];
 
-				if (0 === strpos($phone_number, $country_code) &&
-					strlen($phone_number) == strlen($country_code) + $number_length) {
+				if (
+					0 === strpos($phone_number, $country_code) &&
+					strlen($phone_number) == strlen($country_code) + $number_length
+				) {
 
 					// comment originated from node-phone:
 					// if the country doesn't have mobile prefixes (e.g. about 20 countries, like
@@ -75,7 +80,7 @@ class Mobile_Validator
 		return array();
 	}
 
-	private function validate_phone_iso3166($phone_number, $iso3166_entry)
+	private static function validate_phone_iso3166($phone_number, $iso3166_entry)
 	{
 		if (empty($iso3166_entry)) {
 			return false;
@@ -101,7 +106,7 @@ class Mobile_Validator
 		return false;
 	}
 
-	function normalize($phone_number, $country_name = null)
+	public static function normalize($phone_number, $country_name = null)
 	{
 		if (empty($phone_number) || !is_string($phone_number)) {
 			return array();
@@ -117,7 +122,7 @@ class Mobile_Validator
 		// comment originated from node-phone:
 		// remove any non-digit character, included the +
 		$phone_number = preg_replace("/\D/", "", $phone_number);
-		$iso3166_entry = $this->get_iso3166_entry($country_name);
+		$iso3166_entry = self::get_iso3166_entry($country_name);
 
 		if (empty($iso3166_entry)) {
 			return array();
@@ -159,7 +164,7 @@ class Mobile_Validator
 				// comment originated from node-phone:
 				// A: no country, have plus sign --> lookup country_code, length, and get the iso3166 directly
 				// also validation is done here. so, the iso3166 is the matched result.
-				$iso3166_entry = $this->get_iso3166_by_phone($phone_number);
+				$iso3166_entry = self::get_iso3166_by_phone($phone_number);
 			} else {
 				// comment originated from node-phone:
 				// B: no country, no plus sign --> treat it as USA
@@ -171,11 +176,10 @@ class Mobile_Validator
 			}
 		}
 
-		if ($this->validate_phone_iso3166($phone_number, $iso3166_entry)) {
+		if (self::validate_phone_iso3166($phone_number, $iso3166_entry)) {
 			return array("+" . $phone_number, $iso3166_entry["alpha3"]);
 		} else {
 			return array();
 		}
 	}
 }
-

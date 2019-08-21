@@ -4,8 +4,16 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
+
+/**
+ * Get HTTP Request method
+ */
+function m()
+{
+	return $_SERVER["REQUEST_METHOD"];
+}
 
 /**
  * Foreach extended
@@ -153,7 +161,7 @@ function php_bin()
 		}
 		return $php;
 	}
-	
+
 	// PHP_BINARY return the current sapi executable
 	if (PHP_BINARY && in_array(PHP_SAPI, array('cli', 'cli-server', 'phpdbg'), true)) {
 		return PHP_BINARY;
@@ -173,7 +181,7 @@ function php_bin()
 	if (@is_executable($php = PHP_BINDIR . ('\\' === DIRECTORY_SEPARATOR ? '\\php.exe' : '/php'))) {
 		return $php;
 	}
-	
+
 	// May be it's exists on system environment
 	$paths = explode(PATH_SEPARATOR, getenv('PATH'));
 	foreach ($paths as $path) {
@@ -233,11 +241,10 @@ function j($json_data)
  */
 function str_replace_first($find, $replace, $haystack)
 {
-	if (strpos($string, $str_pattern) !== false) {
-		$occurrence = strpos($string, $str_pattern);
-		return substr_replace($string, $str_replacement, strpos($string, $str_pattern), strlen($str_pattern));
+	if (strpos($find, $haystack) !== false) {
+		return substr_replace($find, $replace, strpos($find, $haystack), strlen($haystack));
 	}
-	return $string;
+	return $find;
 }
 
 /**
@@ -268,7 +275,7 @@ function redirect($url = "", $http_code = 302)
 	//Removing all whitespace
 	$app = preg_replace("/\s+/", "", $app);
 
-    //Checking if URL requested is local or not
+	//Checking if URL requested is local or not
 	if (!starts_with($app, "http://") && !starts_with($app, "https://")) {
 		$app = "/$app";
 	}
@@ -277,11 +284,15 @@ function redirect($url = "", $http_code = 302)
 	PuzzleSession::writeCookie();
 
 	if (headers_sent()) {
-		die("<script>window.location='$app';</script>");
+		// Clearing buffer
+		ob_end_flush();
+		while (ob_get_level()) ob_get_clean();
+		// Redirecting
+		echo ("<script>window.location='$app';</script>");
 	} else {
 		header("Location: $app");
-		abort($http_code);
 	}
+	abort($http_code);
 }
 
 /**
@@ -331,7 +342,7 @@ function php_max_upload_size()
 {
 	$max_upload = get_php_bytes(ini_get('post_max_size'));
 	$max_upload2 = get_php_bytes(ini_get('upload_max_filesize'));
-	return (int)(($max_upload < $max_upload2 && $max_upload != 0) ? $max_upload : $max_upload2);
+	return (int) (($max_upload < $max_upload2 && $max_upload != 0) ? $max_upload : $max_upload2);
 }
 
 /**

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
 use SuperClosure\Serializer;
@@ -80,7 +81,7 @@ class Worker
 		unset($execute["env"]["posconfigmdomain"]["zone"]); //Because this is private prop
 		foreach ($execute["env"]["posconfigmdomain"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
 
-		Accounts::addSession($execute["env"]["userid"]);
+		if ($execute["env"]["userid"] != -1) PuzzleUser::get($execute["env"]["userid"])->logMeIn();
 		$GLOBALS["_WORKER"] = [
 			"id" => explode(".", $job)[1],
 			"app" => $execute["env"]["app"],
@@ -172,7 +173,7 @@ class Worker
 		$execute = serialize([
 			"env" => [
 				"session" => $_SESSION,
-				"userid" => Accounts::getUserId(),
+				"userid" => PuzzleUser::check() ? PuzzleUser::active()->id : -1,
 				"app" => $this->_app,
 				"appdir" => $this->_appdir,
 				"posconfigglobal" => (new ReflectionClass("POSConfigGlobal"))->getStaticProperties(),
