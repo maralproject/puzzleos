@@ -6,6 +6,7 @@ if (file_exists(__ROOTDIR . "/create.admin")) {
         unlink(__ROOTDIR . "/create.admin");
         $u = PuzzleUser::create($ctn["password"], "Administrator", $ctn["username"]);
         $u->group = PuzzleUserGroup::getRootByLevel(USER_AUTH_SU);
+        $u->enabled = true;
         $u->save();
     }
 }
