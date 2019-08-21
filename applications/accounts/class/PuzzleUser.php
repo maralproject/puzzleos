@@ -20,6 +20,7 @@ define("USER_AUTH_PUBLIC", 3);
  * @property bool $enabled
  * @property bool $tfa
  * @property-read int $registered_time
+ * @property-read string $totp_tfa
  * @property string $email
  * @property string $phone
  */
@@ -41,6 +42,7 @@ class PuzzleUser implements JsonSerializable
     private $enabled;
     private $registered_time;
     private $tfa;
+    private $totp_tfa;
 
     private $email;
     private $phone;
@@ -85,6 +87,7 @@ class PuzzleUser implements JsonSerializable
             $this->password_hashed = $row["password"];
             $this->enabled = (bool) $row["enabled"];
             $this->tfa = (bool) $row["tfa"];
+            $this->totp_tfa = $row["totp_tfa"];
             $this->registered_time = (int) $row["registered_time"];
         } else
             throw new UserNotFound("PuzzleUser with id $id not found.");
@@ -92,6 +95,23 @@ class PuzzleUser implements JsonSerializable
     #endregion
 
     #region Public
+    /**
+     * Reset or make new TOTP Secret for this user
+     */
+    public function resetTOTPSecret()
+    {
+        $_16charSecret = PuzzleUserGA::createSecret();
+        if (Database::update(
+            "app_users_list",
+            (new DatabaseRowInput)->setField("totp_tfa", $_16charSecret),
+            "id",
+            $this->id
+        )) {
+            return $this->totp_tfa = $_16charSecret;
+        }
+        return false;
+    }
+
     public function delete()
     {
         if (self::check() && self::active() == $this) return false;
@@ -135,6 +155,8 @@ class PuzzleUser implements JsonSerializable
                 return $this->registered_time;
             case "tfa":
                 return $this->tfa;
+            case "totp_tfa":
+                return $this->totp_tfa;
             case "email":
                 return $this->email;
             case "phone":
@@ -287,7 +309,7 @@ class PuzzleUser implements JsonSerializable
         return PuzzleUserOTP::generate($this, function () {
             $this->tfa = true;
             $this->save();
-        });
+        }, null, null, false, true);
     }
     #endregion
 
@@ -465,7 +487,9 @@ class PuzzleUser implements JsonSerializable
                 ->setField("enabled", PuzzleUserConfig::creationRequireActivation() ? 0 : 1)
                 ->setField("registered_time", time() + 600)
         ])) {
-            return self::get(Database::lastId());
+            $u = self::get(Database::lastId());
+            $u->resetTOTPSecret();
+            return $u;
         }
         return false;
     }

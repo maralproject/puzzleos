@@ -7,10 +7,11 @@
             </div>
             <form method="post">
                 <div class="modal-body">
+                    <div class="addictn"></div>
                     <div style="max-width:600px;margin:auto;">
                         <label style="width:100%">
                             <span class="title">Verification code</span>
-                            <input required type="text" class="form-control" style="margin-top:5px;" name="code">
+                            <input autocomplete="off" required type="text" class="form-control" style="margin-top:5px;" name="code">
                         </label>
                         <div class="invalid-feedback"></div>
                         <div class="text-muted"><small>We have sent verification code to your e-mail</small></div>

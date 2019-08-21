@@ -18,11 +18,13 @@ $table->addColumn("phone", "VARCHAR(20)")->allowNull();
 $table->addColumn("lang", "VARCHAR(10)");
 $table->addColumn("password", "VARCHAR(60)");
 $table->addColumn("tfa", "TINYINT(1)")->defaultValue(0);
+$table->addColumn("totp_tfa", "CHAR(16)")->allowNull();
 $table->addColumn("enabled", "TINYINT(1)")->defaultValue(1);
 $table->addColumn("registered_time", "INT")->defaultValue(0);
 
 $table->createIndex("email", ["email"], "UNIQUE");
 $table->createIndex("phone", ["phone"], "UNIQUE");
+$table->createIndex("totp_tfa", ["totp_tfa"], "UNIQUE");
 $table->createIndex("registered_time", ["registered_time"]);
 $table->createIndex("f", ["enabled", "registered_time"]);
 $table->createIndex("group", ["group"]);

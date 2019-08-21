@@ -95,6 +95,17 @@ class PuzzleUserConfig
     }
 
     /**
+     * Choose One-Time Password method.
+     * 0 - Using Conventional Method by sending SMS or E-Mail.
+     * 1 - Using Time-based OTP.
+     */
+    public static function TFAMethod(int $b = null)
+    {
+        $r = self::genericSaveLoad(__FUNCTION__, $b);
+        return $r === null ? 0 : $r;
+    }
+
+    /**
      * @return PuzzleUserGroup if set
      * @return null if no config
      */

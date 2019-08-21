@@ -149,7 +149,14 @@
                                     a();
                                 });
                                 m.find(".modal-title").text("Can you receive the code?");
-                                let l = d.tfa_challenge.method == "email" ? `Type the code we've just sent to your email at ${d.tfa_challenge.recipient}.` : `Type the code we've just sent to your phone at ${d.tfa_challenge.recipient}.`;
+                                let l = d.tfa_challenge.method == "email" ? `Type the code we've just sent to your email at ${d.tfa_challenge.recipient}.` : (d.tfa_challenge.method == "phone" ? `Type the code we've just sent to your phone at ${d.tfa_challenge.recipient}.` : "Scan the QR code above using app like Google Authenticator.");
+                                if (d.tfa_challenge.method == "totp") {
+                                    m.find(".addictn").html(`
+                                    <div style="text-align:center;margin-bottom:15px;">
+                                        <div><img style="height: 150px;margin-bottom: 15px;" src="${d.tfa_challenge.totp.qrimage}"></div>
+                                        <div><img alt="Google Authenticator and Microsoft Authenticator app" style="height: 50px;" src="<?php echo IO::publish(my_dir("img/authapp.png"))?>"></div>
+                                    </div>`);
+                                }
                                 m.find("small").text(l);
                                 m.find("button[type=submit]").text("Activate TFA");
                                 m.find("form").submit(e => {

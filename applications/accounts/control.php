@@ -96,6 +96,9 @@ if (m() == "POST") {
                         json_out(true);
                     case "cop":
                         switch ($_POST["n"]) {
+                            case "TFAMethod":
+                                PuzzleUserConfig::TFAMethod($_POST["v"]);
+                                break;
                             case "emailRequired":
                                 PuzzleUserConfig::emailRequired($_POST["v"]);
                                 break;
@@ -151,9 +154,18 @@ if (m() == "POST") {
                     $u = PuzzleUser::active();
                     $u->fullname = $_POST["name"];
                     if (!$u->tfa && $_POST["tfa"]) {
-                        // Prepare TFA challenge
+                        if (PuzzleUserConfig::TFAMethod() == 1) {
+                            #If TOTP, then reset the code then send the QR to be scanned.
+                            $secret = $u->resetTOTPSecret();
+                            $totp = [
+                                "secret" => $secret,
+                                "qrimage" => PuzzleUserGA::getQRCodeGoogleUrl($u->email ?? $u->phone, $secret, __SITENAME)
+                            ];
+                        }
+                        #If conventional, then try to send verification code.
                         try {
                             $tfa_en = $u->enableTFAWithVerification();
+                            if ($totp) $tfa_en["totp"] = $totp;
                         } catch (FailedToSendOTP $o) {
                             $tfa_en = false;
                         }

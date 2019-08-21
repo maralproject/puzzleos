@@ -98,7 +98,7 @@
             f.find(".is-invalid").removeClass("is-invalid");
             f.find("*").prop('disabled', false);
             $("#verifyOTP").xmodal(m => {
-                m.find(".text-muted small").text(d.method == "email" ? `Type the code we've just sent to your email at ${d.recipient}.` : `Type the code we've just sent to your phone at ${d.recipient}.`);
+                m.find(".text-muted small").text(d.method == "email" ? `Type the code we've just sent to your email at ${d.recipient}.` : (d.method == "phone" ? `Type the code we've just sent to your phone at ${d.recipient}.` : "Type the code on your authenticator app."));
                 m.on('shown.bs.modal', () => {
                     m.find("input[name=code]")[0].select();
                 });

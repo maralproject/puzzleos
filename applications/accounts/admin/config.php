@@ -25,11 +25,28 @@
                 <div class="text-muted"><small>You may force the user to use the main language for this site.</small></div>
             </label>
         </div>
+        <br>
+    </div>
+    <div>
+        <h2>Two-Factor Authentication</h2>
         <div>
             <label>
                 <input type="checkbox" n="allowUserTFA" <?php if (PuzzleUserConfig::allowUserTFA()) h("checked") ?>>
                 <span>Allow user to activate Two-Factor Authentication</span>
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio" name="TFAMethod" n="TFAMethod" <?php if (PuzzleUserConfig::TFAMethod() == 0) echo "checked" ?> value="0">
+                <span>Conventional Method</span>
                 <div class="text-muted"><small>TFA can cost some money by sending E-mail or Text Messages.</small></div>
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio" name="TFAMethod" n="TFAMethod" <?php if (PuzzleUserConfig::TFAMethod() == 1) echo "checked" ?> value="1">
+                <span>Time-based OTP</span>
+                <div class="text-muted"><small>Make user to download TOTP app like Google Authenticator. <a href="https://en.wikipedia.org/wiki/Google_Authenticator" target="blank">Read mode about Time-based OTP.</a></small></div>
             </label>
         </div>
         <br>

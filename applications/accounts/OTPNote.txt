@@ -1,0 +1,10 @@
+  FORCE-TOTP  TFA Enabled TFA Method Force Method  Result
+0      x          0           0           0        CANT
+1      x          0           0           1        SMS OR EMAIL
+2      0          0           1           0        SMS OR EMAIL
+2      1          0           1           0        TOTP
+3      x          0           1           1        SMS OR EMAIL
+4      x          1           0           0        SMS OR EMAIL
+5      x          1           0           1        SMS OR EMAIL
+6      x          1           1           0        TOTP
+7      x          1           1           1        SMS OR EMAIL

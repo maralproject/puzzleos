@@ -16,6 +16,7 @@ spl_autoload_register(function ($c) {
         case "PuzzleUserConfig":
         case "PuzzleUserOTP":
         case "PuzzleUserRecaptcha":
+        case "PuzzleUserGA":
             require(__ROOTDIR . "/applications/accounts/class/$c.php");
             break;
         case "PuzzleUserException\\MissingField":
