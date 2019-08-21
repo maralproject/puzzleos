@@ -60,11 +60,8 @@ class PuzzleUserOTP
         $session = rand_str(32);
 
         #See OTPNote.txt for details
-        $i = ((int) $u->tfa << 2 | PuzzleUserConfig::TFAMethod() << 1 | (int) ($method !== null && $recipient !== null));
+        $i = ((int) ($u->tfa) << 2 | PuzzleUserConfig::TFAMethod() << 1 | (int) ($method !== null && $recipient !== null));
         switch ($i) {
-            case 0:
-                $r = 0;
-                break;
             case 2:
                 if (!$force_totp) {
                     $r = 1;
@@ -73,6 +70,7 @@ class PuzzleUserOTP
             case 6:
                 $r = 2;
                 break;
+            case 0:
             case 1:
             case 3:
             case 4:

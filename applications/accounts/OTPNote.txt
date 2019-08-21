@@ -1,5 +1,11 @@
+0 => otomatis,
+1 => SMS atau Email,
+
+0 => nggak di force,
+1 => di force
+              per user
   FORCE-TOTP  TFA Enabled TFA Method Force Method  Result
-0      x          0           0           0        CANT
+0      x          0           0           0        SMS OR EMAIL
 1      x          0           0           1        SMS OR EMAIL
 2      0          0           1           0        SMS OR EMAIL
 2      1          0           1           0        TOTP

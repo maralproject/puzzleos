@@ -252,7 +252,7 @@ if($_POST["finale"] == "yes"){
 				<div class="row">
 					<label class="col-lg-3 control-label">E-mail Address</label>
 					<div class="col-lg-9 row" style="margin:0px;">
-						<input type="email" class="form-control" autocomplete="off" placeholder="admin" name="username" required>
+						<input type="email" class="form-control" autocomplete="off" placeholder="admin@example.com" name="username" required>
 					</div>
 				</div><br>
 				<div class="row">

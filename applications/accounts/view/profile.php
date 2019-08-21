@@ -149,7 +149,7 @@
                                     a();
                                 });
                                 m.find(".modal-title").text("Can you receive the code?");
-                                let l = d.tfa_challenge.method == "email" ? `Type the code we've just sent to your email at ${d.tfa_challenge.recipient}.` : (d.tfa_challenge.method == "phone" ? `Type the code we've just sent to your phone at ${d.tfa_challenge.recipient}.` : "Scan the QR code above using app like Google Authenticator.");
+                                let l = d.tfa_challenge.method == "email" ? `Type the code we've just sent to your email at ${d.tfa_challenge.recipient}.` : (d.tfa_challenge.method == "sms" ? `Type the code we've just sent to your phone at ${d.tfa_challenge.recipient}.` : "Scan the QR code above using app like Google Authenticator.");
                                 if (d.tfa_challenge.method == "totp") {
                                     m.find(".addictn").html(`
                                     <div style="text-align:center;margin-bottom:15px;">
@@ -231,8 +231,6 @@
                             $("#verifyOTP").xmodal(m => {
                                 m.on('shown.bs.modal', function() {
                                     $(this).find("input").focus();
-                                }).on('hide.bs.modal', () => {
-                                    // a();
                                 });
                                 m.find(".modal-title").text("Verify your Email");
                                 m.find("small").text(`Type the code we've just sent to your email at ${d.mail_challenge.recipient}.`);

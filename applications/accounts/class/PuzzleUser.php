@@ -488,7 +488,7 @@ class PuzzleUser implements JsonSerializable
                 ->setField("registered_time", time() + 600)
         ])) {
             $u = self::get(Database::lastId());
-            $u->resetTOTPSecret();
+            // $u->resetTOTPSecret();
             return $u;
         }
         return false;

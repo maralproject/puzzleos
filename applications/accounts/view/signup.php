@@ -102,11 +102,9 @@
                     $("#verifyOTP").xmodal(m => {
                         m.on('shown.bs.modal', function() {
                             $(this).find("input").focus();
-                        }).on('hide.bs.modal', () => {
-                            a();
                         });
                         m.find(".modal-title").text("Verify your Account");
-                        let l = d.token.method == "email" ? `Type the code we've just sent to your email at ${d.token.recipient}.` : (d.token.method == "phone" ? `Type the code we've just sent to your phone at ${d.token.recipient}.` : "Type the code on your authenticator app.");
+                        let l = d.token.method == "email" ? `Type the code we've just sent to your email at ${d.token.recipient}.` : (d.token.method == "sms" ? `Type the code we've just sent to your phone at ${d.token.recipient}.` : "Type the code on your authenticator app.");
                         m.find("small").text(l);
                         m.find("form").submit(e => {
                             e.preventDefault();
