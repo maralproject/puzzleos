@@ -275,7 +275,7 @@ class PuzzleUser implements JsonSerializable
             $this->id
         )) {
             $this->password_hashed = $newpass;
-            PuzzleSession::get()->endUser($this->id);
+            PuzzleSession::endUser($this->id);
             return $this->save();
         }
         return false;
