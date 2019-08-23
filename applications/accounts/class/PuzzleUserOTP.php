@@ -176,7 +176,7 @@ class PuzzleUserOTP
      * Register function in PuzzleUserOTP to send
      * SMS for Two-Factor Authentication
      * 
-     * Callable will receive (int $6digitcode, PuzzleUser $user, string $phone_recipient)
+     * Callable will receive (string $6digitcode, PuzzleUser $user, string $phone_recipient)
      * Callback expected to return bool
      */
     public static function registerSMSSender(closure $sms_sender)
@@ -188,7 +188,7 @@ class PuzzleUserOTP
      * Register function in PuzzleUserOTP to send
      * E-mail for Two-Factor Authentication
      * 
-     * Callable will receive (int $6digitcode, PuzzleUser $user, string $email_recipient)
+     * Callable will receive (string $6digitcode, PuzzleUser $user, string $email_recipient)
      * Callback expected to return bool
      */
     public static function registerEmailSender(closure $email_sender)
