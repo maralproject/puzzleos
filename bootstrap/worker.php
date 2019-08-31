@@ -9,7 +9,6 @@
  */
 
 use SuperClosure\Serializer;
-use SuperClosure\Analyzer\TokenAnalyzer;
 
 /**
  * Create separated process to do long-run task
@@ -87,7 +86,7 @@ class Worker
 			"app" => $execute["env"]["app"],
 			"appdir" => $execute["env"]["appdir"]
 		];
-		$function = (new Serializer(new TokenAnalyzer()))->unserialize($execute["func"]);
+		$function = (new Serializer)->unserialize($execute["func"]);
 
 		try {
 			ob_start();
@@ -133,7 +132,7 @@ class Worker
 		}
 
 		preparedir(__ROOTDIR . "/storage/worker");
-		$this->_serialize = new Serializer(new TokenAnalyzer());
+		$this->_serialize = new Serializer();
 		$this->_workernum = floor($number);
 		$this->_app = AppManager::getNameFromDirectory($caller[2]);
 		$this->_appdir = $caller[2];
