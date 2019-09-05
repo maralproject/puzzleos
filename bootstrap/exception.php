@@ -28,16 +28,14 @@ class PuzzleError extends Exception
 
 	private static function wLog($message, $suggestion, $file, $line, $trace)
 	{
-		$f = fopen(__LOGDIR . "/error.log", "a+");
-		fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
-		fwrite($f, "Message: " . $message . "\r\n");
-		fwrite($f, "Suggestion: " . $suggestion . "\r\n");
-		fwrite($f, "Caller: $file($line)\r\n");
-		fwrite($f, "URL: " . __HTTP_REQUEST . "\r\n");
-		fwrite($f, "Session: " . session_id() . "\r\n");
-		fwrite($f, str_replace("#", "\r\n#", $trace));
-		fwrite($f, "\r\n=========\r\n");
-		fclose($f);
+		Log::emergency($message, [
+			"suggestion" => $suggestion,
+			"caller" => "$file($line)",
+			"url" => __HTTP_REQUEST,
+			"session" => session_id(),
+			"env" => is_cli() ? "CLI" : "WEB",
+			"stack_trace" => $trace
+		]);
 	}
 
 	public static function printPage($msg = "", $suggestion = "")
@@ -58,7 +56,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
 		self::printPage($e->getMessage());
 		abort(500, "Internal Server Error");
 	}
@@ -67,7 +65,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
 		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
@@ -75,7 +73,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
 		return $e->__toString();
 	}
 
@@ -90,7 +88,7 @@ class PuzzleError extends Exception
 	public function __toString()
 	{
 		if (is_cli()) {
-			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTraceAsString());
+			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTrace());
 			echo "\n---\n" . parent::__toString() . "\n";
 		} else {
 			self::handleErrorView($this);

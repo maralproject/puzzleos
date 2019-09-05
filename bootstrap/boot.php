@@ -13,6 +13,7 @@ error_reporting(0);
 require "oem.php";
 require "defines.php";
 require "helper.php";
+require "autoload.php";
 require "exception.php";
 
 if (!version_compare(PHP_VERSION, "7.0.0") < 0) {
@@ -66,11 +67,6 @@ try {
 	 * Get the configuration files
 	 ***********************************/
 	require "configman.php";
-
-	/***********************************
-	 * Registering Autoloader
-	 ***********************************/
-	require "autoload.php";
 
 	/***********************************
 	 * Removing installation directory

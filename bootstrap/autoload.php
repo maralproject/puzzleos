@@ -41,6 +41,9 @@ spl_autoload_register(function ($c) {
         case "Prompt":
             require("$r/message.php");
             break;
+        case "Log":
+            require("$r/log.php");
+            break;
         case "UserData":
             require("$r/userdata.php");
             break;
