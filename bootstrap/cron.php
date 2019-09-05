@@ -179,7 +179,7 @@ class CronJob
      */
     public static function run(bool $forced = false)
     {
-        $fp = fopen(__ROOTDIR . "/cron.lock", "w");
+        $fp = fopen(__LOGDIR . "/cron.lock", "w");
         //Prevent running cron simultaneusly
         if (flock($fp, LOCK_EX | LOCK_NB)) {
             POSConfigGlobal::$error_code |= E_ERROR;

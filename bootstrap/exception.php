@@ -56,7 +56,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
 		self::printPage($e->getMessage());
 		abort(500, "Internal Server Error");
 	}
@@ -65,7 +65,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
 		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
 	}
 
@@ -73,7 +73,7 @@ class PuzzleError extends Exception
 	{
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTrace());
+		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
 		return $e->__toString();
 	}
 
@@ -88,7 +88,7 @@ class PuzzleError extends Exception
 	public function __toString()
 	{
 		if (is_cli()) {
-			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTrace());
+			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTraceAsString());
 			echo "\n---\n" . parent::__toString() . "\n";
 		} else {
 			self::handleErrorView($this);
