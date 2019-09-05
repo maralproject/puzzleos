@@ -312,7 +312,7 @@ class Database
 		//See Database caching performance
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
-			file_put_contents(__ROOTDIR . "/db.log", $re["file"] . ":" . $re["line"] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
+			file_put_contents(__LOGDIR . "/db.log", $re["file"] . ":" . $re["line"] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
 		}
 
 		if ($r = self::$link->query($escaped)) {
@@ -390,7 +390,7 @@ class Database
 	public static function flushCache()
 	{
 		self::$cache = [];
-		if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
+		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
 	}
 
 	/**
@@ -886,7 +886,7 @@ class Database
 			$query = rtrim($query, ",");
 			$query .= ") COLLATE='utf8_general_ci' ENGINE=InnoDB;";
 
-			if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
+			if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
 			if (self::$link->query($query)) {
 				if ($insertData) self::insert($table, $initialData);
@@ -966,7 +966,7 @@ class Database
 				$query .= "ADD $i[2] INDEX `$i[0]` ($c),";
 			}
 
-			if (defined("DB_DEBUG")) file_put_contents(__ROOTDIR . "/db.log", "$query\r\n", FILE_APPEND);
+			if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
 			if (self::$link->query(rtrim($query, ","))) {
 				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);

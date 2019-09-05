@@ -49,6 +49,7 @@ if (file_exists(__ROOTDIR . "/site.offline")) {
  * Prepare all directories
  ***********************************/
 preparedir(__ROOTDIR . "/storage");
+preparedir(__ROOTDIR . "/storage/logs");
 preparedir(__ROOTDIR . "/storage/dbcache");
 preparedir(__ROOTDIR . "/storage/data");
 preparedir(__ROOTDIR . "/storage/cache");

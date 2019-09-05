@@ -28,7 +28,7 @@ class PuzzleError extends Exception
 
 	private static function wLog($message, $suggestion, $file, $line, $trace)
 	{
-		$f = fopen(__ROOTDIR . "/error.log", "a+");
+		$f = fopen(__LOGDIR . "/error.log", "a+");
 		fwrite($f, date("d/m/Y H:i:s", time()) . " " . date_default_timezone_get() . "\r\n");
 		fwrite($f, "Message: " . $message . "\r\n");
 		fwrite($f, "Suggestion: " . $suggestion . "\r\n");
