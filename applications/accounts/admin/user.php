@@ -603,6 +603,7 @@
             }
         });
         search.on("input", () => {
+            page = 1;
             draw();
         });
         fetchPage();
