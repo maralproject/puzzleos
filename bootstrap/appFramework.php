@@ -109,6 +109,7 @@ class AppManager
 					#Filter pre-reserved rootname
 					switch ($manifest["rootname"]) {
 						case "assets":
+						case "res":
 						case "security":
 							continue;
 						default:
