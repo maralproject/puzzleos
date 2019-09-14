@@ -8,12 +8,12 @@
  */ 
 
 (function () {
-error_reporting(0);
-
 require "oem.php";
 require "defines.php";
 require "helper.php";
 require "autoload.php";
+
+error_reporting(0);
 require "exception.php";
 
 if (!version_compare(PHP_VERSION, "7.0.0") < 0) {
