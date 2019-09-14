@@ -57,7 +57,7 @@ $func = [
 			$(document).on("click","button.uglb_trig",function(){
 				var btn = $(this);
 				hideMessage();
-				showMessage($("#groupListSystem").text(),"info","GroupSel",false);
+				showMessage($("#groupListSystem").html(),"info","GroupSel",false);
 				$(".ugsel").attr("inputid",btn.attr("inputid"));
 				switch(btn.attr("level")){
 					case "0":
@@ -72,7 +72,7 @@ $func = [
 				$(".ugsel[inputid=" + btn.attr("inputid") + "] .group_card").on("click",function(){
 					hideMessage();
 					$("#" + $(this).parent().attr("inputid")).val($(this).attr("uid")).trigger("change");
-					$("#UGLB_" + $(this).parent().attr("inputid")).text($(this).text());
+					$("#UGLB_" + $(this).parent().attr("inputid")).html($(this).html());
 				});
 			});
 			</script>
