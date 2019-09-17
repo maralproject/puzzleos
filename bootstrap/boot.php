@@ -8,6 +8,7 @@
  */ 
 
 (function () {
+error_reporting(E_ERROR | E_COMPILE_ERROR | E_CORE_ERROR);
 require "oem.php";
 require "defines.php";
 require "helper.php";

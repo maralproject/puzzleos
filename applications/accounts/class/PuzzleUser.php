@@ -75,7 +75,7 @@ class PuzzleUser implements JsonSerializable
         $_SESSION["_acc"] = self::$loggedIn ? self::$loggedIn->id : null;
     }
 
-    private function __construct(int $id)
+    protected function __construct(int $id)
     {
         if (!empty($row = Database::getRow("app_users_list", "id", $id))) {
             $this->id = (int) $id;
