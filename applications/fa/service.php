@@ -7,7 +7,7 @@
  * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
-$dir = IO::publish($appProp->path."/lib");
+$dir = IO::publish($appProp->path);
 
-Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/all.min.css"/>');
-Template::addHeader('<link rel="stylesheet" href="'.$dir.'/css/v4-shims.min.css"/>');
+Template::addHeader('<link rel="stylesheet" href="'.$dir.'/falib/css/all.min.css"/>');
+Template::addHeader('<link rel="stylesheet" href="'.$dir.'/falib/css/v4-shims.min.css"/>');
