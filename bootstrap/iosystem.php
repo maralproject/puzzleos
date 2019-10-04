@@ -48,6 +48,7 @@ class IO
 		$filename = self::physical_path($filename);
 		//Do not copy from destination which is it's parent
 		if (starts_with(self::physical_path("/" . __PUBLICDIR . "/res"), $filename)) return false;
+		set_time_limit(0);
 		if (is_dir($filename)) {
 			$hash = substr(md5($filename), 0, 10);
 			if (!file_exists(__ROOTDIR . "/" . __PUBLICDIR . "/res/$hash")) {
@@ -55,6 +56,7 @@ class IO
 				self::remove_r_ext("/" . __PUBLICDIR . "/res/$hash", "php");
 				self::remove_r_ext("/" . __PUBLICDIR . "/res/$hash", "ini");
 			}
+			set_time_limit(TIME_LIMIT);
 			return "/res/$hash";
 		} else {
 			$name = end(explode("/", $filename));
@@ -64,6 +66,7 @@ class IO
 			$hash = substr(md5_file($filename), 0, 10);
 			if (!file_exists(__ROOTDIR . "/" . __PUBLICDIR . "/res/$name.1$hash.$ext"))
 				@copy($filename, __ROOTDIR . "/" . __PUBLICDIR . "/res/$name.$hash.$ext");
+			set_time_limit(TIME_LIMIT);
 			return "/res/$name.$hash.$ext";
 		}
 	}
