@@ -28,7 +28,7 @@ $l = new Language;?>
 <script>
 	$(document).ready(function(){				
 		//Put the search data on every element
-		let c=JSON.parse('<?php echo str_replace("'","\\'",json_encode($this->data))?>');
+		let c=<?php j($this->data)?>;
 		let a=$(".<?php echo $this->prefix?>[class^='<?php echo $this->prefix?>'],.<?php echo $this->prefix?>[class*=' <?php echo $this->prefix?>']");
 		$.each(a,function(d){
 			let b=$(this).attr('class').split(/\s+/).filter(function(e){
