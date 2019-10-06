@@ -72,7 +72,9 @@ class PuzzleUser implements JsonSerializable
 
     private static function saveSession()
     {
-        $_SESSION["_acc"] = self::$loggedIn ? self::$loggedIn->id : null;
+        $_SESSION["_acc"] = null;
+        if(self::$loggedIn && self::$loggedIn->id != 0)
+            $_SESSION["_acc"] = self::$loggedIn->id;
     }
 
     protected function __construct(int $id)
