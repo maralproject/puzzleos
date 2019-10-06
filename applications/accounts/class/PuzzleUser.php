@@ -77,20 +77,34 @@ class PuzzleUser implements JsonSerializable
 
     protected function __construct(int $id)
     {
-        if (!empty($row = Database::getRow("app_users_list", "id", $id))) {
-            $this->id = (int) $id;
-            $this->group = PuzzleUserGroup::get($row["group"]);
-            $this->fullname = $row["name"];
-            $this->email = $row["email"] != "" ? $row["email"] : NULL;
-            $this->phone = $row["phone"] != "" ? $row["phone"] : NULL;
-            $this->lang = $row["lang"];
-            $this->password_hashed = $row["password"];
-            $this->enabled = (bool) $row["enabled"];
-            $this->tfa = (bool) $row["tfa"];
-            $this->totp_tfa = $row["totp_tfa"];
-            $this->registered_time = (int) $row["registered_time"];
-        } else
-            throw new UserNotFound("PuzzleUser with id $id not found.");
+        if ($id === 0) {
+            $this->id = 0;
+            $this->group = PuzzleUserGroup::get(1);
+            $this->fullname = "SYSTEM";
+            $this->email = NULL;
+            $this->phone = NULL;
+            $this->lang = "def";
+            $this->password_hashed = null;
+            $this->enabled = true;
+            $this->tfa = true;
+            $this->totp_tfa = null;
+            $this->registered_time = 0;
+        } else {
+            if (!empty($row = Database::getRow("app_users_list", "id", $id))) {
+                $this->id = (int) $id;
+                $this->group = PuzzleUserGroup::get($row["group"]);
+                $this->fullname = $row["name"];
+                $this->email = $row["email"] != "" ? $row["email"] : NULL;
+                $this->phone = $row["phone"] != "" ? $row["phone"] : NULL;
+                $this->lang = $row["lang"];
+                $this->password_hashed = $row["password"];
+                $this->enabled = (bool) $row["enabled"];
+                $this->tfa = (bool) $row["tfa"];
+                $this->totp_tfa = $row["totp_tfa"];
+                $this->registered_time = (int) $row["registered_time"];
+            } else
+                throw new UserNotFound("PuzzleUser with id $id not found.");
+        }
     }
     #endregion
 
@@ -100,6 +114,7 @@ class PuzzleUser implements JsonSerializable
      */
     public function resetTOTPSecret()
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         $_16charSecret = PuzzleUserGA::createSecret();
         if (Database::update(
             "app_users_list",
@@ -114,6 +129,7 @@ class PuzzleUser implements JsonSerializable
 
     public function delete()
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be deleted!");
         if (self::check() && self::active() == $this) return false;
         if (Database::delete("app_users_list", "id", $this->id)) {
             return $this->_destroyed = true;
@@ -123,6 +139,7 @@ class PuzzleUser implements JsonSerializable
 
     public function jsonSerialize()
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be printed to browser!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         return [
             "id" => $this->id,
@@ -166,6 +183,7 @@ class PuzzleUser implements JsonSerializable
 
     public function __set($name, $value)
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         switch ($name) {
             case "group":
@@ -209,6 +227,7 @@ class PuzzleUser implements JsonSerializable
 
     public function save()
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if (!self::isAccess(USER_AUTH_SU)) {
             // Check for pre-required form
@@ -255,6 +274,7 @@ class PuzzleUser implements JsonSerializable
      */
     public function verifyPassword(string $password)
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         return password_verify($password, $this->password_hashed);
     }
@@ -264,6 +284,7 @@ class PuzzleUser implements JsonSerializable
      */
     public function changePassword(string $new_password)
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if ($new_password == "") {
             throw new InvalidField("Password cannot be empty");
@@ -283,6 +304,7 @@ class PuzzleUser implements JsonSerializable
 
     public function changeEmailWithVerification(string $new_email)
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidField("Email you entered is invalid.");
@@ -295,6 +317,7 @@ class PuzzleUser implements JsonSerializable
 
     public function changePhoneWithVerification(string $new_phone)
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         $new_phone = self::getE164($new_phone);
         return PuzzleUserOTP::generate($this, function () use ($new_phone) {
@@ -305,6 +328,7 @@ class PuzzleUser implements JsonSerializable
 
     public function enableTFAWithVerification()
     {
+        if ($this->id === 0) throw new Exception("SYSTEM account cannot be modified!");
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if ($this->tfa) return false;
         return PuzzleUserOTP::generate($this, function () {
@@ -342,6 +366,7 @@ class PuzzleUser implements JsonSerializable
 
     /** 
      * Find user using email or phone
+     * @return self
      */
     public static function findUserByPhoneEmail(string $haystack)
     {
@@ -512,15 +537,11 @@ class PuzzleUser implements JsonSerializable
     {
         if ($limit !== null) {
             $lq = "LIMIT $limit";
-            if ($start !== null) {
-                $lq .= ",$start";
-            }
+            if ($start !== null) $lq .= ",$start";
         }
         $db = Database::execute("select id from app_users_list " . $lq ?? "");
         $a = [];
-        while ($row = $db->fetch_row()) {
-            $a[] = self::get($row[0]);
-        }
+        while ($row = $db->fetch_row()) $a[] = self::get($row[0]);
         return $a;
     }
     #endregion
