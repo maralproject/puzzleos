@@ -257,12 +257,12 @@ class PuzzleUser implements JsonSerializable
     /**
      * Force use to login.
      */
-    public function logMeIn()
+    public function logMeIn(bool $temporary = false)
     {
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if (!$this->enabled) return false;
         self::$loggedIn = $this;
-        self::saveSession();
+        if(!$temporary) self::saveSession();
         foreach (self::$postLoginFunction as $f) {
             try {
                 $f();
