@@ -127,7 +127,6 @@ class Worker
 			if (!function_exists("openssl_encrypt"))
 				throw new WorkerError("To use Worker, please enable openssl_* function!");
 
-			include("vendor/superclosure/autoload.php");
 			define("_SUPERCLOSURE_H", 1);
 		}
 

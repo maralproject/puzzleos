@@ -107,8 +107,8 @@ function my_dir($path)
 		case "applications":
 		case "templates":
 			break;
-		case "bootstrap":
-			if (starts_with($p, "bootstrap/vendor/superclosure/")) {
+		case "includes":
+			if (starts_with($p, "includes/vendor/jeremeamia/superclosure/")) {
 				// When my_dir is called from a Worker Closure
 				return __ROOTDIR . "/applications/" . $GLOBALS["_WORKER"]["appdir"] . "/" . ltrim(btfslash($path), "/");
 			}
@@ -133,8 +133,8 @@ function storage($path, bool $private = true)
 	switch ($caller[0]) {
 		case "applications":
 			break;
-		case "bootstrap":
-			if (starts_with($p, "bootstrap/vendor/superclosure/")) {
+		case "includes":
+			if (starts_with($p, "includes/vendor/jeremeamia/superclosure/")) {
 				preparedir($prefixdir = (__ROOTDIR . $basepath . $GLOBALS["_WORKER"]["app"]));
 				return $prefixdir . "/" . ltrim(btfslash($path), "/");
 			}
