@@ -31,7 +31,7 @@ class Minifier
 	public static function start($file_ext, $return = false)
 	{
 		$data = ob_get_clean();
-		$hash = substr(md5($data), 0, 10);
+		$hash = sha1($data); //Preventing bruteforce by allowing 64 chars of md5
 		$path = "/" . __PUBLICDIR . "/cache/" . $hash . '.' . $file_ext;
 		$exist = file_exists(__ROOTDIR . $path);
 		if (!$exist) {
