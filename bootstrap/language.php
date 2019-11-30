@@ -92,7 +92,8 @@ class LangManager
 	}
 
 	/**
-	 * Force to change displayed language
+	 * Get language currently displayed.
+	 * e.g. "en-US", "id-ID"
 	 * @return string
 	 */
 	public static function getDisplayedNow($fallback = "en-US")

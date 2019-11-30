@@ -232,6 +232,14 @@ function j($json_data)
 }
 
 /**
+ * Quick shortcut for echo json_encode(), in obfuscated way
+ */
+function je($json_data)
+{
+	echo 'JSON.parse(window["\x61\x74\x6f\x62"](`'.base64_encode(json_encode($json_data)).'`))';
+}
+
+/**
  * Replace first occurrence pattern in string.
  * 
  * @param string $find Find
