@@ -59,6 +59,15 @@ function require_ext($__path, $vars = null)
 }
 
 /**
+ * Floor number with precision
+ */
+function floorp($val, $precision)
+{
+	$mult = pow(10, $precision); // Can be cached in lookup table        
+	return floor($val * $mult) / $mult;
+}
+
+/**
  * Require PHP file once outside the scope.
  */
 function require_once_ext($__path, $vars = null)
@@ -236,7 +245,7 @@ function j($json_data)
  */
 function je($json_data)
 {
-	echo 'JSON.parse(window["\x61\x74\x6f\x62"](`'.base64_encode(json_encode($json_data)).'`))';
+	echo 'JSON.parse(window["\x61\x74\x6f\x62"](`' . base64_encode(json_encode($json_data)) . '`))';
 }
 
 /**
