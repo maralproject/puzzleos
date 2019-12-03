@@ -89,7 +89,7 @@ class IO
 	public static function physical_path($path)
 	{
 		$path = btfslash($path);
-		if (!file_exists($path) || strpos($path, __ROOTDIR) !== false) {
+		if (!file_exists($path) || str_contains($path, __ROOTDIR)) {
 			//Assume that this directory is inside PuzzleOS env
 			$path = str_replace(__ROOTDIR, "", $path);
 			$path = __ROOTDIR . "/" . ltrim($path, "/");

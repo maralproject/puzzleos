@@ -19,7 +19,7 @@ class UserData
 	{
 		if (str_haschar($key, '/', "\\", '..', '*')) throw new PuzzleError("Key invalid!");
 		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
-		$caller = $stack[str_contains($stack[2]["function"],"call_user_func") ? 2 : 1]["file"];
+		$caller = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
 		$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($caller)));
 		switch ($filename[1]) {
 			case "applications":
@@ -58,21 +58,20 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		Database::insert("userdata",[
+		Database::insert("userdata", [
 			(new DatabaseRowInput)
-			->setField("app",$appname)
-			->setField("identifier",$key)
-			->setField("physical_path",$filename)
-			->setField("mime_type",IO::get_mime($filename))
-			->setField("ver",time())
-			->setField("secure", $secure ? 1 : 0)
+				->setField("app", $appname)
+				->setField("identifier", $key)
+				->setField("physical_path", $filename)
+				->setField("mime_type", IO::get_mime($filename))
+				->setField("ver", time())
+				->setField("secure", $secure ? 1 : 0)
 		]);
 		return true;
 	}
 
 	/**
 	 * Move file from somewhere to user directory
-	 * 
 	 * @param string $key
 	 * @param string $path_to_file
 	 * @param bool $secure
@@ -85,7 +84,7 @@ class UserData
 		if (!IO::exists($path_to_file)) return false;
 		if (is_dir(IO::physical_path($path_to_file))) return false;
 
-		$path_to_file_e = explode("/", $path_to_file);
+		// $path_to_file_e = explode("/", $path_to_file);
 		$fileext = strtolower(end(explode(".", $path_to_file)));
 
 		if (!$secure)
@@ -99,15 +98,15 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 
-		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		Database::insert("userdata",[
+		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return false;
+		Database::insert("userdata", [
 			(new DatabaseRowInput)
-			->setField("app",$appname)
-			->setField("identifier",$key)
-			->setField("physical_path",$filename)
-			->setField("mime_type",IO::get_mime($filename))
-			->setField("ver",time())
-			->setField("secure", $secure ? 1 : 0)
+				->setField("app", $appname)
+				->setField("identifier", $key)
+				->setField("physical_path", $filename)
+				->setField("mime_type", IO::get_mime($filename))
+				->setField("ver", time())
+				->setField("secure", $secure ? 1 : 0)
 		]);
 		return true;
 	}
@@ -139,14 +138,14 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		Database::insert("userdata",[
+		Database::insert("userdata", [
 			(new DatabaseRowInput)
-			->setField("app",$appname)
-			->setField("identifier",$key)
-			->setField("physical_path",$filename)
-			->setField("mime_type",IO::get_mime($filename))
-			->setField("ver",time())
-			->setField("secure", $secure ? 1 : 0)
+				->setField("app", $appname)
+				->setField("identifier", $key)
+				->setField("physical_path", $filename)
+				->setField("mime_type", IO::get_mime($filename))
+				->setField("ver", time())
+				->setField("secure", $secure ? 1 : 0)
 		]);
 		return true;
 	}
@@ -175,14 +174,14 @@ class UserData
 		}
 		IO::write($filename, $content);
 		unset(self::$cache[$appname . $key]);
-		return Database::insert("userdata",[
+		return Database::insert("userdata", [
 			(new DatabaseRowInput)
-			->setField("app",$appname)
-			->setField("identifier",$key)
-			->setField("physical_path",$filename)
-			->setField("mime_type",IO::get_mime($filename))
-			->setField("ver",time())
-			->setField("secure", $secure ? 1 : 0)
+				->setField("app", $appname)
+				->setField("identifier", $key)
+				->setField("physical_path", $filename)
+				->setField("mime_type", IO::get_mime($filename))
+				->setField("ver", time())
+				->setField("secure", $secure ? 1 : 0)
 		]);
 	}
 
