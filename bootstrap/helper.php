@@ -327,6 +327,11 @@ function json_out($jsonable)
 	}
 }
 
+function prec(float $number, int $precision = 4)
+{
+	return floatval(number_format((float) $number, $precision, '.', ''));
+}
+
 /**
  * Get the bytes from PHP size format (e.g. 128M)
  * 
