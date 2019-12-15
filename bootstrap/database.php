@@ -290,13 +290,14 @@ class Database
 		do {
 			$escaped .= $token;
 			$processedLen += strlen($token) + 1;
+			$currentParam = current($param);
 			if ($processedLen >= strlen($query)) {
-				if (current($param) !== false) $escaped .= self::escape(current($param));
+				if ($currentParam !== false) $escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
 				break;
-			} else if (current($param) === false) {
+			} else if ($currentParam === false) {
 				throw new DatabaseError("Not enough parameter");
 			} else {
-				$escaped .= self::escape(current($param));
+				$escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
 				next($param);
 			}
 		} while ($token = strtok('?'));
@@ -421,7 +422,7 @@ class Database
 	 * @param string $table Table Name
 	 * @param string $find_column Column need to be matched
 	 * @param string $find_value Value inside $find_column need to be matched
-	 * @return string
+	 * @return array
 	 */
 	public static function getRow($table, $find_column, $find_value)
 	{
@@ -442,7 +443,7 @@ class Database
 	 * @param string $table Table Name
 	 * @param string $statement Custom statement
 	 * @param string $param Parameterized value
-	 * @return string
+	 * @return array
 	 */
 	public static function getRowByStatement($table, $statement, ...$param)
 	{

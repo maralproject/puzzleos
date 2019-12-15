@@ -65,12 +65,18 @@ class AppManager
 		if ($list_app["rootname"] != $rootname) throw new AppStartError("Application $rootname not found!", "", 404);
 
 		/* Prepare the database */
-		foreach (glob($list_app["dir"] . "/*.table.php") as $table_abstract) {
+		$lookupdir = array_merge(
+			glob($list_app["dir"] . "/*.table.php"),
+			glob($list_app["dir"] . "/apptables/*.table.php")
+		);
+		foreach ($lookupdir as $table_abstract) {
+			set_time_limit(0);
 			$t = explode("/", rtrim($table_abstract, "/"));
 			$table_name = str_replace(".table.php", "", end($t));
 			$table_structure = include_ext($table_abstract);
 			Database::newStructure("app_" . $list_app["rootname"] . "_" . $table_name, $table_structure);
 		}
+		set_time_limit(TIME_LIMIT);
 	}
 
 	/**
@@ -105,7 +111,7 @@ class AppManager
 					if ($manifest["rootname"] == "") continue;
 					if (isset($a[$manifest["rootname"]])) throw new PuzzleError("Rootname conflict detected on path: <b>" . __ROOTDIR . "/applications/" . $dir . "</b> and <b>" . $a[$manifest["rootname"]]["dir"] . "</b>");
 					if (strlen($manifest["rootname"]) > 50) continue;
-					
+
 					#Filter pre-reserved rootname
 					switch ($manifest["rootname"]) {
 						case "assets":
