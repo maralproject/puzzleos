@@ -660,7 +660,7 @@ class Database
 		if ($table == "") throw new DatabaseError("Table name cannot be empty!");
 		self::x_verify($table);
 		if (!isset(self::$cache["tables"])) {
-			$q = self::query("SHOW TABLES");
+			$q = self::query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '?'", POSConfigDB::$database_name);
 			while ($r = $q->fetch_row()) self::$cache["tables"][$r[0]] = 1;
 		}
 		return isset(self::$cache["tables"][$table]);
