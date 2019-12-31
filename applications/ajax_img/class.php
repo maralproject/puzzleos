@@ -71,6 +71,12 @@ class ImageUploader
 			case IMAGETYPE_PNG:
 				$image = imagecreatefrompng($source);
 				break;
+			case IMAGETYPE_GIF:
+				$image = imagecreatefromgif($source);
+				break;
+			case IMAGETYPE_BMP:
+				$image = imagecreatefrombmp($source);
+				break;
 			default:
 				throw new Exception("Image not supported");
 		}
