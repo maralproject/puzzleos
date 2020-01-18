@@ -92,7 +92,7 @@ class PuzzleCLI
 			if (starts_with($app, "sys/")) {
 				self::system($app, $arg);
 			} else {
-				$appProp = iApplication::run($a[1]);
+				$appProp = iApplication::run($a[1], true);
 				if ($app == "") exit;
 				if (!isset(self::$list[$app])) throw new PuzzleError("Application doesn't register handler for CLI");
 

@@ -57,12 +57,15 @@ class Minifier
 					$data = str_replace("type='text/javascript'", "", $data);
 					$data = preg_replace("/\s*<(\h|)script(\h|)>\s*/", "", $data);
 					$data = preg_replace("/\s*<\/(\h|)script(\h|)>\s*/", "", $data);
-					if (self::$js_external !== null) {
-						$f = self::$js_external;
-						$data = $f($data);
-					} else {
-						$data = (new JS($data))->minify();
+					try {
+						if (self::$js_external !== null) {
+							$f = self::$js_external;
+							$data = $f($data);
+							break;
+						}
+					} catch (\Throwable $e) {
 					}
+					$data = (new JS($data))->minify();
 					break;
 				case "css":
 					$data = str_replace('type="text/css"', "", $data);

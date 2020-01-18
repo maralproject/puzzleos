@@ -377,9 +377,12 @@ class iApplication
 			$this->_xStartup = $_xStartup;
 			AppManager::migrateTable($this->rootname);
 			$this->guardCheck();
-			include_once_ext($this->path . "/control.php", [
+			$resp = include_once_ext($this->path . "/control.php", [
 				"appProp" => $this->getAppProp()
 			]);
+			if ($resp === false) {
+				throw new AppStartError("Application $this->rootname not found.", "", APP_ERROR_NOTFOUND);
+			}
 			$this->preload_mode = false;
 		}
 		return $this;
@@ -451,7 +454,10 @@ class iApplication
 	public static function run(string $rootname, bool $_xStartup = false)
 	{
 		if ($_xStartup) {
-			if (debug_backtrace(1, 2)[1]['class'] != AppManager::class) throw new PuzzleError("Startup sequence violation");
+			$caller = debug_backtrace(1, 2)[1]['class'];
+			if ($caller != AppManager::class && $caller != PuzzleCLI::class) {
+				throw new PuzzleError("Startup sequence violation");
+			}
 		}
 		return (self::$loaded[$rootname] ?? self::$loaded[$rootname] = new self($rootname))->lightup($_xStartup);
 	}
