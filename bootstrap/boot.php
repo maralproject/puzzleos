@@ -126,5 +126,6 @@ try {
 	}
 } catch (Throwable $e) {
 	PuzzleError::printErrorPage($e);
+	abort(500, "Internal Server Error");
 }
 })();

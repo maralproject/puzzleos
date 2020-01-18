@@ -65,8 +65,15 @@ class PuzzleError extends Exception
 		if (is_cli()) {
 			echo "\n--\n" . $e;
 		} else {
-			self::printPage(get_class($e) . ": " . ((string) $e), $e->suggestion ?? "");
-			abort(500, "Internal Server Error");
+			$message = "";
+			if ($e instanceof DatabaseError || $e instanceof IOError) {
+				$message = ((string) $e);
+			} else {
+				$message = get_class($e) . ": " . $e->getMessage();
+			}
+			abort(500, "Internal Server Error", false);
+			self::printPage($message, $e->suggestion ?? "");
+			exit;
 		}
 	}
 

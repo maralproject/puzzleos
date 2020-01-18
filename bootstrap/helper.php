@@ -228,11 +228,19 @@ function obtarr($d)
 }
 
 /**
- * Quick shortcut for echo htmlentitites()
+ * Quick shortcut for echo htmlspecialchars()
  */
 function h($html)
 {
-	echo htmlentities($html);
+	echo htmlspecialchars($html);
+}
+
+/**
+ * Quick shortcut for nl2br(htmlspecialchars())
+ */
+function hnl2br($html)
+{
+	echo nl2br(htmlspecialchars($html));
 }
 
 /**

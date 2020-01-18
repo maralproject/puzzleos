@@ -116,6 +116,7 @@ class Template
 			if (!include_ext(self::$dir . "/" . $manifest["controller"], ["tmpl" => $tmpl]))
 				throw new PuzzleError("Cannot load template!", "Please set the default template");
 		} catch (\Throwable $e) {
+			http_response_code(500);
 			PuzzleError::printErrorPage($e);
 		}
 

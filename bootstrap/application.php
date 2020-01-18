@@ -59,6 +59,7 @@ class AppManager
 				// Next, let the template handle these thing from Template::loadTemplate();
 			} catch (\Throwable $e) {
 				PuzzleError::printErrorPage($e);
+				abort(500, "Internal Server Error");
 			}
 		}
 	}
