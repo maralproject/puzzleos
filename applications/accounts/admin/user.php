@@ -87,7 +87,7 @@
                         </div>
                     </th>
                     <td class="igroup">
-                        <?php (new Application("users"))->loadView("group_dropdown", []) ?>
+                        <?php (iApplication::run("users"))->loadView("group_dropdown", []) ?>
                     </td>
                     <td style="position:relative;" class="ienable">
                         <span class="badge badge-dot mr-4">

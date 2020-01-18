@@ -9,7 +9,7 @@
 
 $s_app = new Application; $s_app->run("search_box");
 $s = new SearchBox("AppMan_");
-$acc_app = new Application("users");
+$acc_app = iApplication::run("users");
 $s->setSubmitable(false);
 $s->setDynamic(true);
 $appList = AppManager::listAll();

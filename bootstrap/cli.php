@@ -1,10 +1,11 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
 class PuzzleCLI
@@ -19,6 +20,30 @@ class PuzzleCLI
 		$appDir = $filename[2];
 		$appname = AppManager::getNameFromDirectory($appDir);
 		return ($appname);
+	}
+
+	private static function system($app, $arg)
+	{
+		$sys = explode("sys/", $app)[1];
+		if ($sys == "cron") {
+			if ($arg["run"]) CronJob::run((bool) $arg["force"]);
+			else throw new PuzzleError("Invalid action");
+		} else if ($sys == "cache") {
+			if ($arg["flush"]) {
+				IO::remove_r("/public/cache");
+				IO::remove_r("/public/res");
+				IO::remove_r("/storage/cache");
+			} else throw new PuzzleError("Invalid action");
+		} else if ($sys == "maintenance") {
+			if ($arg["on"]) {
+				file_put_contents(__ROOTDIR . "/site.offline", "");
+				echo "Maintenance mode enabled.\n";
+			} else {
+				@unlink(__ROOTDIR . "/site.offline");
+				echo "Maintenance mode disabled.\n";
+			}
+		} else
+			throw new PuzzleError("Invalid parameter");
 	}
 
 	/**
@@ -45,8 +70,10 @@ class PuzzleCLI
 	{
 		try {
 			if (!is_cli()) return false;
-			ini_set('max_execution_time', 0); //Disable PHP timeout
 			if (!ends_with($a[0], "puzzleos")) throw new PuzzleError("Please use 'sudo -u www-data php puzzleos'\n\n");
+
+			set_time_limit(0);
+			ini_set('max_execution_time', 0);
 
 			/* Generating Argument list */
 			reset($a);
@@ -62,11 +89,12 @@ class PuzzleCLI
 
 			/* Loading app */
 			$app = $a[1];
-			if (strpos($app, "sys/") === false) {
-				$appProp = new Application($a[1]);
+			if (starts_with($app, "sys/")) {
+				self::system($app, $arg);
+			} else {
+				$appProp = iApplication::run($a[1]);
 				if ($app == "") exit;
-				if (!isset(self::$list[$app]))
-					throw new PuzzleError("Application doesn't register handler for CLI");
+				if (!isset(self::$list[$app])) throw new PuzzleError("Application doesn't register handler for CLI");
 
 				$io = new PObject([
 					"in" => function () {
@@ -80,24 +108,9 @@ class PuzzleCLI
 
 				$f = self::$list[$app];
 				$f($io, $arg);
-			} else {
-				/* This is part of the system */
-				$sys = explode("sys/", $app)[1];
-				if ($sys == "cron") {
-					if ($arg["run"])
-						CronJob::run((bool) $arg["force"]);
-					else throw new PuzzleError("Invalid action");
-				} elseif ($sys == "cache") {
-					if ($arg["flush"]) {
-						IO::remove_r("/public/cache");
-						IO::remove_r("/public/res");
-						IO::remove_r("/storage/cache");
-					} else throw new PuzzleError("Invalid action");
-				} else
-					throw new PuzzleError("Invalid parameter");
 			}
-		} catch (Throwable $e) {
-			PuzzleError::handleErrorCLI($e);
+		} catch (\Throwable $e) {
+			PuzzleError::printErrorPage($e);
 		}
 	}
 }

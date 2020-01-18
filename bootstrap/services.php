@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -9,11 +10,8 @@
 
 foreach (AppManager::listAll() as $data) {
 	if (!empty($data["services"])) {
-
-		$app = new Application();
-		$app->prepare($data["rootname"]);
-		AppManager::migrateTable($data["rootname"]);
-
+		$app = iApplication::preload($data["rootname"]);
+		AppManager::migrateTable($app->rootname);
 		foreach ($data["services"] as $service) {
 			if ($service == "") continue;
 			if (!$app->loadContext($service)) {

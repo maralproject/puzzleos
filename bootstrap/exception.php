@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -23,12 +24,11 @@ stream_wrapper_unregister("php");
  */
 class PuzzleError extends Exception
 {
-	private $suggestion;
 	private static $printed = false;
 
-	private static function wLog($message, $suggestion, $file, $line, $trace)
+	private static function wLog(\Throwable $error, $suggestion, $file, $line, $trace)
 	{
-		Log::emergency($message, [
+		Log::emergency(get_class($error) . ": " . $error->getMessage(), [
 			"suggestion" => $suggestion,
 			"caller" => "$file($line)",
 			"url" => __HTTP_REQUEST,
@@ -38,7 +38,7 @@ class PuzzleError extends Exception
 		]);
 	}
 
-	public static function printPage($msg = "", $suggestion = "")
+	private static function printPage($msg = "", $suggestion = "")
 	{
 		if (self::$printed) return;
 
@@ -52,31 +52,25 @@ class PuzzleError extends Exception
 		self::$printed = true;
 	}
 
-	public static function handleErrorView(\Throwable $e)
+	public static function saveErrorLog(\Throwable $e)
 	{
-		ob_end_flush();
-		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
-		self::printPage($e->getMessage());
-		abort(500, "Internal Server Error");
+		self::wLog($e, $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
 	}
 
-	public static function handleErrorControl(\Throwable $e, bool $abort = true)
+	public static function printErrorPage(\Throwable $e)
 	{
+		self::saveErrorLog($e);
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
-		return $abort ? abort(500, "Internal Server Error") : $e->__toString();
+		if (is_cli()) {
+			echo "\n--\n" . $e;
+		} else {
+			self::printPage(get_class($e) . ": " . ((string) $e), $e->suggestion ?? "");
+			abort(500, "Internal Server Error");
+		}
 	}
 
-	public static function handleErrorCLI(\Throwable $e)
-	{
-		ob_end_flush();
-		while (ob_get_level()) ob_get_clean();
-		self::wLog($e->getMessage(), $e->suggestion ?? "", $e->getFile(), $e->getLine(), $e->getTraceAsString());
-		return $e->__toString();
-	}
-
+	public $suggestion;
 	public function __construct($message, $suggestion = "", int $code = -1, Exception $previous = null, string $file = null, int $line = null)
 	{
 		$this->suggestion = $suggestion;
@@ -84,68 +78,43 @@ class PuzzleError extends Exception
 		if ($file) $this->file = $file;
 		if ($line) $this->line = $line;
 	}
-
-	public function __toString()
-	{
-		if (is_cli()) {
-			self::wLog($this->getMessage(), $this->suggestion ?? "", $this->getFile(), $this->getLine(), $this->getTraceAsString());
-			echo "\n---\n" . parent::__toString() . "\n";
-		} else {
-			self::handleErrorView($this);
-		}
-		return "";
-	}
 }
 
 /**
  * For security aim, IO error don't output it's error to public.
- * Instead, it will show a database error message, while logging the
- * real error and stack trace in error.log file
+ * Instead, it will show a generic error message, while logging the
+ * real error and stack trace in logging file
  */
 class IOError extends PuzzleError
 {
 	public function __toString()
 	{
-		//Clear all buffer
-		while (ob_get_level()) ob_get_clean();
-		if (!is_cli()) {
-			parent::printPage("We cannot locate file");
-		} else {
-			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
-		}
-		return "";
+		return "We cannot locate the file.";
 	}
 }
 
 /**
  * For security purpose, database error do not output it's error to public.
  * Instead, it will show a database error message, and log
- * the real error and stack trace in error.log file.
+ * the real error and stack trace in logging file.
  */
 class DatabaseError extends PuzzleError
 {
 	public function __toString()
 	{
-		//Clear all buffer
-		while (ob_get_level()) ob_get_clean();
-		if (!is_cli()) {
-			parent::printPage("Something error on database execution.");
-		} else {
-			echo ("ERROR({$this->getCode()}): " . $this->message . "\n");
-		}
-		return "";
+		return "Something error on database execution.";
 	}
 }
 
 class AppStartError extends PuzzleError
-{ }
-class WorkerError extends PuzzleError
-{ }
+{
+}
 
 register_shutdown_function(function () {
 	$e = error_get_last();
 	if ($e['type'] & (E_COMPILE_ERROR | E_CORE_ERROR | 1)) {
 		// Something went wrong with PHP code. Not by catchable errors.
-		PuzzleError::handleErrorView(new PuzzleError($e['message'], "PHP Core/Compile error occured", $e['type'], null, $e['file'], $e['line']));
+		$error = new PuzzleError($e['message'], "PHP Core/Compile error occured", $e['type'], null, $e['file'], $e['line']);
+		PuzzleError::printErrorPage($error);
 	}
 });

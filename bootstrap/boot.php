@@ -4,7 +4,7 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */ 
 
 (function () {
@@ -35,16 +35,24 @@ if (defined("X_FRAME_OPTIONS_DENY")) header("X-Frame-Options: sameorigin");
 
 /***********************************
  * Maintenance Mode Handler
+ * Now, CLI can still running even
+ * maintenance mode is enabled.
  *
  * To enter maintenance mode,
  * create "site.offline" file
  * in the root directory
  ***********************************/
 if (file_exists(__ROOTDIR . "/site.offline")) {
-	abort(503, "Under Maintenance", is_cli());
-	header('Retry-After: 300');
-	include(__ROOTDIR . "/templates/system/503.php");
-	exit;
+	if (PHP_SAPI == "cli") {
+		define("__MAINTENANCE", true);
+	} else {
+		header('Retry-After: 300');
+		abort(503, "Under Maintenance", false);
+		include(__ROOTDIR . "/templates/system/503.php");
+		exit;
+	}
+} else {
+	define("__MAINTENANCE", false);
 }
 
 /***********************************
@@ -83,7 +91,7 @@ try {
 	 ***********************************/
 	require("session.php");
 	require("time.php");
-	require("appFramework.php");
+	require("application.php");
 	require("services.php");
 
 	/***********************************
@@ -102,7 +110,7 @@ try {
 		$appProp = $d["app"];
 		if ($appProp != "") {
 			try {
-				$appProp = new Application($appProp);
+				$appProp = iApplication::run($appProp);
 				if (!$appProp->isForbidden) {
 					if (file_exists($appProp->path . "/authorize.userdata.php")) {
 						if ((function ($file_key, $file_mime) use ($appProp) {
@@ -112,10 +120,11 @@ try {
 						IO::streamFile($f);
 					}
 				}
-			} catch (AppStartError $e) { }
+			} catch (AppStartError $e) {
+			}
 		}
 	}
-} catch (Throwable $e) { 
-	PuzzleError::handleErrorControl($e);
+} catch (Throwable $e) {
+	PuzzleError::printErrorPage($e);
 }
 })();

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
 /**
@@ -87,7 +88,9 @@ function require_once_ext($__path, $vars = null)
 function abort(int $code, string $text = "", $exit = true)
 {
 	if (class_exists("PuzzleSession")) PuzzleSession::writeCookie();
-	if (!is_cli()) header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
+	if (!is_cli()) {
+		header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
+	}
 	if ($exit) exit;
 }
 

@@ -19,7 +19,7 @@ foreach(AppManager::listAll() as $app){
 		if($location_config == $location){
 			//Include this menu
 			try{
-				(new Application($app["rootname"]))->loadContext($file);
+				(iApplication::run($app["rootname"]))->loadContext($file);
 			}catch(AppStartError $e){
 				continue;
 			}

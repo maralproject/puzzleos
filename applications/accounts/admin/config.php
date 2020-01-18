@@ -59,7 +59,7 @@
                 <div style="display:inline-block">
                     <span>Allow user registration</span>
                     <div class="text-muted"><small>Select default group</small></div>
-                    <?php (new Application("users"))->loadView("group_dropdown", [PuzzleUserConfig::defaultRegistrationGroup()->id, "defaultRegistrationGroup"]) ?>
+                    <?php (iApplication::run("users"))->loadView("group_dropdown", [PuzzleUserConfig::defaultRegistrationGroup()->id, "defaultRegistrationGroup"]) ?>
                 </div>
             </label>
         </div>

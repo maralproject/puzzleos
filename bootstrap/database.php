@@ -350,7 +350,7 @@ class Database
 		switch ($filename[1]) {
 			case "bootstrap":
 				switch ($filename[2]) {
-					case "appFramework.php":
+					case "application.php":
 					case "services.php":
 					case "database.php":
 					case "systables.php":

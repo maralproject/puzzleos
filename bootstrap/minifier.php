@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -15,6 +16,21 @@ use MatthiasMullie\Minify\CSS;
  */
 class Minifier
 {
+	/** @var callable */
+	private static $js_external = null;
+
+	/**
+	 * By default, PuzzleOS only do minifiying process, not
+	 * obsufcating. If you have a better tools to minify JS,
+	 * place the callable in here.
+	 * 
+	 * @param callable $function A callback that receive($js_string), without the <script> tag.
+	 */
+	public static function registerJSMinifier(callable $function)
+	{
+		self::$js_external = $function;
+	}
+
 	/**
 	 * Same with ob_start()
 	 */
@@ -41,7 +57,12 @@ class Minifier
 					$data = str_replace("type='text/javascript'", "", $data);
 					$data = preg_replace("/\s*<(\h|)script(\h|)>\s*/", "", $data);
 					$data = preg_replace("/\s*<\/(\h|)script(\h|)>\s*/", "", $data);
-					$data = (new JS($data))->minify();
+					if (self::$js_external !== null) {
+						$f = self::$js_external;
+						$data = $f($data);
+					} else {
+						$data = (new JS($data))->minify();
+					}
 					break;
 				case "css":
 					$data = str_replace('type="text/css"', "", $data);

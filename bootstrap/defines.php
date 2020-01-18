@@ -15,7 +15,7 @@
 
 define("START_TIME", time());
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.1.14");
+define("__POS_VERSION", "3.2.15");
 
 /**
  * Return /path/to/qualified/root/directory
@@ -71,5 +71,10 @@ define("T_DAY", 86400);
 define("T_HOUR", 3600);
 define("T_MINUTE", 60);
 define("TODAY", strtotime(date("Y/m/d", time())));
+
+define("APP_ERROR_NOTFOUND", 1);
+define("APP_ERROR_FORBIDDEN", 2);
+define("APP_ERROR_NOVIEW", 3);
+define("APP_ERROR_NOTRUNNING", 4);
 
 define("__WORKERDIR", __ROOTDIR . "/storage/worker");

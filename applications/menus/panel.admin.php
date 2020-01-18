@@ -8,8 +8,8 @@
  * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
-$fontawesome = new Application("fontawesome");
-$acc_app = new Application("users");
+$fontawesome = iApplication::run("fontawesome");
+$acc_app = iApplication::run("users");
 $fontawesome->loadView("JSNewInput");
 $l = new Language;
 $upload = new Application;

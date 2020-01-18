@@ -57,14 +57,14 @@ class Worker
 	private static function __do($job, $key)
 	{
 		if (is_win()) self::cleanupResult();
-		if (!file_exists(__WORKERDIR . "/$job.job")) throw new WorkerError("Job not found!");
+		if (!file_exists(__WORKERDIR . "/$job.job")) throw new PuzzleError("Job not found!");
 		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
 			self::$_cipher,
 			$key,
 			OPENSSL_RAW_DATA
 		));
-		if ($execute === false && error_get_last()["type"] == E_NOTICE) throw new WorkerError("Job cannot be parsed!");
+		if ($execute === false && error_get_last()["type"] == E_NOTICE) throw new PuzzleError("Job cannot be parsed!");
 
 		@unlink(__WORKERDIR . "/$job.job");
 		self::$onWorker = true;
@@ -96,7 +96,7 @@ class Worker
 			echo @openssl_encrypt(serialize($result), self::$_cipher, $key, OPENSSL_RAW_DATA);
 		} catch (\Throwable $e) {
 			echo @openssl_encrypt(false, self::$_cipher, $key, OPENSSL_RAW_DATA);
-			PuzzleError::handleErrorControl($e);
+			PuzzleError::saveErrorLog($e);
 		}
 		exit;
 	}
@@ -106,7 +106,7 @@ class Worker
 		switch ($func) {
 			case "__do":
 				if (!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "puzzleworker")
-					throw new WorkerError("Cannot execute Worker!");
+					throw new PuzzleError("Cannot execute Worker!");
 				self::__do($args[0][1], $args[0][2]);
 				break;
 		}
@@ -114,18 +114,18 @@ class Worker
 
 	public function __construct($number = 1)
 	{
-		if ($number < 1) throw new WorkerError("Worker number expect at least one!");
+		if ($number < 1) throw new PuzzleError("Worker number expect at least one!");
 
 		$caller = explode("/", str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])));
 		if ($caller[1] != "applications")
-			throw new WorkerError("Only applications can create Worker!");
+			throw new PuzzleError("Only applications can create Worker!");
 
 		if (!defined("_SUPERCLOSURE_H")) {
 			if (!function_exists("proc_open"))
-				throw new WorkerError("To use Worker, please enable proc_open function!");
+				throw new PuzzleError("To use Worker, please enable proc_open function!");
 
 			if (!function_exists("openssl_encrypt"))
-				throw new WorkerError("To use Worker, please enable openssl_* function!");
+				throw new PuzzleError("To use Worker, please enable openssl_* function!");
 
 			define("_SUPERCLOSURE_H", 1);
 		}
@@ -148,7 +148,7 @@ class Worker
 	 */
 	public function setTask($callable)
 	{
-		if (!is_callable($callable)) throw new WorkerError('$callable expect a Callable function!');
+		if (!is_callable($callable)) throw new PuzzleError('$callable expect a Callable function!');
 		$this->_task = $callable;
 
 		return $this;
@@ -162,7 +162,7 @@ class Worker
 	 */
 	public function run($options = [])
 	{
-		if ($this->isRunning()) throw new WorkerError("Worker already started!");
+		if ($this->isRunning()) throw new PuzzleError("Worker already started!");
 
 		$this->_processes = [];
 		$this->_secret = rand_str(32);
@@ -254,7 +254,7 @@ class Worker
 	 */
 	public function result()
 	{
-		if ($this->isRunning()) throw new WorkerError("Worker haven't finished it's job yet!");
+		if ($this->isRunning()) throw new PuzzleError("Worker haven't finished it's job yet!");
 
 		$result = [];
 		foreach ($this->_processes as $id => $p) {

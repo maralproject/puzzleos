@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -93,13 +94,13 @@ class Template
 		));
 
 		$tmpl->app = AppManager::getMainApp();
-		$tmpl->http_code = $tmpl->app->http_code;
+		$tmpl->http_code = http_response_code();
 		$tmpl->postBody = &self::$addOnBody;
 		$tmpl->url = self::$url;
 		$tmpl->path = self::$dir;
 		$tmpl->copyright = POSConfigGlobal::$copyright;
 		$tmpl->title = (self::$SubTitle === null ? ($tmpl->app->title) : self::$SubTitle);
-		$tmpl->navigation = new Application("menus");
+		$tmpl->navigation = iApplication::run("menus");
 
 		ob_start(function ($output) use (&$buffer) {
 			/**
@@ -115,7 +116,7 @@ class Template
 			if (!include_ext(self::$dir . "/" . $manifest["controller"], ["tmpl" => $tmpl]))
 				throw new PuzzleError("Cannot load template!", "Please set the default template");
 		} catch (\Throwable $e) {
-			PuzzleError::handleErrorView($e);
+			PuzzleError::printErrorPage($e);
 		}
 
 		ob_end_flush();

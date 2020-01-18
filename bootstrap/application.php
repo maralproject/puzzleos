@@ -1,24 +1,25 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
 /**
- * Application Manager for Administration
+ * Application Manager
  */
 class AppManager
 {
 	private static $AppList = null;
-
-	/**
-	 * @var Application
-	 */
 	private static $MainApp = null;
 
+	/**
+	 * Get main application
+	 * @return iApplication
+	 */
 	public static function getMainApp()
 	{
 		return self::$MainApp;
@@ -26,43 +27,52 @@ class AppManager
 
 	/**
 	 * Start the main application.
-	 * @param string $app
+	 * Main application can only be started once.
+	 * @param string $x_app
 	 * @return bool
 	 */
-	public static function startApp()
+	public static function startApp(string $x_app = null)
 	{
-		if (self::$MainApp instanceof Application)
-			throw new PuzzleError("Main application can be only started once!");
+		if ($x_app !== null && !is_callbyme()) throw new PuzzleError("Startup sequence violation");
+		if (self::$MainApp !== null) throw new PuzzleError("Main application can be only started once");
 
-		$defaultApp = request("app") == "" ? POSConfigMultidomain::$default_application : request("app");
-		if ($defaultApp == "") {
-			throw new PuzzleError("No any application to run!", "Please set one default application!");
+		$request = $x_app ?? request(0);
+		if ($request == "") {
+			throw new PuzzleError("No any app to run! Please set a default application.");
 		} else {
-			self::$MainApp = (new Application())->prepare($defaultApp);
 			try {
-				if (!self::$MainApp->x_found() && POSConfigMultidomain::$super_application !== null) {
-					//Reroute not found app to Super App
-					self::$MainApp = (new Application())->prepare(POSConfigMultidomain::$super_application);
-				}
-				self::$MainApp->run();
-				http_response_code(self::$MainApp->http_code);
+				self::$MainApp = iApplication::run($request, true);
 			} catch (AppStartError $e) {
-				abort(self::$MainApp->http_code, "Application Not Found", false);
-				Template::setSubTitle("Not found");
+				switch ($e->getCode()) {
+					case APP_ERROR_NOTFOUND:
+						if ($x_app == null && POSConfigMultidomain::$super_application !== null) {
+							self::startApp(POSConfigMultidomain::$super_application);
+						} else {
+							abort(404, "Not Found", false);
+							Template::setSubTitle("Not found");
+						}
+						break;
+					case APP_ERROR_FORBIDDEN:
+						abort(403, "Forbidden", false);
+						break;
+				}
+				// Next, let the template handle these thing from Template::loadTemplate();
 			} catch (\Throwable $e) {
-				PuzzleError::handleErrorControl($e);
+				PuzzleError::printErrorPage($e);
 			}
 		}
 	}
 
 	/**
-	 * Prepare table database for specified app
+	 * Prepare table database for specified app.
 	 * @param string $rootname 
 	 */
-	public static function migrateTable($rootname)
+	public static function migrateTable(string $rootname)
 	{
 		$list_app = AppManager::listAll()[$rootname];
-		if ($list_app["rootname"] != $rootname) throw new AppStartError("Application $rootname not found!", "", 404);
+		if ($list_app["rootname"] != $rootname) {
+			throw new PuzzleError("Application $rootname cannot be found.");
+		}
 
 		/* Prepare the database */
 		$lookupdir = array_merge(
@@ -80,7 +90,7 @@ class AppManager
 	}
 
 	/**
-	 * List all Applications
+	 * List all Applications.
 	 * @return array
 	 */
 	public static function listAll()
@@ -156,7 +166,7 @@ class AppManager
 	 * @param string $name Application root name
 	 * @return bool
 	 */
-	public static function isInstalled($name)
+	public static function isInstalled(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
 		return (isset(AppManager::listAll()[$name]));
@@ -167,7 +177,7 @@ class AppManager
 	 * @param string $name Application root name
 	 * @return bool
 	 */
-	public static function isDefault($name)
+	public static function isDefault(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
 		if (!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
@@ -179,7 +189,7 @@ class AppManager
 	 * @param integer $group_id Group ID
 	 * @return bool
 	 */
-	public static function isOnGroup($group_id)
+	public static function isOnGroup(int $group_id)
 	{
 		foreach (AppManager::listAll() as $data)
 			if ($data["group"] == $group_id) return true;
@@ -192,7 +202,7 @@ class AppManager
 	 * @param integer $newgroup Group ID
 	 * @return bool
 	 */
-	public static function chownApp($appname, $newgroup)
+	public static function chownApp(int $appname, int $newgroup)
 	{
 		if ($appname == "") throw new PuzzleError("Name cannot be empty!");
 		if (!AppManager::isInstalled($appname)) throw new PuzzleError("Application not found!");
@@ -217,7 +227,7 @@ class AppManager
 	 * @param string $name Application root name
 	 * @return bool
 	 */
-	public static function setDefaultByName($name)
+	public static function setDefaultByName(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
 		if (!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
@@ -231,7 +241,7 @@ class AppManager
 	 * @param string $directory
 	 * @return string
 	 */
-	public static function getNameFromDirectory($directory)
+	public static function getNameFromDirectory(string $directory)
 	{
 		$directory = IO::physical_path("/applications/$directory");
 		if (!IO::exists("$directory/manifest.ini")) throw new PuzzleError("Application not found!");
@@ -242,48 +252,44 @@ class AppManager
 }
 
 /**
- * Application Instances
+ * Application Model
+ * @property-read string $title Application Name
+ * @property-read string $desc Application Description
+ * @property-read string $rootname Rootname of the app
+ * @property-read string $path Physical directory. /www/cms/$appdir or C:/htdocs/cms/$appdir
+ * @property-read string $rootdir Root directory. /applications/$appdir
+ * @property-read bool $isMainApp Check if this app is the main app
  */
-class Application
+class iApplication
 {
-	private static $MainAppStarted = false;
+	private static $loaded = [];
 
-	private $appfound = false;
-	private $forbidden = 1;
-	private $apprunning = 0;
-	private $prepared = false;
-	private $group;
-	private $level;
-
-	/**
-	 * Root directory. /applications/$appdir
-	 */
+	private $rootname;
+	private $title;
+	private $desc;
+	private $path;
 	private $rootdir;
 
 	/**
-	 * User data directory. /user_data/$appdir
+	 * Group id in which this app belongs to
 	 */
-	private $datadir;
+	private $group;
 
 	/**
-	 * Physical directory. /www/cms/$appdir or C:/htdocs/cms/$appdir
+	 * Application Guard Level
+	 * 0 => Your app only visible to Superuser
+	 * 1 => Your app visible to Employee and Superuser
+	 * 2 => Your app visible to Registered User, Employee, and Superuser
+	 * 3 => Your app visible to everyone including Guest
 	 */
-	private $path;
+	private $level;
+
 
 	/**
-	 * Application Name
+	 * Flag: this app is a call from AppManager
+	 * to start the main app
 	 */
-	private $title;
-
-	/**
-	 * Application Description
-	 */
-	private $desc;
-
-	/**
-	 * Application root name
-	 */
-	private $appname;
+	private $_xStartup = false;
 
 	/**
 	 * A variable that use to pass data from controller to view
@@ -291,18 +297,52 @@ class Application
 	private $bundle = [];
 
 	/**
-	 * HTTP Code of an app
+	 * Flag: This app still in preload mode.
 	 */
-	private $http_code = 404;
+	private $preload_mode = true;
 
-	private $isMainApp = false;
-	private $called_by_me = false;
-
-	public function __construct($appname = "")
+	private function guardCheck()
 	{
-		$this->called_by_me = is_callbyme();
-		if ($appname != "") $this->run($appname);
-		return $this;
+		if (!is_cli()) {
+			if ($this->_xStartup) {
+				/**
+				 * In multidomain mode, there is a feature called App resctriction,
+				 * meaning the app cannot start as the main user interface for that session.
+				 * But, that app can be still called and run by another apps if necessary,
+				 * also it's services and menus still can be called
+				 */
+				if (POSConfigGlobal::$use_multidomain) {
+					if (in_array($this->rootname, POSConfigMultidomain::$restricted_app)) {
+						throw new AppStartError("Application forbidden", "", APP_ERROR_FORBIDDEN);
+					}
+				}
+
+				// Walaupun grup di database didefinisikan, tapi jika level aplikasi lebih kuat, maka kita ikut level aplikasi untuk autentikasi.
+				$group_level = PuzzleUserGroup::get($this->group)->level;
+				if ($group_level > $this->level) {
+					$forbidden = !PuzzleUser::isAccess($this->level);
+				} else {
+					$forbidden = !PuzzleUser::isGroupAccess(PuzzleUserGroup::get($this->group));
+				}
+
+				if ($forbidden) {
+					throw new AppStartError("Application forbidden", "", APP_ERROR_FORBIDDEN);
+				}
+			}
+		}
+	}
+
+	private function getAppProp()
+	{
+		return (object) [
+			"title" => $this->title,
+			"desc" => $this->desc,
+			"rootname" => $this->rootname,
+			"path" => $this->path,
+			"rootdir" => $this->rootdir,
+			"bundle" => &$this->bundle,
+			"isMainApp" => $this->_xStartup
+		];
 	}
 
 	public function __get($variable)
@@ -312,154 +352,54 @@ class Application
 				return ($this->title);
 			case "desc":
 				return ($this->desc);
-			case "appname":
-				return ($this->appname);
+			case "rootname":
+				return ($this->rootname);
 			case "path":
 				return ($this->path);
 			case "rootdir":
 				return ($this->rootdir);
-			case "isForbidden":
-				return ($this->forbidden == 1);
 			case "isMainApp":
-				return ($this->isMainApp);
-			case "http_code":
-				return ($this->http_code);
+				return ($this->_xStartup);
 			default:
-				throw new PuzzleError("Invalid input! => " . $variable);
+				throw new PuzzleError("Invalid input " . $variable);
 		}
-	}
-
-	public function __set($variable, $value)
-	{
-		switch ($variable) {
-			default:
-				throw new PuzzleError("All properties are read-only!");
-				break;
-		}
-	}
-
-	private function __papp()
-	{
-		return (object) [
-			"title" => $this->title,
-			"desc" => $this->desc,
-			"appname" => $this->appname,
-			"path" => $this->path,
-			"rootdir" => $this->rootdir,
-			"bundle" => &$this->bundle,
-			"isMainApp" => $this->isMainApp,
-			"http_code" => &$this->http_code
-		];
-	}
-
-	public function x_found()
-	{
-		if (!is_callbyme()) throw new PuzzleError(__class__ . " violation!");
-		return $this->appfound;
 	}
 
 	/**
-	 * NOTE!:
-	 * Prepare information for this app, NOT run the app
-	 * To run the app, use run()
-	 * @param string $name
-	 * @return Application
+	 * Lights up the app. Include the control.php
+	 * @return self
 	 */
-	public function prepare($name)
+	public function lightup(bool $_xStartup = false)
 	{
-		if (!$this->prepared) {
-			$meta = AppManager::listAll()[$name];
-			$this->appname = $name;
-			$this->appfound = false;
-
-			if ($meta["rootname"] == $name) {
-				$dir = $meta["dir_name"];
-				$this->level = $meta["level"];
-				$this->group = $meta["group"];
-				$this->appfound = true;
-				$this->title = $meta["title"];
-				$this->desc = $meta["desc"];
-				$this->path = IO::physical_path("/applications/" . $dir);
-				$this->rootdir = "/applications/" . $dir;
-				$this->datadir = "/user_data/" . $this->appname;
-			}
-			$this->prepared = true;
+		if ($this->preload_mode) {
+			if ($_xStartup && debug_backtrace(1, 2)[1]['class'] != self::class) throw new PuzzleError("Startup sequence violation");
+			$this->_xStartup = $_xStartup;
+			AppManager::migrateTable($this->rootname);
+			$this->guardCheck();
+			include_once_ext($this->path . "/control.php", [
+				"appProp" => $this->getAppProp()
+			]);
+			$this->preload_mode = false;
 		}
 		return $this;
 	}
 
-	/**
-	 * Run an app in this instance
-	 * @param string $name
-	 * @return bool
-	 */
-	public function run($name = "")
+	private function __construct(string $rootname, bool $preload = false)
 	{
-		$this->prepare($name);
-		if ($this->prepared) {
-			AppManager::migrateTable($this->appname);
+		$meta = AppManager::listAll()[$rootname];
+		if ($meta["rootname"] == $rootname) {
+			$dir = $meta["dir_name"];
+			$this->level = $meta["level"];
+			$this->group = $meta["group"];
+			$this->title = $meta["title"];
+			$this->desc = $meta["desc"];
+			$this->path = IO::physical_path("/applications/" . $dir);
+			$this->rootdir = "/applications/" . $dir;
+			$this->rootname = $rootname;
+			if (!$preload) $this->lightup();
 		} else {
-			return false;
+			throw new AppStartError("Application $rootname not found.", "", APP_ERROR_NOTFOUND);
 		}
-
-		if (!is_cli()) {
-			if (!self::$MainAppStarted && $this->called_by_me) {
-				self::$MainAppStarted = true;
-				/**
-				 * In multidomain mode, there is a feature called App resctriction,
-				 * meaning the app cannot start as the main user interface for that session.
-				 * But, that app can be still called and run by another apps if necessary,
-				 * also it's services and menus still can be called
-				 */
-				if (POSConfigGlobal::$use_multidomain) {
-					if (in_array($this->appname, POSConfigMultidomain::$restricted_app)) {
-						$this->http_code = 404;
-						throw new AppStartError("Application '{$this->appname}' not found", "", 404);
-						return false;
-					}
-				}
-
-				//Walaupun grup di database didefinisikan, tapi jika level aplikasi lebih kuat, maka kita ikut level aplikasi untuk autentikasi.
-				$group_level = PuzzleUserGroup::get($this->group)->level;
-
-				if ($group_level > $this->level) {
-					$this->forbidden = !PuzzleUser::isAccess($this->level);
-				} else {
-					$this->forbidden = !PuzzleUser::isGroupAccess(PuzzleUserGroup::get($this->group));
-				}
-
-				//In current started because browser need private assets.
-				$this->isMainApp = basename(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3)[2]["file"]) != "boot.php";
-			} else {
-				$this->forbidden = !PuzzleUser::isAccess($this->level);
-				$this->isMainApp = false;
-			}
-		} else {
-			//On CLI, user always authenticated as USER_AUTH_SU
-			//And if App is run under Worker, it means this app is not the Main App
-			$this->forbidden = 0;
-			$this->isMainApp = !Worker::inEnv();
-		}
-
-		if ($this->appfound) {
-			$this->http_code = 200;
-			if (!$this->forbidden) {
-				if (include_once_ext($this->path . "/control.php", [
-					"appProp" => $this->__papp()
-				]) !== false) {
-					$this->apprunning = 1;
-					return true;
-				}
-			} else {
-				$this->http_code = 403;
-				throw new AppStartError("Application '{$this->appname}' forbidden", "", 403);
-				return false;
-			}
-		}
-
-		$this->http_code = 404;
-		throw new AppStartError("Application '{$this->appname}' not found", "", 404);
-		return false;
 	}
 
 	/**
@@ -469,31 +409,24 @@ class Application
 	 */
 	public function loadView(...$arguments)
 	{
-		if ($this->appfound && $this->apprunning == 1) {
-			if ($this->forbidden == 0) {
-				if (include_ext($this->path . "/viewSmall.php", [
-					"appProp" => $this->__papp(),
-					"arguments" => func_get_args()
-				]) === false) {
-					$this->http_code = 500;
-					throw new AppStartError("Cannot load view for app <b>'{$this->title}'</b><br>", "", 500);
-				}
-			}
+		if ($this->preload_mode) throw new AppStartError("Application is not started", "", APP_ERROR_NOTRUNNING);
+		if (include_ext($this->path . "/viewSmall.php", [
+			"appProp" => $this->getAppProp(),
+			"arguments" => $arguments
+		]) === false) {
+			throw new AppStartError("Cannot load view for this app", "", APP_ERROR_NOVIEW);
 		}
 	}
 
 	/**
 	 * Include Application file under Application context
-	 * Which means, file can access $appProp
-	 * @param mixed ...$arguments Put anything that the app requires
+	 * Which means, the file can access $appProp
 	 */
-	public function loadContext($filename)
+	public function loadContext(string $filename)
 	{
-		if ($this->appfound) {
-			return (include_ext($this->path . "/" . ltrim($filename, "/"), [
-				"appProp" => $this->__papp()
-			]));
-		}
+		return (include_ext($this->path . "/" . ltrim($filename, "/"), [
+			"appProp" => $this->getAppProp()
+		]));
 	}
 
 	/*
@@ -501,16 +434,33 @@ class Application
 	 */
 	public function loadMainView()
 	{
-		if ($this->appfound && $this->apprunning == 1) {
-			if ($this->forbidden == 0) {
-				if (include_once_ext(
-					$this->path . "/viewPage.php",
-					array_merge(["appProp" => $this->__papp()], $this->bundle)
-				) === false) {
-					$this->http_code = 500;
-					throw new AppStartError("Cannot load view for app <b>'{$this->title}'</b><br>", "", 500);
-				}
-			}
+		if ($this->preload_mode) throw new AppStartError("Application is not started", "", APP_ERROR_NOTRUNNING);
+		if (include_once_ext(
+			$this->path . "/viewPage.php",
+			array_merge(["appProp" => $this->getAppProp()], $this->bundle)
+		) === false) {
+			throw new AppStartError("Cannot load view for this app", "", APP_ERROR_NOVIEW);
 		}
+	}
+
+	/**
+	 * Start an application
+	 * @return self
+	 */
+	public static function run(string $rootname, bool $_xStartup = false)
+	{
+		if ($_xStartup) {
+			if (debug_backtrace(1, 2)[1]['class'] != AppManager::class) throw new PuzzleError("Startup sequence violation");
+		}
+		return (self::$loaded[$rootname] ?? self::$loaded[$rootname] = new self($rootname))->lightup($_xStartup);
+	}
+
+	/**
+	 * Preload an app
+	 * @return self
+	 */
+	public static function preload(string $rootname)
+	{
+		return self::$loaded[$rootname] ?? self::$loaded[$rootname] = new self($rootname, true);
 	}
 }

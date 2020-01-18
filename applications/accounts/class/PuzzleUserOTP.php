@@ -24,7 +24,7 @@ class PuzzleUserOTP
         } else {
             $w = new Worker;
             $w->setTask(function ($id, $app) use ($u, $code, $override) {
-                new Application("phpmailer");
+                iApplication::run("phpmailer");
                 // $language = new Language($app);
                 $mailer = new Mailer;
                 $mailer->addRecipient = $override ?? $u->email;

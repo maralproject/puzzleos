@@ -8,7 +8,7 @@
  */
  
 if($appProp->isMainApp){
-	new Application("phpmailer");
+	iApplication::run("phpmailer");
 	$l = new Language;
 	if(request("action") == "changeTemplate"){
 		Template::setDefaultByName(request(2));
