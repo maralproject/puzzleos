@@ -33,7 +33,7 @@ class PuzzleError extends Exception
 			"caller" => "$file($line)",
 			"url" => __HTTP_REQUEST,
 			"session" => session_id(),
-			"env" => is_cli() ? "CLI" : "WEB",
+			"env" => is_cli() ? ($GLOBALS["_WORKER"] ? "WORKER" : "CLI") : "WEB",
 			"stack_trace" => $trace
 		]);
 	}

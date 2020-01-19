@@ -47,6 +47,61 @@ class PuzzleCLI
 	}
 
 	/**
+	 * Application developer function
+	 */
+	private static function app($app, $arg, $io)
+	{
+		$io->out("Developer Tools for Application\n---\n");
+
+		$sys = explode("app/", $app)[1];
+		if ($sys == "new") {
+			$io->out("Application rootname (lowercase, no spaces): ");
+			$rootname = strtolower($io->in());
+
+			$io->out("Application title: ");
+			$title = $io->in();
+
+			$io->out("Application description: ");
+			$description = $io->in();
+
+			$io->out("Permission (0: SU, 1: Employee, 2: Registered, 3: Public): ");
+			$permission = $io->in();
+
+			$io->out("Can be a default app (Y/N): ");
+			$default = $io->in() == "Y" ? 1 : 0;
+
+			$io->out("Application directory name (The folder name only): ");
+			$dirname = $io->in();
+
+			$appdir = __ROOTDIR . "/applications/$dirname";
+			mkdir($appdir);
+			$manifest = file_get_contents(__ROOTDIR . "/applications/manifest.ini.sample");
+			$manifest = str_replace([
+				"rootname=",
+				"title=",
+				"description=",
+				"permission=",
+				"canBeDefault=",
+			], [
+				"rootname=$rootname",
+				"title=$title",
+				"description=$description",
+				"permission=$permission",
+				"canBeDefault=$default",
+			], $manifest);
+			file_put_contents($appdir . "/manifest.ini", $manifest);
+			touch($appdir . "/control.php");
+			touch($appdir . "/viewPage.php");
+			touch($appdir . "/viewSmall.php");
+
+			$io->out("\nBasic application directory has been created!\n");
+			$io->out("$appdir\n");
+			$io->out("Happy coding :)\n");
+		} else
+			throw new PuzzleError("Invalid parameter");
+	}
+
+	/**
 	 * Register a function to be called from CLI
 	 * @param callable $F ($io, $args)
 	 */
@@ -75,7 +130,7 @@ class PuzzleCLI
 			set_time_limit(0);
 			ini_set('max_execution_time', 0);
 
-			/* Generating Argument list */
+			// Generating Argument list
 			reset($a);
 			next($a);
 			$p = next($a);
@@ -87,24 +142,26 @@ class PuzzleCLI
 				if ($p === false) break;
 			}
 
-			/* Loading app */
+			// IO Shortcut
+			$io = new PObject([
+				"in" => function () {
+					return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
+				},
+				"out" => function ($o) {
+					echo trim($o, "\t");
+					flush();
+				}
+			]);
+
 			$app = $a[1];
 			if (starts_with($app, "sys/")) {
 				self::system($app, $arg);
+			} else if (starts_with($app, "app/")) {
+				self::app($app, $arg, $io);
 			} else {
 				$appProp = iApplication::run($a[1], true);
 				if ($app == "") exit;
 				if (!isset(self::$list[$app])) throw new PuzzleError("Application doesn't register handler for CLI");
-
-				$io = new PObject([
-					"in" => function () {
-						return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
-					},
-					"out" => function ($o) {
-						echo trim($o, "\t");
-						flush();
-					}
-				]);
 
 				$f = self::$list[$app];
 				$f($io, $arg);

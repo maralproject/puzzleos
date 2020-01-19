@@ -388,7 +388,7 @@ class iApplication
 		return $this;
 	}
 
-	private function __construct(string $rootname, bool $preload = false)
+	private function __construct(string $rootname, bool $preload = true)
 	{
 		$meta = AppManager::listAll()[$rootname];
 		if ($meta["rootname"] == $rootname) {
@@ -416,7 +416,8 @@ class iApplication
 		if ($this->preload_mode) throw new AppStartError("Application is not started", "", APP_ERROR_NOTRUNNING);
 		if (include_ext($this->path . "/viewSmall.php", [
 			"appProp" => $this->getAppProp(),
-			"arguments" => $arguments
+			"arguments" => $arguments,
+			"args" => $arguments,
 		]) === false) {
 			throw new AppStartError("Cannot load view for this app", "", APP_ERROR_NOVIEW);
 		}

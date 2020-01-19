@@ -111,16 +111,23 @@ try {
 		if ($appProp != "") {
 			try {
 				$appProp = iApplication::run($appProp);
-				if (!$appProp->isForbidden) {
-					if (file_exists($appProp->path . "/authorize.userdata.php")) {
-						if ((function ($file_key, $file_mime) use ($appProp) {
-							return include($appProp->path . "/authorize.userdata.php");
-						})($d["identifier"], $d["mime_type"])) IO::streamFile($f);
-					} else {
-						IO::streamFile($f);
+				/**
+				 * File access including checking the user permission 
+				 * by calling `PuzzleUser::isAccess()`
+				 * should be done by the authorize.userdata.php itself.
+				 */
+				if (file_exists($appProp->path . "/authorize.userdata.php")) {
+					if (((function ($file_key, $file_mime) use ($appProp) {
+						return include($appProp->path . "/authorize.userdata.php");
+					})($d["identifier"], $d["mime_type"])) == false) {
+						abort(404, "File not found");
 					}
+				} else {
+					abort(403, "Private asset");
 				}
+				IO::streamFile($f);
 			} catch (AppStartError $e) {
+				abort(404, "File not found");
 			}
 		}
 	}
