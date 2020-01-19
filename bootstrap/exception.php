@@ -42,6 +42,8 @@ class PuzzleError extends Exception
 	{
 		if (self::$printed) return;
 
+		$msg = str_replace([__ROOTDIR, ftbslash(__ROOTDIR)], "", $msg);
+		$suggestion = str_replace([__ROOTDIR, ftbslash(__ROOTDIR)], "", $suggestion);
 		$active = POSConfigMultidomain::$default_template;
 		if (file_exists(__ROOTDIR . "/templates/$active/500.php")) {
 			include __ROOTDIR . "/templates/$active/500.php";

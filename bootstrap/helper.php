@@ -407,6 +407,17 @@ function btfslash($str)
 }
 
 /**
+ * Convert all forward slash to backward slash.
+ * 
+ * @param string $str 
+ * @return string
+ */
+function ftbslash($str)
+{
+	return str_replace("/", "\\", $str);
+}
+
+/**
  * Check if directory exist or not. If not exists create it.
  * 
  * @param string $dir 
