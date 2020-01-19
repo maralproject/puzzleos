@@ -119,7 +119,7 @@ try {
 				if (file_exists($appProp->path . "/authorize.userdata.php")) {
 					if (((function ($file_key, $file_mime) use ($appProp) {
 						return include($appProp->path . "/authorize.userdata.php");
-					})($d["identifier"], $d["mime_type"])) == false) {
+					})($d["identifier"], $d["mime_type"])) !== true) {
 						abort(404, "File not found");
 					}
 				} else {
