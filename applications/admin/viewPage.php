@@ -1,22 +1,23 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
-if(request("action") == "manage"){
+if (request("action") == "manage") {
 	$app = request(2);
-	if($app == "") redirect("admin#apps");
-	$GLOBALS["app"]["managing"] = new Application;
-	if($GLOBALS["app"]["managing"]->run($app)){
-		if(!include($GLOBALS["app"]["managing"]->path."/panel.admin.php")){
+	if ($app == "") redirect("admin#apps");
+	try {
+		$GLOBALS["app"]["managing"] = iApplication::run($app);
+		if (!include($GLOBALS["app"]["managing"]->path . "/panel.admin.php")) {
 			redirect("admin#apps");
 		}
-	}else{
+	} catch (AppStartError $e) {
 		redirect("admin#apps");
 	}
-}else
+} else
 	include("view/main.php");

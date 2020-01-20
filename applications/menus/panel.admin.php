@@ -12,9 +12,7 @@ $fontawesome = iApplication::run("fontawesome");
 $acc_app = iApplication::run("users");
 $fontawesome->loadView("JSNewInput");
 $l = new Language;
-$upload = new Application;
-$upload->run("upload_img_ajax");
-?>
+$upload = iApplication::run("upload_img_ajax"); ?>
 <div id="menu">
 	<h1><?php $l->dump("CUSTOM_NAV_MENU") ?></h1>
 	<br>
@@ -67,24 +65,24 @@ $upload->run("upload_img_ajax");
 				<td style="width:70px;"><?php $l->dump("DELETE") ?></td>
 			</tr>
 			<?php foreach (Database::readAll("app_menus_main") as $d) : ?>
-			<tr name="<?php echo $d["id"] ?>">
-				<td style="text-align:center;width:70px;"><?php $fontawesome->loadview("getdropChoiceInput", array("fa_" . $d["id"], $d["fa"])) ?></td>
-				<td><input class="qtyin info2 name" type="text" name="name_<?php echo $d["id"] ?>" value="<?php echo $d["name"] ?>" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("name") ?>"></td>
-				<td><input class="qtyin info2 link" type="text" name="link_<?php echo $d["id"] ?>" value="<?php echo $d["link"] ?>" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("la") ?>"></td>
-				<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who") ?>"><?php $acc_app->loadView("group_button", ["auth_" . $d["id"], $d["minUser"]]) ?></span></td>
-				<td style="width:100px;text-align:center;">
-					<select class="form-control menu_pos" name="pos_<?php echo $d["id"] ?>" x="<?php echo $d["location"] ?>">
-						<option value="<?php echo MENU_DEFAULT_POSITION_LEFT ?>"><?php $l->dump("pos_left") ?></option>
-						<option value="<?php echo MENU_DEFAULT_POSITION_TOP ?>"><?php $l->dump("pos_top") ?></option>
-						<option value="<?php echo MENU_DEFAULT_POSITION_RIGHT ?>"><?php $l->dump("pos_right") ?></option>
-						<option value="<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>"><?php $l->dump("pos_bottom") ?></option>
-					</select>
-				</td>
-				<td style="text-align:center;width:70px;" class="click_available delcol"><i class="fa fa-remove"></i></td>
-				<script>
-					$("select[name=pos_<?php echo $d["id"] ?>]").val(<?php echo $d["location"] ?>)
-				</script>
-			</tr>
+				<tr name="<?php echo $d["id"] ?>">
+					<td style="text-align:center;width:70px;"><?php $fontawesome->loadview("getdropChoiceInput", array("fa_" . $d["id"], $d["fa"])) ?></td>
+					<td><input class="qtyin info2 name" type="text" name="name_<?php echo $d["id"] ?>" value="<?php echo $d["name"] ?>" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("name") ?>"></td>
+					<td><input class="qtyin info2 link" type="text" name="link_<?php echo $d["id"] ?>" value="<?php echo $d["link"] ?>" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("la") ?>"></td>
+					<td style="width:100px;text-align:center;"><span class="info2" title="<?php $l->dump("choose_who") ?>"><?php $acc_app->loadView("group_button", ["auth_" . $d["id"], $d["minUser"]]) ?></span></td>
+					<td style="width:100px;text-align:center;">
+						<select class="form-control menu_pos" name="pos_<?php echo $d["id"] ?>" x="<?php echo $d["location"] ?>">
+							<option value="<?php echo MENU_DEFAULT_POSITION_LEFT ?>"><?php $l->dump("pos_left") ?></option>
+							<option value="<?php echo MENU_DEFAULT_POSITION_TOP ?>"><?php $l->dump("pos_top") ?></option>
+							<option value="<?php echo MENU_DEFAULT_POSITION_RIGHT ?>"><?php $l->dump("pos_right") ?></option>
+							<option value="<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>"><?php $l->dump("pos_bottom") ?></option>
+						</select>
+					</td>
+					<td style="text-align:center;width:70px;" class="click_available delcol"><i class="fa fa-remove"></i></td>
+					<script>
+						$("select[name=pos_<?php echo $d["id"] ?>]").val(<?php echo $d["location"] ?>)
+					</script>
+				</tr>
 			<?php endforeach; ?>
 			<tr class="addBigButton" style="display:none;">
 			</tr>
@@ -93,102 +91,102 @@ $upload->run("upload_img_ajax");
 	<div style="text-align:center;margin-top:25px;"><button class="btn btn-info new_btn"><?php $l->dump("new_item") ?></button></div>
 	<?php ob_start(); ?>
 	<script>
-	(function(){
-		function grey() {
-			showMessage("<?php $l->dump("SAVED") ?>", "success");
-		}
-		$(document).on("DOMSubtreeModified", "#faviconPreview", function() {
-			$.ajax({
-				url: "<?php echo __SITEURL ?>/menus/change_favicon"
+		(function() {
+			function grey() {
+				showMessage("<?php $l->dump("SAVED") ?>", "success");
+			}
+			$(document).on("DOMSubtreeModified", "#faviconPreview", function() {
+				$.ajax({
+					url: "<?php echo __SITEURL ?>/menus/change_favicon"
+				});
 			});
-		});
-		$(document).on("DOMSubtreeModified", "#logoPreview", function() {
-			$.ajax({
-				url: "<?php echo __SITEURL ?>/menus/change_header"
+			$(document).on("DOMSubtreeModified", "#logoPreview", function() {
+				$.ajax({
+					url: "<?php echo __SITEURL ?>/menus/change_header"
+				});
 			});
-		});
-		$(document).on("click", ".delcol", function() {
-			$.post("<?php echo __SITEURL ?>/menus/delete", {
-				trueData: "yes",
-				name: $(this).parent().attr("name")
-			}, function(data) {
-				$(".tableMenu tr[name='" + data + "']").remove();
-				grey();
+			$(document).on("click", ".delcol", function() {
+				$.post("<?php echo __SITEURL ?>/menus/delete", {
+					trueData: "yes",
+					name: $(this).parent().attr("name")
+				}, function(data) {
+					$(".tableMenu tr[name='" + data + "']").remove();
+					grey();
+				});
 			});
-		});
-		$(document).on("change", ".tableMenu .fa-input-hidden", function() {
-			$.post("<?php echo __SITEURL ?>/menus/changeIcon", {
-				trueData: "yes",
-				name: $(this).attr("name").replace("fa_", ""),
-				val: $(this).val()
-			}, function(data) {
-				grey();
+			$(document).on("change", ".tableMenu .fa-input-hidden", function() {
+				$.post("<?php echo __SITEURL ?>/menus/changeIcon", {
+					trueData: "yes",
+					name: $(this).attr("name").replace("fa_", ""),
+					val: $(this).val()
+				}, function(data) {
+					grey();
+				});
 			});
-		});
-		$(document).on("change", ".tableMenu .usergroup-input", function() {
-			$.post("<?php echo __SITEURL ?>/menus/changeAuth", {
-				trueData: "yes",
-				name: $(this).attr("name").replace("auth_", ""),
-				val: $(this).val()
-			}, function(data) {
-				grey();
+			$(document).on("change", ".tableMenu .usergroup-input", function() {
+				$.post("<?php echo __SITEURL ?>/menus/changeAuth", {
+					trueData: "yes",
+					name: $(this).attr("name").replace("auth_", ""),
+					val: $(this).val()
+				}, function(data) {
+					grey();
+				});
 			});
-		});
-		$(document).on("change", ".tableMenu .name", function() {
-			$.post("<?php echo __SITEURL ?>/menus/changeName", {
-				trueData: "yes",
-				name: $(this).attr("name").replace("name_", ""),
-				val: $(this).val()
-			}, function(data) {
-				grey();
+			$(document).on("change", ".tableMenu .name", function() {
+				$.post("<?php echo __SITEURL ?>/menus/changeName", {
+					trueData: "yes",
+					name: $(this).attr("name").replace("name_", ""),
+					val: $(this).val()
+				}, function(data) {
+					grey();
+				});
 			});
-		});
-		$(document).on("change", ".tableMenu .link", function() {
-			$.post("<?php echo __SITEURL ?>/menus/changeLink", {
-				trueData: "yes",
-				name: $(this).attr("name").replace("link_", ""),
-				val: $(this).val()
-			}, function(data) {
-				grey();
+			$(document).on("change", ".tableMenu .link", function() {
+				$.post("<?php echo __SITEURL ?>/menus/changeLink", {
+					trueData: "yes",
+					name: $(this).attr("name").replace("link_", ""),
+					val: $(this).val()
+				}, function(data) {
+					grey();
+				});
 			});
-		});
-		$(document).on("change", ".tableMenu .menu_pos", function() {
-			$(this).attr("x", $(this).val());
-			$.post("<?php echo __SITEURL ?>/menus/changePos", {
-				trueData: "yes",
-				name: $(this).attr("name").replace("pos_", ""),
-				val: $(this).val()
-			}, function(data) {
-				grey();
+			$(document).on("change", ".tableMenu .menu_pos", function() {
+				$(this).attr("x", $(this).val());
+				$.post("<?php echo __SITEURL ?>/menus/changePos", {
+					trueData: "yes",
+					name: $(this).attr("name").replace("pos_", ""),
+					val: $(this).val()
+				}, function(data) {
+					grey();
+				});
 			});
-		});
-		$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_LEFT ?>", function() {
-			if ($(this).prop("checked"))
-				$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_LEFT ?>]").parent().parent().show();
-			else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_LEFT ?>]").parent().parent().hide();
-		});
-		$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_TOP ?>", function() {
-			if ($(this).prop("checked"))
-				$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_TOP ?>]").parent().parent().show();
-			else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_TOP ?>]").parent().parent().hide();
-		});
-		$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_RIGHT ?>", function() {
-			if ($(this).prop("checked"))
-				$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_RIGHT ?>]").parent().parent().show();
-			else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_RIGHT ?>]").parent().parent().hide();
-		});
-		$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>", function() {
-			if ($(this).prop("checked"))
-				$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>]").parent().parent().show();
-			else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>]").parent().parent().hide();
-		});
-		$(document).on("click", "button.new_btn", function() {
-			var name = "";
-			$.post("<?php echo __SITEURL ?>/menus/new", {
-				trueData: "yes"
-			}, function(data) {
-				name = data;
-				var html = '<tr name="' + name + '">\
+			$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_LEFT ?>", function() {
+				if ($(this).prop("checked"))
+					$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_LEFT ?>]").parent().parent().show();
+				else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_LEFT ?>]").parent().parent().hide();
+			});
+			$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_TOP ?>", function() {
+				if ($(this).prop("checked"))
+					$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_TOP ?>]").parent().parent().show();
+				else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_TOP ?>]").parent().parent().hide();
+			});
+			$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_RIGHT ?>", function() {
+				if ($(this).prop("checked"))
+					$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_RIGHT ?>]").parent().parent().show();
+				else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_RIGHT ?>]").parent().parent().hide();
+			});
+			$(document).on("change", "#filter_<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>", function() {
+				if ($(this).prop("checked"))
+					$(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>]").parent().parent().show();
+				else $(".menu_pos[x=<?php echo MENU_DEFAULT_POSITION_BOTTOM ?>]").parent().parent().hide();
+			});
+			$(document).on("click", "button.new_btn", function() {
+				var name = "";
+				$.post("<?php echo __SITEURL ?>/menus/new", {
+					trueData: "yes"
+				}, function(data) {
+					name = data;
+					var html = '<tr name="' + name + '">\
 					<td style="text-align:center;width:70px;">' + getNewIconInput("fa_" + name, "tags") + '</td>\
 					<td><input class="qtyin info2 name" type="text" name="name_' + name + '" value="" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("name") ?>"></td>\
 					<td><input class="qtyin info2 link" type="text" name="link_' + name + '" value="" title="<?php $l->dump("click_here") ?>" placeholder="<?php $l->dump("la") ?>"></td>\
@@ -203,12 +201,12 @@ $upload->run("upload_img_ajax");
 					</td>\
 					<td style="text-align:center;width:70px;" class="click_available delcol"><i class="fa fa-remove"></i></td>\
 					</tr>';
-				$(".addBigButton").before(html);
-				_fa_configureIconInput("fa_" + name, "tags");
-				grey();
+					$(".addBigButton").before(html);
+					_fa_configureIconInput("fa_" + name, "tags");
+					grey();
+				});
 			});
-		});
-	}());
+		}());
 	</script>
 	<?php echo Minifier::outJSMin(); ?>
 </div>

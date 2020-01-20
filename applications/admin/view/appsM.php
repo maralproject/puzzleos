@@ -7,7 +7,7 @@
  * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
-$s_app = new Application; $s_app->run("search_box");
+$s_app = iApplication::run("search_box");
 $s = new SearchBox("AppMan_");
 $acc_app = iApplication::run("users");
 $s->setSubmitable(false);
