@@ -163,7 +163,7 @@
 		max-width: 600px;
 		margin: auto;
 		z-index: 2000;
-		backgound-color: white;
+		background: #fff;
 		-webkit-box-shadow: 0px -1px 4px 0.5px rgba(0, 0, 0, 0.14);
 		-moz-box-shadow: 0px -1px 4px 0.5px rgba(0, 0, 0, 0.14);
 		box-shadow: 0px -1px 4px 0.5px rgba(0, 0, 0, 0.14);
