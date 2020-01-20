@@ -19,7 +19,7 @@ function m()
 /**
  * Foreach extended
  */
-function foreachx(array $array, $callback)
+function foreachx(array $array, callable $callback)
 {
 	$index = 0;
 	$len = count($array) - 1;
@@ -32,7 +32,7 @@ function foreachx(array $array, $callback)
 /**
  * Include PHP file outside the scope.
  */
-function include_ext($__path, $vars = null)
+function include_ext(string $__path, array $vars = null)
 {
 	$vars != null ? extract($vars) : null;
 	unset($vars);
@@ -42,7 +42,7 @@ function include_ext($__path, $vars = null)
 /**
  * Include PHP file once outside the scope.
  */
-function include_once_ext($__path, $vars = null)
+function include_once_ext(string $__path, array $vars = null)
 {
 	$vars != null ? extract($vars) : null;
 	unset($vars);
@@ -52,7 +52,7 @@ function include_once_ext($__path, $vars = null)
 /**
  * Require PHP file outside the scope.
  */
-function require_ext($__path, $vars = null)
+function require_ext(string $__path, array $vars = null)
 {
 	$vars != null ? extract($vars) : null;
 	unset($vars);
@@ -62,16 +62,16 @@ function require_ext($__path, $vars = null)
 /**
  * Floor number with precision
  */
-function floorp($val, $precision)
+function floorp(float $val, int $precision)
 {
-	$mult = pow(10, $precision); // Can be cached in lookup table        
+	$mult = pow(10, $precision);
 	return floor($val * $mult) / $mult;
 }
 
 /**
  * Require PHP file once outside the scope.
  */
-function require_once_ext($__path, $vars = null)
+function require_once_ext(string $__path, array $vars = null)
 {
 	$vars != null ? extract($vars) : null;
 	unset($vars);
@@ -111,7 +111,7 @@ function is_callbyme()
  * @param string $path 
  * @return string
  */
-function my_dir($path)
+function my_dir(string $path)
 {
 	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
 	$caller = explode("/", $p);
@@ -137,7 +137,7 @@ function my_dir($path)
  * @param bool $private 
  * @return string
  */
-function storage($path, bool $private = true)
+function storage(string $path, bool $private = true)
 {
 	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
 	$caller = explode("/", $p);
@@ -230,7 +230,7 @@ function obtarr($d)
 /**
  * Quick shortcut for echo htmlspecialchars()
  */
-function h($html)
+function h(string $html)
 {
 	echo htmlspecialchars($html);
 }
@@ -238,7 +238,7 @@ function h($html)
 /**
  * Quick shortcut for nl2br(htmlspecialchars())
  */
-function hnl2br($html)
+function hnl2br(string $html)
 {
 	echo nl2br(htmlspecialchars($html));
 }
@@ -267,7 +267,7 @@ function je($json_data)
  * @param string $haystack Source
  * @return string
  */
-function str_replace_first($find, $replace, $haystack)
+function str_replace_first(string $find, string $replace, string $haystack)
 {
 	if (strpos($find, $haystack) !== false) {
 		return substr_replace($find, $replace, strpos($find, $haystack), strlen($haystack));
@@ -281,7 +281,7 @@ function str_replace_first($find, $replace, $haystack)
  * @param string $string
  * @return bool
  */
-function is_json($string)
+function is_json(string $string)
 {
 	json_decode($string);
 	return (json_last_error() == JSON_ERROR_NONE);
@@ -295,7 +295,7 @@ function is_json($string)
  * @param string $app e.g. "users/login"
  * @param int $http_code HTTP redirection code 3xx
  */
-function redirect($url = "", $http_code = 302)
+function redirect(string $url = "", int $http_code = 302)
 {
 	//Removing trailing slashes in leftside
 	$app = ltrim($url, "/");
@@ -328,12 +328,13 @@ function redirect($url = "", $http_code = 302)
  * 
  * @param mixed $jsonable Any variable that can be used with json_encode
  */
-function json_out($jsonable)
+function json_out($jsonable, int $code = 200)
 {
 	if (headers_sent()) {
 		throw new PuzzleError("Cannot send JSON data, header is already sent");
 	} else {
 		header("Content-Type:application/json");
+		http_response_code($code);
 		die(json_encode($jsonable));
 	}
 }
@@ -385,7 +386,7 @@ function php_max_upload_size()
  * @param string $chr 
  * @return string
  */
-function rand_str($length, $chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+function rand_str(int $length, string $chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 {
 	$clen = strlen($chr);
 	$rs = '';
@@ -401,7 +402,7 @@ function rand_str($length, $chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHI
  * @param string $str 
  * @return string
  */
-function btfslash($str)
+function btfslash(string $str)
 {
 	return str_replace("\\", "/", $str);
 }
@@ -412,7 +413,7 @@ function btfslash($str)
  * @param string $str 
  * @return string
  */
-function ftbslash($str)
+function ftbslash(string $str)
 {
 	return str_replace("/", "\\", $str);
 }
@@ -424,11 +425,11 @@ function ftbslash($str)
  * @param callable $post_prep_func 
  * @return string 
  */
-function preparedir($dir, $post_prep_func = null)
+function preparedir(string $dir, callable $post_prep_func = null)
 {
 	if (!file_exists($dir)) {
 		@mkdir($dir);
-		if (is_callable($post_prep_func)) $post_prep_func();
+		if ($post_prep_func !== null) $post_prep_func();
 	}
 }
 
@@ -439,7 +440,7 @@ function preparedir($dir, $post_prep_func = null)
  * @param string $needle 
  * @return string 
  */
-function starts_with($haystack, $needle)
+function starts_with(string $haystack, string $needle)
 {
 	$length = strlen($needle);
 	return (substr($haystack, 0, $length) === $needle);
@@ -452,7 +453,7 @@ function starts_with($haystack, $needle)
  * @param string $needle 
  * @return string 
  */
-function ends_with($haystack, $needle)
+function ends_with(string $haystack, string $needle)
 {
 	$length = strlen($needle);
 	if ($length == 0) return true;
@@ -466,7 +467,7 @@ function ends_with($haystack, $needle)
  * @param string $needle 
  * @return bool
  */
-function str_contains($haystack, $needle)
+function str_contains(string $haystack, string $needle)
 {
 	return (strpos($haystack, $needle) !== false);
 }
@@ -478,7 +479,7 @@ function str_contains($haystack, $needle)
  * @param array $chrlist
  * @return bool
  */
-function str_haschar($haystack, ...$chrlist)
+function str_haschar(string $haystack, ...$chrlist)
 {
 	foreach ($chrlist as $c) {
 		if (str_contains($haystack, $c)) return true;
@@ -514,7 +515,7 @@ function request($index)
  * @param string $version Required function
  * @return bool
  */
-function need_version($version)
+function need_version(string $version)
 {
 	return (version_compare(__POS_VERSION, $version) >= 0);
 }

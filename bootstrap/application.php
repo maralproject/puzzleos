@@ -43,18 +43,19 @@ class AppManager
 			try {
 				self::$MainApp = iApplication::run($request, true);
 			} catch (AppStartError $e) {
-				switch ($e->getCode()) {
-					case APP_ERROR_NOTFOUND:
-						if ($x_app == null && POSConfigMultidomain::$super_application !== null) {
-							self::startApp(POSConfigMultidomain::$super_application);
-						} else {
+				if ($x_app == null && POSConfigMultidomain::$super_application !== null) {
+					// Start super-app if requested app cannot be loaded
+					self::startApp(POSConfigMultidomain::$super_application);
+				} else {
+					switch ($e->getCode()) {
+						case APP_ERROR_NOTFOUND:
 							abort(404, "Not Found", false);
 							Template::setSubTitle("Not found");
-						}
-						break;
-					case APP_ERROR_FORBIDDEN:
-						abort(403, "Forbidden", false);
-						break;
+							break;
+						case APP_ERROR_FORBIDDEN:
+							abort(403, "Forbidden", false);
+							break;
+					}
 				}
 				// Next, let the template handle these thing from Template::loadTemplate();
 			} catch (\Throwable $e) {
