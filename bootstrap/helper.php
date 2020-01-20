@@ -85,7 +85,7 @@ function require_once_ext(string $__path, array $vars = null)
  * @param string $text
  * @param boolean $exit
  */
-function abort(int $code, string $text = "", $exit = true)
+function abort(int $code, string $text = null, $exit = true)
 {
 	if (class_exists("PuzzleSession")) PuzzleSession::writeCookie();
 	if (!is_cli()) {
@@ -111,7 +111,7 @@ function is_callbyme()
  * @param string $path 
  * @return string
  */
-function my_dir(string $path)
+function my_dir(string $path = null)
 {
 	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
 	$caller = explode("/", $p);
@@ -137,7 +137,7 @@ function my_dir(string $path)
  * @param bool $private 
  * @return string
  */
-function storage(string $path, bool $private = true)
+function storage(string $path = null, bool $private = true)
 {
 	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
 	$caller = explode("/", $p);
@@ -230,7 +230,7 @@ function obtarr($d)
 /**
  * Quick shortcut for echo htmlspecialchars()
  */
-function h(string $html)
+function h(string $html = null)
 {
 	echo htmlspecialchars($html);
 }
@@ -238,7 +238,7 @@ function h(string $html)
 /**
  * Quick shortcut for nl2br(htmlspecialchars())
  */
-function hnl2br(string $html)
+function hnl2br(string $html = null)
 {
 	echo nl2br(htmlspecialchars($html));
 }
@@ -281,7 +281,7 @@ function str_replace_first(string $find, string $replace, string $haystack)
  * @param string $string
  * @return bool
  */
-function is_json(string $string)
+function is_json(string $string = null)
 {
 	json_decode($string);
 	return (json_last_error() == JSON_ERROR_NONE);
@@ -402,7 +402,7 @@ function rand_str(int $length, string $chr = "0123456789abcdefghijklmnopqrstuvwx
  * @param string $str 
  * @return string
  */
-function btfslash(string $str)
+function btfslash(string $str = null)
 {
 	return str_replace("\\", "/", $str);
 }
@@ -413,7 +413,7 @@ function btfslash(string $str)
  * @param string $str 
  * @return string
  */
-function ftbslash(string $str)
+function ftbslash(string $str = null)
 {
 	return str_replace("/", "\\", $str);
 }
