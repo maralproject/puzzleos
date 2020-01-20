@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -537,7 +538,7 @@ class Database
 		});
 
 		$args[0] = $query;
-		return call_user_func_array([self, "query"], $args);
+		return call_user_func_array([self::class, "query"], $args);
 	}
 
 	/**
@@ -572,7 +573,7 @@ class Database
 
 		$args[0] = $query;
 		$args[] = $find_value;
-		return call_user_func_array([self, "query"], $args);
+		return call_user_func_array([self::class, "query"], $args);
 	}
 
 	/**
@@ -793,7 +794,7 @@ class Database
 			case 'READ':
 				break;
 			default:
-				throw InvalidArgumentException("Only WRITE or READ allowed");
+				throw new InvalidArgumentException("Only WRITE or READ allowed");
 		}
 		self::query("LOCK TABLES `$table` $for;");
 	}
@@ -977,6 +978,15 @@ class Database
 				throw new DatabaseError(self::$link->error, $query);
 			}
 		}
+	}
+
+	/**
+	 * Get MySQLi link for raw processing.
+	 * @return mysqli
+	 */
+	public static function link()
+	{
+		return self::$link;
 	}
 }
 
