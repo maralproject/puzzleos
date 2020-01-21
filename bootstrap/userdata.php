@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -38,13 +39,12 @@ class UserData
 	 * Move uploaded file through HTTP POST to user directory
 	 * Just like move_uploaded_file(), but moves it directly to user data directory
 	 * for easy access.
-	 * 
 	 * @param string $key
 	 * @param string $inputname
 	 * @param bool $secure
 	 * @return bool
 	 */
-	public static function move_uploaded($key, $inputname, $secure = false)
+	public static function move_uploaded(string $key, string $inputname, bool $secure = false)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -77,7 +77,7 @@ class UserData
 	 * @param bool $secure
 	 * @return bool
 	 */
-	public static function move($key, $path_to_file, $secure = false)
+	public static function move(string $key, string $path_to_file, bool $secure = false)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -113,13 +113,12 @@ class UserData
 
 	/**
 	 * Copy file somewhere to user directory
-	 * 
 	 * @param string $key
 	 * @param string $path_to_file
 	 * @param bool $secure
 	 * @return bool
 	 */
-	public static function copy($key, $path_to_file, $secure = false)
+	public static function copy(string $key, string $path_to_file, bool $secure = false)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -152,14 +151,13 @@ class UserData
 
 	/**
 	 * Write a file into user data directory
-	 * 
 	 * @param string $key
-	 * @param contents $content
+	 * @param mixed $content
 	 * @param string $file_ext
 	 * @param bool $secure
 	 * @return bool
 	 */
-	public static function store($key, $content, $file_ext, $secure = false)
+	public static function store(string $key, $content, string $file_ext, bool $secure = false)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -191,7 +189,7 @@ class UserData
 	 * @param string $key
 	 * @return bool
 	 */
-	public static function exists($key)
+	public static function exists(string $key)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -202,12 +200,11 @@ class UserData
 	/**
 	 * Get file path in system.
 	 * e.g. /storage/data/app/file.ext
-	 * 
 	 * @param string $key
 	 * @param bool $with_cache_control
 	 * @return string
 	 */
-	public static function getPath($key)
+	public static function getPath(string $key)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -219,12 +216,11 @@ class UserData
 	/**
 	 * Get URL address of the file.
 	 * e.g. /assets/app/file.ext
-	 * 
 	 * @param string $key
 	 * @param bool $with_cache_control
 	 * @return string
 	 */
-	public static function getURL($key, $with_cache_control = false)
+	public static function getURL(string $key, bool $with_cache_control = false)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -241,11 +237,10 @@ class UserData
 
 	/**
 	 * Read file instantly, using file_get_contents()
-	 * 
 	 * @param string $key
 	 * @return mixed
 	 */
-	public static function read($key)
+	public static function read(string $key)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -261,11 +256,10 @@ class UserData
 
 	/**
 	 * Read save MIME type
-	 * 
 	 * @param string $key
 	 * @return mixed
 	 */
-	public static function getMIME($key)
+	public static function getMIME(string $key)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
@@ -275,11 +269,10 @@ class UserData
 
 	/**
 	 * Remove file
-	 * 
 	 * @param string $key
 	 * @return bool
 	 */
-	public static function remove($key)
+	public static function remove(string $key)
 	{
 		$appname = self::init($key);
 		if ($appname == "") return false;
