@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -23,6 +24,7 @@ class ImageUploader
 	 */
 	public static function dumpForm($key, $label, $bootstrap_style = "secondary", $preview_selector = "", bool $shrink = true)
 	{
+		if ($_SESSION["ImageUploader"] === null) $_SESSION["ImageUploader"] = [];
 		if (isset($_SESSION["ImageUploader"][$key])) {
 			UserData::remove($_SESSION["ImageUploader"][$key]);
 			unset($_SESSION["ImageUploader"][$key]);
