@@ -24,7 +24,6 @@ class ImageUploader
 	 */
 	public static function dumpForm($key, $label, $bootstrap_style = "secondary", $preview_selector = "", bool $shrink = true)
 	{
-		if ($_SESSION["ImageUploader"] === null) $_SESSION["ImageUploader"] = [];
 		if (isset($_SESSION["ImageUploader"][$key])) {
 			UserData::remove($_SESSION["ImageUploader"][$key]);
 			unset($_SESSION["ImageUploader"][$key]);
@@ -40,11 +39,11 @@ class ImageUploader
 	/**
 	 * Get file name in the server
 	 * @param string $key
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getFileName($key)
 	{
-		return (UserData::getPath($_SESSION["ImageUploader"][$key]));
+		return isset($_SESSION["ImageUploader"][$key]) ? (UserData::getPath($_SESSION["ImageUploader"][$key])) : null;
 	}
 
 	/**
@@ -54,7 +53,7 @@ class ImageUploader
 	 */
 	public static function getURL($key)
 	{
-		return (UserData::getURL($_SESSION["ImageUploader"][$key], true));
+		return isset($_SESSION["ImageUploader"][$key]) ? (UserData::getURL($_SESSION["ImageUploader"][$key], true)) : null;
 	}
 
 	/**

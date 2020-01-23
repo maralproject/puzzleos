@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -7,7 +8,8 @@
  * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
-spl_autoload_register(function($c){
-	if($c == "ImageUploader") 
+if (!isset($_SESSION["ImageUploader"])) $_SESSION["ImageUploader"] = [];
+spl_autoload_register(function ($c) {
+	if ($c == "ImageUploader")
 		require_once(my_dir("class.php"));
 });
