@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -71,5 +72,6 @@ Database::newStructure("sessions", (new DatabaseTableBuilder)
 
 /* Table `cron` */
 Database::newStructure("cron", (new DatabaseTableBuilder)
-    ->addColumn("key", "VARCHAR(50)")->setAsPrimaryKey()
-    ->addColumn("last_exec", "INT"));
+    ->addColumn("key", "VARCHAR(50)")
+    ->addColumn("last_exec", "INT")
+    ->createIndex("key", ["key"], "UNIQUE"));

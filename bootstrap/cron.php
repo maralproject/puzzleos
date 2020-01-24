@@ -161,7 +161,7 @@ class CronJob
     public static function register($key, $F, ...$trigger)
     {
         // Can only be called on CLI
-        if (!is_cli()) return; 
+        if (!is_cli()) return;
         if (strlen($key) > 20) throw new PuzzleError("Key length must be less than 20 characters");
         if (!is_callable($F)) throw new PuzzleError("Incorrect parameter");
         $appname = self::init();
@@ -179,46 +179,49 @@ class CronJob
      */
     public static function run(bool $forced = false)
     {
-        $fp = fopen(__LOGDIR . "/cron.lock", "w");
-        //Prevent running cron simultaneusly
-        if (flock($fp, LOCK_EX | LOCK_NB)) {
-            POSConfigGlobal::$error_code |= E_ERROR;
-            ini_set('max_execution_time', 0); //Disable PHP timeout
+        // Do not run cron on maintenance mode.
+        if (!__MAINTENANCE) {
+            $fp = fopen(__LOGDIR . "/cron.lock", "w");
+            //Prevent running cron simultaneusly
+            if (flock($fp, LOCK_EX | LOCK_NB)) {
+                POSConfigGlobal::$error_code |= E_ERROR;
+                ini_set('max_execution_time', 0); //Disable PHP timeout
 
-            foreach (self::$list as $l) {
-                $lastExec = Database::read("cron", "last_exec", "key", $l[0]);
-                try {
-                    if ($lastExec == "") {
-                        if ($l[1]->isExecutable($lastExec) || $forced) {
-                            $f = $l[2];
-                            $f(); //Preventing error on PHP 5.6
-                            Database::insert("cron", [
-                                (new DatabaseRowInput)
-                                    ->setField("key", $l[0])
-                                    ->setField("last_exec", START_TIME)
-                            ]);
+                foreach (self::$list as $l) {
+                    $lastExec = Database::read("cron", "last_exec", "key", $l[0]);
+                    try {
+                        if ($lastExec == "") {
+                            if ($l[1]->isExecutable($lastExec) || $forced) {
+                                $f = $l[2];
+                                $f(); //Preventing error on PHP 5.6
+                                Database::insert("cron", [
+                                    (new DatabaseRowInput)
+                                        ->setField("key", $l[0])
+                                        ->setField("last_exec", START_TIME)
+                                ]);
+                            }
+                        } else {
+                            if ($l[1]->isExecutable($lastExec) || $forced) {
+                                $f = $l[2];
+                                $f(); //Preventing error on PHP 5.6
+                                Database::update(
+                                    "cron",
+                                    (new DatabaseRowInput)->setField("last_exec", START_TIME),
+                                    "key",
+                                    $l[0]
+                                );
+                            }
                         }
-                    } else {
-                        if ($l[1]->isExecutable($lastExec) || $forced) {
-                            $f = $l[2];
-                            $f(); //Preventing error on PHP 5.6
-                            Database::update(
-                                "cron",
-                                (new DatabaseRowInput)->setField("last_exec", START_TIME),
-                                "key",
-                                $l[0]
-                            );
-                        }
+                    } catch (\Throwable $e) {
+                        PuzzleError::printErrorPage($e, false);
                     }
-                } catch (\Throwable $e) {
-                    PuzzleError::printErrorPage($e, false);
                 }
-            }
 
-            // Release lock
-            flock($fp, LOCK_UN);
-        } else {
-            throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
+                // Release lock
+                flock($fp, LOCK_UN);
+            } else {
+                throw new PuzzleError("Cannot run 2 cron instances simultaneusly");
+            }
         }
     }
 }

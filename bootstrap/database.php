@@ -59,6 +59,20 @@ class DatabaseRowInput
 		if (!is_callbyme()) throw new DatabaseError("DatabaseRowInput violation!");
 		return $this->rowStructure;
 	}
+
+	public static function fromArray($dri)
+	{
+		switch (true) {
+			case ($dri instanceof self):
+				return $dri;
+			case (is_array($dri)):
+				$a = new self;
+				foreach ($dri as $k => $d) $a->setField($k, $d);
+				return $a;
+			default:
+				throw new \InvalidArgumentException("Expecting DatabaseRowInput object or array");
+		}
+	}
 }
 
 /**
@@ -262,6 +276,61 @@ class Database
 	private static $link;
 	private static $cache = [];
 	private static $t_cache = [];
+	private static $transaction_track = 0;
+	private const IMPLICIT_COMMIT_TABLE = [
+		"ALTER TABLE",
+		"CREATE TABLE",
+		"DROP TABLE",
+		"RENAME TABLE",
+	];
+	private const IMPLICIT_COMMIT = [
+		"ALTER DATABASE",
+		"ALTER EVENT",
+		"ALTER FUNCTION",
+		"ALTER PROCEDURE",
+		"ALTER SERVER",
+		"ALTER VIEW",
+		"ANALYZE TABLE",
+		"BEGIN",
+		"CACHE INDEX",
+		"CHANGE MASTER TO",
+		"CHECK TABLE",
+		"CREATE DATABASE",
+		"CREATE EVENT",
+		"CREATE FUNCTION",
+		"CREATE INDEX",
+		"CREATE PROCEDURE",
+		"CREATE ROLE",
+		"CREATE SERVER",
+		"CREATE TRIGGER",
+		"CREATE USER",
+		"CREATE VIEW",
+		"DROP DATABASE",
+		"DROP EVENT",
+		"DROP FUNCTION",
+		"DROP INDEX",
+		"DROP PROCEDURE",
+		"DROP ROLE",
+		"DROP SERVER",
+		"DROP TRIGGER",
+		"DROP USER",
+		"DROP VIEW",
+		"FLUSH",
+		"GRANT",
+		"LOAD INDEX INTO CACHE",
+		"LOCK TABLES",
+		"OPTIMIZE TABLE",
+		"RENAME USER",
+		"REPAIR TABLE",
+		"RESET",
+		"REVOKE",
+		"SET PASSWORD",
+		"SHUTDOWN",
+		"START SLAVE",
+		"START TRANSACTION",
+		"STOP SLAVE",
+		"TRUNCATE TABLE"
+	];
 
 	public static function connect()
 	{
@@ -284,6 +353,7 @@ class Database
 	 */
 	private static function query($query, ...$param)
 	{
+		$query = trim($query);
 		$escaped = "";
 		$token = strtok($query, '?');
 		reset($param);
@@ -303,15 +373,20 @@ class Database
 			}
 		} while ($token = strtok('?'));
 
-		switch (strtoupper(explode(" ", $escaped)[0])) {
-			case "SELECT":
-			case "SHOW":
-				break;
-			default:
+		// Flushing cache if query have an implicit commit command.
+		foreach (self::IMPLICIT_COMMIT as $implicit) {
+			if (starts_with($escaped, $implicit)) {
 				self::flushCache();
+				break;
+			}
+		}
+		foreach (self::IMPLICIT_COMMIT_TABLE as $implicit) {
+			if (starts_with($escaped, $implicit)) {
+				self::flushCacheTable();
+				break;
+			}
 		}
 
-		//See Database caching performance
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
 			file_put_contents(__LOGDIR . "/db.log", $re["file"] . ":" . $re["line"] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
@@ -321,12 +396,11 @@ class Database
 			return $r;
 		} else {
 			if (self::$link->errno == "2014") {
-				/* Perform a reconnect */
 				self::$link->close();
 				self::flushCache();
 				self::connect();
 				if (!($r = self::$link->query($escaped))) {
-					throw new DatabaseError('Could not execute(' . self::$link->errno . '): ' . self::$link->errno, $escaped, (int) self::$link->errno);
+					throw new DatabaseError(self::$link->error, $escaped, (int) self::$link->errno);
 				}
 			} else
 				throw new DatabaseError(self::$link->error, $escaped, (int) self::$link->errno);
@@ -344,7 +418,7 @@ class Database
 				throw new DatabaseError("Application do not have manifest!");
 			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
 			$appname = $manifest["rootname"];
-			if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
+			if ((preg_match('/app_' . $appname . '_/', $find))) return true;
 		}
 
 		$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($filename)));
@@ -355,19 +429,19 @@ class Database
 					case "services.php":
 					case "database.php":
 					case "systables.php":
-						return (true);
+						return true;
 					case "cron.php":
-						if ((preg_match('/cron/', $find))) return (true);
+						if ((preg_match('/cron/', $find))) return true;
 						break;
 					case "session.php":
-						if ((preg_match('/sessions/', $find))) return (true);
+						if ((preg_match('/sessions/', $find))) return true;
 						break;
 					case "configman.php":
-						if ((preg_match('/multidomain_config/', $find))) return (true);
+						if ((preg_match('/multidomain_config/', $find))) return true;
 						break;
 					case "userdata.php":
 					case "boot.php":
-						if ((preg_match('/userdata/', $find))) return (true);
+						if ((preg_match('/userdata/', $find))) return true;
 						break;
 				}
 				break;
@@ -389,10 +463,20 @@ class Database
 	/**
 	 * Flush database cache
 	 */
-	public static function flushCache()
+	private static function flushCache()
 	{
+		self::$transaction_track = 0;
 		self::$cache = [];
 		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
+	}
+
+	/**
+	 * Flush database table cache
+	 */
+	private static function flushCacheTable()
+	{
+		self::$t_cache = [];
+		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "TABLE CACHE PURGED\r\n", FILE_APPEND);
 	}
 
 	/**
@@ -492,12 +576,13 @@ class Database
 	/**
 	 * Write new record
 	 * @param string $table Table Name
-	 * @param array $row_input use DRI()
+	 * @param DatabaseRowInput[] $row_input use DRI()
 	 * @param bool $ignore Allow insert to be ignored
 	 * @return mysqli_result
 	 */
 	public static function insert($table, array $row_input, bool $ignore = false)
 	{
+		foreach ($row_input as &$i) $i = DatabaseRowInput::fromArray($i);
 		self::x_verify($table);
 		if (count($row_input) < 1) return true;
 
@@ -505,7 +590,6 @@ class Database
 
 		$data = (object) ["columns" => [], "values" => []];
 		foreach ($row_input as $d) {
-			if (!$d instanceof DatabaseRowInput) throw new DatabaseError('$row_input should be a DatabaseRowInput');
 			$next_values = [];
 			foreach ($d->getStructure() as $column => $value) {
 				if (!isset($data->columns[$column])) $data->columns[$column] = count($data->columns);
@@ -748,13 +832,13 @@ class Database
 	 */
 	public static function transaction(callable $handler)
 	{
-		self::$link->begin_transaction();
+		self::transaction_begin();
 		try {
 			$r = $handler();
-			self::$link->commit();
+			self::transaction_commit();
 			return $r;
 		} catch (Throwable $e) {
-			self::$link->rollback();
+			self::transaction_rollback();
 			throw $e;
 		}
 	}
@@ -765,7 +849,12 @@ class Database
 	 */
 	public static function transaction_begin()
 	{
-		return self::$link->begin_transaction();
+		if (self::$transaction_track == 0) {
+			self::$transaction_track++;
+			return self::$link->begin_transaction();
+		} else {
+			return self::$link->savepoint("T" . self::$transaction_track++);
+		}
 	}
 
 	/**
@@ -774,7 +863,12 @@ class Database
 	 */
 	public static function transaction_commit()
 	{
-		return self::$link->commit();
+		if (self::$transaction_track <= 1) {
+			self::$transaction_track = 0;
+			return self::$link->commit();
+		} else {
+			return self::$link->release_savepoint("T" . --self::$transaction_track);
+		}
 	}
 
 	/**
@@ -783,7 +877,12 @@ class Database
 	 */
 	public static function transaction_rollback()
 	{
-		return self::$link->rollback();
+		if (self::$transaction_track <= 1) {
+			self::$transaction_track = 0;
+			return self::$link->rollback();
+		} else {
+			return self::$link->query("ROLLBACK TO " . "T" . --self::$transaction_track);
+		}
 	}
 
 	public static function lock($table, $for = "WRITE")
@@ -978,15 +1077,6 @@ class Database
 				throw new DatabaseError(self::$link->error, $query);
 			}
 		}
-	}
-
-	/**
-	 * Get MySQLi link for raw processing.
-	 * @return mysqli
-	 */
-	public static function link()
-	{
-		return self::$link;
 	}
 }
 
