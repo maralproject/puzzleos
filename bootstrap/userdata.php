@@ -58,7 +58,7 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		Database::insert("userdata", [
+		return Database::insert("userdata", [
 			(new DatabaseRowInput)
 				->setField("app", $appname)
 				->setField("identifier", $key)
@@ -67,7 +67,6 @@ class UserData
 				->setField("ver", time())
 				->setField("secure", $secure ? 1 : 0)
 		]);
-		return true;
 	}
 
 	/**
@@ -99,7 +98,7 @@ class UserData
 		}
 
 		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return false;
-		Database::insert("userdata", [
+		return Database::insert("userdata", [
 			(new DatabaseRowInput)
 				->setField("app", $appname)
 				->setField("identifier", $key)
@@ -108,7 +107,6 @@ class UserData
 				->setField("ver", time())
 				->setField("secure", $secure ? 1 : 0)
 		]);
-		return true;
 	}
 
 	/**
@@ -137,7 +135,7 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		Database::insert("userdata", [
+		return Database::insert("userdata", [
 			(new DatabaseRowInput)
 				->setField("app", $appname)
 				->setField("identifier", $key)
@@ -146,7 +144,6 @@ class UserData
 				->setField("ver", time())
 				->setField("secure", $secure ? 1 : 0)
 		]);
-		return true;
 	}
 
 	/**

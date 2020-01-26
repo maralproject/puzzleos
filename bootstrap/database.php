@@ -277,18 +277,13 @@ class Database
 	private static $cache = [];
 	private static $t_cache = [];
 	private static $transaction_track = 0;
-	private const IMPLICIT_COMMIT_TABLE = [
-		"ALTER TABLE",
-		"CREATE TABLE",
-		"DROP TABLE",
-		"RENAME TABLE",
-	];
 	private const IMPLICIT_COMMIT = [
-		"ALTER DATABASE",
+		"ALTER DATABASE ... UPGRADE DATA DIRECTORY NAME",
 		"ALTER EVENT",
 		"ALTER FUNCTION",
 		"ALTER PROCEDURE",
 		"ALTER SERVER",
+		"ALTER TABLE",
 		"ALTER VIEW",
 		"ANALYZE TABLE",
 		"BEGIN",
@@ -302,6 +297,7 @@ class Database
 		"CREATE PROCEDURE",
 		"CREATE ROLE",
 		"CREATE SERVER",
+		"CREATE TABLE",
 		"CREATE TRIGGER",
 		"CREATE USER",
 		"CREATE VIEW",
@@ -312,6 +308,7 @@ class Database
 		"DROP PROCEDURE",
 		"DROP ROLE",
 		"DROP SERVER",
+		"DROP TABLE",
 		"DROP TRIGGER",
 		"DROP USER",
 		"DROP VIEW",
@@ -320,6 +317,7 @@ class Database
 		"LOAD INDEX INTO CACHE",
 		"LOCK TABLES",
 		"OPTIMIZE TABLE",
+		"RENAME TABLE",
 		"RENAME USER",
 		"REPAIR TABLE",
 		"RESET",
@@ -373,28 +371,12 @@ class Database
 			}
 		} while ($token = strtok('?'));
 
-		// Flushing cache if query have an implicit commit command.
-		foreach (self::IMPLICIT_COMMIT as $implicit) {
-			if (starts_with($escaped, $implicit)) {
-				self::flushCache();
-				break;
-			}
-		}
-		foreach (self::IMPLICIT_COMMIT_TABLE as $implicit) {
-			if (starts_with($escaped, $implicit)) {
-				self::flushCacheTable();
-				break;
-			}
-		}
-
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
 			file_put_contents(__LOGDIR . "/db.log", $re["file"] . ":" . $re["line"] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
 		}
 
-		if ($r = self::$link->query($escaped)) {
-			return $r;
-		} else {
+		if (!($r = self::$link->query($escaped))) {
 			if (self::$link->errno == "2014") {
 				self::$link->close();
 				self::flushCache();
@@ -405,6 +387,22 @@ class Database
 			} else
 				throw new DatabaseError(self::$link->error, $escaped, (int) self::$link->errno);
 		}
+
+		if ($r && !($r instanceof mysqli_result) && self::$link->affected_rows > 0) {
+			// Rows changed, flushing cache
+			self::flushCache();
+
+			if (self::$transaction_track > 0) {
+				foreach (self::IMPLICIT_COMMIT as $statement) {
+					// Auto commit was detected, ignoring current transaction
+					if (starts_with($escaped, $statement)) {
+						self::$transaction_track = 0;
+						break;
+					}
+				}
+			}
+		}
+		return $r;
 	}
 
 	private static function x_verify($find)
@@ -465,18 +463,51 @@ class Database
 	 */
 	private static function flushCache()
 	{
-		self::$transaction_track = 0;
 		self::$cache = [];
+		self::$t_cache = [];
 		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
 	}
 
 	/**
-	 * Flush database table cache
+	 * Begin a transaction manually.
+	 * @return bool
 	 */
-	private static function flushCacheTable()
+	private static function transaction_begin()
 	{
-		self::$t_cache = [];
-		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "TABLE CACHE PURGED\r\n", FILE_APPEND);
+		if (self::$transaction_track == 0) {
+			self::$transaction_track++;
+			return self::$link->begin_transaction();
+		} else {
+			return self::$link->savepoint("T" . self::$transaction_track++);
+		}
+	}
+
+	/**
+	 * Commit transaction manually.
+	 * @return bool
+	 */
+	private static function transaction_commit()
+	{
+		if (self::$transaction_track <= 1) {
+			self::$transaction_track = 0;
+			return self::$link->commit();
+		} else {
+			return self::$link->release_savepoint("T" . --self::$transaction_track);
+		}
+	}
+
+	/**
+	 * Rollback transaction manually.
+	 * @return bool
+	 */
+	private static function transaction_rollback()
+	{
+		if (self::$transaction_track <= 1) {
+			self::$transaction_track = 0;
+			return self::$link->rollback();
+		} else {
+			return self::$link->query("ROLLBACK TO " . "T" . --self::$transaction_track);
+		}
 	}
 
 	/**
@@ -578,7 +609,7 @@ class Database
 	 * @param string $table Table Name
 	 * @param DatabaseRowInput[] $row_input use DRI()
 	 * @param bool $ignore Allow insert to be ignored
-	 * @return mysqli_result
+	 * @return bool
 	 */
 	public static function insert($table, array $row_input, bool $ignore = false)
 	{
@@ -718,7 +749,7 @@ class Database
 	 * Execute raw query.
 	 * @param string $query For better security, use '?' as a mark for each parameter.
 	 * @param mixed ...$param Will replace the '?' as parameterized queries
-	 * @return mysqli_result
+	 * @return mysqli_result|bool
 	 */
 	public static function execute($query, ...$param)
 	{
@@ -844,47 +875,9 @@ class Database
 	}
 
 	/**
-	 * Begin a transaction manually.
+	 * Acquire a table lock
 	 * @return bool
 	 */
-	public static function transaction_begin()
-	{
-		if (self::$transaction_track == 0) {
-			self::$transaction_track++;
-			return self::$link->begin_transaction();
-		} else {
-			return self::$link->savepoint("T" . self::$transaction_track++);
-		}
-	}
-
-	/**
-	 * Commit transaction manually.
-	 * @return bool
-	 */
-	public static function transaction_commit()
-	{
-		if (self::$transaction_track <= 1) {
-			self::$transaction_track = 0;
-			return self::$link->commit();
-		} else {
-			return self::$link->release_savepoint("T" . --self::$transaction_track);
-		}
-	}
-
-	/**
-	 * Rollback transaction manually.
-	 * @return bool
-	 */
-	public static function transaction_rollback()
-	{
-		if (self::$transaction_track <= 1) {
-			self::$transaction_track = 0;
-			return self::$link->rollback();
-		} else {
-			return self::$link->query("ROLLBACK TO " . "T" . --self::$transaction_track);
-		}
-	}
-
 	public static function lock($table, $for = "WRITE")
 	{
 		self::x_verify($table);
@@ -895,19 +888,23 @@ class Database
 			default:
 				throw new InvalidArgumentException("Only WRITE or READ allowed");
 		}
-		self::query("LOCK TABLES `$table` $for;");
+		return self::query("LOCK TABLES `$table` $for;");
 	}
 
+	/**
+	 * Release a table lock
+	 * @return bool
+	 */
 	public static function unlock()
 	{
-		self::query("UNLOCK TABLES;");
+		return self::query("UNLOCK TABLES;");
 	}
 
 	/**
 	 * Create or change table structure
 	 * @param string $table Table name
 	 * @param DatabaseTableBuilder $structure
-	 * @return array
+	 * @return bool
 	 */
 	public static function newStructure($table, DatabaseTableBuilder $structure)
 	{
