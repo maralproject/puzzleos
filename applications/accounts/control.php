@@ -271,11 +271,10 @@ if ($appProp->isMainApp) {
                 }
             }
         } catch (Throwable $e) {
-            abort(400, $e->getMessage(), false);
             json_out([
                 "error" => true,
                 "reason" => $e->getMessage()
-            ]);
+            ], 400);
         }
     }
 
