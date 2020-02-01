@@ -283,8 +283,12 @@ function str_replace_first(string $find, string $replace, string $haystack)
  */
 function is_json(string $string = null)
 {
-	json_decode($string);
-	return (json_last_error() == JSON_ERROR_NONE);
+	try {
+		json_decode($string, false, 512, JSON_THROW_ON_ERROR);
+		return true;
+	} catch (JsonException $e) {
+		return false;
+	}
 }
 
 /**
