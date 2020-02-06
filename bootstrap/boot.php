@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -46,10 +47,13 @@ if (file_exists(__ROOTDIR . "/site.offline")) {
 	if (PHP_SAPI == "cli") {
 		define("__MAINTENANCE", true);
 	} else {
-		header('Retry-After: 300');
-		abort(503, "Under Maintenance", false);
-		include(__ROOTDIR . "/templates/system/503.php");
-		exit;
+		$key = file_get_contents(__ROOTDIR . "/site.offline");
+		if ($_COOKIE["_posbps"] == "" || $_COOKIE["_posbps"] != $key) {
+			header('Retry-After: 300');
+			abort(503, "Under Maintenance", false);
+			include(__ROOTDIR . "/templates/system/503.php");
+			exit;
+		}
 	}
 } else {
 	define("__MAINTENANCE", false);

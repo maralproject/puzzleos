@@ -36,8 +36,10 @@ class PuzzleCLI
 			} else throw new PuzzleError("Invalid action");
 		} else if ($sys == "maintenance") {
 			if ($arg["on"]) {
-				file_put_contents(__ROOTDIR . "/site.offline", "");
+				$key = rand_str(70);
+				file_put_contents(__ROOTDIR . "/site.offline", $key);
 				echo "Maintenance mode enabled.\n";
+				echo "Add \"_posbps: $key\" to cookie to bypass.\n";
 			} else {
 				@unlink(__ROOTDIR . "/site.offline");
 				echo "Maintenance mode disabled.\n";

@@ -1,6 +1,7 @@
 <?php
 
 use PuzzleUserException\FailedToSendOTP;
+use PuzzleUserException\InvalidField;
 use SuperClosure\Analyzer\TokenAnalyzer;
 use SuperClosure\Serializer;
 
