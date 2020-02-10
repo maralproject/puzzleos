@@ -71,7 +71,7 @@ class AppManager
 	 */
 	public static function migrateTable(string $rootname)
 	{
-		$list_app = AppManager::listAll()[$rootname];
+		$list_app = AppManager::getList()[$rootname];
 		if ($list_app["rootname"] != $rootname) {
 			throw new PuzzleError("Application $rootname cannot be found.");
 		}
@@ -95,7 +95,7 @@ class AppManager
 	 * List all Applications.
 	 * @return array
 	 */
-	public static function listAll()
+	public static function getList()
 	{
 		if (self::$AppList != null) return self::$AppList;
 
@@ -103,7 +103,6 @@ class AppManager
 			foreach ($a as $t) if ($t[$f] == $v) return $t;
 		};
 
-		/* Caching database operation */
 		try {
 			$agroup = Database::readAll("app_users_grouplist");
 		} catch (PuzzleError $e) {
@@ -111,56 +110,23 @@ class AppManager
 			Database::newStructure("app_users_grouplist", require_ext(__ROOTDIR . "/applications/accounts/grouplist.table.php"));
 			$agroup = Database::readAll("app_users_grouplist");
 		}
-
 		$appsec = Database::readAll("app_security");
 
 		$a = [];
-		foreach (IO::list_directory("/applications") as $dir) {
-			if (!is_dir(IO::physical_path("/applications/$dir"))) continue;
-			if ($dir != "." && $dir != "..") {
-				if (IO::exists("/applications/$dir/manifest.ini")) {
-					$manifest = parse_ini_file(IO::physical_path("/applications/$dir/manifest.ini"));
-					if ($manifest["rootname"] == "") continue;
-					if (isset($a[$manifest["rootname"]])) throw new PuzzleError("Rootname conflict detected on path: <b>" . __ROOTDIR . "/applications/" . $dir . "</b> and <b>" . $a[$manifest["rootname"]]["dir"] . "</b>");
-					if (strlen($manifest["rootname"]) > 50) continue;
-
-					#Filter pre-reserved rootname
-					switch ($manifest["rootname"]) {
-						case "assets":
-						case "res":
-						case "security":
-							continue;
-						default:
-							break;
-					}
-
-					/* Make sure that rootname always lowercase */
-					$manifest["rootname"] = strtolower($manifest["rootname"]);
-
-					$group = $fval($appsec, "rootname", $manifest["rootname"])["group"];
-					if (!isset($group)) $group = $fval($agroup, "level", $manifest["permission"])["id"];
-
-					$a[$manifest["rootname"]] = [
-						"name" => $manifest["rootname"],
-						"rootname" => $manifest["rootname"],
-						"dir" => __ROOTDIR . "/applications/$dir",
-						"dir_name" => $dir,
-						"title" => $manifest["title"],
-						"desc" => $manifest["description"],
-						"default" => ($manifest["canBeDefault"] == 0 ? APP_CANNOT_DEFAULT : (POSConfigMultidomain::$default_application == $manifest["rootname"] ? APP_DEFAULT : APP_NOT_DEFAULT)),
-						"level" => $manifest["permission"],
-						"group" => $group,
-						"services" => explode(",", trim($manifest["services"])),
-						"menus" => explode(",", trim($manifest["menus"])),
-						"system" => ($fval($appsec, "rootname", $manifest["rootname"])["system"] == "1")
-					];
-					if ($a[$manifest["rootname"]]["services"][0] == "") $a[$manifest["rootname"]]["services"] = [];
-					if ($a[$manifest["rootname"]]["menus"][0] == "") $a[$manifest["rootname"]]["menus"] = [];
-				}
+		$manifest = require __CONFIGDIR . "/application_manifest.php";
+		foreach ($manifest as $app_man) {
+			$group = $fval($appsec, "rootname", $app_man["rootname"])["group"];
+			if (!isset($group)) {
+				$group = $fval($agroup, "level", $app_man["level"])["id"];
 			}
+
+			$a[$app_man["rootname"]] = $app_man;
+			$a[$app_man["rootname"]]["system"] = ($fval($appsec, "rootname", $app_man["rootname"])["system"] == "1");
+			$a[$app_man["rootname"]]["default"] = ($app_man["canBeDefault"] == 0 ? APP_CANNOT_DEFAULT : (POSConfigMultidomain::$default_application == $app_man["rootname"] ? APP_DEFAULT : APP_NOT_DEFAULT));
+			$a[$app_man["rootname"]]["group"] = $group;
 		}
-		self::$AppList = $a;
-		return $a;
+
+		return self::$AppList = $a;
 	}
 
 	/**
@@ -171,7 +137,7 @@ class AppManager
 	public static function isInstalled(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
-		return (isset(AppManager::listAll()[$name]));
+		return (isset(AppManager::getList()[$name]));
 	}
 
 	/**
@@ -193,7 +159,7 @@ class AppManager
 	 */
 	public static function isOnGroup(int $group_id)
 	{
-		foreach (AppManager::listAll() as $data)
+		foreach (AppManager::getList() as $data)
 			if ($data["group"] == $group_id) return true;
 		return false;
 	}
@@ -211,7 +177,7 @@ class AppManager
 
 		if (Database::read("app_security", "system", "rootname", $appname) == "1") throw new PuzzleError("Cannot chown system app"); //Do not allow to change system own
 
-		$allowed_level = AppManager::listAll()[$appname]["level"];
+		$allowed_level = AppManager::getList()[$appname]["level"];
 		$new_level = Database::read("app_users_grouplist", "level", "id", $newgroup);
 		if ($new_level <= $allowed_level) {
 			if (Database::read("app_security", "rootname", "rootname", $appname) != "")
@@ -376,7 +342,7 @@ class iApplication
 		if ($this->preload_mode) {
 			if ($_xStartup && debug_backtrace(1, 2)[1]['class'] != self::class) throw new PuzzleError("Startup sequence violation");
 			$this->_xStartup = $_xStartup;
-			AppManager::migrateTable($this->rootname);
+			// AppManager::migrateTable($this->rootname);
 			$this->guardCheck();
 			$resp = include_once_ext($this->path . "/control.php", [
 				"appProp" => $this->getAppProp()
@@ -391,7 +357,7 @@ class iApplication
 
 	private function __construct(string $rootname, bool $preload = true)
 	{
-		$meta = AppManager::listAll()[$rootname];
+		$meta = AppManager::getList()[$rootname];
 		if ($meta["rootname"] == $rootname) {
 			$dir = $meta["dir_name"];
 			$this->level = $meta["level"];

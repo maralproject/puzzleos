@@ -38,27 +38,16 @@ class Template
 	 * List all Template
 	 * @return array
 	 */
-	public static function listAll()
+	public static function getList()
 	{
 		if (isset(self::$templateList)) return self::$templateList;
 		$a = [];
-		foreach (IO::list_directory("/templates") as $dir) {
-			if (!is_dir(IO::physical_path("/templates/$dir"))) continue;
-			if ($dir != "." && $dir != ".." && $dir != "system") {
-				if (IO::exists("/templates/$dir/manifest.ini")) {
-					$manifest = parse_ini_file(IO::physical_path("/templates/$dir/manifest.ini"));
-					$a[$dir] = [
-						"name" => $dir,
-						"active" => self::$active == $dir,
-						"title" => $manifest["title"],
-						"controller" => $manifest["controller"],
-						"dir" => IO::physical_path("/templates/$dir")
-					];
-				}
-			}
+		$manifest = require __CONFIGDIR . "/template_manifest.php";
+		foreach ($manifest as $dir => $tmpl_man) {
+			$a[$dir] = $tmpl_man;
+			$a[$dir]["active"] = self::$active == $dir;
 		}
-		self::$templateList = $a;
-		return $a;
+		return self::$templateList = $a;
 	}
 
 	/**

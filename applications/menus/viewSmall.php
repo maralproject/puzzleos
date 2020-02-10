@@ -10,7 +10,7 @@
 $location = $arguments[0];
 if($location == "") throw new PuzzleError("Location cannot be empty!");
 
-foreach(AppManager::listAll() as $app){
+foreach(AppManager::getList() as $app){
 	/* Donot show menu from restricted app */
 	if(in_array($app["rootname"],POSConfigMultidomain::$restricted_app) || !PuzzleUser::isAccess($app["level"])) continue;
 	foreach($app["menus"] as $menu){

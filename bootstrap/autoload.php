@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -71,4 +72,7 @@ spl_autoload_register(function ($c) {
 });
 
 #External Library from Composer
-require(__ROOTDIR . "/includes/vendor/autoload.php");
+if (!(include __ROOTDIR . "/includes/vendor/autoload.php")) {
+    echo "No composer installation is found. Please run `php puzzleos reload` first!";
+    die;
+}

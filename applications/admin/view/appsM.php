@@ -12,7 +12,7 @@ $s = new SearchBox("AppMan_");
 $acc_app = iApplication::run("users");
 $s->setSubmitable(false);
 $s->setDynamic(true);
-$appList = AppManager::listAll();
+$appList = AppManager::getList();
 foreach($appList as $a){
 	$list = [];
 	$list[0] = $a["name"];
@@ -46,14 +46,14 @@ small{
 <?php 
 	$l = new Language; $l->app="admin";
 	$empty = true;
-	foreach(AppManager::listAll() as $d){
+	foreach(AppManager::getList() as $d){
 		$empty = false;
 		$dDis = ($d["default"]==1);
 		$dTitle = $l->get("SET_AS_DEFAULT");;
 		if($d["default"]==APP_DEFAULT) $dTitle = $l->get("CURRENTLY_DEFAULT");
 		if($d["default"]==APP_CANNOT_DEFAULT) $dTitle = $l->get("NOT_AVAILABLE");
 		$theresrv = "";
-		foreach(AppManager::listAll()[$d["name"]]["services"] as $q){
+		foreach(AppManager::getList()[$d["name"]]["services"] as $q){
 			$theresrv = '<span class="badge badge-primary" style="font-size:6pt;">Services</span>';
 			break;
 		}

@@ -59,22 +59,6 @@ if (file_exists(__ROOTDIR . "/site.offline")) {
 	define("__MAINTENANCE", false);
 }
 
-/***********************************
- * Prepare all directories
- ***********************************/
-preparedir(__ROOTDIR . "/storage");
-preparedir(__ROOTDIR . "/storage/logs");
-preparedir(__ROOTDIR . "/storage/dbcache");
-preparedir(__ROOTDIR . "/storage/data");
-preparedir(__ROOTDIR . "/storage/cache");
-preparedir(__ROOTDIR . "/storage/cache/applications");
-preparedir(__ROOTDIR . "/storage/cache/bootstrap");
-preparedir(__ROOTDIR . "/" . __PUBLICDIR . "/assets");
-preparedir(__ROOTDIR . "/" . __PUBLICDIR . "/res");
-preparedir(__ROOTDIR . "/" . __PUBLICDIR . "/cache", function () {
-	file_put_contents(__ROOTDIR . "/" . __PUBLICDIR . "/cache/.htaccess", 'Header set Cache-Control "max-age=2628000, public"');
-});
-
 try {
 	/***********************************
 	 * Get the configuration files
@@ -85,8 +69,7 @@ try {
 	 * Removing installation directory
 	 ***********************************/
 	if (file_exists(__ROOTDIR . "/" . __PUBLICDIR . "/install")) {
-		if (!IO::remove_r("/" . __PUBLICDIR . "/install"))
-			throw new PuzzleError("Please remove /" . __PUBLICDIR . "/install directory manually for security purpose");
+		@IO::remove_r("/" . __PUBLICDIR . "/install");
 	}
 
 	/***********************************

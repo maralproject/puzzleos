@@ -8,10 +8,10 @@
  * @copyright    2014-2019 PT SIMUR INDONESIA
  */
 
-foreach (AppManager::listAll() as $data) {
+foreach (AppManager::getList() as $data) {
 	if (!empty($data["services"])) {
 		$app = iApplication::preload($data["rootname"]);
-		AppManager::migrateTable($app->rootname);
+		// AppManager::migrateTable($app->rootname);
 		foreach ($data["services"] as $service) {
 			if ($service == "") continue;
 			if (!$app->loadContext($service)) {

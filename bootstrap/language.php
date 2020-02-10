@@ -151,7 +151,7 @@ class Language
 		if ($uri[0] == "applications" && $app == "") {
 			$dir = $uri[1];
 		} elseif ($app != "") {
-			$dir = AppManager::listAll()[$app]["dir_name"];
+			$dir = AppManager::getList()[$app]["dir_name"];
 			if ($dir == "") throw new PuzzleError("Cannot find $app application");
 		} else {
 			throw new PuzzleError("Language can only be loaded from Application");

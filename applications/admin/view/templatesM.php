@@ -53,7 +53,7 @@
 </style><?php echo Minifier::outCSSMin()?>
 <div class="tmpl row" style="margin-left:5px;margin-right:5px;">
 	<?php
-		foreach(Template::listAll() as $d){
+		foreach(Template::getList() as $d){
 			$link = 'onclick="window.location=\''.__SITEURL.'/admin/changeTemplate/'.$d["name"].'\';"';
 			$preview = glob(__ROOTDIR . "/templates/".$d["name"]."/preview.*");
 			if($preview[0]=="") $preview="";

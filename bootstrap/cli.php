@@ -44,6 +44,15 @@ class PuzzleCLI
 				@unlink(__ROOTDIR . "/site.offline");
 				echo "Maintenance mode disabled.\n";
 			}
+		} else if ($sys == "db") {
+			if ($arg["migrate"]) {
+				echo "Migrating applications table...\n";
+				foreach (AppManager::getList() as $app_man) {
+					AppManager::migrateTable($app_man["rootname"]);
+					echo "  " . $app_man["rootname"] . "\n";
+				}
+				echo "Done";
+			}
 		} else
 			throw new PuzzleError("Invalid parameter");
 	}

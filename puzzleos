@@ -4,15 +4,19 @@
  * PuzzleOS
  * Build your own web-based application
  *
- * @package      maral.puzzleos.core
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
  * @copyright    2014-2018 MARAL INDUSTRIES
  */
 
 define("__POSEXEC", 1);
-define("__POSCLI",1);
+define("__POSCLI", 1);
 
-require("bootstrap/boot.php");
+if ($argv[1] == "reload") {
+    error_reporting(E_ERROR | E_COMPILE_ERROR | E_CORE_ERROR);
+    require "bootstrap/reload.php";
+} else {
+    require "bootstrap/boot.php";
 
-/* Run the requested app and resources */
-PuzzleCLI::run($argv);
+    /* Run the requested app and resources */
+    PuzzleCLI::run($argv);
+}

@@ -1,13 +1,17 @@
 <?php
 #Creating Admin
 if (file_exists(__ROOTDIR . "/create.admin")) {
-    $ctn = unserialize(base64_decode(file_get_contents(__ROOTDIR . "/create.admin")));
-    if ($ctn !== false) {
-        unlink(__ROOTDIR . "/create.admin");
-        $u = PuzzleUser::create($ctn["password"], "Administrator", $ctn["username"]);
-        $u->group = PuzzleUserGroup::getRootByLevel(USER_AUTH_SU);
-        $u->enabled = true;
-        $u->save();
+    try {
+        $ctn = unserialize(base64_decode(file_get_contents(__ROOTDIR . "/create.admin")));
+        if ($ctn !== false) {
+            $u = PuzzleUser::create($ctn["password"], "Administrator", $ctn["username"]);
+            $u->group = PuzzleUserGroup::getRootByLevel(USER_AUTH_SU);
+            $u->enabled = true;
+            $u->save();
+            unlink(__ROOTDIR . "/create.admin");
+        }
+    } catch (DatabaseError $e) {
+        // Table is not migrated yet. Try again on the next reload
     }
 }
 

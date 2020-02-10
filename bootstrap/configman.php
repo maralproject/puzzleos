@@ -450,7 +450,7 @@ class POSConfigMultidomain
 		if (!is_array(self::$restricted_app)) throw new PuzzleError("Restricted app must be in array!");
 
 		/* Make sure that all system apps are not in restricted app */
-		foreach (AppManager::listAll() as $app) {
+		foreach (AppManager::getList() as $app) {
 			if (!$app["system"]) continue;
 			if (in_array($app["rootname"], self::$restricted_app)) throw new PuzzleError("System app cannot be restricted!");
 		}
