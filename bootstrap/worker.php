@@ -12,6 +12,7 @@ use SuperClosure\Serializer;
 
 /**
  * Create separated process to do long-run task
+ * @method static mixed __do($job)
  */
 class Worker
 {
