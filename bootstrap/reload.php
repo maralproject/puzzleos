@@ -91,12 +91,12 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
 
             $scanned_app[] = $parsed_man;
 
+            echo "  " . $manifest["rootname"] . "\n";
             if (file_exists($parsed_man["dir"] . "/composer.json")) {
                 $composer_req = json_decode(file_get_contents($parsed_man["dir"] . "/composer.json"), true, 512, JSON_THROW_ON_ERROR);
                 $composer_json_app = $composer_json_app + $composer_req["require"];
                 echo "    Found composer.json\n";
             }
-            echo "  " . $manifest["rootname"] . "\n";
         }
     }
 }
@@ -117,9 +117,9 @@ echo "OK\n";
 echo $encoded_json_composer . PHP_EOL;
 file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
 
-
 echo "Running composer install\n==\n";
 chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
+@unlink("composer.lock");
 passthru("composer install --optimize-autoloader --no-dev");
 chdir(__ROOTDIR);
 echo "==\n";
