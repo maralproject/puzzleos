@@ -82,6 +82,7 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
                 "title" => $manifest["title"],
                 "desc" => $manifest["description"],
                 "level" => $manifest["permission"],
+                "canBeDefault" => $manifest["canBeDefault"],
                 "services" => explode(",", trim($manifest["services"])),
                 "menus" => explode(",", trim($manifest["menus"])),
             ];
