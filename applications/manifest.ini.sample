@@ -69,3 +69,9 @@ services=
 ;
 ; menus=widget1.php>left,widget2.php>custom_template_position,widget3.php>somewhere
 menus=
+
+; Composer json file
+; 
+; If you need a dependencies from composer, just put your
+; composer.json in the most-out directory along with its version.
+; When you update the composer, please run `php puzzleos reload` to reinstall everything.

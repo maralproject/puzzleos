@@ -16,7 +16,7 @@
 
 define("START_TIME", time());
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.3.17");
+define("__POS_VERSION", "3.3.18");
 
 /**
  * Return /path/to/qualified/root/directory

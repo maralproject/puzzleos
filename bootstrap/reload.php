@@ -23,15 +23,6 @@ touch(__ROOTDIR . DIRECTORY_SEPARATOR . "site.offline");
 echo "OK\n";
 
 /***********************************
- * Running composer install
- ***********************************/
-echo "Running composer install\n==\n";
-chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
-passthru("composer install --no-dev");
-chdir(__ROOTDIR);
-echo "==\n";
-
-/***********************************
  * Small bootstrapping
  * Including basic helper function
  ***********************************/
@@ -61,6 +52,7 @@ echo "OK\n";
 echo "Scanning application...\n";
 
 $scanned_app = [];
+$composer_json_app = [];
 foreach (scandir(__ROOTDIR . "/applications") as $dir) {
     if (!is_dir(__ROOTDIR . "/applications/$dir")) continue;
     if ($dir != "." && $dir != "..") {
@@ -98,6 +90,12 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
             if ($parsed_man["menus"][0] == "") $parsed_man["menus"] = [];
 
             $scanned_app[] = $parsed_man;
+
+            if (file_exists($parsed_man["dir"] . "/composer.json")) {
+                $composer_req = json_decode(file_get_contents($parsed_man["dir"] . "/composer.json"), true, 512, JSON_THROW_ON_ERROR);
+                $composer_json_app = $composer_json_app + $composer_req["require"];
+                echo "    Found composer.json\n";
+            }
             echo "  " . $manifest["rootname"] . "\n";
         }
     }
@@ -105,6 +103,26 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
 
 file_put_contents(__ROOTDIR . "/configs/application_manifest.php", "<?php return " . var_export($scanned_app, true) . ";");
 echo "Done...\n";
+
+/***********************************
+ * Running composer install
+ ***********************************/
+echo "Merging composer file...";
+$system_composer_req = json_decode(file_get_contents(__ROOTDIR . "/includes/composer.sys.json"), true, JSON_THROW_ON_ERROR)["require"];
+$merged_composer = [
+    "require" => $system_composer_req + $composer_json_app
+];
+$encoded_json_composer = json_encode($merged_composer, JSON_PRETTY_PRINT | JSON_FORCE_OBJECT);
+echo "OK\n";
+echo $encoded_json_composer . PHP_EOL;
+file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
+
+
+echo "Running composer install\n==\n";
+chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
+passthru("composer install --optimize-autoloader --no-dev");
+chdir(__ROOTDIR);
+echo "==\n";
 
 /***********************************
  * Listing all template
