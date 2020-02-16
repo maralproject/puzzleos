@@ -53,7 +53,7 @@ if ($_POST["finale"] == "yes") {
 		"password" => $_POST["password"]
 	])));
 
-	shell_exec("php ../../puzzleos reload");
+	shell_exec("php ../../puzzleos reload skip-composer");
 	die("0");
 }
 ?>
