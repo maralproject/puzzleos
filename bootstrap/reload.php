@@ -12,7 +12,7 @@
 define("__PUBLICDIR", "public");
 
 if (version_compare(PHP_VERSION, "7.3.0") < 0) {
-	die("ERROR:\tPlease upgrade your PHP version at least to 7.3.0");
+    die("ERROR:\tPlease upgrade your PHP version at least to 7.3.0");
 }
 
 echo "PuzzleOS Reload Console...\n";
@@ -122,12 +122,14 @@ echo "OK\n";
 echo $encoded_json_composer . PHP_EOL;
 file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
 
-echo "Running composer install\n==\n";
-chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
-@unlink("composer.lock");
-passthru("composer install --optimize-autoloader --no-dev");
-chdir(__ROOTDIR);
-echo "==\n";
+if ($argv[2] != "skip-composer") {
+    echo "Running composer install\n==\n";
+    chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
+    @unlink("composer.lock");
+    passthru("composer install --optimize-autoloader --no-dev");
+    chdir(__ROOTDIR);
+    echo "==\n";
+}
 
 /***********************************
  * Listing all template
