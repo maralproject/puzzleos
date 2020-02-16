@@ -11,6 +11,10 @@
 // Change your public directory name here as pointed by the webserver
 define("__PUBLICDIR", "public");
 
+if (!version_compare(PHP_VERSION, "7.3.0") < 0) {
+	die("ERROR:\tPlease upgrade your PHP version at least to 7.3.0");
+}
+
 echo "PuzzleOS Reload Console...\n";
 define("__ROOTDIR", str_replace("\\", "/", dirname(__DIR__)));
 chdir(__ROOTDIR);
