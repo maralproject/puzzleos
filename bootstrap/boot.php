@@ -18,8 +18,8 @@ require "autoload.php";
 error_reporting(0);
 require "exception.php";
 
-if (!version_compare(PHP_VERSION, "7.0.0") < 0) {
-	die("ERROR:\tPlease upgrade your PHP version at least to 7.0.0");
+if (!version_compare(PHP_VERSION, "7.3.0") < 0) {
+	die("ERROR:\tPlease upgrade your PHP version at least to 7.3.0");
 }
 
 if (PHP_SAPI == "cli" && (!defined("__POSCLI") && !defined("__POSWORKER"))) {
