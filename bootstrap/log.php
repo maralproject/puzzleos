@@ -42,12 +42,14 @@ class Log
         $stream_handler = new StreamHandler(__LOGDIR . "/logging.log");
         $log = new Logger("PuzzleLog");
         $log->pushHandler($stream_handler);
-        $log->pushProcessor(new WebProcessor());
-        $log->pushProcessor(function ($record) {
-            $record['extra']['cli'] = is_cli();
-            $record['extra']['session'] = session_id();
-            return $record;
-        });
+        if (!is_cli()) {
+            $log->pushProcessor(new WebProcessor());
+            $log->pushProcessor(function ($record) {
+                $record['extra']['cli'] = is_cli();
+                $record['extra']['session'] = session_id();
+                return $record;
+            });
+        }
         self::$singleton = $log;
     }
 
