@@ -39,16 +39,17 @@ class PuzzleSession implements SessionHandlerInterface
 
     private $tmp_read_content;
     private $tmp_logged_user;
+    private $tmp_update_expire = false;
     private $tmp_cookie_out = false;
     #endregion
 
     #region SessionHandlerInterface
-    public function open(string $save_path = null, string $session_name = null)
+    public function open($save_path, $session_name)
     {
         $db = Database::getRow("sessions", "session_id", $this->session_id);
         if (empty($db)) {
             $this->expire = time() + self::$expire_time;
-            Database::insert("session_id", [[
+            Database::insert("sessions", [[
                 "session_id" => $this->session_id,
                 "agent" => $this->client_agent,
                 "remote" => $this->remote_addr,
@@ -59,27 +60,32 @@ class PuzzleSession implements SessionHandlerInterface
         } else {
             $this->expire = (int) $db["expire"];
             $this->tmp_logged_user = $db["user"] ? ((int) $db["user"]) : null;
+            if (self::$retain_on_same_pc) {
+                $this->expire += self::$expire_time;
+                $this->tmp_update_expire = true;
+            }
         }
         $this->tmp_read_content = null;
         return true;
     }
 
-    public function read(string $session_id)
+    public function read($session_id)
     {
         return $this->tmp_read_content = (string) Database::read("sessions", "content", "session_id", $session_id);
     }
 
-    public function write(string $session_id, string $data)
+    public function write($session_id, $data)
     {
         $currentUser = PuzzleUser::check() ? PuzzleUser::active()->id : null;
-        if ($data == $this->tmp_read_content && $this->tmp_logged_user == $currentUser) {
+        if (!$this->tmp_update_expire && $data == $this->tmp_read_content && $this->tmp_logged_user == $currentUser) {
             return true;
         } else {
             return (bool) Database::update(
                 "sessions",
                 DRI()
                     ->setField("content", $data)
-                    ->setField("user", $currentUser),
+                    ->setField("user", $currentUser)
+                    ->setField("expire", $this->expire),
                 "session_id",
                 $session_id
             );
@@ -93,7 +99,7 @@ class PuzzleSession implements SessionHandlerInterface
         return true;
     }
 
-    public function destroy(string $session_id)
+    public function destroy($session_id)
     {
         return (bool) Database::delete("sessions", "session_id", $session_id);
     }
@@ -111,15 +117,15 @@ class PuzzleSession implements SessionHandlerInterface
             $db = Database::getRow("sessions", "session_id", $old_session_id);
             if (!empty($db)) {
                 if (
-                    $db["agent"] === $this->client_agent &&
-                    $db["domain"] === $this->domain &&
-                    $db["remote"] === $this->remote_addr
+                    $db["agent"] == $this->client_agent &&
+                    $db["domain"] == $this->domain &&
+                    $db["remote"] == $this->remote_addr
                 ) {
-                    if (self::$retain_on_same_pc || $db["expire"] <= time()) return $old_session_id;
+                    if (self::$retain_on_same_pc || time() <= $db["expire"]) return $old_session_id;
                 }
             }
         }
-        return (rand_str(40));
+        return rand_str(40);
     }
 
     public function __get($name)
@@ -133,8 +139,8 @@ class PuzzleSession implements SessionHandlerInterface
     private function __construct(string $session_id = null)
     {
         $this->client_agent = $_SERVER["HTTP_USER_AGENT"];
+        $this->remote_addr = $_SERVER["REMOTE_ADDR"];
         $this->domain = self::guessRootDomain();
-        $this->remote = $_SERVER["REMOTE_ADDR"];
         $this->session_id = $this->createSID($session_id);
 
         session_id($this->session_id);
@@ -216,13 +222,13 @@ class PuzzleSession implements SessionHandlerInterface
     {
         switch ($name) {
             case "share_on_subdomain":
-                $this->share_on_subdomain = (bool) $value;
+                self::$share_on_subdomain = (bool) $value;
                 break;
             case "retain_on_same_pc":
-                $this->retain_on_same_pc = (bool) $value;
+                self::$retain_on_same_pc = (bool) $value;
                 break;
             case "expire_time":
-                $this->expire_time = (int) $value;
+                self::$expire_time = (int) $value;
                 break;
         }
     }

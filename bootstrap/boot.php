@@ -26,6 +26,8 @@ if (PHP_SAPI == "cli" && (!defined("__POSCLI") && !defined("__POSWORKER"))) {
 	die("ERROR:\tCLI Execution Aborted.");
 }
 
+if (__HTTP_URI == "favicon.ico") abort(404);
+
 set_time_limit(TIME_LIMIT);
 
 /***********************************
@@ -84,7 +86,7 @@ try {
 	/***********************************
 	 * Writing session to cookie
 	 ***********************************/
-	PuzzleSession::get()->writeCookie();
+	PuzzleSession::get() ? PuzzleSession::get()->writeCookie() : 0;
 
 	/***********************************
 	 * Process private file if requested

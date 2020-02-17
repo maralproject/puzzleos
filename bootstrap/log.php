@@ -40,11 +40,14 @@ class Log
         if (!is_callbyme()) throw new PuzzleError("Cannot call setup from outside class");
 
         $stream_handler = new StreamHandler(__LOGDIR . "/logging.log");
-        $stream_handler->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES));
-
         $log = new Logger("PuzzleLog");
         $log->pushHandler($stream_handler);
-        $log->pushProcessor(new WebProcessor(null, ["session" => session_id()]));
+        $log->pushProcessor(new WebProcessor());
+        $log->pushProcessor(function ($record) {
+            $record['extra']['cli'] = is_cli();
+            $record['extra']['session'] = session_id();
+            return $record;
+        });
         self::$singleton = $log;
     }
 
@@ -67,7 +70,7 @@ class Log
 
     public static function __callStatic($name, $arguments)
     {
-        return call_user_func([self::$singleton, $name], $arguments);
+        return call_user_func([self::$singleton, $name], ...$arguments);
     }
 }
 

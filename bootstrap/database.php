@@ -431,7 +431,7 @@ class Database
 					case "cron.php":
 						if ((preg_match('/cron/', $find))) return true;
 						break;
-					case "session.php":
+					case "isession.php":
 						if ((preg_match('/sessions/', $find))) return true;
 						break;
 					case "configman.php":

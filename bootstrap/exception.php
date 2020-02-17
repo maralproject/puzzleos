@@ -28,14 +28,7 @@ class PuzzleError extends Exception
 
 	private static function wLog(\Throwable $error, $suggestion, $file, $line, $trace)
 	{
-		Log::emergency(get_class($error) . ": " . $error->getMessage(), [
-			"suggestion" => $suggestion,
-			"caller" => "$file($line)",
-			"url" => __HTTP_REQUEST,
-			"session" => session_id(),
-			"env" => is_cli() ? ($GLOBALS["_WORKER"] ? "WORKER" : "CLI") : "WEB",
-			"stack_trace" => $trace
-		]);
+		Log::critical(get_class($error) . " on $file:$line " . $error->getMessage() . ". " . $suggestion, ["trace" => $trace]);
 	}
 
 	private static function printPage($msg = "", $suggestion = "")

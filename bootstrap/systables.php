@@ -67,9 +67,9 @@ Database::newStructure("sessions", (new DatabaseTableBuilder)
     ->addColumn("content", "TEXT")->allowNull()
 
     // Client info, filled once on insert
-    ->addColumn("agent", "VARCHAR(100)")
-    ->addColumn("domain", "VARCHAR(100)")
-    ->addColumn("remote", "VARCHAR(15)")
+    ->addColumn("agent", "TEXT")
+    ->addColumn("domain", "TEXT")
+    ->addColumn("remote", "TEXT")
     ->addColumn("expire", "INT")
     ->createIndex("ses", ["user", "session_id"])
     ->createIndex("expire", ["expire"]));

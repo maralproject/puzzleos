@@ -87,7 +87,7 @@ function require_once_ext(string $__path, array $vars = null)
  */
 function abort(int $code, string $text = null, $exit = true)
 {
-	if (class_exists("PuzzleSession")) PuzzleSession::get()->writeCookie();
+	if (class_exists("PuzzleSession") && PuzzleSession::get()) PuzzleSession::get()->writeCookie();
 	if (!is_cli()) {
 		header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
 	}
