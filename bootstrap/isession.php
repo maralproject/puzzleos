@@ -121,7 +121,8 @@ class PuzzleSession implements SessionHandlerInterface
                     $db["domain"] == $this->domain &&
                     $db["remote"] == $this->remote_addr
                 ) {
-                    if (self::$retain_on_same_pc || time() <= $db["expire"]) return $old_session_id;
+                    // if (self::$retain_on_same_pc || time() <= $db["expire"]) return $old_session_id;
+                    return $old_session_id;
                 }
             }
         }
