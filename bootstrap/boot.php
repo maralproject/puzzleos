@@ -76,7 +76,7 @@ try {
 	 * Feature that must be loaded
 	 * without autoloader
 	 ***********************************/
-	require("session.php");
+	require("isession.php");
 	require("time.php");
 	require("application.php");
 	require("services.php");
@@ -84,7 +84,7 @@ try {
 	/***********************************
 	 * Writing session to cookie
 	 ***********************************/
-	PuzzleSession::writeCookie();
+	PuzzleSession::get()->writeCookie();
 
 	/***********************************
 	 * Process private file if requested

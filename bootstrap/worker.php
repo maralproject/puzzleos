@@ -193,7 +193,7 @@ class Worker
 				[
 					0 => ["pipe", "r"],
 					1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],
-					2 => ["file", __LOGDIR . "/error.log", "a"]
+					2 => ["file", __LOGDIR . "/logging.log", "a"]
 				],
 				$pipe
 			);

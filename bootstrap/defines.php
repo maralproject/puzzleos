@@ -16,7 +16,7 @@
 
 define("START_TIME", time());
 defined("__SYSTEM_NAME") or define("__SYSTEM_NAME", "PuzzleOS");
-define("__POS_VERSION", "3.3.18");
+define("__POS_VERSION", "3.3.19");
 
 /**
  * Return /path/to/qualified/root/directory
@@ -68,6 +68,11 @@ define("__HTTP_REQUEST", urldecode(ltrim(str_replace(__SITEURL, "", str_replace(
  * Return applications/yourapp/assets/base_1.gif
  */
 define("__HTTP_URI", urldecode(explode("?", __HTTP_REQUEST)[0]));
+
+/**
+ * Key that will be used by PuzzleSession to be stored in cookie
+ */
+define("SESSION_KEY", "_pos");
 
 define("APP_DEFAULT", 1);
 define("APP_NOT_DEFAULT", 0);

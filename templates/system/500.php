@@ -31,7 +31,7 @@
 			<div style="width:max-content;"><?php hnl2br($msg) ?></div>
 		</div>
 		<br>
-		<p style="font-size:9pt;text-align:right;color:#a0a0a0;">For more information please see error.log</p>
+		<p style="font-size:9pt;text-align:right;color:#a0a0a0;">For more information please see log file.</p>
 	</div>
 </body>
 

@@ -22,6 +22,6 @@ CronJob::register("tfa_remover", function () {
 }, _CT()->interval(5 * T_MINUTE));
 
 #Setting Session
-PuzzleSession::get()->retain_on_same_pc = PuzzleUserConfig::enableRememberMe();
-PuzzleSession::get()->share_on_subdomain = PuzzleUserConfig::shareSessionToSubdomain();
-PuzzleSession::get()->expire = 30 * T_DAY;
+PuzzleSession::config("retain_on_same_pc", PuzzleUserConfig::enableRememberMe());
+PuzzleSession::config("share_on_subdomain", PuzzleUserConfig::shareSessionToSubdomain());
+PuzzleSession::config("expire",  30 * T_DAY);

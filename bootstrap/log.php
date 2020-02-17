@@ -1,69 +1,73 @@
 <?php
+
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Logger;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Processor\WebProcessor;
 
 /**
  * PuzzleOS
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2019 PT SIMUR INDONESIA
+ * @copyright    2019-2020 PT SIMUR INDONESIA
  */
 
 /**
  * A helper class to quickly log your event
  * using Monolog class
+ * 
+ * @static @method void emergency($message, array [$array])
+ * @static @method void alert($message, array [$array])
+ * @static @method void critical($message, array [$array])
+ * @static @method void error($message, array [$array])
+ * @static @method void warning($message, array [$array])
+ * @static @method void notice($message, array [$array])
+ * @static @method void info($message, array [$array])
+ * @static @method void debug($message, array [$array])
  */
 class Log
 {
-    /** @var Logger */
+    /**
+     * Monolog singleton context
+     * @var Logger 
+     */
     private static $singleton;
+
     public static function __setup()
     {
         if (!is_callbyme()) throw new PuzzleError("Cannot call setup from outside class");
-        self::$singleton = new Logger("PuzzleLog");
-        self::$singleton->pushHandler(new StreamHandler(__LOGDIR . "/logging.log"));
+
+        $stream_handler = new StreamHandler(__LOGDIR . "/logging.log");
+        $stream_handler->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES));
+
+        $log = new Logger("PuzzleLog");
+        $log->pushHandler($stream_handler);
+        $log->pushProcessor(new WebProcessor(null, ["session" => session_id()]));
+        self::$singleton = $log;
     }
+
+    /**
+     * Get monolog instance
+     * @return Logger
+     */
     public static function getMonolog()
     {
         return self::$singleton;
     }
+
+    /**
+     * Push another handler to monolog
+     */
     public static function pushHandler(HandlerInterface $handler)
     {
         return self::$singleton->pushHandler($handler);
     }
-    public static function emergency($message, $array = [])
+
+    public static function __callStatic($name, $arguments)
     {
-        return self::$singleton->emergency($message, $array);
-    }
-    public static function alert($message, $array = [])
-    {
-        return self::$singleton->alert($message, $array);
-    }
-    public static function critical($message, $array = [])
-    {
-        return self::$singleton->critical($message, $array);
-    }
-    public static function error($message, $array = [])
-    {
-        return self::$singleton->error($message, $array);
-    }
-    public static function warning($message, $array = [])
-    {
-        return self::$singleton->warning($message, $array);
-    }
-    public static function notice($message, $array = [])
-    {
-        return self::$singleton->notice($message, $array);
-    }
-    public static function info($message, $array = [])
-    {
-        return self::$singleton->info($message, $array);
-    }
-    public static function debug($message, $array = [])
-    {
-        return self::$singleton->debug($message, $array);
+        return call_user_func([self::$singleton, $name], $arguments);
     }
 }
 

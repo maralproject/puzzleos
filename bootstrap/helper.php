@@ -87,7 +87,7 @@ function require_once_ext(string $__path, array $vars = null)
  */
 function abort(int $code, string $text = null, $exit = true)
 {
-	if (class_exists("PuzzleSession")) PuzzleSession::writeCookie();
+	if (class_exists("PuzzleSession")) PuzzleSession::get()->writeCookie();
 	if (!is_cli()) {
 		header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
 	}
@@ -313,7 +313,7 @@ function redirect(string $url = "", int $http_code = 302)
 	}
 
 	//Writing out cookie before leaving
-	PuzzleSession::writeCookie();
+	PuzzleSession::get()->writeCookie();
 
 	if (headers_sent()) {
 		// Clearing buffer

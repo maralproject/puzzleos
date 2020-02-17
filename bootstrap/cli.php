@@ -33,6 +33,8 @@ class PuzzleCLI
 				IO::remove_r("/public/cache");
 				IO::remove_r("/public/res");
 				IO::remove_r("/storage/cache");
+				chdir(__ROOTDIR);
+				passthru("php puzzleos reload skip-composer");
 			} else throw new PuzzleError("Invalid action");
 		} else if ($sys == "maintenance") {
 			if ($arg["on"]) {

@@ -73,7 +73,7 @@ class PuzzleUser implements JsonSerializable
     private static function saveSession()
     {
         $_SESSION["_acc"] = null;
-        if(self::$loggedIn && self::$loggedIn->id != 0)
+        if (self::$loggedIn && self::$loggedIn->id != 0)
             $_SESSION["_acc"] = self::$loggedIn->id;
     }
 
@@ -262,11 +262,12 @@ class PuzzleUser implements JsonSerializable
         if ($this->_destroyed) throw new Exception("Account was deleted");
         if (!$this->enabled) return false;
         self::$loggedIn = $this;
-        if(!$temporary) self::saveSession();
+        if (!$temporary) self::saveSession();
         foreach (self::$postLoginFunction as $f) {
             try {
                 $f();
-            } catch (\Throwable $r) { }
+            } catch (\Throwable $r) {
+            }
         }
         return true;
     }
@@ -381,7 +382,8 @@ class PuzzleUser implements JsonSerializable
             try {
                 $phone = self::getE164($haystack);
                 $userid = Database::read("app_users_list", "id", "phone", $phone);
-            } catch (InvalidField $e) { }
+            } catch (InvalidField $e) {
+            }
         }
         if ($userid) {
             return self::get((int) $userid);

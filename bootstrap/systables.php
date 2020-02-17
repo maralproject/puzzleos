@@ -61,12 +61,16 @@ Database::newStructure("app_security", (new DatabaseTableBuilder)
 /* Table `sessions` */
 Database::newStructure("sessions", (new DatabaseTableBuilder)
     ->addColumn("session_id", "CHAR(40)")->setAsPrimaryKey()
-    ->addColumn("content", "TEXT")
-    ->addColumn("client", "TEXT")
-    ->addColumn("cnf", "TEXT")
-    ->addColumn("start", "INT")
+
+    // Content info, rewritable
+    ->addColumn("user", "INT")->allowNull()
+    ->addColumn("content", "TEXT")->allowNull()
+
+    // Client info, filled once on insert
+    ->addColumn("agent", "VARCHAR(100)")
+    ->addColumn("domain", "VARCHAR(100)")
+    ->addColumn("remote", "VARCHAR(15)")
     ->addColumn("expire", "INT")
-    ->addColumn("user", "INT")->allowNull(true)
     ->createIndex("ses", ["user", "session_id"])
     ->createIndex("expire", ["expire"]));
 

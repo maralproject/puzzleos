@@ -20,7 +20,7 @@
 stream_wrapper_unregister("php");
 
 /**
- * Throw an error, write it to error.log, and display it to user
+ * Default Exception class in PuzzleOS
  */
 class PuzzleError extends Exception
 {
