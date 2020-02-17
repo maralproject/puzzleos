@@ -72,7 +72,7 @@ define("__HTTP_URI", urldecode(explode("?", __HTTP_REQUEST)[0]));
 /**
  * Key that will be used by PuzzleSession to be stored in cookie
  */
-define("SESSION_KEY", "_pos");
+define("SESSION_KEY", "POSSES");
 
 define("APP_DEFAULT", 1);
 define("APP_NOT_DEFAULT", 0);
