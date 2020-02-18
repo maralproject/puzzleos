@@ -36,7 +36,6 @@ class PuzzleSession implements SessionHandlerInterface
     private $client_agent;
     private $remote_addr;
     private $domain;
-    private $expire;
     private $created;
 
     private $tmp_read_content;
@@ -139,7 +138,6 @@ class PuzzleSession implements SessionHandlerInterface
         $this->client_agent = $_SERVER["HTTP_USER_AGENT"];
         $this->remote_addr = $_SERVER["REMOTE_ADDR"];
         $this->domain = self::guessRootDomain();
-        $this->expire = time() + self::$expire_time;
         $this->session_id = $this->createSID($session_id);
 
         session_id($this->session_id);
@@ -154,7 +152,7 @@ class PuzzleSession implements SessionHandlerInterface
         setcookie(
             SESSION_KEY,
             $this->session_id,
-            self::$retain_on_same_pc ? $this->expire : 0,
+            self::$retain_on_same_pc ? time() + self::$expire_time : 0,
             "/",
             self::$share_on_subdomain ? "." . $this->domain : null,
             __HTTP_SECURE,
@@ -229,6 +227,8 @@ class PuzzleSession implements SessionHandlerInterface
             case "expire_time":
                 self::$expire_time = (int) $value;
                 break;
+            default:
+                throw new PuzzleError("PuzzleSession $name config is invalid");
         }
     }
 }

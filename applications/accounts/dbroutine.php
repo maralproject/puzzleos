@@ -26,4 +26,4 @@ if (is_cli()) {
 #Setting Session
 PuzzleSession::config("retain_on_same_pc", PuzzleUserConfig::enableRememberMe());
 PuzzleSession::config("share_on_subdomain", PuzzleUserConfig::shareSessionToSubdomain());
-PuzzleSession::config("expire",  7 * T_DAY);
+PuzzleSession::config("expire_time",  7 * T_DAY);
