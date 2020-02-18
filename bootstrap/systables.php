@@ -70,9 +70,9 @@ Database::newStructure("sessions", (new DatabaseTableBuilder)
     ->addColumn("agent", "TEXT")
     ->addColumn("domain", "TEXT")
     ->addColumn("remote", "TEXT")
-    ->addColumn("expire", "INT")
+    ->addColumn("created", "INT")
     ->createIndex("ses", ["user", "session_id"])
-    ->createIndex("expire", ["expire"]));
+    ->createIndex("created", ["created"]));
 
 /* Table `cron` */
 Database::newStructure("cron", (new DatabaseTableBuilder)

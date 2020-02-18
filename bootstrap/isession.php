@@ -18,6 +18,7 @@
  * cookie
  * 
  * @property-read string $session_id
+ * @property-read int $created
  */
 class PuzzleSession implements SessionHandlerInterface
 {
@@ -36,10 +37,10 @@ class PuzzleSession implements SessionHandlerInterface
     private $remote_addr;
     private $domain;
     private $expire;
+    private $created;
 
     private $tmp_read_content;
     private $tmp_logged_user;
-    private $tmp_update_expire = false;
     private $tmp_cookie_out = false;
     #endregion
 
@@ -48,22 +49,18 @@ class PuzzleSession implements SessionHandlerInterface
     {
         $db = Database::getRow("sessions", "session_id", $this->session_id);
         if (empty($db)) {
-            $this->expire = time() + self::$expire_time;
+            $this->created = time();
+            $this->tmp_logged_user = null;
             Database::insert("sessions", [[
                 "session_id" => $this->session_id,
                 "agent" => $this->client_agent,
                 "remote" => $this->remote_addr,
                 "domain" => $this->domain,
-                "expire" => $this->expire
+                "created" => $this->created
             ]]);
-            $this->tmp_logged_user = null;
         } else {
-            $this->expire = (int) $db["expire"];
+            $this->created = (int) $db["created"];
             $this->tmp_logged_user = $db["user"] ? ((int) $db["user"]) : null;
-            if (self::$retain_on_same_pc) {
-                $this->expire += self::$expire_time;
-                $this->tmp_update_expire = true;
-            }
         }
         $this->tmp_read_content = null;
         return true;
@@ -77,15 +74,14 @@ class PuzzleSession implements SessionHandlerInterface
     public function write($session_id, $data)
     {
         $currentUser = PuzzleUser::check() ? PuzzleUser::active()->id : null;
-        if (!$this->tmp_update_expire && $data == $this->tmp_read_content && $this->tmp_logged_user == $currentUser) {
+        if ($data == $this->tmp_read_content && $this->tmp_logged_user == $currentUser) {
             return true;
         } else {
             return (bool) Database::update(
                 "sessions",
                 DRI()
                     ->setField("content", $data)
-                    ->setField("user", $currentUser)
-                    ->setField("expire", $this->expire),
+                    ->setField("user", $currentUser),
                 "session_id",
                 $session_id
             );
@@ -121,7 +117,6 @@ class PuzzleSession implements SessionHandlerInterface
                     $db["domain"] == $this->domain &&
                     $db["remote"] == $this->remote_addr
                 ) {
-                    // if (self::$retain_on_same_pc || time() <= $db["expire"]) return $old_session_id;
                     return $old_session_id;
                 }
             }
@@ -134,6 +129,8 @@ class PuzzleSession implements SessionHandlerInterface
         switch ($name) {
             case "session_id":
                 return $this->session_id;
+            case "created":
+                return $this->created;
         }
     }
 
@@ -142,6 +139,7 @@ class PuzzleSession implements SessionHandlerInterface
         $this->client_agent = $_SERVER["HTTP_USER_AGENT"];
         $this->remote_addr = $_SERVER["REMOTE_ADDR"];
         $this->domain = self::guessRootDomain();
+        $this->expire = time() + self::$expire_time;
         $this->session_id = $this->createSID($session_id);
 
         session_id($this->session_id);
