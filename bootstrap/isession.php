@@ -113,8 +113,7 @@ class PuzzleSession implements SessionHandlerInterface
             if (!empty($db)) {
                 if (
                     $db["agent"] == $this->client_agent &&
-                    $db["domain"] == $this->domain &&
-                    $db["remote"] == $this->remote_addr
+                    $db["domain"] == $this->domain
                 ) {
                     return $old_session_id;
                 }
