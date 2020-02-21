@@ -99,7 +99,7 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
             echo "  " . $manifest["rootname"] . "\n";
             if (file_exists($parsed_man["dir"] . "/composer.json")) {
                 $composer_req = json_decode(file_get_contents($parsed_man["dir"] . "/composer.json"), true, 512, JSON_THROW_ON_ERROR);
-                $composer_json_app = $composer_json_app + $composer_req["require"];
+                $composer_json_app = array_merge_recursive($composer_json_app, $composer_req);
                 echo "    Found composer.json\n";
             }
         }
@@ -113,20 +113,22 @@ echo "Done...\n";
  * Running composer install
  ***********************************/
 echo "Merging composer file...";
-$system_composer_req = json_decode(file_get_contents(__ROOTDIR . "/includes/composer.sys.json"), true, JSON_THROW_ON_ERROR)["require"];
-$merged_composer = [
-    "require" => $system_composer_req + $composer_json_app
-];
-$encoded_json_composer = json_encode($merged_composer, JSON_PRETTY_PRINT | JSON_FORCE_OBJECT);
+$system_composer_req = json_decode(file_get_contents(__ROOTDIR . "/includes/composer.sys.json"), true, JSON_THROW_ON_ERROR);
+$merged_composer = array_merge_recursive($system_composer_req, $composer_json_app);
+$encoded_json_composer = json_encode($merged_composer, JSON_PRETTY_PRINT);
 echo "OK\n";
 echo $encoded_json_composer . PHP_EOL;
 file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
 
 if ($argv[2] != "skip-composer") {
-    echo "Running composer install\n==\n";
     chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
-    @unlink("composer.lock");
-    passthru("composer install --optimize-autoloader --no-dev");
+    if (file_exists(getcwd() . DIRECTORY_SEPARATOR . "composer.lock")) {
+        echo "Running composer update\n==\n";
+        passthru("composer update --optimize-autoloader --no-dev");
+    } else {
+        echo "Running composer install\n==\n";
+        passthru("composer install --optimize-autoloader --no-dev");
+    }
     chdir(__ROOTDIR);
     echo "==\n";
 }
