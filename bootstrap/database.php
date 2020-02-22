@@ -664,8 +664,14 @@ class Database
 	 * @param string $find_value
 	 * @return bool
 	 */
-	public static function update($table, DatabaseRowInput $row_input, $find_column, $find_value)
+	public static function update($table, $row_input, $find_column, $find_value)
 	{
+		if (is_array($row_input)) {
+			$row_input = DatabaseRowInput::fromArray($row_input);
+		} else if (!($row_input instanceof DatabaseRowInput)) {
+			throw new InvalidArgumentException("Expecting DatabaseRowInput");
+		}
+
 		self::x_verify($table);
 		$s = $row_input->getStructure();
 
