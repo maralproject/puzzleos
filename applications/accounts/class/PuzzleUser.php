@@ -577,10 +577,9 @@ class PuzzleUser implements JsonSerializable
      * 
      * You have to create your own controller.
      */
-    public static function useMyPage(string $view_url)
+    public static function useMyApp(iApplication $application)
     {
-        if (!filter_var($view_url, FILTER_VALIDATE_URL)) throw new InvalidArgumentException("Expecting a valid URL");
-        self::$_p = $view_url;
+        self::$_p = "/" . $application->rootname;
     }
     #endregion
 }
