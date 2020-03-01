@@ -426,7 +426,7 @@ class PuzzleUser implements JsonSerializable
     public static function isAccess(int $access)
     {
         //On CLI, user always authenticated as USER_AUTH_SU
-        if (is_cli() && defined("__POSCLI")) return true;
+        if (is_cli()) return true;
 
         if (!self::check()) {
             return ($access >= USER_AUTH_PUBLIC);

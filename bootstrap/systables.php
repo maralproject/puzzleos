@@ -67,7 +67,7 @@ Database::newStructure("sessions", (new DatabaseTableBuilder)
     ->addColumn("content", "TEXT")->allowNull()
 
     // Client info, filled once on insert
-    ->addColumn("agent", "TEXT")
+    ->addColumn("agent", "TEXT")->allowNull()
     ->addColumn("domain", "TEXT")
     ->addColumn("remote", "TEXT")
     ->addColumn("created", "INT")
