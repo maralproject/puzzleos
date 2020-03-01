@@ -441,13 +441,7 @@ class Database
 				break;
 			case "applications":
 				$appname = isset($filename[2]) ? $filename[2] : "";
-
-				if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini"))
-					throw new DatabaseError("Application do not have manifest!");
-
-				$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
-				$appname = $manifest["rootname"];
-
+				$appname = AppManager::getNameFromDirectory($appname);
 				if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
 		}
 
