@@ -412,10 +412,7 @@ class Database
 		$filename = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
 		if (is_cli() && isset($GLOBALS["_WORKER"])) {
 			$appname = $GLOBALS["_WORKER"]["appdir"];
-			if (!file_exists(__ROOTDIR . "/applications/$appname/manifest.ini"))
-				throw new DatabaseError("Application do not have manifest!");
-			$manifest = parse_ini_file(__ROOTDIR . "/applications/$appname/manifest.ini");
-			$appname = $manifest["rootname"];
+			$appname = AppManager::getNameFromDirectory($appname);
 			if ((preg_match('/app_' . $appname . '_/', $find))) return true;
 		}
 

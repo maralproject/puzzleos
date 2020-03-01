@@ -71,7 +71,7 @@ class AppManager
 	 */
 	public static function migrateTable(string $rootname)
 	{
-		$list_app = AppManager::getList()[$rootname];
+		$list_app = self::getList()[$rootname];
 		if ($list_app["rootname"] != $rootname) {
 			throw new PuzzleError("Application $rootname cannot be found.");
 		}
@@ -137,7 +137,7 @@ class AppManager
 	public static function isInstalled(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
-		return (isset(AppManager::getList()[$name]));
+		return (isset(self::getList()[$name]));
 	}
 
 	/**
@@ -148,7 +148,7 @@ class AppManager
 	public static function isDefault(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
-		if (!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
+		if (!self::isInstalled($name)) throw new PuzzleError("Application not found!");
 		return ($name == POSConfigMultidomain::$default_application);
 	}
 
@@ -159,31 +159,31 @@ class AppManager
 	 */
 	public static function isOnGroup(int $group_id)
 	{
-		foreach (AppManager::getList() as $data)
+		foreach (self::getList() as $data)
 			if ($data["group"] == $group_id) return true;
 		return false;
 	}
 
 	/**
 	 * Change application group ownership
-	 * @param integer $appname Application rootname
+	 * @param integer $rootname Application rootname
 	 * @param integer $newgroup Group ID
 	 * @return bool
 	 */
-	public static function chownApp(int $appname, int $newgroup)
+	public static function chownApp(int $rootname, int $newgroup)
 	{
-		if ($appname == "") throw new PuzzleError("Name cannot be empty!");
-		if (!AppManager::isInstalled($appname)) throw new PuzzleError("Application not found!");
+		if ($rootname == "") throw new PuzzleError("Name cannot be empty!");
+		if (!self::isInstalled($rootname)) throw new PuzzleError("Application not found!");
 
-		if (Database::read("app_security", "system", "rootname", $appname) == "1") throw new PuzzleError("Cannot chown system app"); //Do not allow to change system own
+		if (Database::read("app_security", "system", "rootname", $rootname) == "1") throw new PuzzleError("Cannot chown system app"); //Do not allow to change system own
 
-		$allowed_level = AppManager::getList()[$appname]["level"];
+		$allowed_level = self::getList()[$rootname]["level"];
 		$new_level = Database::read("app_users_grouplist", "level", "id", $newgroup);
 		if ($new_level <= $allowed_level) {
-			if (Database::read("app_security", "rootname", "rootname", $appname) != "")
-				return (Database::execute("UPDATE `app_security` SET `group`='?' WHERE `rootname`='?';", $newgroup, $appname));
+			if (Database::read("app_security", "rootname", "rootname", $rootname) != "")
+				return (Database::execute("UPDATE `app_security` SET `group`='?' WHERE `rootname`='?';", $newgroup, $rootname));
 			else
-				return (Database::execute("INSERT INTO `app_security` (`rootname`, `group`, `system`) VALUES ('?', '?', 0);", $appname, $newgroup));
+				return (Database::execute("INSERT INTO `app_security` (`rootname`, `group`, `system`) VALUES ('?', '?', 0);", $rootname, $newgroup));
 		} else {
 			throw new PuzzleError("Cannot set the owner of the app lower than allowed!");
 		}
@@ -198,7 +198,7 @@ class AppManager
 	public static function setDefaultByName(string $name)
 	{
 		if ($name == "") throw new PuzzleError("Name cannot be empty!");
-		if (!AppManager::isInstalled($name)) throw new PuzzleError("Application not found!");
+		if (!self::isInstalled($name)) throw new PuzzleError("Application not found!");
 		POSConfigMultidomain::$default_application = $name;
 		return POSConfigMultidomain::commit();
 	}
@@ -211,11 +211,10 @@ class AppManager
 	 */
 	public static function getNameFromDirectory(string $directory)
 	{
-		$directory = IO::physical_path("/applications/$directory");
-		if (!IO::exists("$directory/manifest.ini")) throw new PuzzleError("Application not found!");
-		$manifest = parse_ini_file("$directory/manifest.ini");
-		if ($manifest["rootname"] == "") throw new PuzzleError("Application manifest not initiated correctly!");
-		return $manifest["rootname"];
+		foreach (self::getList() as $manifest) {
+			if ($manifest["dir_name"] === $directory) return $manifest["rootname"];
+		}
+		throw new PuzzleError("Application not found!");
 	}
 }
 
@@ -342,7 +341,6 @@ class iApplication
 		if ($this->preload_mode) {
 			if ($_xStartup && debug_backtrace(1, 2)[1]['class'] != self::class) throw new PuzzleError("Startup sequence violation");
 			$this->_xStartup = $_xStartup;
-			// AppManager::migrateTable($this->rootname);
 			$this->guardCheck();
 			$resp = include_once_ext($this->path . "/control.php", [
 				"appProp" => $this->getAppProp()

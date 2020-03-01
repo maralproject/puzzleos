@@ -79,7 +79,6 @@ foreach (scandir(__ROOTDIR . "/applications") as $dir) {
 
             $manifest["rootname"] = strtolower($manifest["rootname"]);
             $parsed_man = [
-                "name" => $manifest["rootname"],
                 "rootname" => $manifest["rootname"],
                 "dir" => __ROOTDIR . "/applications/$dir",
                 "dir_name" => $dir,
