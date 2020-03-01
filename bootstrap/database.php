@@ -411,8 +411,7 @@ class Database
 		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
 		$filename = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
 		if (is_cli() && isset($GLOBALS["_WORKER"])) {
-			$appname = $GLOBALS["_WORKER"]["appdir"];
-			$appname = AppManager::getNameFromDirectory($appname);
+			$appname = $GLOBALS["_WORKER"]["app"];
 			if ((preg_match('/app_' . $appname . '_/', $find))) return true;
 		}
 
