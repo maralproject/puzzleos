@@ -41,23 +41,8 @@ class Worker
 		return self::$onWorker;
 	}
 
-	/**
-	 * Clean all 0-bytes result file
-	 */
-	private static function cleanupResult()
-	{
-		foreach (glob(__WORKERDIR . "/*.result") as $file) {
-			if (is_file($file)) {
-				if (filesize($file) == 0) {
-					@unlink($file);
-				}
-			}
-		}
-	}
-
 	private static function __do($job, $key)
 	{
-		if (is_win()) self::cleanupResult();
 		if (!file_exists(__WORKERDIR . "/$job.job")) throw new PuzzleError("Job not found!");
 		$execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
@@ -106,7 +91,7 @@ class Worker
 	{
 		switch ($func) {
 			case "__do":
-				if (!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "puzzleworker")
+				if (!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "posworker")
 					throw new PuzzleError("Cannot execute Worker!");
 				self::__do($args[0][1], $args[0][2]);
 				break;
@@ -161,9 +146,15 @@ class Worker
 	 * @param array $options wait_on_shutdown, standalone
 	 * @return bool
 	 */
-	public function run($options = [])
+	public function run(array $options = null)
 	{
 		if ($this->isRunning()) throw new PuzzleError("Worker already started!");
+		if ($options === null) {
+			// By default, parent must wait for worker to finish
+			$options = [
+				"wait_on_shutdown" => true
+			];
+		}
 
 		$this->_processes = [];
 		$this->_secret = rand_str(32);
@@ -189,7 +180,7 @@ class Worker
 			);
 
 			$this->_processes[$i] = proc_open(
-				php_bin() . " " . __ROOTDIR . "/puzzleworker {$this->_unique}.$i {$this->_secret}",
+				php_bin() . " " . __ROOTDIR . "/posworker {$this->_unique}.$i {$this->_secret}",
 				[
 					0 => ["pipe", "r"],
 					1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],

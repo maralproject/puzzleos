@@ -155,29 +155,32 @@ class PuzzleCLI
 				if ($p === false) break;
 			}
 
-			// IO Shortcut
-			$io = new PObject([
-				"in" => function () {
-					return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
-				},
-				"out" => function ($o) {
-					echo trim($o, "\t");
-					flush();
+			echo "PuzzleOS Console. v." . __POS_VERSION . PHP_EOL;
+			if (count($a) > 1 && !empty($a)) {
+				// IO Shortcut
+				$io = new PObject([
+					"in" => function () {
+						return (PHP_OS == 'WINNT') ? stream_get_line(STDIN, 1024, PHP_EOL) : readline();
+					},
+					"out" => function ($o) {
+						echo trim($o, "\t");
+						flush();
+					}
+				]);
+
+				$app = $a[1];
+				if (starts_with($app, "sys/")) {
+					self::system($app, $arg);
+				} else if (starts_with($app, "app/")) {
+					self::app($app, $arg, $io);
+				} else {
+					$appProp = iApplication::run($a[1], true);
+					if ($app == "") exit;
+					if (!isset(self::$list[$app])) throw new PuzzleError("Application doesn't register handler for CLI");
+
+					$f = self::$list[$app];
+					$f($io, $arg);
 				}
-			]);
-
-			$app = $a[1];
-			if (starts_with($app, "sys/")) {
-				self::system($app, $arg);
-			} else if (starts_with($app, "app/")) {
-				self::app($app, $arg, $io);
-			} else {
-				$appProp = iApplication::run($a[1], true);
-				if ($app == "") exit;
-				if (!isset(self::$list[$app])) throw new PuzzleError("Application doesn't register handler for CLI");
-
-				$f = self::$list[$app];
-				$f($io, $arg);
 			}
 		} catch (\Throwable $e) {
 			PuzzleError::printErrorPage($e);

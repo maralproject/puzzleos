@@ -58,7 +58,7 @@ class PuzzleError extends Exception
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
 		if (is_cli()) {
-			echo "\n--\n" . $e;
+			echo "\n--\n" . $e . PHP_EOL;
 		} else {
 			$message = "";
 			if ($e instanceof DatabaseError || $e instanceof IOError) {
