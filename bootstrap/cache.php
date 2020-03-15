@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -17,7 +18,7 @@ class Cache
 
     private static function init($key)
     {
-        if (str_haschar($key, '/', "\\", '..', '*')) throw new PuzzleError("Key invalid!");
+        if (str_haschar($key, '/', "\\", '..')) throw new PuzzleError("Key invalid!");
         $stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
         $path = explode("/", str_replace(__ROOTDIR, "", btfslash($stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"])));
         switch ($path[1]) {
@@ -101,5 +102,24 @@ class Cache
         unset(self::$ram_cache["$p/$key"]);
         @unlink("$p/$key");
         return $r;
+    }
+
+    /**
+     * Read and pull cache
+     * @param string $pattern Can contain '*' for the pattern
+     * @return mixed
+     */
+    public static function pullPattern($pattern)
+    {
+        $p = self::init($pattern);
+        $caches = glob("$p/$pattern");
+        $result = [];
+        foreach ($caches as $cache) {
+            if (is_dir($cache)) continue;
+            $result[] = unserialize(@file_get_contents($cache));
+            unset(self::$ram_cache[$cache]);
+            @unlink($cache);
+        }
+        return $result;
     }
 }
