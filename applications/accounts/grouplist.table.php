@@ -12,10 +12,10 @@
 
 $table = new DatabaseTableBuilder;
 
-$table->addColumn("id","INT")->setAsPrimaryKey()->defaultValue("AUTO_INCREMENT");
+$table->addColumn("id","INT")->setAsPrimaryKey()->auto_increment();
 $table->addColumn("name", "TEXT");
 $table->addColumn("level", "TINYINT");
-$table->addColumn("system", "TINYINT(1)")->defaultValue("0");
+$table->addColumn("system", "TINYINT(1)")->defaultValue(0);
 
 $table->insertFresh([
     (new DatabaseRowInput)->setField("name","Superuser")->setField("level",0)->setField("system",1),

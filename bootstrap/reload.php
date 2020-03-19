@@ -111,15 +111,15 @@ echo "Done...\n";
 /***********************************
  * Running composer install
  ***********************************/
-echo "Merging composer file...";
-$system_composer_req = json_decode(file_get_contents(__ROOTDIR . "/includes/composer.sys.json"), true, JSON_THROW_ON_ERROR);
-$merged_composer = array_merge_recursive($system_composer_req, $composer_json_app);
-$encoded_json_composer = json_encode($merged_composer, JSON_PRETTY_PRINT);
-echo "OK\n";
-echo $encoded_json_composer . PHP_EOL;
-file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
-
 if ($argv[2] != "skip-composer") {
+    echo "Merging composer file...";
+    $system_composer_req = json_decode(file_get_contents(__ROOTDIR . "/includes/composer.sys.json"), true, JSON_THROW_ON_ERROR);
+    $merged_composer = array_merge_recursive($system_composer_req, $composer_json_app);
+    $encoded_json_composer = json_encode($merged_composer, JSON_PRETTY_PRINT);
+    echo "OK\n";
+    echo $encoded_json_composer . PHP_EOL;
+    file_put_contents(__ROOTDIR . "/includes/composer.json", $encoded_json_composer);
+
     chdir(__ROOTDIR . DIRECTORY_SEPARATOR . "includes");
     if (file_exists(getcwd() . DIRECTORY_SEPARATOR . "composer.lock")) {
         echo "Running composer update\n==\n";
@@ -161,7 +161,6 @@ echo "Done...\n";
  * Migrate Table
  ***********************************/
 if (file_exists(__ROOTDIR . "/configs/root.sys.php")) {
-    echo "Migrating all application table...\n";
     passthru("php puzzleos sys/db migrate");
 } else {
     echo "Installation not found... Skipping table migration!\n";

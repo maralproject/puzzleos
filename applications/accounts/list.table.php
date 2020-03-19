@@ -10,7 +10,7 @@
 /* This file defines, and update the structure of table `app_users_list` */
 $table = new DatabaseTableBuilder;
 
-$table->addColumn("id", "INT")->setAsPrimaryKey()->defaultValue("AUTO_INCREMENT");
+$table->addColumn("id", "INT")->setAsPrimaryKey()->auto_increment();
 $table->addColumn("group", "INT");
 $table->addColumn("name");
 $table->addColumn("email", "VARCHAR(50)")->allowNull();

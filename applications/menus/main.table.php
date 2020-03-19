@@ -8,7 +8,7 @@
  */
 
 $b = new DatabaseTableBuilder;
-$b->addColumn("id","INT")->setAsPrimaryKey()->defaultValue("AUTO_INCREMENT");
+$b->addColumn("id","INT")->setAsPrimaryKey()->auto_increment();
 $b->addColumn("name");
 $b->addColumn("link");
 $b->addColumn("fa");

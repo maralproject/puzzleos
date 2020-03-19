@@ -1,16 +1,12 @@
 <?php
-
 /**
  * PuzzleOS
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
-/**
- * Interface for creating Database Row values.
- */
 class DatabaseRowInput
 {
 	private $rowStructure = [];
@@ -36,15 +32,6 @@ class DatabaseRowInput
 		if (is_numeric($value)) $value = str_replace(',', '.', $value);
 		$this->rowStructure[$column_name] = $value;
 		return $this;
-	}
-
-	/**
-	 * Get array from current RowInput
-	 * @return array
-	 */
-	public function toArray()
-	{
-		return $this->rowStructure;
 	}
 
 	public function clearStructure()
@@ -75,9 +62,6 @@ class DatabaseRowInput
 	}
 }
 
-/**
- * Interface for defining Database table structure.
- */
 class DatabaseTableBuilder
 {
 	private $arrayStructure = [];
@@ -100,7 +84,7 @@ class DatabaseTableBuilder
 	 * @param string $type Choose UNIQUE, FULLTEXT, SPATIAL, or leave it empty
 	 * @return DatabaseTableBuilder
 	 */
-	public function createIndex($name, $column, $type = "")
+	public function createIndex(string $name, array $column, $type = "")
 	{
 		switch ($type) {
 			case "UNIQUE":
@@ -144,12 +128,12 @@ class DatabaseTableBuilder
 	 * @param string $type Use Qualified Mysql data type (e.g. TEXT, TINYTEXT)
 	 * @return DatabaseTableBuilder
 	 */
-	public function addColumn($name, $type = "TEXT")
+	public function addColumn(string $name, string $type = "TEXT")
 	{
 		if (strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		$this->selectedColumn = $name;
-		//Structure = [Type", PRIMARY, AllowNULL, Default]
-		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, false, null];
+		//Structure = [Type, PRIMARY, AllowNULL, Default, PRESISTENT]
+		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, false, null, false];
 		return $this;
 	}
 
@@ -158,7 +142,7 @@ class DatabaseTableBuilder
 	 * @param string $name
 	 * @return DatabaseTableBuilder
 	 */
-	public function selectColumn($name)
+	public function selectColumn(string $name)
 	{
 		if (strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
 		if (!isset($this->arrayStructure[$name])) throw new DatabaseError("Column not found");
@@ -197,23 +181,34 @@ class DatabaseTableBuilder
 	 * @param bool $bool
 	 * @return DatabaseTableBuilder
 	 */
-	public function allowNull($bool = true)
+	public function allowNull(bool $bool = true)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][2] = $bool;
+		$this->arrayStructure[$this->selectedColumn][2] = $bool ? "NULL" : "NOT NULL";
+		return $this;
+	}
+
+	/**
+	 * Make this column presistent as. Effective for indexing.
+	 * @param string $expression
+	 * @return DatabaseTableBuilder
+	 */
+	public function presistentAs(string $expression = null)
+	{
+		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		$this->arrayStructure[$this->selectedColumn][4] = $expression ? "AS ($expression) PERSISTENT" : false;
 		return $this;
 	}
 
 	/**
 	 * Set default value for this column.
 	 * Make sure that your data type suppport defaultValue
-	 * @param mixed $str
 	 * @return DatabaseTableBuilder
 	 */
-	public function defaultValue($str = null)
+	public function defaultValue(string $str = null)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		$this->arrayStructure[$this->selectedColumn][3] = $str;
+		$this->arrayStructure[$this->selectedColumn][3] = ($str === NULL ? "DEFAULT NULL" : "DEFAULT '$str'");
 		return $this;
 	}
 
@@ -233,41 +228,14 @@ class DatabaseTableBuilder
 	 * @param string $type
 	 * @return DatabaseTableBuilder
 	 */
-	public function setType($type)
+	public function setType(string $type)
 	{
 		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
 		$this->arrayStructure[$this->selectedColumn][0] = strtoupper($type);
 		return $this;
 	}
-
-	public function x_getStructure()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
-		return ($this->arrayStructure);
-	}
-
-	public function x_getIndexes()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
-		return ($this->indexes);
-	}
-
-	public function x_getInitialRow()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
-		return ($this->rowStructure);
-	}
-
-	public function x_needToDropTable()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseTableBuilder violation!");
-		return ($this->needToDrop);
-	}
 }
 
-/**
- * Database operation class
- */
 class Database
 {
 	/**
@@ -904,167 +872,127 @@ class Database
 	 */
 	public static function newStructure($table, DatabaseTableBuilder $structure)
 	{
-		set_time_limit(0);
-		$indexes = $structure->x_getIndexes();
-		$initialData = $structure->x_getInitialRow();
-		$needToDrop = $structure->x_needToDropTable();
-		$structure = $structure->x_getStructure();
-
 		self::x_verify($table);
 
-		if (!isset(self::$t_cache[$table])) {
-			if (file_exists(__ROOTDIR . "/storage/dbcache/$table")) {
-				self::$t_cache[$table] = file_get_contents(__ROOTDIR . "/storage/dbcache/$table");
-			} else {
-				self::$t_cache[$table] = null;
-			}
+		set_time_limit(0);
+		$reflection = new ReflectionClass(DatabaseTableBuilder::class);
+
+		$props = [];
+		foreach ($reflection->getProperties() as $p) {
+			$p->setAccessible(true);
+			$props[$p->name] = $p;
 		}
 
-		/* Checking checksum */
-		$old_checksum = self::$t_cache[$table];
-		$current_checksum = hash("crc32b", serialize([$structure, $indexes, $initialData]));
-		$write_cache_file = false;
-		if ($old_checksum != "") {
-			//Old table, new structure
-			if ($current_checksum == $old_checksum) {
-				if (self::isTableExist($table)) {
-					set_time_limit(TIME_LIMIT);
-					return true;
-				}
-				//Checksum is found, but table is not exists
-				$q = false;
-				$insertData = true;
-			} else {
-				self::$t_cache[$table] = $current_checksum;
-				$write_cache_file = true;
-				$q = self::isTableExist($table);
-				/* Drop table if necessary */
-				if ($needToDrop && $q) {
-					self::query("DROP TABLE `?`", $table);
-					$insertData = true;
-					$q = false;
+		$indexes = $props["indexes"]->getValue($structure);
+		$initialData = $props["rowStructure"]->getValue($structure);
+		$needToDrop = $props["needToDrop"]->getValue($structure);
+		$structure = $props["arrayStructure"]->getValue($structure);
+
+		$current_checksum = hash("md4", serialize([$structure, $indexes, $initialData]));
+		if (self::isTableExist($table)) {
+			if (!self::$t_cache[$table]) {
+				if (file_exists(__ROOTDIR . "/storage/dbcache/$table")) {
+					self::$t_cache[$table] = file_get_contents(__ROOTDIR . "/storage/dbcache/$table");
 				}
 			}
-		} else {
-			//Brand new table
-			self::$t_cache[$table] = $current_checksum;
-			$write_cache_file = true;
-			$insertData = true;
-			$q = self::isTableExist($table);
-			if ($q) $insertData = false;
-		}
 
-		if (!$q) {
-			//Create Table
-			$query = "CREATE TABLE `$table` (";
-
-			//Appending table structure
-			foreach ($structure as $k => $d) {
-				if ($d[1]) $pkey = $k;
-				if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
-				$query .= "`$k` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3],";
+			if (self::$t_cache[$table]) {
+				if ($current_checksum == self::$t_cache[$table]) return true;
 			}
 
-			//Appending Primary key
-			if ($pkey != "") $query .= "PRIMARY KEY (`$pkey`),";
+			// Truncate table if asked
+			if ($needToDrop) self::$link->query("TRUNCATE TABLE `$table`");
 
-			//Appending all index
+			$tableQuery = [];
+			$primaryColumn = null;
+
+			// Fetching Columns
+			$lookup = self::$link->query("SHOW COLUMNS FROM `$table`");
+			$old_columns = [];
+			while ($row = $lookup->fetch_row()) $old_columns[$row[0]] = true;
+
+			// Fetching Index
+			$lookup = self::$link->query("SHOW INDEX FROM `$table`");
+			$old_hasPrimary = false;
+			$old_index = [];
+			while ($row = $lookup->fetch_row()) {
+				if ($row[2] == "PRIMARY") {
+					$old_hasPrimary = true;
+				} else {
+					$old_index[$row[2]] = true;
+				}
+			}
+
+			// Columns
+			$previous_column = null;
+			foreach ($structure as $column_name => $d) {
+				list($type, $primary, $nullable, $default, $presistentExpr) = $d;
+				$position = $previous_column ? "AFTER `$previous_column`" : "FIRST";
+				if ($old_columns[$column_name]) {
+					$tableQuery[] = "CHANGE COLUMN `$column_name` `$column_name` $type $nullable $default $presistentExpr $position";
+				} else {
+					$tableQuery[] = "ADD COLUMN `$column_name` $type $nullable $default $presistentExpr $position";
+				}
+				unset($old_columns[$column_name]);
+				if ($primary) $primaryColumn = $column_name;
+				$previous_column = $column_name;
+			}
+
+			// Drop Columns
+			foreach ($old_columns as $column => $b) $tableQuery[] = "DROP COLUMN `$column`";
+
+			// Primary Key
+			if ($old_hasPrimary) $tableQuery[] = "DROP PRIMARY KEY";
+			if ($primaryColumn) $tableQuery[] = "ADD PRIMARY KEY (`$primaryColumn`)";
+
+			// Index
+			foreach ($old_index as $index => $b) $tableQuery[] = "DROP INDEX `$index`";
 			foreach ($indexes as $i) {
-				$c = "";
-				foreach ($i[1] as $ci) $c .= "`$ci`,";
-				$c = rtrim($c, ",");
-				$query .= "$i[2] INDEX `$i[0]` ($c),";
+				list($name, $columns, $type) = $i;
+				foreach ($columns as &$c) $c = "`$c`";
+				$tableQuery[] = "ADD $type INDEX `$name` (" . implode(",", $columns) . ")";
 			}
 
-			//Using InnoDB engine is better than MyISAM
-			$query = rtrim($query, ",");
-			$query .= ") COLLATE='utf8_general_ci' ENGINE=InnoDB;";
-
+			$query = "ALTER TABLE `$table` " . implode(",", $tableQuery);
 			if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
 			if (self::$link->query($query)) {
-				if ($insertData) self::insert($table, $initialData);
-				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
+				if ($needToDrop && !empty($initialData)) self::insert($table, $initialData);
+				file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table] = $current_checksum);
 				set_time_limit(TIME_LIMIT);
-				self::$cache["tables"][$table] = 1;
-				return true;
+				return self::$cache["tables"][$table] = true;
 			} else {
 				throw new DatabaseError(self::$link->error, $query);
 			}
 		} else {
-			//Getting current table structure
-			$current_structure = new DatabaseTableBuilder;
-			$old_primary = null;
-			$new_primary = null;
-			foreach (self::toArray(self::query("show columns from `$table`")) as $column_def) {
-				$current_structure->addColumn($column_def["Field"], $column_def["Type"])->allowNull($column_def["Null"] == "YES");
-				if ($column_def["Extra"] == "auto_increment") $current_structure->defaultValue("AUTO_INCREMENT");
-				else $current_structure->defaultValue($column_def["Default"]);
-			}
-			$current_index = [];
-			foreach (self::toArray(self::query("show index from `$table`")) as $index_def) {
-				if ($index_def["Key_name"] == "PRIMARY") {
-					$current_structure->selectColumn($index_def["Column_name"])->setAsPrimaryKey();
-					$old_primary = $index_def["Column_name"];
-				} else {
-					$current_index[$index_def["Key_name"]] = 1;
-				}
-			}
-			//Structure = [Type, PRIMARY, AllowNULL, Default]
-			$current_structure = $current_structure->x_getStructure();
+			$tableQuery = [];
+			$primaryColumn = null;
 
-			$query = "ALTER TABLE `$table` ";
-			$pre_e = null;
-			foreach ($structure as $column => $d) {
-				//Cek ada atau tidak
-				if (isset($current_structure[$column])) {
-					//Lihat perubahan
-					if ($current_structure[$column] != $structure[$column]) {
-						//CHANGE COLUMN
-						if ($d[1]) $new_primary = $column;
-						if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
-						$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
-						$query .= "CHANGE COLUMN `$column` `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
-					}
-				} else {
-					//ADD COLUMN
-					if ($d[1]) $new_primary = $column;
-					if ($d[3] !== null && $d[3] !== "AUTO_INCREMENT") $d[3] = "DEFAULT '$d[3]'";
-					$p = ($pre_e === null) ? "FIRST" : "AFTER `$pre_e`";
-					$query .= "ADD COLUMN `$column` $d[0] " . ($d[2] === true ? "NULL" : "NOT NULL") . " $d[3] $p,";
-				}
-				$pre_e = $column;
+			// Columns
+			foreach ($structure as $column_name => $d) {
+				list($type, $primary, $nullable, $default, $presistentExpr) = $d;
+				$tableQuery[] = "`$column_name` $type $nullable $default $presistentExpr";
+				if ($primary) $primaryColumn = $column_name;
 			}
 
-			//DROP COLUMN
-			foreach ($current_structure as $column => $d) {
-				if (!isset($structure[$column])) $query .= "DROP COLUMN `$column`,";
-			}
+			// Primary key
+			if ($primaryColumn) $tableQuery[] = "PRIMARY KEY (`$primaryColumn`)";
 
-			//Primary key
-			if ($old_primary != null) $query .= "DROP PRIMARY KEY,";
-			if ($new_primary != null) {
-				$query .= "ADD PRIMARY KEY (`$new_primary`),";
-			}
-
-			//DROP INDEX
-			foreach ($current_index as $index => $d) {
-				$query .= "DROP INDEX `$index`,";
-			}
-
-			//ADD INDEX
+			// Index
 			foreach ($indexes as $i) {
-				$c = "";
-				foreach ($i[1] as $ci) $c .= "`$ci`,";
-				$c = rtrim($c, ",");
-				$query .= "ADD $i[2] INDEX `$i[0]` ($c),";
+				list($name, $columns, $type) = $i;
+				foreach ($columns as &$c) $c = "`$c`";
+				$tableQuery[] = "$type INDEX `$name` (" . implode(",", $columns) . ")";
 			}
 
+			$query = "CREATE TABLE `$table` (" . implode(",", $tableQuery) . ") COLLATE='utf8_general_ci' ENGINE=InnoDB;";
 			if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "$query\r\n", FILE_APPEND);
 
-			if (self::$link->query(rtrim($query, ","))) {
-				if ($write_cache_file) file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table]);
+			if (self::$link->query($query)) {
+				if (!empty($initialData)) self::insert($table, $initialData);
+				file_put_contents(__ROOTDIR . "/storage/dbcache/$table", self::$t_cache[$table] = $current_checksum);
 				set_time_limit(TIME_LIMIT);
+				self::$cache["tables"][$table] = true;
 				return true;
 			} else {
 				throw new DatabaseError(self::$link->error, $query);
