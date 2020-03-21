@@ -1,79 +1,34 @@
 <?php
-/**
- * PuzzleOS
- * Build your own web-based application
- *
- * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2020 PT SIMUR INDONESIA
- */
-
-class DatabaseRowInput
-{
-	private $rowStructure = [];
-
-	public function __construct()
-	{
-		return $this;
-	}
-
-	/** 
-	 * Set Column field
-	 * @param string $column_name
-	 * @param $value
-	 * @return DatabaseRowInput
-	 */
-	public function setField($column_name, $value)
-	{
-		/**
-		 * PHP use different number separator for different locale internally.
-		 * MySQL only accept '.' as separator. As we detect the value 
-		 * is numeric, we automatically perform conversion.
-		 */
-		if (is_numeric($value)) $value = str_replace(',', '.', $value);
-		$this->rowStructure[$column_name] = $value;
-		return $this;
-	}
-
-	public function clearStructure()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseRowInput violation!");
-		$this->rowStructure = [];
-		return $this;
-	}
-
-	public function getStructure()
-	{
-		if (!is_callbyme()) throw new DatabaseError("DatabaseRowInput violation!");
-		return $this->rowStructure;
-	}
-
-	public static function fromArray($dri)
-	{
-		switch (true) {
-			case ($dri instanceof self):
-				return $dri;
-			case (is_array($dri)):
-				$a = new self;
-				foreach ($dri as $k => $d) $a->setField($k, $d);
-				return $a;
-			default:
-				throw new \InvalidArgumentException("Expecting DatabaseRowInput object or array");
-		}
-	}
-}
 
 class DatabaseTableBuilder
 {
+	/**
+	 * [Type, PRIMARY, AllowNULL, Default, PRESISTENT]
+	 * @var array
+	 */
 	private $arrayStructure = [];
-	private $rowStructure = [];
-	private $selectedColumn;
-	private $indexes = [];
-	private $needToDrop = false;
 
-	public function __construct()
-	{
-		return $this;
-	}
+	/**
+	 * @var array
+	 */
+	private $rowStructure = [];
+
+	/**
+	 * @var string
+	 */
+	private $selectedColumn;
+
+	/**
+	 * [$name, $column, $type]
+	 * @var array
+	 */
+	private $indexes = [];
+
+	/**
+	 * Execute truncate table on structure change.
+	 * @var bool
+	 */
+	private $needToDrop = false;
 
 	/**
 	 * Add index to this table
@@ -93,10 +48,9 @@ class DatabaseTableBuilder
 			case "":
 				break;
 			default:
-				throw new DatabaseError("Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty");
+				throw new InvalidArgumentException("Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty");
 		}
 
-		if (!is_array($column)) throw new DatabaseError('$column should be an array');
 		$this->indexes[] = [$name, $column, $type];
 		return $this;
 	}
@@ -120,6 +74,7 @@ class DatabaseTableBuilder
 	public function dropTable()
 	{
 		$this->needToDrop = true;
+		return $this;
 	}
 
 	/**
@@ -130,10 +85,9 @@ class DatabaseTableBuilder
 	 */
 	public function addColumn(string $name, string $type = "TEXT")
 	{
-		if (strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
+		if (strlen($name) > 50) throw new InvalidArgumentException("Max length for column name is 50 chars");
 		$this->selectedColumn = $name;
-		//Structure = [Type, PRIMARY, AllowNULL, Default, PRESISTENT]
-		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, false, null, false];
+		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, "NOT NULL", null, false];
 		return $this;
 	}
 
@@ -144,8 +98,8 @@ class DatabaseTableBuilder
 	 */
 	public function selectColumn(string $name)
 	{
-		if (strlen($name) > 50) throw new DatabaseError("Max length for column name is 50 chars");
-		if (!isset($this->arrayStructure[$name])) throw new DatabaseError("Column not found");
+		if (strlen($name) > 50) throw new InvalidArgumentException("Max length for column name is 50 chars");
+		if (!isset($this->arrayStructure[$name])) throw new InvalidArgumentException("Column $name is not set");
 		$this->selectedColumn = $name;
 		return $this;
 	}
@@ -156,8 +110,8 @@ class DatabaseTableBuilder
 	 */
 	public function setAsPrimaryKey()
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		foreach ($this->arrayStructure as $key => $data) {
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		foreach ($this->arrayStructure as $key => $x) {
 			$this->arrayStructure[$key][1] = ($this->selectedColumn == $key);
 		}
 		return $this;
@@ -169,8 +123,8 @@ class DatabaseTableBuilder
 	 */
 	public function removePrimaryKey()
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
-		foreach ($this->arrayStructure as $key => $data) {
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		foreach ($this->arrayStructure as $key => $x) {
 			$this->arrayStructure[$key][1] = false;
 		}
 		return $this;
@@ -183,7 +137,7 @@ class DatabaseTableBuilder
 	 */
 	public function allowNull(bool $bool = true)
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
 		$this->arrayStructure[$this->selectedColumn][2] = $bool ? "NULL" : "NOT NULL";
 		return $this;
 	}
@@ -195,7 +149,7 @@ class DatabaseTableBuilder
 	 */
 	public function presistentAs(string $expression = null)
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
 		$this->arrayStructure[$this->selectedColumn][4] = $expression ? "AS ($expression) PERSISTENT" : false;
 		return $this;
 	}
@@ -207,7 +161,7 @@ class DatabaseTableBuilder
 	 */
 	public function defaultValue(string $str = null)
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
 		$this->arrayStructure[$this->selectedColumn][3] = ($str === NULL ? "DEFAULT NULL" : "DEFAULT '$str'");
 		return $this;
 	}
@@ -218,7 +172,7 @@ class DatabaseTableBuilder
 	 */
 	public function auto_increment()
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
 		$this->arrayStructure[$this->selectedColumn][3] = "AUTO_INCREMENT";
 		return $this;
 	}
@@ -230,7 +184,7 @@ class DatabaseTableBuilder
 	 */
 	public function setType(string $type)
 	{
-		if ($this->selectedColumn == "") throw new DatabaseError("Please select the column!");
+		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
 		$this->arrayStructure[$this->selectedColumn][0] = strtoupper($type);
 		return $this;
 	}
@@ -238,10 +192,10 @@ class DatabaseTableBuilder
 
 class Database
 {
-	/**
-	 * @var mysqli
-	 */
-	private static $link;
+	/** @var mysqli */
+	private static $link = null;
+	/** @var mysqli_result|bool */
+	private static $last_mysqli_result = null;
 	private static $cache = [];
 	private static $t_cache = [];
 	private static $transaction_track = 0;
@@ -317,7 +271,7 @@ class Database
 	/**
 	 * @return mysqli_result
 	 */
-	private static function query($query, ...$param)
+	private static function query(string $query, ...$param)
 	{
 		$query = trim($query);
 		$escaped = "";
@@ -370,7 +324,7 @@ class Database
 				}
 			}
 		}
-		return $r;
+		return self::$last_mysqli_result = $r;
 	}
 
 	private static function x_verify($find)
@@ -468,6 +422,19 @@ class Database
 		}
 	}
 
+	private static function escRowInput($v)
+	{
+		if ($v === null) {
+			return "NULL";
+		} else if (is_numeric($v)) {
+			return $v;
+		} else if (is_bool($v)) {
+			return (int) $v;
+		} else {
+			return "'" . self::escape($v) . "'";
+		}
+	}
+
 	/**
 	 * Get max value from column in table
 	 * @param string $table Table Name
@@ -476,7 +443,7 @@ class Database
 	 * @param string $param Custom parameter
 	 * @return string
 	 */
-	public static function max($table, $column, $statement = "", ...$param)
+	public static function max(string $table, string $column, string  $statement = "", ...$param)
 	{
 		self::x_verify($table);
 		if (!isset(self::$cache["max"][$table . $column])) {
@@ -498,7 +465,7 @@ class Database
 	 * @param string $find_value Value inside $find_column need to be matched
 	 * @return array
 	 */
-	public static function getRow($table, $find_column, $find_value)
+	public static function getRow(string $table, string $find_column, string  $find_value)
 	{
 		self::x_verify($table);
 		if (!isset(self::$cache["getRow"][$table . $find_column . $find_value])) {
@@ -519,7 +486,7 @@ class Database
 	 * @param string $param Parameterized value
 	 * @return array
 	 */
-	public static function getRowByStatement($table, $statement, ...$param)
+	public static function getRowByStatement(string $table, string $statement, ...$param)
 	{
 		self::x_verify($table);
 		$c = $table . $statement . serialize($param);
@@ -542,7 +509,7 @@ class Database
 	 * @param string $find_value Value inside $find_column need to be matched
 	 * @return string
 	 */
-	public static function read($table, $column, $find_column, $find_value)
+	public static function read(string $table, string $column, string $find_column, string $find_value)
 	{
 		self::x_verify($table);
 		return self::getRow($table, $find_column, $find_value)[$column];
@@ -556,7 +523,7 @@ class Database
 	 * @param string $param Additional custom parameter
 	 * @return string
 	 */
-	public static function readByStatement($table, $column, $statement, ...$param)
+	public static function readByStatement(string $table, string $column, string $statement, ...$param)
 	{
 		self::x_verify($table);
 		return self::getRowByStatement($table, $statement, ...$param)[$column];
@@ -564,95 +531,62 @@ class Database
 
 	/**
 	 * Write new record
-	 * @param string $table Table Name
-	 * @param DatabaseRowInput[] $row_input use DRI()
-	 * @param bool $ignore Allow insert to be ignored
+	 * @param string $table
+	 * @param array $row_input
+	 * @param bool $ignore
 	 * @return bool
 	 */
-	public static function insert($table, array $row_input, bool $ignore = false)
+	public static function insert(string $table, array $row_input, bool $ignore = false)
 	{
-		foreach ($row_input as &$i) $i = DatabaseRowInput::fromArray($i);
 		self::x_verify($table);
-		if (count($row_input) < 1) return true;
 
-		$args = [""];
-
-		$data = (object) ["columns" => [], "values" => []];
-		foreach ($row_input as $d) {
-			$next_values = [];
-			foreach ($d->getStructure() as $column => $value) {
-				if (!isset($data->columns[$column])) $data->columns[$column] = count($data->columns);
-				$next_values[$data->columns[$column]] = $value;
-			}
-			$data->values[] = $next_values;
-		}
-
-		$query = "INSERT " . ($ignore ? "IGNORE " : "") . "INTO `$table` (";
-		foreachx($data->columns, function ($index, $last, $column, $i) use (&$query) {
-			$query .= "`$column`";
-			if (!$last) $query .= ",";
-		});
-		$query .= ") VALUES ";
-		foreachx($data->values, function ($i, $last, $k, $values) use (&$query, &$args) {
-			$query .= "(";
-			foreachx($values, function ($i, $last2, $k, $value) use (&$query, &$args) {
-				if ($value === null) {
-					$query .= "NULL";
-				} elseif ($value === 0) {
-					$query .= "0";
-				} else {
-					$args[] = $value;
-					$query .= "'?'";
+		$columns_order = [];
+		$columns = [];
+		$values = [];
+		foreach ($row_input as $row) {
+			$value = [];
+			foreach ($row as $field => $v) {
+				$field = "`$field`";
+				if (!in_array($field, $columns)) {
+					$order = array_push($columns, $field);
+					$columns_order[$field] = $order;
 				}
-				if (!$last2) $query .= ",";
-			});
-			$query .= ")";
-			if (!$last) $query .= ",";
-		});
-
-		$args[0] = $query;
-		return call_user_func_array([self::class, "query"], $args);
+				$value[$columns_order[$field]] = self::escRowInput($v);
+			}
+			$values[] = implode(",", $value);
+		}
+		$query = "INSERT " . ($ignore ? "IGNORE " : "") . " INTO `$table` (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ")";
+		return self::query($query);
 	}
 
 	/**
-	 * Update database row using DatabaseRowInput
+	 * Update database record
 	 * @param string $table
-	 * @param DatabaseRowInput $row_input
+	 * @param array $row_input
 	 * @param string $find_column
 	 * @param string $find_value
 	 * @return bool
 	 */
-	public static function update($table, $row_input, $find_column, $find_value)
+	public static function update(string $table, array $row_input, string $find_column, string $find_value)
 	{
-		if (is_array($row_input)) {
-			$row_input = DatabaseRowInput::fromArray($row_input);
-		} else if (!($row_input instanceof DatabaseRowInput)) {
-			throw new InvalidArgumentException("Expecting DatabaseRowInput");
-		}
-
 		self::x_verify($table);
-		$s = $row_input->getStructure();
 
-		$args = [""];
+		$set = [];
+		foreach ($row_input as $field => $v) {
+			$v = self::escRowInput($v);
+			$set[] = "`$field`=$v";
+		}
+		$query = "UPDATE `$table` SET " . implode(',', $set) . " WHERE `$find_column`='" . self::escape($find_value) . "'";
+		return self::query($query);
+	}
 
-		$query = "UPDATE `$table` SET ";
-		foreachx($s, function ($i, $l, $column, $value) use (&$query, &$args) {
-			$query .= "`$column`=";
-			if ($value === null) {
-				$query .= "NULL";
-			} elseif ($value === 0) {
-				$query .= "0";
-			} else {
-				$args[] = $value;
-				$query .= "'?'";
-			}
-			if (!$l) $query .= ",";
-		});
-		$query .= " WHERE `$find_column`='?'";
-
-		$args[0] = $query;
-		$args[] = $find_value;
-		return call_user_func_array([self::class, "query"], $args);
+	/**
+	 * Returns the last result produced by the latest query
+	 * @return mysqli_result|bool
+	 */
+	public static function lastResult()
+	{
+		return self::$last_mysqli_result;
 	}
 
 	/**
@@ -678,7 +612,7 @@ class Database
 	 * @param string $find_value Value inside $find_column need to be matched
 	 * @return bool
 	 */
-	public static function delete($table, $find_column, $find_value)
+	public static function delete(string $table, string $find_column, string $find_value)
 	{
 		self::x_verify($table);
 		return self::query("DELETE FROM `?` WHERE `?`='?';", $table, $find_column, $find_value);
@@ -691,7 +625,7 @@ class Database
 	 * @param array ...$param
 	 * @return bool
 	 */
-	public static function deleteByStatement($table, $statement, ...$param)
+	public static function deleteByStatement(string $table, string $statement = "", ...$param)
 	{
 		self::x_verify($table);
 		return self::query("DELETE FROM `?` $statement", $table, ...$param);
@@ -703,7 +637,7 @@ class Database
 	 * @param string $table Table Name
 	 * @return bool
 	 */
-	public static function dropTable($table)
+	public static function dropTable(string $table)
 	{
 		self::x_verify($table);
 		return (self::query("DROP TABLE `?`;", $table));
@@ -715,7 +649,7 @@ class Database
 	 * @param mixed ...$param Will replace the '?' as parameterized queries
 	 * @return mysqli_result|bool
 	 */
-	public static function execute($query, ...$param)
+	public static function execute(string $query, ...$param)
 	{
 		self::x_verify($query);
 		return self::query($query, ...$param);
@@ -725,7 +659,7 @@ class Database
 	 * Escape string for database query
 	 * @return string
 	 */
-	public static function escape($str)
+	public static function escape(string $str)
 	{
 		return self::$link->real_escape_string($str);
 	}
@@ -735,7 +669,7 @@ class Database
 	 * @param string $table Table name
 	 * @return bool
 	 */
-	public static function isTableExist($table)
+	public static function isTableExist(string $table)
 	{
 		if ($table == "") throw new DatabaseError("Table name cannot be empty!");
 		self::x_verify($table);
@@ -753,7 +687,7 @@ class Database
 	 * @param array $param
 	 * @return array
 	 */
-	public static function readAll($table, $statement = "", ...$param)
+	public static function readAll(string $table, string $statement = "", ...$param)
 	{
 		self::x_verify($table);
 		$c = serialize($param);
@@ -762,26 +696,6 @@ class Database
 			self::$cache["readAll"][$table . $statement . $c] = [$array];
 		}
 		return self::$cache["readAll"][$table . $statement . $c][0];
-	}
-
-	/**
-	 * Read all record in a table, and process it with custom iterator
-	 * @param string $table Table name
-	 * @param callable $iterator
-	 * @param string $statement Additional queries syntax. e.g. "SORT ASC BY `id`"
-	 * @param array $param
-	 * @return array
-	 */
-	public static function readAllCustom($table, $iterator, $statement = "", ...$param)
-	{
-		if (!is_callable($iterator)) throw new DatabaseError('$iterator should be Callable!');
-		self::x_verify($table);
-		$c = $table . $statement . serialize($param) . spl_object_hash($iterator);
-		if (!isset(self::$cache["readAllCustom"][$c])) {
-			$array = self::toCustom(self::query("SELECT * FROM `$table` $statement", ...$param), $iterator);
-			self::$cache["readAllCustom"][$c] = [$array];
-		}
-		return self::$cache["readAllCustom"][$c][0];
 	}
 
 	/**
@@ -842,7 +756,7 @@ class Database
 	 * Acquire a table lock
 	 * @return bool
 	 */
-	public static function lock($table, $for = "WRITE")
+	public static function lock(string $table, string $for = "WRITE")
 	{
 		self::x_verify($table);
 		switch ($for) {
@@ -870,7 +784,7 @@ class Database
 	 * @param DatabaseTableBuilder $structure
 	 * @return bool
 	 */
-	public static function newStructure($table, DatabaseTableBuilder $structure)
+	public static function newStructure(string $table, DatabaseTableBuilder $structure)
 	{
 		self::x_verify($table);
 
@@ -1002,11 +916,6 @@ class Database
 }
 
 Database::connect();
-
-function DRI(): DatabaseRowInput
-{
-	return new DatabaseRowInput;
-}
 
 function DTB(): DatabaseTableBuilder
 {

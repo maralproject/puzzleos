@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -12,16 +13,16 @@
 
 $table = new DatabaseTableBuilder;
 
-$table->addColumn("id","INT")->setAsPrimaryKey()->auto_increment();
+$table->addColumn("id", "INT")->setAsPrimaryKey()->auto_increment();
 $table->addColumn("name", "TEXT");
 $table->addColumn("level", "TINYINT");
 $table->addColumn("system", "TINYINT(1)")->defaultValue(0);
 
 $table->insertFresh([
-    (new DatabaseRowInput)->setField("name","Superuser")->setField("level",0)->setField("system",1),
-    (new DatabaseRowInput)->setField("name","Employee")->setField("level",1)->setField("system",1),
-    (new DatabaseRowInput)->setField("name","Registered")->setField("level",2)->setField("system",1),
-    (new DatabaseRowInput)->setField("name","Public")->setField("level",3)->setField("system",1)
+    ["name" => "Superuser", "level" => 0, "system" => 1],
+    ["name" => "Employee", "level" => 1, "system" => 1],
+    ["name" => "Registered", "level" => 2, "system" => 1],
+    ["name" => "Public", "level" => 3, "system" => 1]
 ]);
 
 return $table;

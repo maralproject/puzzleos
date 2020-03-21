@@ -194,11 +194,10 @@ class CronJob
                             if ($l[1]->isExecutable($lastExec) || $forced) {
                                 $f = $l[2];
                                 $f(); //Preventing error on PHP 5.6
-                                Database::insert("cron", [
-                                    (new DatabaseRowInput)
-                                        ->setField("key", $l[0])
-                                        ->setField("last_exec", START_TIME)
-                                ]);
+                                Database::insert("cron", [[
+                                    "key" => $l[0],
+                                    "last_exec" => START_TIME,
+                                ]]);
                             }
                         } else {
                             if ($l[1]->isExecutable($lastExec) || $forced) {
@@ -206,7 +205,7 @@ class CronJob
                                 $f(); //Preventing error on PHP 5.6
                                 Database::update(
                                     "cron",
-                                    (new DatabaseRowInput)->setField("last_exec", START_TIME),
+                                    ["last_exec" => START_TIME],
                                     "key",
                                     $l[0]
                                 );

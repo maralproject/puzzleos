@@ -58,15 +58,14 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		return Database::insert("userdata", [
-			(new DatabaseRowInput)
-				->setField("app", $appname)
-				->setField("identifier", $key)
-				->setField("physical_path", $filename)
-				->setField("mime_type", IO::get_mime($filename))
-				->setField("ver", time())
-				->setField("secure", $secure ? 1 : 0)
-		]);
+		return Database::insert("userdata", [[
+			"app" => $appname,
+			"identifier" => $key,
+			"physical_path" => $filename,
+			"mime_type" => IO::get_mime($filename),
+			"ver" => time(),
+			"secure" => $secure ? 1 : 0,
+		]]);
 	}
 
 	/**
@@ -98,15 +97,14 @@ class UserData
 		}
 
 		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return false;
-		return Database::insert("userdata", [
-			(new DatabaseRowInput)
-				->setField("app", $appname)
-				->setField("identifier", $key)
-				->setField("physical_path", $filename)
-				->setField("mime_type", IO::get_mime($filename))
-				->setField("ver", time())
-				->setField("secure", $secure ? 1 : 0)
-		]);
+		return Database::insert("userdata", [[
+			"app" => $appname,
+			"identifier" => $key,
+			"physical_path" => $filename,
+			"mime_type" => IO::get_mime($filename),
+			"ver" => time(),
+			"secure" => $secure ? 1 : 0,
+		]]);
 	}
 
 	/**
@@ -135,15 +133,14 @@ class UserData
 			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
 		}
 		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		return Database::insert("userdata", [
-			(new DatabaseRowInput)
-				->setField("app", $appname)
-				->setField("identifier", $key)
-				->setField("physical_path", $filename)
-				->setField("mime_type", IO::get_mime($filename))
-				->setField("ver", time())
-				->setField("secure", $secure ? 1 : 0)
-		]);
+		return Database::insert("userdata", [[
+			"app" => $appname,
+			"identifier" => $key,
+			"physical_path" => $filename,
+			"mime_type" => IO::get_mime($filename),
+			"ver" => time(),
+			"secure" => $secure ? 1 : 0,
+		]]);
 	}
 
 	/**
@@ -169,15 +166,14 @@ class UserData
 		}
 		IO::write($filename, $content);
 		unset(self::$cache[$appname . $key]);
-		return Database::insert("userdata", [
-			(new DatabaseRowInput)
-				->setField("app", $appname)
-				->setField("identifier", $key)
-				->setField("physical_path", $filename)
-				->setField("mime_type", IO::get_mime($filename))
-				->setField("ver", time())
-				->setField("secure", $secure ? 1 : 0)
-		]);
+		return Database::insert("userdata", [[
+			"app" => $appname,
+			"identifier" => $key,
+			"physical_path" => $filename,
+			"mime_type" => IO::get_mime($filename),
+			"ver" => time(),
+			"secure" => $secure ? 1 : 0,
+		]]);
 	}
 
 	/**

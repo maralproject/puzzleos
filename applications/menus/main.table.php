@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -8,16 +9,16 @@
  */
 
 $b = new DatabaseTableBuilder;
-$b->addColumn("id","INT")->setAsPrimaryKey()->auto_increment();
+$b->addColumn("id", "INT")->setAsPrimaryKey()->auto_increment();
 $b->addColumn("name");
 $b->addColumn("link");
 $b->addColumn("fa");
-$b->addColumn("minUser","INT");
-$b->addColumn("location","INT(1)");
+$b->addColumn("minUser", "INT");
+$b->addColumn("location", "INT(1)");
 
 $b->insertFresh([
-    (new DatabaseRowInput)->setField("name","Administrator")->setField("link","/admin")->setField("fa","wrench")->setField("minUser",1)->setField("location",0),
-    (new DatabaseRowInput)->setField("name","Modify Menu")->setField("link","/admin/manage/menus")->setField("fa","link")->setField("minUser",1)->setField("location",0),
+    ["name" => "Administrator", "link" => "/admin", "fa" => "wrench", "minUser" => 1, "location" => 0],
+    ["name" => "Modify Menu", "link" => "/admin/manage/menus", "fa" => "link", "minUser" => 1, "location" => 0],
 ]);
 
 return $b;

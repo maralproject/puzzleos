@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -392,13 +393,12 @@ class POSConfigMultidomain
 
 		//Create new domain_config in database
 		if (Database::read("multidomain_config", "host", "host", $domain_zone) == "") {
-			if(!Database::insert("multidomain_config",[
-				(new DatabaseRowInput)
-				->setField("host",$domain_zone)
-				->setField("default_app",self::$default_application)
-				->setField("default_template",self::$default_template)
-				->setField("restricted_app",json_encode(self::$restricted_app))
-			])) return false;
+			if (!Database::insert("multidomain_config", [[
+				"host" => $domain_zone,
+				"default_app" => self::$default_application,
+				"default_template" => self::$default_template,
+				"restricted_app" => json_encode(self::$restricted_app)
+			]])) return false;
 		}
 
 		if (!file_exists(__ROOTDIR . "/configs/$domain_zone.config.php")) {

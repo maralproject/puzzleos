@@ -120,7 +120,7 @@ class PuzzleUser implements JsonSerializable
         $_16charSecret = PuzzleUserGA::createSecret();
         if (Database::update(
             "app_users_list",
-            (new DatabaseRowInput)->setField("totp_tfa", $_16charSecret),
+            ["totp_tfa", $_16charSecret],
             "id",
             $this->id
         )) {
@@ -242,14 +242,20 @@ class PuzzleUser implements JsonSerializable
             }
         }
         if ($this->phone == "" && $this->email == "") throw new MissingField("Either e-mail or phone should be filled");
-        $g = Database::update("app_users_list", (new DatabaseRowInput)
-            ->setField("group", $this->group->id)
-            ->setField("name", $this->fullname)
-            ->setField("email", $this->email ? strtolower($this->email) : NULL)
-            ->setField("phone", $this->phone ?? NULL)
-            ->setField("lang", $this->lang)
-            ->setField("tfa", $this->tfa ? 1 : 0)
-            ->setField("enabled", $this->enabled ? 1 : 0), "id", $this->id);
+        $g = Database::update(
+            "app_users_list",
+            [
+                "group" => $this->group->id,
+                "name" => $this->fullname,
+                "email" => $this->email ? strtolower($this->email) : NULL,
+                "phone" => $this->phone ?? NULL,
+                "lang" => $this->lang,
+                "tfa" => $this->tfa ? 1 : 0,
+                "enabled" => $this->enabled ? 1 : 0
+            ],
+            "id",
+            $this->id
+        );
         if ($g) return true;
         return false;
     }
@@ -294,7 +300,7 @@ class PuzzleUser implements JsonSerializable
         }
         if (Database::update(
             "app_users_list",
-            (new DatabaseRowInput)->setField("password", $newpass = self::bcrypt($new_password)),
+            ["password", $newpass = self::bcrypt($new_password)],
             "id",
             $this->id
         )) {
@@ -506,17 +512,16 @@ class PuzzleUser implements JsonSerializable
         }
 
         $group = PuzzleUserConfig::defaultRegistrationGroup() ?? PuzzleUserGroup::getRootByLevel(USER_AUTH_REGISTERED);
-        if (Database::insert("app_users_list", [
-            (new DatabaseRowInput)
-                ->setField("group", $group->id)
-                ->setField("name", $fullname)
-                ->setField("email", $email ? strtolower($email) : NULL)
-                ->setField("phone", $phone ?? NULL)
-                ->setField("lang", "def")
-                ->setField("password", self::bcrypt($password))
-                ->setField("enabled", PuzzleUserConfig::creationRequireActivation() ? 0 : 1)
-                ->setField("registered_time", time() + 600)
-        ])) {
+        if (Database::insert("app_users_list", [[
+            "group" => $group->id,
+            "name" => $fullname,
+            "email" => $email ? strtolower($email) : NULL,
+            "phone" => $phone ?? NULL,
+            "lang" => "def",
+            "password" => self::bcrypt($password),
+            "enabled" => PuzzleUserConfig::creationRequireActivation() ? 0 : 1,
+            "registered_time" => time() + 600,
+        ]])) {
             $u = self::get(Database::lastId());
             // $u->resetTOTPSecret();
             return $u;

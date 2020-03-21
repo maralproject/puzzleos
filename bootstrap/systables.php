@@ -31,13 +31,12 @@ Database::newStructure("multidomain_config", (new DatabaseTableBuilder)
     ->addColumn("default_template", "VARCHAR(50)")
     ->addColumn("restricted_app")
 
-    ->insertFresh([
-        (new DatabaseRowInput)
-            ->setField("host", "{root}")
-            ->setField("default_app", "admin")
-            ->setField("default_template", "admin_theme")
-            ->setField("restricted_app", "[]")
-    ]));
+    ->insertFresh([[
+        "host" => "{root}",
+        "default_app" => "admin",
+        "default_template" => "admin_theme",
+        "restricted_app" => "[]"
+    ]]));
 
 /* Table `app_security` */
 Database::newStructure("app_security", (new DatabaseTableBuilder)
@@ -46,16 +45,16 @@ Database::newStructure("app_security", (new DatabaseTableBuilder)
     ->addColumn("system", "TINYINT")->defaultValue(0)
 
     ->insertFresh([
-        (new DatabaseRowInput)->setField("rootname", "admin")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "bootstrap")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "fontawesome")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "menus")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "page_control")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "phpmailer")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "search_box")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "tinymce")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "upload_img_ajax")->setField("system", 1),
-        (new DatabaseRowInput)->setField("rootname", "users")->setField("system", 1)
+        ["rootname" => "admin"           , "system" => 1],
+        ["rootname" => "bootstrap"       , "system" => 1],
+        ["rootname" => "fontawesome"     , "system" => 1],
+        ["rootname" => "menus"           , "system" => 1],
+        ["rootname" => "page_control"    , "system" => 1],
+        ["rootname" => "phpmailer"       , "system" => 1],
+        ["rootname" => "search_box"      , "system" => 1],
+        ["rootname" => "tinymce"         , "system" => 1],
+        ["rootname" => "upload_img_ajax" , "system" => 1],
+        ["rootname" => "users"           , "system" => 1]
     ]));
 
 /* Table `sessions` */
