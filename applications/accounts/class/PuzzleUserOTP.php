@@ -39,14 +39,14 @@ class PuzzleUserOTP
 
     private static function addDB(\Closure $callback, $session, $code, PuzzleUser $u, bool $usetotp = false)
     {
-        Database::insert("app_users_otp", [
-            DRI()->setField("hash", $session)
-                ->setField("code", $code)
-                ->setField("totp", $usetotp ? 1 : 0)
-                ->setField("user", $u->id)
-                ->setField("time", time())
-                ->setField("callback", (new Serializer(new TokenAnalyzer()))->serialize($callback))
-        ]);
+        Database::insert("app_users_otp", [[
+            "hash" => $session,
+            "code" => $code,
+            "totp" => $usetotp ? 1 : 0,
+            "user" => $u->id,
+            "time" => time(),
+            "callback" => (new Serializer(new TokenAnalyzer()))->serialize($callback),
+        ]]);
     }
 
     /**

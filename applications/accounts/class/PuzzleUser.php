@@ -300,7 +300,7 @@ class PuzzleUser implements JsonSerializable
         }
         if (Database::update(
             "app_users_list",
-            ["password", $newpass = self::bcrypt($new_password)],
+            ["password" => $newpass = self::bcrypt($new_password)],
             "id",
             $this->id
         )) {

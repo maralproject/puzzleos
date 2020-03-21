@@ -21,7 +21,8 @@ class PuzzleUserGroup implements JsonSerializable
     private $_destructed = false;
 
     private function __construct()
-    { }
+    {
+    }
 
     public function jsonSerialize()
     {
@@ -41,7 +42,7 @@ class PuzzleUserGroup implements JsonSerializable
         switch ($name) {
             case "name":
                 if ($value == "") throw new MissingField("Group name cannot be empty");
-                if (Database::update("app_users_grouplist", DRI()->setField("name", $value), "id", $this->id)) {
+                if (Database::update("app_users_grouplist", ["name" => $value], "id", $this->id)) {
                     $this->name = $value;
                 }
                 break;
@@ -55,7 +56,7 @@ class PuzzleUserGroup implements JsonSerializable
                     default:
                         throw new PuzzleError("Invalid Group Level!");
                 }
-                if (Database::update("app_users_grouplist", DRI()->setField("level", $value), "id", $this->id)) {
+                if (Database::update("app_users_grouplist", ["level" => $value], "id", $this->id)) {
                     $this->level = (int) $value;
                 }
                 break;
@@ -85,7 +86,7 @@ class PuzzleUserGroup implements JsonSerializable
             if (Database::delete("app_users_grouplist", "id", $this->id)) {
                 Database::update(
                     "app_users_list",
-                    DRI()->setField("group", self::getRootByLevel(USER_AUTH_REGISTERED)->id),
+                    ["group" => self::getRootByLevel(USER_AUTH_REGISTERED)->id],
                     "group",
                     $this->id
                 );
@@ -205,12 +206,11 @@ class PuzzleUserGroup implements JsonSerializable
                 throw new PuzzleError("Invalid Level!");
         }
         if ($name == "") throw new MissingField("Group name cannot be empty");
-        if (Database::insert("app_users_grouplist", [
-            DRI()
-                ->setField("name", $name)
-                ->setField("level", $level)
-                ->setField("system", 0)
-        ])) {
+        if (Database::insert("app_users_grouplist", [[
+            "name" => $name,
+            "level" => $level,
+            "system" => 0,
+        ]])) {
             $id = (int) Database::lastId();
             return self::get($id);
         }

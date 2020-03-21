@@ -273,25 +273,7 @@ class Database
 	 */
 	private static function query(string $query, ...$param)
 	{
-		$query = trim($query);
-		$escaped = "";
-		$token = strtok($query, '?');
-		reset($param);
-		$processedLen = 0;
-		do {
-			$escaped .= $token;
-			$processedLen += strlen($token) + 1;
-			$currentParam = current($param);
-			if ($processedLen >= strlen($query)) {
-				if ($currentParam !== false) $escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
-				break;
-			} else if ($currentParam === false) {
-				throw new DatabaseError("Not enough parameter");
-			} else {
-				$escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
-				next($param);
-			}
-		} while ($token = strtok('?'));
+		$escaped = self::escapeQuery($query, ...$param);
 
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
@@ -662,6 +644,35 @@ class Database
 	public static function escape(string $str)
 	{
 		return self::$link->real_escape_string($str);
+	}
+
+	/**
+	 * Escape the entire query using parameter
+	 * @return string
+	 */
+	public static function escapeQuery(string $query, ...$param)
+	{
+		$query = trim($query);
+		$escaped = "";
+		$token = strtok($query, '?');
+		reset($param);
+		$processedLen = 0;
+		do {
+			$escaped .= $token;
+			$processedLen += strlen($token) + 1;
+			$currentParam = current($param);
+			if ($processedLen >= strlen($query)) {
+				if ($currentParam !== false) $escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
+				break;
+			} else if ($currentParam === false) {
+				throw new DatabaseError("Not enough parameter");
+			} else {
+				$escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
+				next($param);
+			}
+		} while ($token = strtok('?'));
+
+		return $escaped;
 	}
 
 	/**

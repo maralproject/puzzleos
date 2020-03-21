@@ -78,9 +78,10 @@ class PuzzleSession implements SessionHandlerInterface
         } else {
             return (bool) Database::update(
                 "sessions",
-                DRI()
-                    ->setField("content", $data)
-                    ->setField("user", $currentUser),
+                [
+                    "content" => $data,
+                    "user" => $currentUser
+                ],
                 "session_id",
                 $session_id
             );
