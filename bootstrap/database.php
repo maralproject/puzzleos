@@ -553,9 +553,9 @@ class Database
 				}
 				$value[$columns_order[$field]] = self::escRowInput($v);
 			}
-			$values[] = implode(",", $value);
+			$values[] = '(' . implode(",", $value) . ')';
 		}
-		$query = "INSERT " . ($ignore ? "IGNORE " : "") . " INTO `$table` (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ")";
+		$query = "INSERT " . ($ignore ? "IGNORE " : "") . " INTO `$table` (" . implode(",", $columns) . ") VALUES " . implode(",", $values);
 		return self::query($query);
 	}
 
