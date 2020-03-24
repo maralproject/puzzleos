@@ -18,21 +18,26 @@ class UserData
 
 	private static function init($key)
 	{
-		if (str_haschar($key, '/', "\\", '..', '*')) throw new PuzzleError("Key invalid!");
-		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
+		if (str_haschar($key, '/', "\\", '..', '*')) {
+			throw new \InvalidArgumentException("Key invalid!");
+		}
+
+		$stack = debug_backtrace(1, 3);
 		$caller = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
 		$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($caller)));
+
 		switch ($filename[1]) {
 			case "applications":
 				break;
 			default:
 				throw new PuzzleError("UserData can only be called from application");
 		}
+
 		$appDir = $filename[2];
 		$appname = AppManager::getNameFromDirectory($appDir);
 		preparedir(__ROOTDIR . "/storage/data/$appname");
 		preparedir(__ROOTDIR . "/" . __PUBLICDIR . "/assets/$appname");
-		return ($appname);
+		return $appname;
 	}
 
 	/**
@@ -46,26 +51,28 @@ class UserData
 	 */
 	public static function move_uploaded(string $key, string $inputname, bool $secure = false)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$fileext = strtolower(end(explode(".", $_FILES[$inputname]['name'])));
-		if (!$secure) $filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$fileext";
-		else $filename = "/storage/data/$appname/$key.$fileext";
-		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if ($oldfile != "") {
-			//If old file is present, it'll be overwritten
-			unlink(IO::physical_path($oldfile));
-			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		if ('' != ($appname = self::init($key))) {
+			$fileext = pathinfo($_FILES[$inputname]['name'])['extension'] ?? '';
+			if ($secure) {
+				$filename = "/storage/data/$appname/$key.$fileext";
+			} else {
+				$filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$fileext";
+			}
+
+			unset(self::$cache[$appname . $key]);
+			return
+				move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename)) &&
+				Database::insertOnDuplicateUpdate("userdata", [
+					"app" => $appname,
+					"identifier" => $key,
+					"physical_path" => $filename,
+					"mime_type" => IO::get_mime($filename),
+					"ver" => time(),
+					"secure" => $secure ? 1 : 0,
+				]);
+		} else {
+			return false;
 		}
-		if (!move_uploaded_file($_FILES[$inputname]['tmp_name'], IO::physical_path($filename))) return false;
-		return Database::insert("userdata", [[
-			"app" => $appname,
-			"identifier" => $key,
-			"physical_path" => $filename,
-			"mime_type" => IO::get_mime($filename),
-			"ver" => time(),
-			"secure" => $secure ? 1 : 0,
-		]]);
 	}
 
 	/**
@@ -77,34 +84,31 @@ class UserData
 	 */
 	public static function move(string $key, string $path_to_file, bool $secure = false)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		if (!IO::exists($path_to_file)) return false;
-		if (is_dir(IO::physical_path($path_to_file))) return false;
+		if ('' != ($appname = self::init($key))) {
+			$physical_path = IO::physical_path($path_to_file);
+			if (!IO::exists($path_to_file) || is_dir($physical_path)) return false;
 
-		// $path_to_file_e = explode("/", $path_to_file);
-		$fileext = strtolower(end(explode(".", $path_to_file)));
+			$fileext = pathinfo($physical_path)['extension'] ?? '';
+			if ($secure) {
+				$filename = "/storage/data/$appname/$key.$fileext";
+			} else {
+				$filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$fileext";
+			}
 
-		if (!$secure)
-			$filename = "/" . __PUBLICDIR . "/assets/$appname/" . $key . "." . $fileext;
-		else
-			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
-
-		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if ($oldfile != "") {
-			unlink(IO::physical_path($oldfile));
-			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			unset(self::$cache[$appname . $key]);
+			return
+				rename($physical_path, IO::physical_path($filename)) &&
+				Database::insertOnDuplicateUpdate("userdata", [
+					"app" => $appname,
+					"identifier" => $key,
+					"physical_path" => $filename,
+					"mime_type" => IO::get_mime($filename),
+					"ver" => time(),
+					"secure" => $secure ? 1 : 0,
+				]);
+		} else {
+			return false;
 		}
-
-		if (!rename(IO::physical_path($path_to_file), IO::physical_path($filename))) return false;
-		return Database::insert("userdata", [[
-			"app" => $appname,
-			"identifier" => $key,
-			"physical_path" => $filename,
-			"mime_type" => IO::get_mime($filename),
-			"ver" => time(),
-			"secure" => $secure ? 1 : 0,
-		]]);
 	}
 
 	/**
@@ -116,31 +120,31 @@ class UserData
 	 */
 	public static function copy(string $key, string $path_to_file, bool $secure = false)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		if (!IO::exists($path_to_file)) return false;
-		if (is_dir(IO::physical_path($path_to_file))) return false;
-		$fileext = strtolower(end(explode(".", $path_to_file)));
+		if ('' != ($appname = self::init($key))) {
+			$physical_path = IO::physical_path($path_to_file);
+			if (!IO::exists($path_to_file) || is_dir($physical_path)) return false;
 
-		if (!$secure)
-			$filename = "/" . __PUBLICDIR . "/assets/$appname/" . $key . "." . $fileext;
-		else
-			$filename = "/storage/data/$appname/" . $key . "." . $fileext;
+			$fileext = pathinfo($physical_path)['extension'] ?? '';
+			if ($secure) {
+				$filename = "/storage/data/$appname/$key.$fileext";
+			} else {
+				$filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$fileext";
+			}
 
-		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if ($oldfile != "") {
-			unlink(IO::physical_path($oldfile));
-			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			unset(self::$cache[$appname . $key]);
+			return
+				copy($physical_path, IO::physical_path($filename)) &&
+				Database::insertOnDuplicateUpdate("userdata", [
+					"app" => $appname,
+					"identifier" => $key,
+					"physical_path" => $filename,
+					"mime_type" => IO::get_mime($filename),
+					"ver" => time(),
+					"secure" => $secure ? 1 : 0,
+				]);
+		} else {
+			return false;
 		}
-		if (!copy(IO::physical_path($path_to_file), IO::physical_path($filename))) return (false);
-		return Database::insert("userdata", [[
-			"app" => $appname,
-			"identifier" => $key,
-			"physical_path" => $filename,
-			"mime_type" => IO::get_mime($filename),
-			"ver" => time(),
-			"secure" => $secure ? 1 : 0,
-		]]);
 	}
 
 	/**
@@ -153,27 +157,27 @@ class UserData
 	 */
 	public static function store(string $key, $content, string $file_ext, bool $secure = false)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		if (!$secure)
-			$filename = "/" . __PUBLICDIR . "/assets/$appname/" . $key . "." . $file_ext;
-		else
-			$filename = "/storage/data/$appname/" . $key . "." . $file_ext;
-		$oldfile = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if ($oldfile != "") {
-			unlink(IO::physical_path($oldfile));
-			Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		if ('' != ($appname = self::init($key))) {
+			if ($secure) {
+				$filename = "/storage/data/$appname/$key.$file_ext";
+			} else {
+				$filename = "/" . __PUBLICDIR . "/assets/$appname/$key.$file_ext";
+			}
+
+			unset(self::$cache[$appname . $key]);
+			return
+				IO::write($filename, $content) &&
+				Database::insertOnDuplicateUpdate("userdata", [
+					"app" => $appname,
+					"identifier" => $key,
+					"physical_path" => $filename,
+					"mime_type" => IO::get_mime($filename),
+					"ver" => time(),
+					"secure" => $secure ? 1 : 0,
+				]);
+		} else {
+			return false;
 		}
-		IO::write($filename, $content);
-		unset(self::$cache[$appname . $key]);
-		return Database::insert("userdata", [[
-			"app" => $appname,
-			"identifier" => $key,
-			"physical_path" => $filename,
-			"mime_type" => IO::get_mime($filename),
-			"ver" => time(),
-			"secure" => $secure ? 1 : 0,
-		]]);
 	}
 
 	/**
@@ -184,10 +188,12 @@ class UserData
 	 */
 	public static function exists(string $key)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		return ($filename != "" && IO::exists($filename));
+		if ('' != ($appname = self::init($key))) {
+			$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			return ($filename != '' && IO::exists($filename));
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -199,11 +205,12 @@ class UserData
 	 */
 	public static function getPath(string $key)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$d = Database::getRowByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		$filename = $d["physical_path"];
-		if ($filename != "") return (__ROOTDIR . $filename);
+		if ('' != ($appname = self::init($key))) {
+			$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			if ($filename != '') {
+				return (__ROOTDIR . $filename);
+			}
+		}
 	}
 
 	/**
@@ -215,17 +222,18 @@ class UserData
 	 */
 	public static function getURL(string $key, bool $with_cache_control = false)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$d = Database::getRowByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		$filename = $d["physical_path"];
-		if ($with_cache_control && $filename != "") {
-			$filename .= "?v=" . $d["ver"];
+		if ('' != ($appname = self::init($key))) {
+			$d = Database::getRowByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			$filename = $d["physical_path"];
+			if ($filename != '') {
+				if ($with_cache_control) $filename .= "?v=" . $d["ver"];
+				if ($d["secure"]) {
+					return (str_replace("/storage/data", "/assets", $filename));
+				} else {
+					return (str_replace("/" . __PUBLICDIR, "", $filename));
+				}
+			}
 		}
-		if ($d["secure"])
-			return (str_replace("/storage/data", "/assets", $filename));
-		else
-			return (str_replace("/" . __PUBLICDIR, "", $filename));
 	}
 
 	/**
@@ -235,16 +243,12 @@ class UserData
 	 */
 	public static function read(string $key)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if (!isset(self::$cache[$appname . $key])) {
-			$ctn = file_get_contents(IO::physical_path($filename));
-			self::$cache[$appname . $key] = $ctn;
-		} else {
-			$ctn = self::$cache[$appname . $key];
+		if ('' != ($appname = self::init($key))) {
+			$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			if ($filename != '') {
+				return self::$cache[$appname . $key] ?? self::$cache[$appname . $key] = file_get_contents(IO::physical_path($filename));
+			}
 		}
-		return ($ctn);
 	}
 
 	/**
@@ -254,10 +258,9 @@ class UserData
 	 */
 	public static function getMIME(string $key)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$mime = Database::readByStatement("userdata", "mime_type", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		return ($mime);
+		if ('' != ($appname = self::init($key))) {
+			return Database::readByStatement("userdata", "mime_type", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		}
 	}
 
 	/**
@@ -267,11 +270,14 @@ class UserData
 	 */
 	public static function remove(string $key)
 	{
-		$appname = self::init($key);
-		if ($appname == "") return false;
-		$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
-		if (!unlink(IO::physical_path($filename))) return false;
-		unset(self::$cache[$appname . $key]);
-		return Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+		if ('' != ($appname = self::init($key))) {
+			$filename = Database::readByStatement("userdata", "physical_path", "WHERE `app`='?' AND `identifier`='?'", $appname, $key);
+			unset(self::$cache[$appname . $key]);
+			return
+				Database::deleteByStatement("userdata", "WHERE `app`='?' AND `identifier`='?'", $appname, $key) &&
+				unlink(IO::physical_path($filename));
+		} else {
+			return false;
+		}
 	}
 }

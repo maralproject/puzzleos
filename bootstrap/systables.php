@@ -15,13 +15,13 @@
 /* Table `userdata` */
 Database::newStructure("userdata", (new DatabaseTableBuilder)
     ->addColumn("app", "VARCHAR(50)")
-    ->addColumn("identifier", "VARCHAR(500)")
+    ->addColumn("identifier", "VARCHAR(100)")
     ->addColumn("physical_path", "VARCHAR(500)")
     ->addColumn("mime_type", "VARCHAR(100)")
     ->addColumn("ver", "INT")
     ->addColumn("secure", "TINYINT(1)")
 
-    ->createIndex("main", ["app", "identifier"])
+    ->createIndex("main", ["app", "identifier"], "UNIQUE")
     ->createIndex("path", ["physical_path"]));
 
 /* Table `multidomain_config` */
@@ -45,16 +45,16 @@ Database::newStructure("app_security", (new DatabaseTableBuilder)
     ->addColumn("system", "TINYINT")->defaultValue(0)
 
     ->insertFresh([
-        ["rootname" => "admin"           , "system" => 1],
-        ["rootname" => "bootstrap"       , "system" => 1],
-        ["rootname" => "fontawesome"     , "system" => 1],
-        ["rootname" => "menus"           , "system" => 1],
-        ["rootname" => "page_control"    , "system" => 1],
-        ["rootname" => "phpmailer"       , "system" => 1],
-        ["rootname" => "search_box"      , "system" => 1],
-        ["rootname" => "tinymce"         , "system" => 1],
-        ["rootname" => "upload_img_ajax" , "system" => 1],
-        ["rootname" => "users"           , "system" => 1]
+        ["rootname" => "admin", "system" => 1],
+        ["rootname" => "bootstrap", "system" => 1],
+        ["rootname" => "fontawesome", "system" => 1],
+        ["rootname" => "menus", "system" => 1],
+        ["rootname" => "page_control", "system" => 1],
+        ["rootname" => "phpmailer", "system" => 1],
+        ["rootname" => "search_box", "system" => 1],
+        ["rootname" => "tinymce", "system" => 1],
+        ["rootname" => "upload_img_ajax", "system" => 1],
+        ["rootname" => "users", "system" => 1]
     ]));
 
 /* Table `sessions` */

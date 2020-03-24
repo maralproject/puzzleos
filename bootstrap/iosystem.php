@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PuzzleOS
  * Build your own web-based application
@@ -34,7 +35,6 @@ class IO
 
 		$v = new FileStream($filename);
 		$v->start();
-
 		exit;
 	}
 
@@ -78,7 +78,7 @@ class IO
 	 */
 	public static function exists($path)
 	{
-		return (file_exists(IO::physical_path($path)));
+		return file_exists(IO::physical_path($path));
 	}
 
 	/**
@@ -94,7 +94,7 @@ class IO
 			$path = str_replace(__ROOTDIR, "", $path);
 			$path = __ROOTDIR . "/" . ltrim($path, "/");
 		}
-		return ($path);
+		return $path;
 	}
 
 	/**
@@ -105,7 +105,7 @@ class IO
 	public static function read($path)
 	{
 		if (!IO::exists($path)) return;
-		return (file_get_contents(IO::physical_path($path)));
+		return file_get_contents(IO::physical_path($path));
 	}
 
 	/**
@@ -115,7 +115,7 @@ class IO
 	 */
 	public static function write($path, $content)
 	{
-		file_put_contents(IO::physical_path($path), $content);
+		return (bool) file_put_contents(IO::physical_path($path), $content);
 	}
 
 	/**
@@ -188,6 +188,7 @@ class IO
 			}
 		}
 		closedir($dir);
+		return true;
 	}
 
 	/**
@@ -197,8 +198,9 @@ class IO
 	 */
 	public static function move_r($src, $dst)
 	{
-		self::copy_r($src, $dst);
-		self::remove_r($src);
+		return
+			self::copy_r($src, $dst) &&
+			self::remove_r($src);
 	}
 
 	/**
@@ -208,7 +210,7 @@ class IO
 	 */
 	public static function move($old, $new)
 	{
-		rename($old, $new);
+		return rename($old, $new);
 	}
 
 	/**
@@ -218,7 +220,7 @@ class IO
 	 */
 	public static function get_mime($path)
 	{
-		return (mime_content_type(IO::physical_path($path)));
+		return mime_content_type(IO::physical_path($path));
 	}
 
 	/**
@@ -228,7 +230,7 @@ class IO
 	 */
 	public static function list_directory($path)
 	{
-		return (scandir(IO::physical_path($path)));
+		return scandir(IO::physical_path($path));
 	}
 }
 

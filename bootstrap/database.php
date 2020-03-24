@@ -475,7 +475,7 @@ class Database
 	}
 
 	/**
-	 * Write new record
+	 * Insert new records
 	 * @param string $table
 	 * @param array $row_input
 	 * @param bool $ignore
@@ -501,6 +501,32 @@ class Database
 			$values[] = '(' . implode(",", $value) . ')';
 		}
 		$query = "INSERT " . ($ignore ? "IGNORE " : "") . " INTO `$table` (" . implode(",", $columns) . ") VALUES " . implode(",", $values);
+		return self::query($query);
+	}
+
+	/**
+	 * Insert single record on duplicate update
+	 * @param string $table
+	 * @param array $row_input
+	 * @return bool
+	 */
+	public static function insertOnDuplicateUpdate(string $table, array $row_input)
+	{
+		self::x_verify($table);
+
+		$columns = [];
+		$values = [];
+		$updateSet = [];
+		foreach ($row_input as $field => $value) {
+			$value = self::escRowInput($value);
+			$columns[] = $field;
+			$values[] = $value;
+			$updateSet[] = "`$field`=$value";
+		}
+
+		$updateSet = implode(',', $updateSet);
+
+		$query = "INSERT INTO `$table` (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ") ON DUPLICATE KEY UPDATE $updateSet";
 		return self::query($query);
 	}
 
