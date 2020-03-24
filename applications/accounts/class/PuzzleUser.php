@@ -542,13 +542,29 @@ class PuzzleUser implements JsonSerializable
         return self::$_p;
     }
 
+    /**
+     * Get all user
+     * @return self[]
+     */
     public static function getList(int $limit = null, int $start = null)
     {
         if ($limit !== null) {
             $lq = "LIMIT $limit";
             if ($start !== null) $lq .= ",$start";
         }
-        $db = Database::execute("select id from app_users_list " . $lq ?? "");
+        $db = Database::execute("select id from app_users_list " . ($lq ?? ""));
+        $a = [];
+        while ($row = $db->fetch_row()) $a[] = self::get($row[0]);
+        return $a;
+    }
+
+    /**
+     * Get all user with join SELECT id query
+     * @return self[]
+     */
+    public static function getByIdQuery(string $query)
+    {
+        $db = Database::execute("select a.id from app_users_list a join ($query) b USING(id)");
         $a = [];
         while ($row = $db->fetch_row()) $a[] = self::get($row[0]);
         return $a;

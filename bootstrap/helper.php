@@ -17,19 +17,6 @@ function m()
 }
 
 /**
- * Foreach extended
- */
-function foreachx(array $array, callable $callback)
-{
-	$index = 0;
-	$len = count($array) - 1;
-	foreach ($array as $k => $v) {
-		$callback($index, $index >= $len, $k, $v);
-		$index++;
-	}
-}
-
-/**
  * Include PHP file outside the scope.
  */
 function include_ext(string $__path, array $vars = null)

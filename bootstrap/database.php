@@ -195,62 +195,11 @@ class Database
 	/** @var mysqli */
 	private static $link = null;
 	/** @var mysqli_result|bool */
+	private static $last_insert_id = null;
 	private static $last_mysqli_result = null;
 	private static $cache = [];
 	private static $t_cache = [];
 	private static $transaction_track = 0;
-	private const IMPLICIT_COMMIT = [
-		"ALTER DATABASE ... UPGRADE DATA DIRECTORY NAME",
-		"ALTER EVENT",
-		"ALTER FUNCTION",
-		"ALTER PROCEDURE",
-		"ALTER SERVER",
-		"ALTER TABLE",
-		"ALTER VIEW",
-		"ANALYZE TABLE",
-		"BEGIN",
-		"CACHE INDEX",
-		"CHANGE MASTER TO",
-		"CHECK TABLE",
-		"CREATE DATABASE",
-		"CREATE EVENT",
-		"CREATE FUNCTION",
-		"CREATE INDEX",
-		"CREATE PROCEDURE",
-		"CREATE ROLE",
-		"CREATE SERVER",
-		"CREATE TABLE",
-		"CREATE TRIGGER",
-		"CREATE USER",
-		"CREATE VIEW",
-		"DROP DATABASE",
-		"DROP EVENT",
-		"DROP FUNCTION",
-		"DROP INDEX",
-		"DROP PROCEDURE",
-		"DROP ROLE",
-		"DROP SERVER",
-		"DROP TABLE",
-		"DROP TRIGGER",
-		"DROP USER",
-		"DROP VIEW",
-		"FLUSH",
-		"GRANT",
-		"LOAD INDEX INTO CACHE",
-		"LOCK TABLES",
-		"OPTIMIZE TABLE",
-		"RENAME TABLE",
-		"RENAME USER",
-		"REPAIR TABLE",
-		"RESET",
-		"REVOKE",
-		"SET PASSWORD",
-		"SHUTDOWN",
-		"START SLAVE",
-		"START TRANSACTION",
-		"STOP SLAVE",
-		"TRUNCATE TABLE"
-	];
 
 	public static function connect()
 	{
@@ -274,6 +223,11 @@ class Database
 	private static function query(string $query, ...$param)
 	{
 		$escaped = self::escapeQuery($query, ...$param);
+		if ($a = self::$cache["query_result"][$escaped]) {
+			$a->field_seek(0);
+			$a->data_seek(0);
+			return $a;
+		}
 
 		if (defined("DB_DEBUG")) {
 			$re = debug_backtrace()[1];
@@ -292,19 +246,28 @@ class Database
 				throw new DatabaseError(self::$link->error, $escaped, (int) self::$link->errno);
 		}
 
-		if ($r && !($r instanceof mysqli_result) && self::$link->affected_rows > 0) {
-			// Rows changed, flushing cache
-			self::flushCache();
+		if ($r === true) {
+			self::$last_insert_id = self::$link->insert_id;
+			if (self::$link->affected_rows > 0) {
+				// Rows changed, flushing cache
+				self::flushCache();
+			}
 
 			if (self::$transaction_track > 0) {
-				foreach (self::IMPLICIT_COMMIT as $statement) {
-					// Auto commit was detected, ignoring current transaction
-					if (starts_with($escaped, $statement)) {
-						self::$transaction_track = 0;
-						break;
+				$transaction_progress = (bool) self::$link->query("SHOW VARIABLES WHERE `Variable_name`='in_transaction'")->fetch_row()[1];
+				if (!$transaction_progress) {
+					// Implicit commit was detected
+					self::$transaction_track = 0;
+					if (defined("DB_DEBUG")) {
+						$debug = debug_backtrace();
+						Log::debug('DatabaseInfo: Implicit commit was detected.', $debug);
+						file_put_contents(__LOGDIR . "/db.log", "IMPLICIT COMMIT DETECTED\r\n", FILE_APPEND);
 					}
 				}
 			}
+		} else if ($r instanceof mysqli_result) {
+			// This is a mysql result. Store the result in the cache
+			self::$cache["query_result"][$escaped] = $r;
 		}
 		return self::$last_mysqli_result = $r;
 	}
@@ -408,7 +371,7 @@ class Database
 	{
 		if ($v === null) {
 			return "NULL";
-		} else if (is_numeric($v)) {
+		} else if (is_int($v) || is_float($v)) {
 			return $v;
 		} else if (is_bool($v)) {
 			return (int) $v;
@@ -563,6 +526,27 @@ class Database
 	}
 
 	/**
+	 * Update database record with statement
+	 * @param string $table
+	 * @param array $row_input
+	 * @param string $find_column
+	 * @param string $find_value
+	 * @return bool
+	 */
+	public static function updateByStatement(string $table, array $row_input, string $statement, ...$param)
+	{
+		self::x_verify($table);
+
+		$set = [];
+		foreach ($row_input as $field => $v) {
+			$v = self::escRowInput($v);
+			$set[] = "`$field`=$v";
+		}
+		$query = "UPDATE `$table` SET " . implode(',', $set) . " " . $statement;
+		return self::query($query, ...$param);
+	}
+
+	/**
 	 * Returns the last result produced by the latest query
 	 * @return mysqli_result|bool
 	 */
@@ -576,7 +560,7 @@ class Database
 	 */
 	public static function lastId()
 	{
-		return self::$link->insert_id;
+		return self::$last_insert_id;
 	}
 
 	/**
@@ -852,6 +836,10 @@ class Database
 			$previous_column = null;
 			foreach ($structure as $column_name => $d) {
 				list($type, $primary, $nullable, $default, $presistentExpr) = $d;
+				if ($presistentExpr) {
+					$nullable = "";
+					$default = "";
+				}
 				$position = $previous_column ? "AFTER `$previous_column`" : "FIRST";
 				if ($old_columns[$column_name]) {
 					$tableQuery[] = "CHANGE COLUMN `$column_name` `$column_name` $type $nullable $default $presistentExpr $position";
@@ -896,6 +884,10 @@ class Database
 			// Columns
 			foreach ($structure as $column_name => $d) {
 				list($type, $primary, $nullable, $default, $presistentExpr) = $d;
+				if ($presistentExpr) {
+					$nullable = "";
+					$default = "";
+				}
 				$tableQuery[] = "`$column_name` $type $nullable $default $presistentExpr";
 				if ($primary) $primaryColumn = $column_name;
 			}
