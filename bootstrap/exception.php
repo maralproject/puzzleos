@@ -35,6 +35,7 @@ class PuzzleError extends Exception
 	{
 		if (self::$printed) return;
 
+		header('Content-Type: text/html; charset:utf-8');
 		$msg = str_replace([__ROOTDIR, ftbslash(__ROOTDIR)], "", $msg);
 		$suggestion = str_replace([__ROOTDIR, ftbslash(__ROOTDIR)], "", $suggestion);
 		$active = POSConfigMultidomain::$default_template;
