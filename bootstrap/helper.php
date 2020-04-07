@@ -13,7 +13,7 @@
  */
 function m()
 {
-	return $_SERVER["REQUEST_METHOD"];
+	return $_SERVER['REQUEST_METHOD'];
 }
 
 /**
@@ -74,9 +74,9 @@ function require_once_ext(string $__path, array $vars = null)
  */
 function abort(int $code, string $text = null, $exit = true)
 {
-	if (class_exists("PuzzleSession") && PuzzleSession::get()) PuzzleSession::get()->writeCookie();
+	if (class_exists('PuzzleSession') && PuzzleSession::get()) PuzzleSession::get()->writeCookie();
 	if (!is_cli()) {
-		header($_SERVER["SERVER_PROTOCOL"] . " $code $text", true, $code);
+		header($_SERVER['SERVER_PROTOCOL'] . " $code $text", true, $code);
 	}
 	if ($exit) exit;
 }
@@ -89,7 +89,7 @@ function abort(int $code, string $text = null, $exit = true)
 function is_callbyme()
 {
 	$d = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-	return ($d[0]["file"] == $d[1]["file"]);
+	return ($d[0]['file'] == $d[1]['file']);
 }
 
 /**
@@ -100,21 +100,21 @@ function is_callbyme()
  */
 function my_dir(string $path = null)
 {
-	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
-	$caller = explode("/", $p);
+	$p = ltrim(str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])), '/');
+	$caller = explode('/', $p);
 	switch ($caller[0]) {
-		case "applications":
-		case "templates":
+		case 'applications':
+		case 'templates':
 			break;
-		case "includes":
-			if (starts_with($p, "includes/vendor/jeremeamia/superclosure/")) {
+		case 'includes':
+			if (starts_with($p, 'includes/vendor/jeremeamia/superclosure/')) {
 				// When my_dir is called from a Worker Closure
-				return __ROOTDIR . "/applications/" . $GLOBALS["_WORKER"]["appdir"] . "/" . ltrim(btfslash($path), "/");
+				return __ROOTDIR . '/applications/' . $GLOBALS['_WORKER']['appdir'] . '/' . ltrim(btfslash($path), '/');
 			}
 		default:
 			return null;
 	}
-	return __ROOTDIR . "/" . $caller[0] . "/" . $caller[1] . "/" . ltrim(btfslash($path), "/");
+	return __ROOTDIR . '/' . $caller[0] . '/' . $caller[1] . '/' . ltrim(btfslash($path), '/');
 }
 
 /**
@@ -126,22 +126,22 @@ function my_dir(string $path = null)
  */
 function storage(string $path = null, bool $private = true)
 {
-	$p = ltrim(str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])), "/");
-	$caller = explode("/", $p);
-	$basepath = $private ? "/storage/data/" : "/public/assets/";
+	$p = ltrim(str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])), '/');
+	$caller = explode('/', $p);
+	$basepath = $private ? '/storage/data/' : '/public/assets/';
 	switch ($caller[0]) {
-		case "applications":
+		case 'applications':
 			break;
-		case "includes":
-			if (starts_with($p, "includes/vendor/jeremeamia/superclosure/")) {
-				preparedir($prefixdir = (__ROOTDIR . $basepath . $GLOBALS["_WORKER"]["app"]));
-				return $prefixdir . "/" . ltrim(btfslash($path), "/");
+		case 'includes':
+			if (starts_with($p, 'includes/vendor/jeremeamia/superclosure/')) {
+				preparedir($prefixdir = (__ROOTDIR . $basepath . $GLOBALS['_WORKER']['app']));
+				return $prefixdir . '/' . ltrim(btfslash($path), '/');
 			}
 		default:
 			return null;
 	}
 	preparedir($prefixdir = (__ROOTDIR . $basepath . AppManager::getNameFromDirectory($caller[1])));
-	return $prefixdir . "/" . ltrim(btfslash($path), "/");
+	return $prefixdir . '/' . ltrim(btfslash($path), '/');
 }
 
 /**
@@ -184,10 +184,10 @@ function php_bin()
 	// May be it's exists on system environment
 	$paths = explode(PATH_SEPARATOR, getenv('PATH'));
 	foreach ($paths as $path) {
-		if (strstr($path, 'php.exe') && isset($_SERVER["WINDIR"]) && file_exists($path) && is_file($path)) {
+		if (strstr($path, 'php.exe') && isset($_SERVER['WINDIR']) && file_exists($path) && is_file($path)) {
 			return $path;
 		} else {
-			$php_executable = $path . DIRECTORY_SEPARATOR . "php" . (isset($_SERVER["WINDIR"]) ? ".exe" : "");
+			$php_executable = $path . DIRECTORY_SEPARATOR . 'php' . (isset($_SERVER['WINDIR']) ? '.exe' : '');
 			if (file_exists($php_executable) && is_file($php_executable)) {
 				return $php_executable;
 			}
@@ -286,17 +286,17 @@ function is_json(string $string = null)
  * @param string $app e.g. "users/login"
  * @param int $http_code HTTP redirection code 3xx
  */
-function redirect(string $url = "", int $http_code = 302)
+function redirect(string $url = '', int $http_code = 302)
 {
 	//Removing trailing slashes in leftside
-	$app = ltrim($url, "/");
+	$app = ltrim($url, '/');
 
 	//Removing all whitespace
-	$app = preg_replace("/\s+/", "", $app);
+	$app = preg_replace('/\s+/', '', $app);
 
 	//Checking if URL requested is local or not
-	if (!starts_with($app, "http://") && !starts_with($app, "https://")) {
-		$app = "/$app";
+	if (!starts_with($app, 'http://') && !starts_with($app, 'https://')) {
+		$app = '/' . $app;
 	}
 
 	//Writing out cookie before leaving
@@ -307,9 +307,9 @@ function redirect(string $url = "", int $http_code = 302)
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
 		// Redirecting
-		echo ("<script>window.location='$app';</script>");
+		echo ('<script>window.location="'.$app.'";</script>');
 	} else {
-		header("Location: $app");
+		header('Location: '.$app);
 	}
 	abort($http_code);
 }
@@ -322,9 +322,9 @@ function redirect(string $url = "", int $http_code = 302)
 function json_out($jsonable, int $code = 200)
 {
 	if (headers_sent()) {
-		throw new PuzzleError("Cannot send JSON data, header is already sent");
+		throw new PuzzleError('Cannot send JSON data, header is already sent');
 	} else {
-		header("Content-Type:application/json");
+		header('Content-Type:application/json');
 		http_response_code($code);
 		die(json_encode($jsonable));
 	}
@@ -377,7 +377,7 @@ function php_max_upload_size()
  * @param string $chr 
  * @return string
  */
-function rand_str(int $length, string $chr = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+function rand_str(int $length, string $chr = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 {
 	$clen = strlen($chr);
 	$rs = '';
@@ -395,7 +395,7 @@ function rand_str(int $length, string $chr = "0123456789abcdefghijklmnopqrstuvwx
  */
 function btfslash(string $str = null)
 {
-	return str_replace("\\", "/", $str);
+	return str_replace('\\', '/', $str);
 }
 
 /**
@@ -406,7 +406,7 @@ function btfslash(string $str = null)
  */
 function ftbslash(string $str = null)
 {
-	return str_replace("/", "\\", $str);
+	return str_replace('/', '\\', $str);
 }
 
 /**
@@ -488,9 +488,9 @@ function request($index)
 {
 	if (is_cli()) return null; //No URI on CLI
 
-	$a = explode("/", __HTTP_URI);
-	$a[0] = $a["app"] = ($a[0] == "" ? POSConfigMultidomain::$default_application : $a[0]);
-	$a["action"] = $a[1];
+	$a = explode('/', __HTTP_URI);
+	$a[0] = $a['app'] = ($a[0] == '' ? POSConfigMultidomain::$default_application : $a[0]);
+	$a['action'] = $a[1];
 
 	if (is_integer($index)) {
 		$key = $index;
@@ -518,7 +518,7 @@ function need_version(string $version)
  */
 function is_cli()
 {
-	return (PHP_SAPI == "cli" && (defined("__POSCLI") || defined("__POSWORKER")));
+	return (PHP_SAPI == 'cli' && (defined('__POSCLI') || defined('__POSWORKER')));
 }
 
 /**
@@ -528,7 +528,7 @@ function is_cli()
  */
 function is_win()
 {
-	return (str_contains(PHP_OS, "WIN"));
+	return (str_contains(PHP_OS, 'WIN'));
 }
 
 /**

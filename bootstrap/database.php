@@ -258,6 +258,8 @@ class Database
 				if (!$transaction_progress) {
 					// Implicit commit was detected
 					self::$transaction_track = 0;
+					Log::warning("DATABASE: Implicit commit was detected.", debug_backtrace());
+
 					if (defined("DB_DEBUG")) {
 						$debug = debug_backtrace();
 						Log::debug('DatabaseInfo: Implicit commit was detected.', $debug);
@@ -318,7 +320,7 @@ class Database
 	/**
 	 * Flush database cache
 	 */
-	private static function flushCache()
+	public static function flushCache()
 	{
 		self::$cache = [];
 		self::$t_cache = [];
