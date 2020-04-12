@@ -30,7 +30,6 @@ class Cache
                 $fname = basename($path[3], ".php");
                 preparedir(__ROOTDIR . "/storage/cache/system/$fname");
                 return __ROOTDIR . "/storage/cache/system/$fname";
-                break;
             default:
                 throw new PuzzleError("Cache can be only used for Applications only!");
         }

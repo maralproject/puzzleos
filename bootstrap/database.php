@@ -501,7 +501,7 @@ class Database
 		foreach ($row_input as $row) {
 			$value = [];
 			foreach ($row as $field => $v) {
-				$field = '`$field`';
+				$field = "`$field`";
 				if (!in_array($field, $columns)) {
 					$order = array_push($columns, $field);
 					$columns_order[$field] = $order;
