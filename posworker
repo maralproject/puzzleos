@@ -5,13 +5,13 @@
  * Build your own web-based application
  *
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2018 MARAL INDUSTRIES
+ * @copyright    2014-2020 MARAL INDUSTRIES
  */
 
-define("__POSEXEC", 1);
-define("__POSWORKER",1);
+define('__POSEXEC', 1);
+define('__POSWORKER', 1);
 
-require("bootstrap/boot.php");
+require('bootstrap/boot.php');
 
-/* Run the Worker */
-Worker::__do($argv);
+// Run the worker
+Worker::do($argv);

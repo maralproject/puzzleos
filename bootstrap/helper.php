@@ -101,16 +101,19 @@ function is_callbyme()
 function my_dir(string $path = null)
 {
 	$p = ltrim(str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])), '/');
+
+	if (starts_with($p, 'closure://')) {
+		// This function called from a closure. Only resolve if this is a worker.
+		if (Worker::inEnv()) {
+			return __ROOTDIR . '/applications/' . $WORKER['appdir'] . '/' . ltrim(btfslash($path), '/');
+		}
+	}
+
 	$caller = explode('/', $p);
 	switch ($caller[0]) {
 		case 'applications':
 		case 'templates':
 			break;
-		case 'includes':
-			if (starts_with($p, 'includes/vendor/jeremeamia/superclosure/')) {
-				// When my_dir is called from a Worker Closure
-				return __ROOTDIR . '/applications/' . $GLOBALS['_WORKER']['appdir'] . '/' . ltrim(btfslash($path), '/');
-			}
 		default:
 			return null;
 	}
@@ -126,17 +129,21 @@ function my_dir(string $path = null)
  */
 function storage(string $path = null, bool $private = true)
 {
-	$p = ltrim(str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])), '/');
-	$caller = explode('/', $p);
 	$basepath = $private ? '/storage/data/' : '/public/assets/';
+	$p = ltrim(str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])), '/');
+
+	if (starts_with($p, 'closure://')) {
+		// This function called from a closure. Only resolve if this is a worker.
+		if (Worker::inEnv()) {
+			preparedir($prefixdir = (__ROOTDIR . $basepath . $WORKER['app']));
+			return $prefixdir . '/' . ltrim(btfslash($path), '/');
+		}
+	}
+
+	$caller = explode('/', $p);
 	switch ($caller[0]) {
 		case 'applications':
 			break;
-		case 'includes':
-			if (starts_with($p, 'includes/vendor/jeremeamia/superclosure/')) {
-				preparedir($prefixdir = (__ROOTDIR . $basepath . $GLOBALS['_WORKER']['app']));
-				return $prefixdir . '/' . ltrim(btfslash($path), '/');
-			}
 		default:
 			return null;
 	}
@@ -307,9 +314,9 @@ function redirect(string $url = '', int $http_code = 302)
 		ob_end_flush();
 		while (ob_get_level()) ob_get_clean();
 		// Redirecting
-		echo ('<script>window.location="'.$app.'";</script>');
+		echo ('<script>window.location="' . $app . '";</script>');
 	} else {
-		header('Location: '.$app);
+		header('Location: ' . $app);
 	}
 	abort($http_code);
 }

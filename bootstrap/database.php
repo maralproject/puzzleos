@@ -39,16 +39,16 @@ class DatabaseTableBuilder
 	 * @param string $type Choose UNIQUE, FULLTEXT, SPATIAL, or leave it empty
 	 * @return DatabaseTableBuilder
 	 */
-	public function createIndex(string $name, array $column, $type = "")
+	public function createIndex(string $name, array $column, $type = '')
 	{
 		switch ($type) {
-			case "UNIQUE":
-			case "FULLTEXT":
-			case "SPATIAL":
-			case "":
+			case 'UNIQUE':
+			case 'FULLTEXT':
+			case 'SPATIAL':
+			case '':
 				break;
 			default:
-				throw new InvalidArgumentException("Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty");
+				throw new InvalidArgumentException('Index should be UNIQUE, FULLTEXT, SPATIAL, or leave it empty');
 		}
 
 		$this->indexes[] = [$name, $column, $type];
@@ -83,11 +83,11 @@ class DatabaseTableBuilder
 	 * @param string $type Use Qualified Mysql data type (e.g. TEXT, TINYTEXT)
 	 * @return DatabaseTableBuilder
 	 */
-	public function addColumn(string $name, string $type = "TEXT")
+	public function addColumn(string $name, string $type = 'TEXT')
 	{
-		if (strlen($name) > 50) throw new InvalidArgumentException("Max length for column name is 50 chars");
+		if (strlen($name) > 50) throw new InvalidArgumentException('Max length for column name is 50 chars');
 		$this->selectedColumn = $name;
-		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, "NOT NULL", null, false];
+		$this->arrayStructure[$this->selectedColumn] = [strtoupper($type), false, 'NOT NULL', null, false];
 		return $this;
 	}
 
@@ -98,7 +98,7 @@ class DatabaseTableBuilder
 	 */
 	public function selectColumn(string $name)
 	{
-		if (strlen($name) > 50) throw new InvalidArgumentException("Max length for column name is 50 chars");
+		if (strlen($name) > 50) throw new InvalidArgumentException('Max length for column name is 50 chars');
 		if (!isset($this->arrayStructure[$name])) throw new InvalidArgumentException("Column $name is not set");
 		$this->selectedColumn = $name;
 		return $this;
@@ -110,7 +110,7 @@ class DatabaseTableBuilder
 	 */
 	public function setAsPrimaryKey()
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
 		foreach ($this->arrayStructure as $key => $x) {
 			$this->arrayStructure[$key][1] = ($this->selectedColumn == $key);
 		}
@@ -123,7 +123,7 @@ class DatabaseTableBuilder
 	 */
 	public function removePrimaryKey()
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
 		foreach ($this->arrayStructure as $key => $x) {
 			$this->arrayStructure[$key][1] = false;
 		}
@@ -137,8 +137,8 @@ class DatabaseTableBuilder
 	 */
 	public function allowNull(bool $bool = true)
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
-		$this->arrayStructure[$this->selectedColumn][2] = $bool ? "NULL" : "NOT NULL";
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
+		$this->arrayStructure[$this->selectedColumn][2] = $bool ? 'NULL' : 'NOT NULL';
 		return $this;
 	}
 
@@ -149,7 +149,7 @@ class DatabaseTableBuilder
 	 */
 	public function presistentAs(string $expression = null)
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
 		$this->arrayStructure[$this->selectedColumn][4] = $expression ? "AS ($expression) PERSISTENT" : false;
 		return $this;
 	}
@@ -161,8 +161,8 @@ class DatabaseTableBuilder
 	 */
 	public function defaultValue(string $str = null)
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
-		$this->arrayStructure[$this->selectedColumn][3] = ($str === NULL ? "DEFAULT NULL" : "DEFAULT '$str'");
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
+		$this->arrayStructure[$this->selectedColumn][3] = ($str === NULL ? 'DEFAULT NULL' : "DEFAULT '$str'");
 		return $this;
 	}
 
@@ -172,8 +172,8 @@ class DatabaseTableBuilder
 	 */
 	public function auto_increment()
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
-		$this->arrayStructure[$this->selectedColumn][3] = "AUTO_INCREMENT";
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
+		$this->arrayStructure[$this->selectedColumn][3] = 'AUTO_INCREMENT';
 		return $this;
 	}
 
@@ -184,7 +184,7 @@ class DatabaseTableBuilder
 	 */
 	public function setType(string $type)
 	{
-		if ($this->selectedColumn == "") throw new InvalidArgumentException("Please select the column first");
+		if ($this->selectedColumn == '') throw new InvalidArgumentException('Please select the column first');
 		$this->arrayStructure[$this->selectedColumn][0] = strtoupper($type);
 		return $this;
 	}
@@ -203,12 +203,12 @@ class Database
 
 	public static function connect()
 	{
-		if (!is_callbyme()) throw new DatabaseError("Database violation!");
+		if (!is_callbyme()) throw new DatabaseError('Database violation!');
 
 		self::$link = @new mysqli(POSConfigDB::$host, POSConfigDB::$username, POSConfigDB::$password, POSConfigDB::$database_name);
 		if (self::$link->connect_error) {
-			abort(503, "Internal Server Error", false);
-			throw new DatabaseError(self::$link->connect_error, "PuzzleOS only supports MySQL or MariaDB", (int) self::$link->connect_errno);
+			abort(503, 'Internal Server Error', false);
+			throw new DatabaseError(self::$link->connect_error, 'PuzzleOS only supports MySQL or MariaDB', (int) self::$link->connect_errno);
 		}
 	}
 
@@ -223,19 +223,19 @@ class Database
 	private static function query(string $query, ...$param)
 	{
 		$escaped = self::escapeQuery($query, ...$param);
-		if ($a = self::$cache["query_result"][$escaped]) {
+		if ($a = self::$cache['query_result'][$escaped]) {
 			$a->field_seek(0);
 			$a->data_seek(0);
 			return $a;
 		}
 
-		if (defined("DB_DEBUG")) {
+		if (defined('DB_DEBUG')) {
 			$re = debug_backtrace()[1];
-			file_put_contents(__LOGDIR . "/db.log", $re["file"] . ":" . $re["line"] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
+			file_put_contents(__LOGDIR . '/db.log', $re['file'] . ':' . $re['line'] . "\r\n\t$escaped\r\n\r\n", FILE_APPEND);
 		}
 
 		if (!($r = self::$link->query($escaped))) {
-			if (self::$link->errno == "2014") {
+			if (self::$link->errno == '2014') {
 				self::$link->close();
 				self::flushCache();
 				self::connect();
@@ -254,67 +254,71 @@ class Database
 			}
 
 			if (self::$transaction_track > 0) {
-				$transaction_progress = (bool) self::$link->query("SHOW VARIABLES WHERE `Variable_name`='in_transaction'")->fetch_row()[1];
+				$transaction_progress = (bool) self::$link->query('SHOW VARIABLES WHERE `Variable_name`=\'in_transaction\'')->fetch_row()[1];
 				if (!$transaction_progress) {
 					// Implicit commit was detected
 					self::$transaction_track = 0;
-					Log::warning("DATABASE: Implicit commit was detected.", debug_backtrace());
+					Log::warning('DATABASE: Implicit commit was detected.', debug_backtrace());
 
-					if (defined("DB_DEBUG")) {
+					if (defined('DB_DEBUG')) {
 						$debug = debug_backtrace();
 						Log::debug('DatabaseInfo: Implicit commit was detected.', $debug);
-						file_put_contents(__LOGDIR . "/db.log", "IMPLICIT COMMIT DETECTED\r\n", FILE_APPEND);
+						file_put_contents(__LOGDIR . '/db.log', "IMPLICIT COMMIT DETECTED\r\n", FILE_APPEND);
 					}
 				}
 			}
 		} else if ($r instanceof mysqli_result) {
 			// This is a mysql result. Store the result in the cache
-			self::$cache["query_result"][$escaped] = $r;
+			self::$cache['query_result'][$escaped] = $r;
 		}
 		return self::$last_mysqli_result = $r;
 	}
 
 	private static function x_verify($find)
 	{
-		if ($find == "") return false;
+		if ($find == '') return false;
 		$stack = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
-		$filename = $stack[str_contains($stack[2]["function"], "call_user_func") ? 2 : 1]["file"];
-		if (is_cli() && isset($GLOBALS["_WORKER"])) {
-			$appname = $GLOBALS["_WORKER"]["app"];
-			if ((preg_match('/app_' . $appname . '_/', $find))) return true;
+
+		$filename = $stack[str_contains($stack[2]['function'], 'call_user_func') ? 2 : 1]['file'];
+
+		if (starts_with($filename, 'closure://')) {
+			if (Worker::inEnv()) {
+				$appname = $WORKER['app'];
+				if ((preg_match('/app_' . $appname . '_/', $find))) return true;
+			}
 		}
 
-		$filename = explode("/", str_replace(__ROOTDIR, "", btfslash($filename)));
+		$filename = explode('/', str_replace(__ROOTDIR, '', btfslash($filename)));
 		switch ($filename[1]) {
-			case "bootstrap":
+			case 'bootstrap':
 				switch ($filename[2]) {
-					case "application.php":
-					case "services.php":
-					case "database.php":
-					case "systables.php":
+					case 'application.php':
+					case 'services.php':
+					case 'database.php':
+					case 'systables.php':
 						return true;
-					case "cron.php":
+					case 'cron.php':
 						if ((preg_match('/cron/', $find))) return true;
 						break;
-					case "isession.php":
+					case 'isession.php':
 						if ((preg_match('/sessions/', $find))) return true;
 						break;
-					case "configman.php":
+					case 'configman.php':
 						if ((preg_match('/multidomain_config/', $find))) return true;
 						break;
-					case "userdata.php":
-					case "boot.php":
+					case 'userdata.php':
+					case 'boot.php':
 						if ((preg_match('/userdata/', $find))) return true;
 						break;
 				}
 				break;
-			case "applications":
-				$appname = isset($filename[2]) ? $filename[2] : "";
+			case 'applications':
+				$appname = isset($filename[2]) ? $filename[2] : '';
 				$appname = AppManager::getNameFromDirectory($appname);
 				if ((preg_match('/app_' . $appname . '_/', $find))) return (true);
 		}
 
-		throw new DatabaseError("Database table violation.");
+		throw new DatabaseError('Database table violation.');
 	}
 
 	/**
@@ -324,7 +328,7 @@ class Database
 	{
 		self::$cache = [];
 		self::$t_cache = [];
-		if (defined("DB_DEBUG")) file_put_contents(__LOGDIR . "/db.log", "CACHE PURGED\r\n", FILE_APPEND);
+		if (defined('DB_DEBUG')) file_put_contents(__LOGDIR . '/db.log', "CACHE PURGED\r\n", FILE_APPEND);
 	}
 
 	/**
@@ -337,7 +341,7 @@ class Database
 			self::$transaction_track++;
 			return self::$link->begin_transaction();
 		} else {
-			return self::$link->savepoint("T" . self::$transaction_track++);
+			return self::$link->savepoint('T' . self::$transaction_track++);
 		}
 	}
 
@@ -351,7 +355,7 @@ class Database
 			self::$transaction_track = 0;
 			return self::$link->commit();
 		} else {
-			return self::$link->release_savepoint("T" . --self::$transaction_track);
+			return self::$link->release_savepoint('T' . --self::$transaction_track);
 		}
 	}
 
@@ -365,14 +369,14 @@ class Database
 			self::$transaction_track = 0;
 			return self::$link->rollback();
 		} else {
-			return self::$link->query("ROLLBACK TO " . "T" . --self::$transaction_track);
+			return self::$link->query('ROLLBACK TO T' . --self::$transaction_track);
 		}
 	}
 
 	private static function escRowInput($v)
 	{
 		if ($v === null) {
-			return "NULL";
+			return 'NULL';
 		} else if (is_int($v) || is_float($v)) {
 			return $v;
 		} else if (is_bool($v)) {
@@ -390,19 +394,19 @@ class Database
 	 * @param string $param Custom parameter
 	 * @return string
 	 */
-	public static function max(string $table, string $column, string  $statement = "", ...$param)
+	public static function max(string $table, string $column, string  $statement = '', ...$param)
 	{
 		self::x_verify($table);
-		if (!isset(self::$cache["max"][$table . $column])) {
+		if (!isset(self::$cache['max'][$table . $column])) {
 			if ($r = self::query("SELECT MAX(`?`) FROM `?` $statement", $column, $table, ...$param)) {
-				self::$cache["max"][$table . $column] = [$r->fetch_row()[0]];
+				self::$cache['max'][$table . $column] = [$r->fetch_row()[0]];
 				$r->free();
 			} else {
 				self::dumpError();
 			}
 		}
 
-		return self::$cache["max"][$table . $column][0];
+		return self::$cache['max'][$table . $column][0];
 	}
 
 	/**
@@ -415,15 +419,15 @@ class Database
 	public static function getRow(string $table, string $find_column, string  $find_value)
 	{
 		self::x_verify($table);
-		if (!isset(self::$cache["getRow"][$table . $find_column . $find_value])) {
-			if ($r = self::query("SELECT * FROM `?` WHERE `?`='?' LIMIT 1", $table, $find_column, $find_value)) {
-				self::$cache["getRow"][$table . $find_column . $find_value] = [$r->fetch_assoc()];
+		if (!isset(self::$cache['getRow'][$table . $find_column . $find_value])) {
+			if ($r = self::query('SELECT * FROM `?` WHERE `?`=\'?\' LIMIT 1', $table, $find_column, $find_value)) {
+				self::$cache['getRow'][$table . $find_column . $find_value] = [$r->fetch_assoc()];
 				$r->free();
 			} else {
 				self::dumpError();
 			}
 		}
-		return self::$cache["getRow"][$table . $find_column . $find_value][0];
+		return self::$cache['getRow'][$table . $find_column . $find_value][0];
 	}
 
 	/**
@@ -437,15 +441,15 @@ class Database
 	{
 		self::x_verify($table);
 		$c = $table . $statement . serialize($param);
-		if (!isset(self::$cache["getRowByStatement"][$c])) {
+		if (!isset(self::$cache['getRowByStatement'][$c])) {
 			if ($r = self::query("SELECT * FROM `?` $statement LIMIT 1", $table, ...$param)) {
-				self::$cache["getRowByStatement"][$c] = [$r->fetch_assoc()];
+				self::$cache['getRowByStatement'][$c] = [$r->fetch_assoc()];
 				$r->free();
 			} else {
 				self::dumpError();
 			}
 		}
-		return self::$cache["getRowByStatement"][$c][0];
+		return self::$cache['getRowByStatement'][$c][0];
 	}
 
 	/**
@@ -487,22 +491,26 @@ class Database
 	{
 		self::x_verify($table);
 
+		if (empty($row_input)) {
+			return true;
+		}
+
 		$columns_order = [];
 		$columns = [];
 		$values = [];
 		foreach ($row_input as $row) {
 			$value = [];
 			foreach ($row as $field => $v) {
-				$field = "`$field`";
+				$field = '`$field`';
 				if (!in_array($field, $columns)) {
 					$order = array_push($columns, $field);
 					$columns_order[$field] = $order;
 				}
 				$value[$columns_order[$field]] = self::escRowInput($v);
 			}
-			$values[] = '(' . implode(",", $value) . ')';
+			$values[] = '(' . implode(',', $value) . ')';
 		}
-		$query = "INSERT " . ($ignore ? "IGNORE " : "") . " INTO `$table` (" . implode(",", $columns) . ") VALUES " . implode(",", $values);
+		$query = 'INSERT ' . ($ignore ? 'IGNORE ' : '') . " INTO `$table` (" . implode(',', $columns) . ') VALUES ' . implode(',', $values);
 		return self::query($query);
 	}
 
@@ -516,6 +524,10 @@ class Database
 	{
 		self::x_verify($table);
 
+		if (empty($row_input)) {
+			return true;
+		}
+
 		$columns = [];
 		$values = [];
 		$updateSet = [];
@@ -528,7 +540,7 @@ class Database
 
 		$updateSet = implode(',', $updateSet);
 
-		$query = "INSERT INTO `$table` (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ") ON DUPLICATE KEY UPDATE $updateSet";
+		$query = "INSERT INTO `$table` (" . implode(',', $columns) . ') VALUES (' . implode(',', $values) . ") ON DUPLICATE KEY UPDATE $updateSet";
 		return self::query($query);
 	}
 
@@ -543,6 +555,10 @@ class Database
 	public static function update(string $table, array $row_input, string $find_column, string $find_value)
 	{
 		self::x_verify($table);
+
+		if (empty($row_input)) {
+			return true;
+		}
 
 		$set = [];
 		foreach ($row_input as $field => $v) {
@@ -564,6 +580,10 @@ class Database
 	public static function updateByStatement(string $table, array $row_input, string $statement, ...$param)
 	{
 		self::x_verify($table);
+
+		if (empty($row_input)) {
+			return true;
+		}
 
 		$set = [];
 		foreach ($row_input as $field => $v) {
@@ -609,7 +629,7 @@ class Database
 	public static function delete(string $table, string $find_column, string $find_value)
 	{
 		self::x_verify($table);
-		return self::query("DELETE FROM `?` WHERE `?`='?';", $table, $find_column, $find_value);
+		return self::query('DELETE FROM `?` WHERE `?`=\'?\';', $table, $find_column, $find_value);
 	}
 
 	/**
@@ -619,7 +639,7 @@ class Database
 	 * @param array ...$param
 	 * @return bool
 	 */
-	public static function deleteByStatement(string $table, string $statement = "", ...$param)
+	public static function deleteByStatement(string $table, string $statement = '', ...$param)
 	{
 		self::x_verify($table);
 		return self::query("DELETE FROM `?` $statement", $table, ...$param);
@@ -634,7 +654,7 @@ class Database
 	public static function dropTable(string $table)
 	{
 		self::x_verify($table);
-		return (self::query("DROP TABLE `?`;", $table));
+		return (self::query('DROP TABLE `?`', $table));
 	}
 
 	/**
@@ -665,7 +685,7 @@ class Database
 	public static function escapeQuery(string $query, ...$param)
 	{
 		$query = trim($query);
-		$escaped = "";
+		$escaped = '';
 		$token = strtok($query, '?');
 		reset($param);
 		$processedLen = 0;
@@ -674,12 +694,12 @@ class Database
 			$processedLen += strlen($token) + 1;
 			$currentParam = current($param);
 			if ($processedLen >= strlen($query)) {
-				if ($currentParam !== false) $escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
+				if ($currentParam !== false) $escaped .= $currentParam === null ? 'NULL' : self::escape($currentParam);
 				break;
 			} else if ($currentParam === false) {
-				throw new DatabaseError("Not enough parameter");
+				throw new DatabaseError('Not enough parameter');
 			} else {
-				$escaped .= $currentParam === null ? "NULL" : self::escape($currentParam);
+				$escaped .= $currentParam === null ? 'NULL' : self::escape($currentParam);
 				next($param);
 			}
 		} while ($token = strtok('?'));
@@ -694,13 +714,13 @@ class Database
 	 */
 	public static function isTableExist(string $table)
 	{
-		if ($table == "") throw new DatabaseError("Table name cannot be empty!");
+		if ($table == '') throw new DatabaseError('Table name cannot be empty!');
 		self::x_verify($table);
-		if (!isset(self::$cache["tables"])) {
-			$q = self::query("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '?'", POSConfigDB::$database_name);
-			while ($r = $q->fetch_row()) self::$cache["tables"][$r[0]] = 1;
+		if (!isset(self::$cache['tables'])) {
+			$q = self::query('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'?\'', POSConfigDB::$database_name);
+			while ($r = $q->fetch_row()) self::$cache['tables'][$r[0]] = 1;
 		}
-		return isset(self::$cache["tables"][$table]);
+		return isset(self::$cache['tables'][$table]);
 	}
 
 	/**
@@ -710,15 +730,15 @@ class Database
 	 * @param array $param
 	 * @return array
 	 */
-	public static function readAll(string $table, string $statement = "", ...$param)
+	public static function readAll(string $table, string $statement = '', ...$param)
 	{
 		self::x_verify($table);
 		$c = serialize($param);
-		if (!isset(self::$cache["readAll"][$table . $statement . $c])) {
+		if (!isset(self::$cache['readAll'][$table . $statement . $c])) {
 			$array = self::toArray(self::query("SELECT * FROM `$table` $statement", ...$param));
-			self::$cache["readAll"][$table . $statement . $c] = [$array];
+			self::$cache['readAll'][$table . $statement . $c] = [$array];
 		}
-		return self::$cache["readAll"][$table . $statement . $c][0];
+		return self::$cache['readAll'][$table . $statement . $c][0];
 	}
 
 	/**
@@ -779,7 +799,7 @@ class Database
 	 * Acquire a table lock
 	 * @return bool
 	 */
-	public static function lock(string $table, string $for = "WRITE")
+	public static function lock(string $table, string $for = 'WRITE')
 	{
 		self::x_verify($table);
 		switch ($for) {
@@ -787,9 +807,9 @@ class Database
 			case 'READ':
 				break;
 			default:
-				throw new InvalidArgumentException("Only WRITE or READ allowed");
+				throw new InvalidArgumentException('Only WRITE or READ allowed');
 		}
-		return self::query("LOCK TABLES `$table` $for;");
+		return self::query("LOCK TABLES `$table` $for");
 	}
 
 	/**
@@ -798,7 +818,7 @@ class Database
 	 */
 	public static function unlock()
 	{
-		return self::query("UNLOCK TABLES;");
+		return self::query('UNLOCK TABLES');
 	}
 
 	/**

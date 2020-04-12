@@ -5,14 +5,13 @@
  * Build your own web-based application
  * 
  * @author       Mohammad Ardika Rifqi <rifweb.android@gmail.com>
- * @copyright    2014-2019 PT SIMUR INDONESIA
+ * @copyright    2014-2020 PT SIMUR INDONESIA
  */
 
-use SuperClosure\Serializer;
+use Opis\Closure\SerializableClosure;
 
 /**
  * Create separated process to do long-run task
- * @method static mixed __do($job)
  */
 class Worker
 {
@@ -24,13 +23,34 @@ class Worker
 	private $_appdir;
 
 	private $_secret;
-	private static $_cipher = "AES-256-CBC";
+	private static $_cipher = 'AES-256-CBC';
 	private static $onWorker = false;
 
-	/**
-	 * @var SuperClosure\Serializer
-	 */
-	private $_serialize;
+	public function __construct(int $number = 1)
+	{
+		if ($number < 1) throw new PuzzleError('Worker number expect at least one!');
+
+		$caller = explode('/', str_replace(__ROOTDIR, '', btfslash(debug_backtrace(null, 1)[0]['file'])));
+		if ($caller[1] != 'applications')
+			throw new PuzzleError('Only applications can create Worker!');
+
+		if (!defined('__H')) {
+			if (!function_exists('proc_open'))
+				throw new PuzzleError('To use Worker, please enable proc_open function!');
+
+			if (!function_exists('openssl_encrypt'))
+				throw new PuzzleError('To use Worker, please enable openssl_* function!');
+
+			define('__H', 1);
+		}
+
+		preparedir(__ROOTDIR . '/storage/worker');
+		$this->_workernum = floor($number);
+		$this->_app = AppManager::getNameFromDirectory($caller[2]);
+		$this->_appdir = $caller[2];
+
+		return $this;
+	}
 
 	/**
 	 * Get if current environment is in Worker Mode
@@ -41,42 +61,57 @@ class Worker
 		return self::$onWorker;
 	}
 
-	private static function __do($job, $key)
+	/**
+	 * Called by posworker to set PuzzleOS to run as a worker.
+	 * @param array $argv 
+	 */
+	public static function do($argv)
 	{
-		if (!file_exists(__WORKERDIR . "/$job.job")) throw new PuzzleError("Job not found!");
-		$execute = unserialize(openssl_decrypt(
+		if (!defined('__POSWORKER') || PHP_SAPI != 'cli' || basename($argv[0]) != 'posworker')
+			throw new PuzzleError('Cannot execute Worker!');
+
+		$job = $argv[1];
+		$key = $argv[2];
+
+		if (!file_exists(__WORKERDIR . "/$job.job"))
+			throw new PuzzleError('Job not found!');
+
+		if (($execute = unserialize(openssl_decrypt(
 			file_get_contents(__WORKERDIR . "/$job.job"),
 			self::$_cipher,
 			$key,
 			OPENSSL_RAW_DATA
-		));
-		if ($execute === false && error_get_last()["type"] == E_NOTICE) throw new PuzzleError("Job cannot be parsed!");
+		))) === false && error_get_last()['type'] == E_NOTICE)
+			throw new PuzzleError('Job cannot be parsed!');
 
 		@unlink(__WORKERDIR . "/$job.job");
 		self::$onWorker = true;
-		$_SESSION = array_merge($_SESSION, $execute["env"]["session"]);
+		$_SESSION = array_merge($_SESSION, $execute['env']['session']);
 
-		$cc = new ReflectionClass("POSConfigGlobal");
-		foreach ($execute["env"]["posconfigglobal"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
+		$cc = new ReflectionClass('POSConfigGlobal');
+		foreach ($execute['env']['posconfigglobal'] as $vn => $v) $cc->getProperty($vn)->setValue(null, $v);
 
-		$cc = new ReflectionClass("POSConfigMailer");
-		foreach ($execute["env"]["posconfigmailer"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
+		$cc = new ReflectionClass('POSConfigMailer');
+		foreach ($execute['env']['posconfigmailer'] as $vn => $v) $cc->getProperty($vn)->setValue(null, $v);
 
-		$cc = new ReflectionClass("POSConfigMultidomain");
-		unset($execute["env"]["posconfigmdomain"]["zone"]); //Because this is private prop
-		foreach ($execute["env"]["posconfigmdomain"] as $vn => $v) $cc->getProperty($vn)->setValue($v);
+		$cc = new ReflectionClass('POSConfigMultidomain');
+		unset($execute['env']['posconfigmdomain']['zone']); //Because this is private prop
+		foreach ($execute['env']['posconfigmdomain'] as $vn => $v) $cc->getProperty($vn)->setValue(null, $v);
 
-		if ($execute["env"]["userid"] != -1) PuzzleUser::get($execute["env"]["userid"])->logMeIn();
-		$GLOBALS["_WORKER"] = [
-			"id" => explode(".", $job)[1],
-			"app" => $execute["env"]["app"],
-			"appdir" => $execute["env"]["appdir"]
+		if ($execute['env']['userid'] !== null)
+			PuzzleUser::get($execute['env']['userid'])->logMeIn();
+
+		global $WORKER;
+		$WORKER = [
+			'id' => explode('.', $job)[1],
+			'app' => $execute['env']['app'],
+			'appdir' => $execute['env']['appdir']
 		];
-		$function = (new Serializer)->unserialize($execute["func"]);
 
 		try {
 			ob_start();
-			$result = $function(explode(".", $job)[1], $execute["env"]["app"], $execute["env"]["appdir"]);
+			$function = $execute['func']->getClosure();
+			$result = $function(explode('.', $job)[1], $execute['env']['app'], $execute['env']['appdir']);
 			@ob_get_clean();
 			@ob_end_clean();
 			echo @openssl_encrypt(serialize($result), self::$_cipher, $key, OPENSSL_RAW_DATA);
@@ -87,72 +122,30 @@ class Worker
 		exit;
 	}
 
-	public static function __callstatic($func, $args)
-	{
-		switch ($func) {
-			case "__do":
-				if (!defined("__POSWORKER") || PHP_SAPI != "cli" || basename($args[0][0]) != "posworker")
-					throw new PuzzleError("Cannot execute Worker!");
-				self::__do($args[0][1], $args[0][2]);
-				break;
-		}
-	}
-
-	public function __construct($number = 1)
-	{
-		if ($number < 1) throw new PuzzleError("Worker number expect at least one!");
-
-		$caller = explode("/", str_replace(__ROOTDIR, "", btfslash(debug_backtrace(null, 1)[0]["file"])));
-		if ($caller[1] != "applications")
-			throw new PuzzleError("Only applications can create Worker!");
-
-		if (!defined("_SUPERCLOSURE_H")) {
-			if (!function_exists("proc_open"))
-				throw new PuzzleError("To use Worker, please enable proc_open function!");
-
-			if (!function_exists("openssl_encrypt"))
-				throw new PuzzleError("To use Worker, please enable openssl_* function!");
-
-			define("_SUPERCLOSURE_H", 1);
-		}
-
-		preparedir(__ROOTDIR . "/storage/worker");
-		$this->_serialize = new Serializer();
-		$this->_workernum = floor($number);
-		$this->_app = AppManager::getNameFromDirectory($caller[2]);
-		$this->_appdir = $caller[2];
-
-		return $this;
-	}
-
 	/**
 	 * Set the task for this Worker
-	 * Parameter ($id, $appname, $appdir)
-	 * @param Object $callable 
-	 * @param \... $args 
-	 * @return Worker
+	 * @param Closure $callable Callable will receive (int $id, string $appname, string $appdir)
+	 * @return self
 	 */
-	public function setTask($callable)
+	public function setTask(Closure $callable)
 	{
-		if (!is_callable($callable)) throw new PuzzleError('$callable expect a Callable function!');
-		$this->_task = $callable;
-
+		$this->_task = new SerializableClosure($callable);
 		return $this;
 	}
 
 	/**
 	 * Start Worker
-	 * 
 	 * @param array $options wait_on_shutdown, standalone
 	 * @return bool
 	 */
 	public function run(array $options = null)
 	{
-		if ($this->isRunning()) throw new PuzzleError("Worker already started!");
+		if ($this->isRunning()) throw new PuzzleError('Worker already started!');
+
 		if ($options === null) {
 			// By default, parent must wait for worker to finish
 			$options = [
-				"wait_on_shutdown" => true
+				'wait_on_shutdown' => true
 			];
 		}
 
@@ -161,16 +154,18 @@ class Worker
 		$this->_unique = rand_str(8);
 
 		$execute = serialize([
-			"env" => [
-				"session" => $_SESSION,
-				"userid" => PuzzleUser::check() ? PuzzleUser::active()->id : -1,
-				"app" => $this->_app,
-				"appdir" => $this->_appdir,
-				"posconfigglobal" => (new ReflectionClass("POSConfigGlobal"))->getStaticProperties(),
-				"posconfigmailer" => (new ReflectionClass("POSConfigMailer"))->getStaticProperties(),
-				"posconfigmdomain" => (new ReflectionClass("POSConfigMultidomain"))->getStaticProperties()
+			'env' => [
+				'session' => $_SESSION,
+				'userid' => PuzzleUser::check() ? PuzzleUser::active()->id : null,
+				'app' => $this->_app,
+				'appdir' => $this->_appdir,
+				'posconfigglobal' => (new ReflectionClass('POSConfigGlobal'))->getStaticProperties(),
+				'posconfigmailer' => (new ReflectionClass('POSConfigMailer'))->getStaticProperties(),
+				'posconfigmdomain' => (new ReflectionClass('POSConfigMultidomain'))->getStaticProperties()
 			],
-			"func" => $this->_serialize->serialize($this->_task)
+
+			// Function in opis wrapper automatically serialized
+			'func' => $this->_task
 		]);
 
 		for ($i = 0; $i < $this->_workernum; $i++) {
@@ -180,11 +175,11 @@ class Worker
 			);
 
 			$this->_processes[$i] = proc_open(
-				php_bin() . " " . __ROOTDIR . "/posworker {$this->_unique}.$i {$this->_secret}",
+				php_bin() . ' ' . __ROOTDIR . "/posworker {$this->_unique}.$i {$this->_secret}",
 				[
-					0 => ["pipe", "r"],
-					1 => ["file", __WORKERDIR . "/{$this->_unique}.$i.result", "w"],
-					2 => ["file", __LOGDIR . "/logging.log", "a"]
+					0 => ['pipe', 'r'],
+					1 => ['file', __WORKERDIR . "/{$this->_unique}.$i.result", 'w'],
+					2 => ['file', __LOGDIR . '/logging.log', 'a']
 				],
 				$pipe
 			);
@@ -193,10 +188,10 @@ class Worker
 			$unique = $this->_unique;
 
 			register_shutdown_function(function () use ($unique, $i, $process, $options) {
-				if ($options["wait_on_shutdown"]) {
+				if ($options['wait_on_shutdown']) {
 					@proc_close($process);
 				} else {
-					if (!$options["standalone"]) @proc_terminate($process);
+					if (!$options['standalone']) @proc_terminate($process);
 				}
 				@unlink(__WORKERDIR . "/$unique.$i.result");
 			});
@@ -223,13 +218,12 @@ class Worker
 	public function isRunning()
 	{
 		foreach ($this->_processes as $p)
-			if (@proc_get_status($p)["running"]) return true;
+			if (@proc_get_status($p)['running']) return true;
 	}
 
 	/**
 	 * Kill worker process
 	 * Force killing Worker will remove it's process
-	 * 
 	 * @return bool
 	 */
 	public function kill()
@@ -241,12 +235,11 @@ class Worker
 	/**
 	 * Get the result from Worker.
 	 * After reading the result, the process pointer will be cleared!
-	 * 
 	 * @return array
 	 */
 	public function result()
 	{
-		if ($this->isRunning()) throw new PuzzleError("Worker haven't finished it's job yet!");
+		if ($this->isRunning()) throw new PuzzleError('Worker haven\'t finished it\'s job yet!');
 
 		$result = [];
 		foreach ($this->_processes as $id => $p) {

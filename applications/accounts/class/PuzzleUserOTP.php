@@ -1,9 +1,8 @@
 <?php
 
+use Opis\Closure\SerializableClosure;
 use PuzzleUserException\FailedToSendOTP;
 use PuzzleUserException\InvalidField;
-use SuperClosure\Analyzer\TokenAnalyzer;
-use SuperClosure\Serializer;
 
 class PuzzleUserOTP
 {
@@ -45,7 +44,7 @@ class PuzzleUserOTP
             "totp" => $usetotp ? 1 : 0,
             "user" => $u->id,
             "time" => time(),
-            "callback" => (new Serializer(new TokenAnalyzer()))->serialize($callback),
+            "callback" => serialize(new SerializableClosure($callback)),
         ]]);
     }
 
@@ -156,14 +155,14 @@ class PuzzleUserOTP
         if (!empty($otp_session)) {
             if ($otp_session["totp"]) {
                 if (PuzzleUserGA::verifyCode(PuzzleUser::get($otp_session["user"]), $code, 2)) {
-                    $func = (new Serializer(new TokenAnalyzer()))->unserialize($otp_session["callback"]);
+                    $func = unserialize($otp_session["callback"]);
                     $func(...$args);
                     Database::delete("app_users_otp", "hash", $session_hash);
                     return true;
                 }
             } else {
                 if ($otp_session["code"] === $code) {
-                    $func = (new Serializer(new TokenAnalyzer()))->unserialize($otp_session["callback"]);
+                    $func = unserialize($otp_session["callback"]);
                     $func(...$args);
                     Database::delete("app_users_otp", "hash", $session_hash);
                     return true;
